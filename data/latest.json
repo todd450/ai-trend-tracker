@@ -1,33 +1,33 @@
 {
- "generatedAt": "2026-11-10T21:53:12.849Z",
+ "generatedAt": "2026-11-10T22:00:29.914Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-10T21:53:13.277Z"
+   "at": "2026-11-10T22:00:30.335Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-10T21:53:13.385Z"
+   "at": "2026-11-10T22:00:30.407Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-10T21:53:19.149Z"
+   "at": "2026-11-10T22:00:35.136Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-10T21:53:22.909Z"
+   "at": "2026-11-10T22:01:14.094Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-10T21:54:07.444Z"
+   "at": "2026-11-10T22:01:23.836Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-10T21:54:42.527Z"
+   "at": "2026-11-10T22:02:22.009Z"
   },
   "arxivHistory": {
    "ok": true,
-   "at": "2026-11-10T21:56:17.080Z"
+   "at": "2026-11-10T22:03:57.008Z"
   }
  },
  "papers": [
@@ -172,7 +172,7 @@
    "id": "speridlabs/idol",
    "url": "https://huggingface.co/speridlabs/idol",
    "task": "image-to-3d",
-   "likes": 1851,
+   "likes": 1853,
    "downloads": 26470,
    "createdAt": "2026-10-28T15:55:17.000Z"
   },
@@ -180,7 +180,7 @@
    "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "task": "text-generation",
-   "likes": 1176,
+   "likes": 1177,
    "downloads": 14378,
    "createdAt": "2026-10-30T10:21:29.000Z"
   },
@@ -204,7 +204,7 @@
    "id": "Lightricks/LTX-2.5",
    "url": "https://huggingface.co/Lightricks/LTX-2.5",
    "task": "image-to-video",
-   "likes": 11365,
+   "likes": 11366,
    "downloads": 2791606,
    "createdAt": "2026-07-23T07:55:24.000Z"
   },
@@ -212,7 +212,7 @@
    "id": "NousResearch/Arete-27B",
    "url": "https://huggingface.co/NousResearch/Arete-27B",
    "task": "text-generation",
-   "likes": 395,
+   "likes": 397,
    "downloads": 3431,
    "createdAt": "2026-11-06T19:31:28.000Z"
   },
@@ -225,20 +225,20 @@
    "createdAt": "2026-09-01T07:01:09.000Z"
   },
   {
+   "id": "MiniMaxAI/MiniMax-H3-Image",
+   "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
+   "task": "text-to-image",
+   "likes": 338,
+   "downloads": 667,
+   "createdAt": "2026-11-03T06:34:36.000Z"
+  },
+  {
    "id": "ccore/Qwen3.5-4B-3D-Coder",
    "url": "https://huggingface.co/ccore/Qwen3.5-4B-3D-Coder",
    "task": null,
    "likes": 971,
    "downloads": 319405,
    "createdAt": "2026-10-25T05:43:34.000Z"
-  },
-  {
-   "id": "MiniMaxAI/MiniMax-H3-Image",
-   "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
-   "task": "text-to-image",
-   "likes": 334,
-   "downloads": 667,
-   "createdAt": "2026-11-03T06:34:36.000Z"
   },
   {
    "id": "Qwen/Qwen3.8-27B",
@@ -260,7 +260,7 @@
    "id": "Viggle/Viggle-Remake",
    "url": "https://huggingface.co/Viggle/Viggle-Remake",
    "task": "video-to-video",
-   "likes": 265,
+   "likes": 266,
    "downloads": 115384,
    "createdAt": "2026-10-22T19:06:17.000Z"
   },
@@ -268,7 +268,7 @@
    "id": "unsloth/Qwen3.8-Flash-Next-GGUF",
    "url": "https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF",
    "task": "image-text-to-text",
-   "likes": 1574,
+   "likes": 1575,
    "downloads": 1816522,
    "createdAt": "2026-08-26T12:29:32.000Z"
   },
@@ -276,7 +276,7 @@
    "id": "nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
    "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B",
    "task": "automatic-speech-recognition",
-   "likes": 3148,
+   "likes": 3149,
    "downloads": 72455,
    "createdAt": "2026-10-07T22:50:21.000Z"
   },
@@ -292,7 +292,7 @@
    "id": "PrunaAI/P-H3-Image-Comfy",
    "url": "https://huggingface.co/PrunaAI/P-H3-Image-Comfy",
    "task": "text-to-image",
-   "likes": 281,
+   "likes": 282,
    "downloads": 782946,
    "createdAt": "2026-10-28T11:26:05.000Z"
   },
@@ -682,6 +682,15 @@
    "points": 309,
    "comments": 214,
    "createdAt": "2026-11-08T19:37:42Z"
+  },
+  {
+   "id": "50438318",
+   "title": "AI usage generates a fragile codebase",
+   "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
+   "points": 288,
+   "comments": 355,
+   "createdAt": "2026-11-10T10:25:58Z"
   }
  ],
  "repos": [
@@ -690,7 +699,7 @@
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
    "stars": 18640,
-   "starsPerDay": 1125,
+   "starsPerDay": 1124,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
   },
@@ -698,7 +707,7 @@
    "name": "wangzan101/Mika",
    "url": "https://github.com/wangzan101/Mika",
    "description": "An on-device AI agent for Android that operates apps and the web to get things done for you.",
-   "stars": 8064,
+   "stars": 8065,
    "starsPerDay": 655,
    "language": "Kotlin",
    "createdAt": "2026-10-29T14:34:07Z"
@@ -716,7 +725,7 @@
    "name": "qybaihe/bla",
    "url": "https://github.com/qybaihe/bla",
    "description": "🛡️ BLA (Blind LLM Agents) — Adversarial defense shield that protects binaries, Electron apps, JS bundles, Python, and WebAssembly against AI reverse-engineering agents like REA. Poison -> Exhaust -> ",
-   "stars": 4972,
+   "stars": 4974,
    "starsPerDay": 298,
    "language": "TypeScript",
    "createdAt": "2026-10-25T05:25:45Z"
@@ -743,7 +752,7 @@
    "name": "modelflare-ai/AnyModelBot",
    "url": "https://github.com/modelflare-ai/AnyModelBot",
    "description": "🤖 Open-source, local-first alternative to Grok Bot, OpenAI dots and Claude Duet. Your own AI bots on any model: GPT, Claude, Gemini, Grok, DeepSeek, Kimi, GLM and 70+ more through one Modelflare key.",
-   "stars": 3016,
+   "stars": 3017,
    "starsPerDay": 207,
    "language": "Python",
    "createdAt": "2026-10-27T08:51:18Z"
@@ -761,7 +770,7 @@
    "name": "JosssphZhou/poki",
    "url": "https://github.com/JosssphZhou/poki",
    "description": "Let AI agents operate a real iPhone. Local MCP server and agent, no jailbreak, no extra hardware.",
-   "stars": 912,
+   "stars": 913,
    "starsPerDay": 173,
    "language": "Swift",
    "createdAt": "2026-11-05T15:04:31Z"
@@ -851,7 +860,7 @@
    "name": "shinyobjectz/raea",
    "url": "https://github.com/shinyobjectz/raea",
    "description": "Render Anything Engine: tell your AI what to make. Videos, motion graphics, 3D and games as React and TypeScript, rendered on your own GPU. Rust + Bevy, macOS, Linux and Windows.",
-   "stars": 1950,
+   "stars": 1953,
    "starsPerDay": 84,
    "language": "Rust",
    "createdAt": "2026-10-18T18:08:48Z"
