@@ -384,7 +384,7 @@ const anthropicNews: FeedSource = {
 /** Writers and institutions that explain what AI is doing to work, firms and society. */
 const ANALYST_SOURCES: FeedSource[] = [
   feed("One Useful Thing", "https://www.oneusefulthing.org/feed"),
-  feed("Epoch AI", "https://epochai.substack.com/feed"),
+  feed("Epoch AI", "https://epoch.ai/atom.xml"),
   feed("AI Supremacy", "https://www.ai-supremacy.com/feed"),
   feed("The Product Compass", "https://www.productcompass.pm/feed", true),
   feed("The Pragmatic Engineer", "https://newsletter.pragmaticengineer.com/feed", true),
