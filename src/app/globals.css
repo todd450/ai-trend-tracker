@@ -145,9 +145,9 @@ code {
 
 .mast__nav ul {
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(4, auto);
   justify-content: space-evenly;
-  column-gap: var(--space-md);
+  column-gap: var(--space-sm);
 }
 
 @media (min-width: 30rem) {

@@ -21,6 +21,9 @@ export type Model = {
   createdAt: string;
 };
 
+/** One headline from a newsletter, institution or lab news feed. */
+export type FeedItem = { source: string; title: string; url: string; publishedAt: string };
+
 export type Latest = {
   generatedAt: string;
   sources: Record<string, SourceStatus>;
@@ -53,4 +56,8 @@ export type Latest = {
     language: string | null;
     createdAt: string;
   }[];
+  /** Newest AI pieces from analysts' newsletters and research institutions. */
+  analysis: FeedItem[];
+  /** Newest announcements from the frontier labs' own news pages. */
+  labNews: FeedItem[];
 };

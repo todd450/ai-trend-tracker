@@ -31,6 +31,8 @@ const SOURCE_LABELS: Record<string, string> = {
   releases: "Hugging Face lab uploads",
   stories: "Hacker News top stories",
   repos: "GitHub repository search",
+  analysis: "Newsletter and institution feeds",
+  labNews: "Lab news pages",
 };
 
 function toneOf(signal: Signal): Direction {
@@ -85,6 +87,8 @@ export default function Home() {
             <li><a href="#momentum">Momentum</a></li>
             <li><a href="#news">News</a></li>
             <li><a href="#papers">Papers</a></li>
+            <li><a href="#analysis">Analysis</a></li>
+            <li><a href="#announcements">Labs</a></li>
             <li><a href="#code">Code</a></li>
             <li><a href="#models">Models</a></li>
             <li><a href="#method">Method</a></li>
@@ -274,6 +278,45 @@ export default function Home() {
           </section>
         </div>
 
+        <div className="pair pair--wide-left">
+          <section id="analysis" className="band" aria-labelledby="analysis-h">
+            <div className="band__head">
+              <h2 id="analysis-h">From the analysts</h2>
+              <p>
+                New writing on what AI is doing to work, companies and society, from newsletters and research
+                institutions. Some pieces need a subscription to read in full.
+              </p>
+            </div>
+            <ol className="list">
+              {(latest.analysis ?? []).slice(0, SHOWN).map((a) => (
+                <li key={a.url}>
+                  <a href={a.url}>{a.title}</a>
+                  <p className="list__meta">
+                    {a.source} · {fmtDay(a.publishedAt)}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <section id="announcements" className="band" aria-labelledby="announcements-h">
+            <div className="band__head">
+              <h2 id="announcements-h">Lab announcements</h2>
+              <p>The latest posts from Anthropic, OpenAI and Google DeepMind, including closed-model releases.</p>
+            </div>
+            <ol className="list">
+              {(latest.labNews ?? []).slice(0, SHOWN).map((a) => (
+                <li key={a.url}>
+                  <a href={a.url}>{a.title}</a>
+                  <p className="list__meta">
+                    {a.source} · {fmtDay(a.publishedAt)}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </div>
+
         <div className="pair pair--wide-right">
           <section id="code" className="band" aria-labelledby="code-h">
             <div className="band__head">
@@ -359,7 +402,13 @@ export default function Home() {
               </p>
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models
-                on Hugging Face. They show up in the news instead.
+                on Hugging Face. They show up in the news and in the lab announcements instead.
+              </p>
+              <p>
+                <strong>From the analysts</strong> lists the newest pieces from a fixed set of ten newsletters and
+                research institutions, at most two from each, from the past 30 days. It is a reading list chosen
+                by the editor, not a ranking. Publishers that cover other subjects are filtered to pieces that
+                mention AI.
               </p>
             </div>
             <div className="sources">
@@ -382,7 +431,7 @@ export default function Home() {
 
       <footer className="colophon">
         <p>
-          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub and Hugging Face. Thank you to
+          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub and Hugging Face, with headlines from publishers’ own feeds. Thank you to
           arXiv for use of its open access interoperability. Counts are keyword matches and should be read as
           indicators, not measurements. Set in Newsreader and Geist. Data last collected{" "}
           {fmtDate(latest.generatedAt)}.

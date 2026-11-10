@@ -1,5 +1,6 @@
 /**
- * Collects AI trend data from four free public sources and writes it to data/.
+ * Collects AI trend data from free public sources and writes it to data/:
+ * arXiv, Hacker News, GitHub, Hugging Face, plus newsletter and lab news feeds.
  *
  *   npm run collect            everything
  *   npm run collect -- --fast  skip the slow arXiv history backfill
@@ -16,7 +17,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { TOPICS } from "../src/lib/topics.ts";
-import type { History, Latest, SourceStatus } from "../src/lib/types.ts";
+import type { FeedItem, History, Latest, SourceStatus } from "../src/lib/types.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
 const WEEKS_OF_HISTORY = 12;
@@ -36,6 +37,15 @@ async function getJson<T>(url: string, headers: Record<string, string> = {}): Pr
   });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${new URL(url).host}`);
   return (await res.json()) as T;
+}
+
+async function getText(url: string): Promise<string> {
+  const res = await fetch(url, {
+    headers: { "User-Agent": USER_AGENT, Accept: "application/rss+xml, application/atom+xml, application/xml, text/html" },
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${new URL(url).host}`);
+  return res.text();
 }
 
 async function readJson<T>(file: string, fallback: T): Promise<T> {
@@ -271,6 +281,167 @@ async function hfPapers(): Promise<Latest["papers"]> {
     }));
 }
 
+// ------------------------------------------- newsletters and lab news
+
+type FeedSource = { source: string; collect: () => Promise<FeedItem[]> };
+
+const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+
+/** Plain text from a feed field: unwraps CDATA, decodes entities, drops markup. */
+function plain(raw: string): string {
+  return raw
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code: string) => {
+      if (code[0] !== "#") return ENTITIES[code.toLowerCase()] ?? whole;
+      const point = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+      return Number.isFinite(point) ? String.fromCodePoint(point) : whole;
+    })
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const field = (block: string, name: string) =>
+  block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, "i"))?.[1] ?? "";
+
+const MENTIONS_AI_EXACT = /\bA\.?I\b/;
+const MENTIONS_AI =
+  /\b(artificial intelligence|LLMs?|chatbots?|ChatGPT|generative|machine learning|agentic|GPT|Claude|Gemini|OpenAI|Anthropic|Nvidia|data cent(?:er|re)s?)\b/i;
+
+/**
+ * Reads an RSS or Atom feed. `aiOnly` keeps only items whose title or summary
+ * mentions AI, for publishers that cover other subjects too.
+ */
+function feed(source: string, url: string, aiOnly = false): FeedSource {
+  return {
+    source,
+    collect: async () => {
+      const xml = await getText(url);
+      const blocks = xml.match(/<(item|entry)[\s>][\s\S]*?<\/\1>/g) ?? [];
+      const items: FeedItem[] = [];
+      for (const block of blocks) {
+        const title = plain(field(block, "title"));
+        const link =
+          plain(field(block, "link")) ||
+          (block.match(/<link[^>]*rel=["']alternate["'][^>]*href=["']([^"']+)/i)?.[1] ??
+            block.match(/<link[^>]*href=["']([^"']+)/i)?.[1] ??
+            "");
+        const when = Date.parse(
+          plain(field(block, "pubDate") || field(block, "published") || field(block, "updated") || field(block, "dc:date")),
+        );
+        if (!title || !/^https?:\/\//.test(link) || Number.isNaN(when)) continue;
+        if (aiOnly) {
+          // Only the opening of the summary: some feeds put the whole article there.
+          const text = `${title} ${plain(field(block, "description") || field(block, "summary")).slice(0, 300)}`;
+          if (!MENTIONS_AI_EXACT.test(text) && !MENTIONS_AI.test(text)) continue;
+        }
+        items.push({ source, title, url: link, publishedAt: new Date(when).toISOString() });
+      }
+      if (blocks.length === 0) throw new Error("feed had no entries");
+      return items;
+    },
+  };
+}
+
+/**
+ * Anthropic publishes no feed. Its sitemap lists every article with the date
+ * it last changed, so this opens the most recently changed ones and reads the
+ * title and publication date from each page's standard meta tags.
+ */
+const ANTHROPIC_PAGES_TO_CHECK = 14;
+
+const anthropicNews: FeedSource = {
+  source: "Anthropic",
+  collect: async () => {
+    const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
+    const pages = [
+      ...sitemap.matchAll(
+        /<loc>(https:\/\/www\.anthropic\.com\/(?:news|research)\/[a-z0-9-]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
+      ),
+    ]
+      .map(([, url, changed]) => ({ url, changed }))
+      .sort((x, y) => y.changed.localeCompare(x.changed))
+      .slice(0, ANTHROPIC_PAGES_TO_CHECK);
+    if (pages.length === 0) throw new Error("no articles in the sitemap");
+
+    const meta = (html: string, property: string) =>
+      html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] ?? "";
+    const items: FeedItem[] = [];
+    for (const { url } of pages) {
+      const html = await getText(url);
+      const title = plain(meta(html, "og:title"));
+      const when = Date.parse(meta(html, "article:published_time"));
+      if (title && !Number.isNaN(when)) {
+        items.push({ source: "Anthropic", title, url, publishedAt: new Date(when).toISOString() });
+      }
+      await sleep(300);
+    }
+    if (items.length === 0) throw new Error("article pages had no title or date (their layout may have changed)");
+    return items;
+  },
+};
+
+/** Writers and institutions that explain what AI is doing to work, firms and society. */
+const ANALYST_SOURCES: FeedSource[] = [
+  feed("One Useful Thing", "https://www.oneusefulthing.org/feed"),
+  feed("Epoch AI", "https://epochai.substack.com/feed"),
+  feed("AI Supremacy", "https://www.ai-supremacy.com/feed"),
+  feed("The Product Compass", "https://www.productcompass.pm/feed", true),
+  feed("The Pragmatic Engineer", "https://newsletter.pragmaticengineer.com/feed", true),
+  feed("a16z News", "https://www.a16z.news/feed", true),
+  feed("Benedict Evans", "https://www.ben-evans.com/benedictevans?format=rss", true),
+  feed("NBER", "https://www.nber.org/rss/new.xml", true),
+  feed("PIIE", "https://www.piie.com/rss/update.xml", true),
+  feed("Pew Research Center", "https://www.pewresearch.org/topic/internet-technology/feed/", true),
+];
+
+const LAB_SOURCES: FeedSource[] = [
+  anthropicNews,
+  feed("OpenAI", "https://openai.com/news/rss.xml"),
+  feed("Google DeepMind", "https://deepmind.google/blog/rss.xml"),
+];
+
+const FEED_WINDOW_DAYS = 30;
+const FEED_KEEP = 12;
+
+/**
+ * Newest items across several sources, with a cap per source so one prolific
+ * publisher cannot fill the list. A source that fails keeps its previous items.
+ */
+async function newestFrom(
+  sources: FeedSource[],
+  perSource: number,
+  previous: FeedItem[],
+): Promise<{ items: FeedItem[]; failed: string[] }> {
+  const cutoff = Date.now() - FEED_WINDOW_DAYS * DAY;
+  const latestAllowed = Date.now() + DAY; // institutions list future events in their feeds
+  const failed: string[] = [];
+  const all: FeedItem[] = [];
+  for (const s of sources) {
+    let items: FeedItem[];
+    try {
+      items = await s.collect();
+    } catch (err) {
+      failed.push(s.source);
+      console.warn(`  ! ${s.source} failed: ${(err as Error).message}`);
+      items = previous.filter((p) => p.source === s.source);
+    }
+    const seen = new Set<string>();
+    all.push(
+      ...items
+        .filter((i) => {
+          const when = Date.parse(i.publishedAt);
+          return when >= cutoff && when <= latestAllowed && !seen.has(i.url) && seen.add(i.url);
+        })
+        .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+        .slice(0, perSource),
+    );
+    await sleep(300);
+  }
+  all.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  return { items: all.slice(0, FEED_KEEP), failed };
+}
+
 // ------------------------------------------------------------------ main
 
 async function collectHistory(history: History, weeks: string[], status: Record<string, SourceStatus>) {
@@ -338,6 +509,16 @@ async function main() {
     }
   }
 
+  /** Like `list`, for lists merged from several feeds; names the feeds that failed. */
+  async function feedList(key: "analysis" | "labNews", sources: FeedSource[], perSource: number) {
+    const { items, failed } = await newestFrom(sources, perSource, previous?.[key] ?? []);
+    status[key] = failed.length
+      ? { ok: false, at: status[key]?.at ?? "", error: `no response from ${failed.join(", ")}` }
+      : { ok: true, at: new Date().toISOString() };
+    console.log(`  ${key}: ${items.length}`);
+    return items;
+  }
+
   console.log("Collecting current lists…");
   const latest: Latest = {
     generatedAt: now.toISOString(),
@@ -347,6 +528,8 @@ async function main() {
     releases: await list("releases", hfLabReleases),
     stories: await list("stories", hnTopStories),
     repos: await list("repos", githubRisingRepos),
+    analysis: await feedList("analysis", ANALYST_SOURCES, 2),
+    labNews: await feedList("labNews", LAB_SOURCES, 4),
   };
   await writeJson("latest.json", latest);
 
