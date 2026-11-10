@@ -1,5 +1,6 @@
 import historyJson from "../../data/history.json";
 import latestJson from "../../data/latest.json";
+import { THEMES } from "./themes";
 import { TOPICS } from "./topics";
 import type { History, Latest } from "./types";
 
@@ -76,6 +77,46 @@ export const topicTrends: TopicTrend[] = TOPICS.map((topic) => {
 }).sort((a, b) => Number(b.hasPapers) - Number(a.hasPapers) || (b.papers.change ?? 0) - (a.papers.change ?? 0));
 
 export const hasHistory = weeks.length >= 2 * WINDOW;
+
+// ---------------------------------------------------------------- themes
+
+/** Theme counts are small, so a theme needs a bigger move than a topic to be called rising or cooling. */
+export const THEME_STEADY_BAND = 0.15;
+
+export type ThemeTrend = {
+  id: string;
+  name: string;
+  blurb: string;
+  /** Share of Hacker News stories with AI in the title that match the theme, in percent. */
+  share: Signal;
+  /** Distinct matching stories per week. */
+  stories: Signal;
+  direction: Direction;
+};
+
+const themeTotals = history.hnAiTotal ?? {};
+
+/** True once every week has both a theme count and an AI story total. */
+export const hasThemes =
+  hasHistory && weeks.every((w) => themeTotals[w] !== undefined && THEMES.every((t) => history.themes?.[t.id]?.[w] !== undefined));
+
+export function directionOf(change: number | null, band: number): Direction {
+  if (change === null || Math.abs(change) < band) return "steady";
+  return change > 0 ? "rising" : "cooling";
+}
+
+export const themeTrends: ThemeTrend[] = THEMES.map((theme) => {
+  const counts = weeks.map((w) => history.themes?.[theme.id]?.[w] ?? 0);
+  const share = signal(weeks.map((w, i) => (themeTotals[w] > 0 ? (counts[i] / themeTotals[w]) * 100 : 0)));
+  return {
+    id: theme.id,
+    name: theme.name,
+    blurb: theme.blurb,
+    share,
+    stories: signal(counts),
+    direction: directionOf(share.change, THEME_STEADY_BAND),
+  };
+}).sort((a, b) => (b.share.change ?? 0) - (a.share.change ?? 0));
 
 // ------------------------------------------------------------ formatting
 

@@ -8,6 +8,10 @@ export type History = {
   /** All AI papers submitted to arXiv each week; the denominator for paper share. */
   arxivTotal: WeeklyCounts;
   topics: Record<string, { arxiv: WeeklyCounts; hn: WeeklyCounts }>;
+  /** Hacker News stories each week with the word AI in the title; the denominator for theme share. */
+  hnAiTotal?: WeeklyCounts;
+  /** Distinct Hacker News stories each week matching a theme, keyed by theme id. */
+  themes?: Record<string, WeeklyCounts>;
 };
 
 export type SourceStatus = { ok: boolean; at: string; error?: string };

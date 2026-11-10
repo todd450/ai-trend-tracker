@@ -156,7 +156,7 @@ code {
 
 .mast__nav ul {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(3, auto);
   justify-content: space-evenly;
   column-gap: var(--space-sm);
 }

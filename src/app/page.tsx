@@ -1,16 +1,20 @@
 import { Logo } from "@/components/Logo";
 import { Sparkline } from "@/components/Sparkline";
 import {
+  THEME_STEADY_BAND,
   WINDOW,
+  directionOf,
   fmtChange,
   fmtCompact,
   fmtDate,
   fmtDay,
   fmtWeek,
   hasHistory,
+  hasThemes,
   history,
   isoWeek,
   latest,
+  themeTrends,
   topicTrends,
   weeks,
   type Direction,
@@ -29,6 +33,7 @@ const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling
 const SOURCE_LABELS: Record<string, string> = {
   arxivHistory: "arXiv weekly paper counts",
   hnHistory: "Hacker News weekly story counts",
+  hnThemes: "Hacker News weekly theme counts",
   papers: "Hugging Face daily papers",
   models: "Hugging Face trending models",
   releases: "Hugging Face lab uploads",
@@ -41,10 +46,7 @@ const SOURCE_LABELS: Record<string, string> = {
   modelReleases: "Lab model release log",
 };
 
-function toneOf(signal: Signal): Direction {
-  if (signal.change === null || Math.abs(signal.change) < 0.1) return "steady";
-  return signal.change > 0 ? "rising" : "cooling";
-}
+const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
 
 function host(url: string) {
   try {
@@ -54,8 +56,8 @@ function host(url: string) {
   }
 }
 
-function Change({ signal }: { signal: Signal }) {
-  const tone = toneOf(signal);
+function Change({ signal, band }: { signal: Signal; band?: number }) {
+  const tone = toneOf(signal, band);
   return (
     <span className="change">
       <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
@@ -93,7 +95,8 @@ export default function Home() {
         </h1>
         <nav className="mast__nav" aria-label="Sections">
           <ul>
-            <li><a href="#momentum">Momentum</a></li>
+            <li><a href="#momentum">Topics</a></li>
+            <li><a href="#themes">Themes</a></li>
             <li><a href="#news">News</a></li>
             <li><a href="#papers">Papers</a></li>
             <li><a href="#indicators">Indicators</a></li>
@@ -236,6 +239,105 @@ export default function Home() {
             <p className="empty">
               Weekly history is still being collected. Run <code>npm run collect</code> to backfill it.
             </p>
+          )}
+        </section>
+
+        <section id="themes" className="band" aria-labelledby="themes-h">
+          <div className="band__head">
+            <h2 id="themes-h">Economy and society themes</h2>
+            <p>
+              What the discussion says AI is doing to work, companies and society. Each theme’s share of Hacker News
+              stories with AI in the title, last {WINDOW} weeks compared with the {WINDOW} weeks before.
+            </p>
+          </div>
+
+          {hasThemes ? (
+            <>
+              <div className="trend-cols" aria-hidden="true">
+                <span>Theme</span>
+                <span>Share of AI stories</span>
+                <span>Stories</span>
+              </div>
+              <ol className="trends">
+                {themeTrends.map((t, i) => (
+                  <li key={t.id} className="trend">
+                    <div className="trend__topic">
+                      <span className="trend__rank">{i + 1}</span>
+                      <div>
+                        <h3>{t.name}</h3>
+                        <p>{t.blurb}</p>
+                        <span className={`trend__status trend__status--${t.direction}`}>
+                          <span aria-hidden="true">{ARROW[t.direction]}</span> {DIRECTION_LABEL[t.direction]}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="trend__signal">
+                      <span className="trend__label">Share of AI stories</span>
+                      <Sparkline
+                        values={t.share.values}
+                        labels={weekLabels}
+                        unit="storyShare"
+                        tone={t.direction}
+                        summary={`${t.name}: share of AI stories on Hacker News over ${weeks.length} weeks, now ${t.share.recent.toFixed(1)}%, ${fmtChange(t.share.change)}`}
+                      />
+                      <p className="trend__figure">
+                        <Change signal={t.share} band={THEME_STEADY_BAND} />
+                        <span>{t.share.recent.toFixed(1)}% of AI stories</span>
+                      </p>
+                    </div>
+                    <div className="trend__signal">
+                      <span className="trend__label">Stories</span>
+                      <Sparkline
+                        values={t.stories.values}
+                        labels={weekLabels}
+                        unit="stories"
+                        tone={directionOf(t.stories.change, THEME_STEADY_BAND)}
+                        summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
+                      />
+                      <p className="trend__figure">
+                        <Change signal={t.stories} band={THEME_STEADY_BAND} />
+                        <span>{Math.round(t.stories.recent) === 1 ? "1 story" : `${Math.round(t.stories.recent)} stories`} a week</span>
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <details className="table-view">
+                <summary>Show the weekly theme numbers as a table</summary>
+                <div className="table-view__scroll">
+                  <table>
+                    <caption>Hacker News stories matching each theme, per week</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Theme</th>
+                        {weeks.map((w) => (
+                          <th scope="col" key={w}>{fmtDay(w)}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {themeTrends.map((t) => (
+                        <tr key={t.id}>
+                          <th scope="row">{t.name}</th>
+                          {weeks.map((w, i) => (
+                            <td key={w}>{t.stories.values[i]}</td>
+                          ))}
+                        </tr>
+                      ))}
+                      <tr>
+                        <th scope="row">All AI stories</th>
+                        {weeks.map((w) => (
+                          <td key={w}>{(history.hnAiTotal?.[w] ?? 0).toLocaleString("en")}</td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </>
+          ) : (
+            <p className="empty">Theme history is still being collected.</p>
           )}
         </section>
 
@@ -553,6 +655,14 @@ export default function Home() {
                 four-week windows. Topics are defined by keyword lists, so a paper can count toward several topics,
                 and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
+              </p>
+              <p>
+                <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
+                theme word, such as “layoffs” or “data center”, as a share of all stories with AI in the title. Each
+                story counts once per theme. The counts are small, often 10 to 30 stories a week, so a theme is
+                called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}%. Hacker
+                News readers are mostly technologists, so this shows what that community is discussing, not public
+                opinion.
               </p>
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models

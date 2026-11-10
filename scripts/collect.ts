@@ -17,6 +17,7 @@
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { THEMES } from "../src/lib/themes.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 
@@ -131,6 +132,37 @@ async function hnCount(weekStart: string, phrases: string[]): Promise<number> {
   }
   return total;
 }
+
+/** Hacker News title search limited to one week. Every word of `query` must appear in the title. */
+function hnWeek(weekStart: string, query: string, hitsPerPage: number) {
+  const from = Date.parse(weekStart + "T00:00:00Z") / 1000;
+  return getJson<HnResponse>(
+    hnUrl({
+      query,
+      restrictSearchableAttributes: "title",
+      typoTolerance: "false",
+      queryType: "prefixNone",
+      numericFilters: `created_at_i>=${from},created_at_i<${from + 7 * 86400}`,
+      attributesToRetrieve: "objectID",
+      attributesToHighlight: "",
+      hitsPerPage: String(hitsPerPage),
+    }),
+  );
+}
+
+/** Number of distinct stories in a week matching any of a theme's searches. */
+async function hnThemeCount(weekStart: string, queries: string[]): Promise<number> {
+  const stories = new Set<string>();
+  for (const query of queries) {
+    const data = await hnWeek(weekStart, query, 1000);
+    for (const hit of data.hits) stories.add(hit.objectID);
+    await sleep(120);
+  }
+  return stories.size;
+}
+
+/** All stories in a week with the word AI in the title; the denominator for theme share. */
+const hnAiCount = async (weekStart: string) => (await hnWeek(weekStart, "AI", 0)).nbHits;
 
 const HN_NEWS_QUERIES = ["AI", "LLM", "OpenAI", "Anthropic", "Claude", "GPT", "Gemini", "DeepMind", "agents", "neural"];
 
@@ -602,6 +634,21 @@ async function collectHistory(history: History, weeks: string[], status: Record<
   } catch (err) {
     status.hnHistory = { ok: false, at: new Date().toISOString(), error: (err as Error).message };
     console.warn(`  ! Hacker News history failed: ${(err as Error).message}`);
+  }
+
+  try {
+    const totals = (history.hnAiTotal ??= {});
+    for (const week of weeks) if (needs(totals, week)) totals[week] = await hnAiCount(week);
+    const themes = (history.themes ??= {});
+    for (const theme of THEMES) {
+      const series = (themes[theme.id] ??= {});
+      for (const week of weeks) if (needs(series, week)) series[week] = await hnThemeCount(week, theme.hn);
+      console.log(`  theme  ${theme.id}`);
+    }
+    status.hnThemes = { ok: true, at: new Date().toISOString() };
+  } catch (err) {
+    status.hnThemes = { ok: false, at: new Date().toISOString(), error: (err as Error).message };
+    console.warn(`  ! Hacker News themes failed: ${(err as Error).message}`);
   }
 
   // arXiv is rate-limited to one request per three seconds; in --fast mode

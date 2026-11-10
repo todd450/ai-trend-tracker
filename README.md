@@ -12,6 +12,7 @@ and lab news feeds, and needs no API keys.
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
 | Labs | Anthropic, OpenAI, Google DeepMind news | Newest announcements, including closed-model releases |
+| Themes | Hacker News search | Stories on seven economy and society themes, as a share of all AI stories, weekly |
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
 | Releases | Lab news pages | First announcement of each new GPT, Gemini and Claude version |
