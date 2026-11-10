@@ -1,42 +1,41 @@
 {
- "generatedAt": "2026-11-10T22:33:04.817Z",
+ "generatedAt": "2026-11-10T22:36:31.797Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-10T22:33:05.072Z"
+   "at": "2026-11-10T22:36:32.030Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-10T22:33:05.090Z"
+   "at": "2026-11-10T22:36:32.047Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-10T22:33:08.874Z"
+   "at": "2026-11-10T22:36:35.801Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-10T22:33:13.662Z"
+   "at": "2026-11-10T22:36:39.042Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-10T22:33:22.253Z"
+   "at": "2026-11-10T22:36:47.545Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-10T22:34:10.227Z"
+   "at": "2026-11-10T22:37:33.347Z"
   },
   "arxivHistory": {
    "ok": true,
-   "at": "2026-11-10T22:35:44.648Z"
+   "at": "2026-11-10T22:39:06.786Z"
   },
   "analysis": {
-   "ok": false,
-   "at": "2026-11-10T22:26:52.454Z",
-   "error": "no response from Epoch AI"
+   "ok": true,
+   "at": "2026-11-10T22:36:52.764Z"
   },
   "labNews": {
    "ok": true,
-   "at": "2026-11-10T22:33:34.257Z"
+   "at": "2026-11-10T22:36:59.695Z"
   }
  },
  "papers": [
@@ -181,7 +180,7 @@
    "id": "speridlabs/idol",
    "url": "https://huggingface.co/speridlabs/idol",
    "task": "image-to-3d",
-   "likes": 1857,
+   "likes": 1859,
    "downloads": 26470,
    "createdAt": "2026-10-28T15:55:17.000Z"
   },
@@ -189,7 +188,7 @@
    "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "task": "text-generation",
-   "likes": 1180,
+   "likes": 1181,
    "downloads": 14378,
    "createdAt": "2026-10-30T10:21:29.000Z"
   },
@@ -197,7 +196,7 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 1864,
+   "likes": 1865,
    "downloads": 30721,
    "createdAt": "2026-11-02T04:13:51.000Z"
   },
@@ -293,7 +292,7 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 2867,
+   "likes": 2868,
    "downloads": 1251688,
    "createdAt": "2026-10-14T12:00:13.000Z"
   },
@@ -352,7 +351,7 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 2867,
+   "likes": 2868,
    "downloads": 1251688,
    "createdAt": "2026-10-14T12:00:13.000Z",
    "lab": "black-forest-labs"
@@ -361,7 +360,7 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 1864,
+   "likes": 1865,
    "downloads": 30721,
    "createdAt": "2026-11-02T04:13:51.000Z",
    "lab": "moonshotai"
@@ -697,7 +696,7 @@
    "title": "AI usage generates a fragile codebase",
    "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
-   "points": 307,
+   "points": 308,
    "comments": 368,
    "createdAt": "2026-11-10T10:25:58Z"
   }
@@ -707,7 +706,7 @@
    "name": "ccch1mneyyy/dsh-Go",
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
-   "stars": 18643,
+   "stars": 18644,
    "starsPerDay": 1123,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
@@ -744,7 +743,7 @@
    "url": "https://github.com/voyager-so/vork",
    "description": "Headless 3D and VFX engine for agents. Research preview.",
    "stars": 1357,
-   "starsPerDay": 272,
+   "starsPerDay": 271,
    "language": "Rust",
    "createdAt": "2026-11-05T22:37:07Z"
   },
@@ -788,7 +787,7 @@
    "name": "Leonxlnx/earshot",
    "url": "https://github.com/Leonxlnx/earshot",
    "description": "Ears for coding agents: let AI hear, review and make sound. CPU-only, open source.",
-   "stars": 4444,
+   "stars": 4446,
    "starsPerDay": 167,
    "language": "Python",
    "createdAt": "2026-10-15T06:52:46Z"
@@ -798,7 +797,7 @@
    "url": "https://github.com/N1nEmAn/sapper-v2",
    "description": "Autonomous pentest legion — AI commander + worker swarm + layered fact-intent graph. 3rd Tencent Intelligent Attack-Defense online champion (634 teams · 8h unattended · 1B tokens beat 4.5B). The Nüwa ",
    "stars": 1860,
-   "starsPerDay": 165,
+   "starsPerDay": 164,
    "language": "Python",
    "createdAt": "2026-10-30T15:12:35Z"
   },
@@ -806,7 +805,7 @@
    "name": "onehumanbeing/esp32-iphone-agent",
    "url": "https://github.com/onehumanbeing/esp32-iphone-agent",
    "description": "Let an AI model use a real iPhone with a $7 ESP32: AirPlay eyes, USB HID hands, any OpenAI-compatible vision model. No Mac, no developer account, no jailbreak.",
-   "stars": 4810,
+   "stars": 4811,
    "starsPerDay": 160,
    "language": "Swift",
    "createdAt": "2026-10-11T19:10:25Z"
@@ -916,10 +915,22 @@
    "publishedAt": "2026-11-09T10:35:38.000Z"
   },
   {
+   "source": "Epoch AI",
+   "title": "Inference Performance Index: changing the way we measure inference capacity",
+   "url": "https://epoch.ai/publications/inference-performance-index",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
    "source": "a16z News",
    "title": "Charts of the Week: Apple Skips Capex, and the Crowd Goes Wild (Sort Of)",
    "url": "https://www.a16z.news/p/charts-of-the-week-apple-skips-capex",
    "publishedAt": "2026-11-06T15:02:08.000Z"
+  },
+  {
+   "source": "Epoch AI",
+   "title": "What Huawei’s Horinger data center reveals about China’s compute gap",
+   "url": "https://epoch.ai/publications/huawei-horinger-china-compute-gap",
+   "publishedAt": "2026-11-06T00:00:00.000Z"
   },
   {
    "source": "The Pragmatic Engineer",
@@ -940,22 +951,10 @@
    "publishedAt": "2026-11-05T11:10:12.000Z"
   },
   {
-   "source": "Epoch AI",
-   "title": "AI can turn public security fixes into working exploits before users receive an update",
-   "url": "https://epochai.substack.com/p/glm-patch-gap-exploit-firefox",
-   "publishedAt": "2026-10-30T12:07:16.000Z"
-  },
-  {
    "source": "The Product Compass",
    "title": "Product Engineering: 43 Free Skills From the First Idea to Paying Users. MIT.",
    "url": "https://www.productcompass.pm/p/product-engineering-skills",
    "publishedAt": "2026-10-29T19:30:21.000Z"
-  },
-  {
-   "source": "Pew Research Center",
-   "title": "What is your civic personality?",
-   "url": "https://www.pewresearch.org/newsletter/the-briefing/the-briefing-10-29-2026/",
-   "publishedAt": "2026-10-29T18:57:00.000Z"
   }
  ],
  "labNews": [
