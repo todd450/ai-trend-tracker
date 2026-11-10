@@ -7,7 +7,7 @@ type Props = {
   /** One label per value, shown in the hover readout (e.g. "Week of 2 Nov"). */
   labels: string[];
   /** Formats a value for the readout, e.g. "4.2% of papers". */
-  unit: "share" | "stories";
+  unit: "share" | "stories" | "postings" | "documents" | "releases";
   tone: "rising" | "steady" | "cooling";
   /** Text alternative describing the series. */
   summary: string;
@@ -18,7 +18,18 @@ const H = 36;
 const PAD = 5;
 
 function readout(value: number, unit: Props["unit"]) {
-  return unit === "share" ? `${value.toFixed(1)}% of papers` : `${value} ${value === 1 ? "story" : "stories"}`;
+  switch (unit) {
+    case "share":
+      return `${value.toFixed(1)}% of papers`;
+    case "postings":
+      return `${value.toFixed(1)}% of postings`;
+    case "stories":
+      return `${value} ${value === 1 ? "story" : "stories"}`;
+    case "documents":
+      return `${value} ${value === 1 ? "document" : "documents"}`;
+    case "releases":
+      return `${value} ${value === 1 ? "release" : "releases"}`;
+  }
 }
 
 /** A small trend line with a hover crosshair. The scale is local to each chart. */

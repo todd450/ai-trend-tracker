@@ -8,6 +8,7 @@
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
  *   data/latest.json               current ranked lists (papers, repos, models, news)
+ *   data/indicators.json           monthly job-posting, federal and model-release figures
  *   data/snapshots/YYYY-MM-DD.json a dated copy of the lists, kept as a record
  *
  * No API keys are required. Set GITHUB_TOKEN to raise GitHub's rate limit.
@@ -17,7 +18,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { TOPICS } from "../src/lib/topics.ts";
-import type { FeedItem, History, Latest, SourceStatus } from "../src/lib/types.ts";
+import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
 const WEEKS_OF_HISTORY = 12;
@@ -343,10 +344,26 @@ function feed(source: string, url: string, aiOnly = false): FeedSource {
   };
 }
 
+const metaTag = (html: string, property: string) =>
+  html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] ?? "";
+
+/** Publication day of an Anthropic page; the site states it in one of three ways. */
+function anthropicPageDate(html: string): string | null {
+  const raw =
+    metaTag(html, "article:published_time") ||
+    (html.match(/dateTime=["'](\d{4}-\d{2}-\d{2})/)?.[1] ?? "") ||
+    (html.match(
+      /\b((?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, 20\d\d)\b/,
+    )?.[1] ?? "");
+  const when = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T00:00:00Z` : raw.includes(",") ? `${raw} UTC` : raw);
+  return Number.isNaN(when) ? null : new Date(when).toISOString();
+}
+
 /**
  * Anthropic publishes no feed. Its sitemap lists every article with the date
  * it last changed, so this opens the most recently changed ones and reads the
- * title and publication date from each page's standard meta tags.
+ * title and publication date from each page. Model launches sit at the top
+ * level of the site (/claude-…), not under /news.
  */
 const ANTHROPIC_PAGES_TO_CHECK = 14;
 
@@ -356,7 +373,7 @@ const anthropicNews: FeedSource = {
     const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
     const pages = [
       ...sitemap.matchAll(
-        /<loc>(https:\/\/www\.anthropic\.com\/(?:news|research)\/[a-z0-9-]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
+        /<loc>(https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9-]+|claude-[a-z0-9-]+))<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
       ),
     ]
       .map(([, url, changed]) => ({ url, changed }))
@@ -364,16 +381,12 @@ const anthropicNews: FeedSource = {
       .slice(0, ANTHROPIC_PAGES_TO_CHECK);
     if (pages.length === 0) throw new Error("no articles in the sitemap");
 
-    const meta = (html: string, property: string) =>
-      html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] ?? "";
     const items: FeedItem[] = [];
     for (const { url } of pages) {
       const html = await getText(url);
-      const title = plain(meta(html, "og:title"));
-      const when = Date.parse(meta(html, "article:published_time"));
-      if (title && !Number.isNaN(when)) {
-        items.push({ source: "Anthropic", title, url, publishedAt: new Date(when).toISOString() });
-      }
+      const title = plain(metaTag(html, "og:title"));
+      const publishedAt = anthropicPageDate(html);
+      if (title && publishedAt) items.push({ source: "Anthropic", title, url, publishedAt });
       await sleep(300);
     }
     if (items.length === 0) throw new Error("article pages had no title or date (their layout may have changed)");
@@ -440,6 +453,135 @@ async function newestFrom(
   }
   all.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   return { items: all.slice(0, FEED_KEEP), failed };
+}
+
+// ------------------------------------------------------------ indicators
+
+/** Share of US job postings on Indeed that mention AI skills, at each month's last reading. */
+async function jobPostings(): Promise<NonNullable<Indicators["jobs"]>> {
+  const csv = await getText("https://raw.githubusercontent.com/hiring-lab/ai-tracker/main/AI_posting.csv");
+  const byMonth = new Map<string, { day: string; share: number }>();
+  for (const row of csv.split("\n").slice(1)) {
+    const [day, country, value] = row.trim().split(",");
+    const share = Number(value);
+    if (country !== "US" || !/^\d{4}-\d{2}-\d{2}$/.test(day ?? "") || !Number.isFinite(share)) continue;
+    const month = day.slice(0, 7);
+    const held = byMonth.get(month);
+    if (!held || day > held.day) byMonth.set(month, { day, share });
+  }
+  const months = [...byMonth.keys()].sort().slice(-25);
+  if (months.length < 13) throw new Error("fewer than 13 months of US data");
+  return {
+    asOf: byMonth.get(months.at(-1)!)!.day,
+    months: months.map((month) => ({ month, share: Math.round(byMonth.get(month)!.share * 100) / 100 })),
+  };
+}
+
+/** Documents in the US Federal Register that mention "artificial intelligence", per complete month. */
+async function federalDocuments(previous: Indicators["federal"]): Promise<NonNullable<Indicators["federal"]>> {
+  const now = new Date();
+  const known = new Map(previous?.months.map((m) => [m.month, m.count]));
+  const months: { month: string; count: number }[] = [];
+  for (let back = 13; back >= 1; back--) {
+    const first = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - back, 1));
+    const month = first.toISOString().slice(0, 7);
+    let count = known.get(month);
+    if (count === undefined || back === 1) {
+      const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0)).getUTCDate();
+      const params = new URLSearchParams({
+        per_page: "1",
+        "conditions[term]": '"artificial intelligence"',
+        "conditions[publication_date][gte]": `${month}-01`,
+        "conditions[publication_date][lte]": `${month}-${String(lastDay).padStart(2, "0")}`,
+      });
+      const data = await getJson<{ count?: number }>(`https://www.federalregister.gov/api/v1/documents.json?${params}`);
+      if (typeof data.count !== "number") throw new Error(`no count returned for ${month}`);
+      count = data.count;
+      await sleep(300);
+    }
+    months.push({ month, count });
+  }
+  return { months };
+}
+
+/** A release is only logged when first seen within this many days, so a feed's short memory cannot misdate old models. */
+const RELEASE_FRESH_DAYS = 200;
+
+/**
+ * The first post announcing each new version number of a lab's main model
+ * line, e.g. "GPT-6.1" or "Gemini 4". Variants of a version already seen
+ * (Flash, mini, Sol…) do not count again.
+ */
+async function versionedReleases(source: FeedSource, pattern: RegExp, name: (version: string) => string): Promise<Release[]> {
+  const first = new Map<string, Release>();
+  for (const item of await source.collect()) {
+    const version = item.title.match(pattern)?.[1];
+    if (!version) continue;
+    const model = name(version);
+    const held = first.get(model);
+    if (!held || item.publishedAt < held.date) {
+      first.set(model, { lab: source.source, model, url: item.url, date: item.publishedAt });
+    }
+  }
+  return [...first.values()];
+}
+
+/** Anthropic model launches: sitemap pages named claude-…, opened once each and remembered. */
+async function anthropicReleases(checked: Record<string, Release | null>): Promise<void> {
+  const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
+  const urls = [...sitemap.matchAll(/<loc>(https:\/\/www\.anthropic\.com\/(?:news\/)?claude-[a-z0-9-]*\d[a-z0-9-]*)<\/loc>/g)].map(
+    (m) => m[1],
+  );
+  if (urls.length === 0) throw new Error("no model pages in the sitemap");
+  for (const url of urls) {
+    if (url in checked) continue;
+    const html = await getText(url);
+    const title = plain(metaTag(html, "og:title"));
+    const date = anthropicPageDate(html);
+    const model = title.match(/^(?:Introducing )?(Claude\b.*\d.*)$/)?.[1];
+    checked[url] = model && date ? { lab: "Anthropic", model, url, date } : null;
+    await sleep(300);
+  }
+}
+
+async function modelReleases(
+  previous: Indicators["releases"],
+): Promise<{ releases: NonNullable<Indicators["releases"]>; failed: string[] }> {
+  const failed: string[] = [];
+  const checked = { ...(previous?.anthropicChecked ?? {}) };
+  const log = new Map<string, Release>();
+  for (const r of previous?.log ?? []) if (r.lab !== "Anthropic") log.set(`${r.lab}|${r.model}`, r);
+  const freshFrom = new Date(Date.now() - RELEASE_FRESH_DAYS * DAY).toISOString();
+
+  const feeds: [FeedSource, RegExp, (v: string) => string][] = [
+    [
+      feed("OpenAI", "https://openai.com/news/rss.xml"),
+      /^(?:Introducing |Previewing |Announcing )?GPT[-‑ ]?(\d+(?:\.\d+)?)/,
+      (v) => `GPT-${v}`,
+    ],
+    [feed("Google DeepMind", "https://deepmind.google/blog/rss.xml"), /^(?:Introducing )?Gemini (\d+(?:\.\d+)?)\b/, (v) => `Gemini ${v}`],
+  ];
+  for (const [source, pattern, name] of feeds) {
+    try {
+      for (const r of await versionedReleases(source, pattern, name)) {
+        const key = `${r.lab}|${r.model}`;
+        const held = log.get(key);
+        if (held ? r.date < held.date : r.date >= freshFrom) log.set(key, r);
+      }
+    } catch (err) {
+      failed.push(source.source);
+      console.warn(`  ! ${source.source} releases failed: ${(err as Error).message}`);
+    }
+  }
+  try {
+    await anthropicReleases(checked);
+  } catch (err) {
+    failed.push("Anthropic");
+    console.warn(`  ! Anthropic releases failed: ${(err as Error).message}`);
+  }
+  const all = [...log.values(), ...Object.values(checked).filter((r): r is Release => r !== null && r.date >= freshFrom)];
+  all.sort((a, b) => b.date.localeCompare(a.date));
+  return { releases: { log: all, anthropicChecked: checked }, failed };
 }
 
 // ------------------------------------------------------------------ main
@@ -532,6 +674,28 @@ async function main() {
     labNews: await feedList("labNews", LAB_SOURCES, 4),
   };
   await writeJson("latest.json", latest);
+
+  console.log("Collecting indicators…");
+  const before = await readJson<Indicators>("indicators.json", { updatedAt: "", jobs: null, federal: null, releases: null });
+  const indicators: Indicators = { ...before, updatedAt: now.toISOString() };
+  async function indicator(key: string, collect: () => Promise<void>) {
+    try {
+      await collect();
+      status[key] = { ok: true, at: new Date().toISOString() };
+      console.log(`  ${key}: ok`);
+    } catch (err) {
+      status[key] = { ok: false, at: status[key]?.at ?? "", error: (err as Error).message };
+      console.warn(`  ! ${key} failed: ${(err as Error).message}`);
+    }
+  }
+  await indicator("jobs", async () => void (indicators.jobs = await jobPostings()));
+  await indicator("federal", async () => void (indicators.federal = await federalDocuments(before.federal)));
+  await indicator("modelReleases", async () => {
+    const { releases, failed } = await modelReleases(before.releases);
+    indicators.releases = releases;
+    if (failed.length) throw new Error(`no response from ${failed.join(", ")}`);
+  });
+  await writeJson("indicators.json", indicators);
 
   console.log(`Collecting weekly topic history (${weeks[0]} → ${weeks.at(-1)})${FAST ? " [fast]" : ""}…`);
   await collectHistory(history, weeks, status);

@@ -418,6 +418,76 @@ code {
 
 }
 
+/* ------------------------------------------------------------- tiles */
+
+.tiles {
+  display: grid;
+  gap: var(--space-lg);
+  padding-bottom: var(--space-lg);
+}
+
+.tile {
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+  justify-items: start;
+  min-width: 0;
+  padding-top: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+
+.tile h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-ink-2);
+}
+
+.tile__figure {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile__change {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-xs);
+  align-items: baseline;
+  padding-bottom: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tile__note {
+  max-width: 44ch;
+  padding-top: var(--space-xs);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-xl);
+  }
+}
+
+.table-view__scroll--set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.table-view td a,
+.table-view th a {
+  color: inherit;
+}
+
 /* ---------------------------------------------------------- sparkline */
 
 .spark {

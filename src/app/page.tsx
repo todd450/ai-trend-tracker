@@ -16,6 +16,8 @@ import {
   type Signal,
 } from "@/lib/trends";
 
+import { federal, fmtMonth, indicators, jobs, releases } from "@/lib/indicators";
+
 const SHOWN = 10;
 /** Average papers a week a topic needs before the headline will name it. */
 const HEADLINE_MIN_PAPERS = 25;
@@ -33,6 +35,9 @@ const SOURCE_LABELS: Record<string, string> = {
   repos: "GitHub repository search",
   analysis: "Newsletter and institution feeds",
   labNews: "Lab news pages",
+  jobs: "Indeed Hiring Lab job postings",
+  federal: "Federal Register document counts",
+  modelReleases: "Lab model release log",
 };
 
 function toneOf(signal: Signal): Direction {
@@ -87,8 +92,8 @@ export default function Home() {
             <li><a href="#momentum">Momentum</a></li>
             <li><a href="#news">News</a></li>
             <li><a href="#papers">Papers</a></li>
+            <li><a href="#indicators">Indicators</a></li>
             <li><a href="#analysis">Analysis</a></li>
-            <li><a href="#announcements">Labs</a></li>
             <li><a href="#code">Code</a></li>
             <li><a href="#models">Models</a></li>
             <li><a href="#method">Method</a></li>
@@ -278,6 +283,151 @@ export default function Home() {
           </section>
         </div>
 
+        <section id="indicators" className="band" aria-labelledby="indicators-h">
+          <div className="band__head">
+            <h2 id="indicators-h">Economy and policy indicators</h2>
+            <p>
+              Three slower-moving numbers from outside the research world: hiring, government attention and the pace
+              of frontier releases. Each comes from one public source.
+            </p>
+          </div>
+
+          <div className="tiles">
+            {jobs && (
+              <article className="tile">
+                <h3>AI share of US job postings</h3>
+                <p className="tile__figure">{jobs.signal.recent.toFixed(1)}%</p>
+                <p className="tile__change">
+                  <Change signal={jobs.signal} />
+                  <span>from {jobs.signal.prior.toFixed(1)}% a year earlier</span>
+                </p>
+                <Sparkline
+                  values={jobs.signal.values}
+                  labels={jobs.labels}
+                  unit="postings"
+                  tone={toneOf(jobs.signal)}
+                  summary={`Share of US job postings on Indeed mentioning AI skills, monthly for a year: now ${jobs.signal.recent.toFixed(1)}%, ${fmtChange(jobs.signal.change)} on a year earlier`}
+                />
+                <p className="tile__note">
+                  Postings on Indeed that ask for AI skills, as of {fmtDate(jobs.asOf)}. The data is refreshed
+                  monthly. Source: <a href="https://github.com/hiring-lab/ai-tracker">Indeed Hiring Lab</a>.
+                </p>
+              </article>
+            )}
+
+            {federal && (
+              <article className="tile">
+                <h3>US federal documents mentioning AI</h3>
+                <p className="tile__figure">{federal.signal.recent}</p>
+                <p className="tile__change">
+                  <Change signal={federal.signal} />
+                  <span>
+                    in {fmtMonth(federal.latestMonth)}, from {federal.signal.prior} a year earlier
+                  </span>
+                </p>
+                <Sparkline
+                  values={federal.signal.values}
+                  labels={federal.labels}
+                  unit="documents"
+                  tone={toneOf(federal.signal)}
+                  summary={`Federal Register documents mentioning artificial intelligence, monthly for a year: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, ${fmtChange(federal.signal.change)} on a year earlier`}
+                />
+                <p className="tile__note">
+                  Rules, proposed rules and notices whose text includes “artificial intelligence”. A mention can be
+                  brief, so this shows attention, not regulation. Source:{" "}
+                  <a href="https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22artificial+intelligence%22">
+                    Federal Register
+                  </a>
+                  .
+                </p>
+              </article>
+            )}
+
+            {releases && (
+              <article className="tile">
+                <h3>Frontier model releases</h3>
+                <p className="tile__figure">{releases.signal.recent}</p>
+                <p className="tile__change">
+                  <Change signal={releases.signal} />
+                  <span>
+                    new versions in 90 days, from {releases.signal.prior} in the 90 days before
+                  </span>
+                </p>
+                <Sparkline
+                  values={releases.signal.values}
+                  labels={releases.labels}
+                  unit="releases"
+                  tone={toneOf(releases.signal)}
+                  summary={`New model versions from Anthropic, Google DeepMind and OpenAI per 30 days over six periods: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
+                />
+                <p className="tile__note">
+                  New version numbers from Anthropic, Google DeepMind and OpenAI. Latest:{" "}
+                  {releases.shown.slice(0, 3).map((r, i) => (
+                    <span key={r.url}>
+                      {i > 0 && ", "}
+                      <a href={r.url}>{r.model}</a> ({fmtDay(r.date)})
+                    </span>
+                  ))}
+                  .
+                </p>
+              </article>
+            )}
+          </div>
+
+          <details className="table-view">
+            <summary>Show the indicator numbers as tables</summary>
+            <div className="table-view__scroll table-view__scroll--set">
+              {jobs && federal && (
+                <table>
+                  <caption>Monthly readings</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Month</th>
+                      <th scope="col">AI share of job postings</th>
+                      <th scope="col">Federal documents</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(indicators.federal?.months ?? []).map((m) => {
+                      const share = indicators.jobs?.months.find((j) => j.month === m.month)?.share;
+                      return (
+                        <tr key={m.month}>
+                          <th scope="row">{fmtMonth(m.month)}</th>
+                          <td>{share === undefined ? "not yet published" : `${share.toFixed(1)}%`}</td>
+                          <td>{m.count}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+              {releases && (
+                <table>
+                  <caption>Model versions counted, past 180 days</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Model</th>
+                      <th scope="col">Lab</th>
+                      <th scope="col">First announced</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {releases.shown.map((r) => (
+                      <tr key={r.url}>
+                        <th scope="row">
+                          <a href={r.url}>{r.model}</a>
+                        </th>
+                        <td>{r.lab}</td>
+                        <td>{fmtDate(r.date)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </details>
+        </section>
+
         <div className="pair pair--wide-left">
           <section id="analysis" className="band" aria-labelledby="analysis-h">
             <div className="band__head">
@@ -403,6 +553,13 @@ export default function Home() {
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models
                 on Hugging Face. They show up in the news and in the lab announcements instead.
+              </p>
+              <p>
+                <strong>The indicators</strong> each rest on one source and one rule. Job postings are Indeed’s own
+                count of US postings asking for AI skills. Federal documents are those whose text includes the phrase
+                “artificial intelligence”. A model release is the first post announcing a new version number in a
+                lab’s main line (GPT, Gemini or Claude); variants of a version already announced, such as a smaller
+                or faster edition, are not counted again, and labs other than these three are not covered.
               </p>
               <p>
                 <strong>From the analysts</strong> lists the newest pieces from a fixed set of ten newsletters and

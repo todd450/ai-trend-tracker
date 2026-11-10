@@ -1,41 +1,53 @@
 {
- "generatedAt": "2026-11-10T22:36:31.797Z",
+ "generatedAt": "2026-11-10T22:45:58.800Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-10T22:36:32.030Z"
+   "at": "2026-11-10T22:45:59.135Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-10T22:36:32.047Z"
+   "at": "2026-11-10T22:45:59.286Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-10T22:36:35.801Z"
+   "at": "2026-11-10T22:46:05.082Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-10T22:36:39.042Z"
+   "at": "2026-11-10T22:46:09.170Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-10T22:36:47.545Z"
+   "at": "2026-11-10T22:46:52.841Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-10T22:37:33.347Z"
+   "at": "2026-11-10T22:47:56.469Z"
   },
   "arxivHistory": {
    "ok": true,
-   "at": "2026-11-10T22:39:06.786Z"
+   "at": "2026-11-10T22:49:34.170Z"
   },
   "analysis": {
    "ok": true,
-   "at": "2026-11-10T22:36:52.764Z"
+   "at": "2026-11-10T22:46:58.937Z"
   },
   "labNews": {
    "ok": true,
-   "at": "2026-11-10T22:36:59.695Z"
+   "at": "2026-11-10T22:47:06.923Z"
+  },
+  "jobs": {
+   "ok": true,
+   "at": "2026-11-10T22:47:07.667Z"
+  },
+  "federal": {
+   "ok": true,
+   "at": "2026-11-10T22:47:13.922Z"
+  },
+  "modelReleases": {
+   "ok": true,
+   "at": "2026-11-10T22:47:24.438Z"
   }
  },
  "papers": [
@@ -70,7 +82,7 @@
    "id": "2611.06043",
    "title": "Confucius4-R2T2: A Stable-Prefix Streaming ASR Model for Real Real-Time Transcription",
    "url": "https://arxiv.org/abs/2611.06043",
-   "upvotes": 88,
+   "upvotes": 89,
    "comments": 2,
    "codeUrl": "https://github.com/netease-youdao/Confucius4-R2T2",
    "publishedAt": "2026-11-04T06:46:50.000Z"
@@ -180,7 +192,7 @@
    "id": "speridlabs/idol",
    "url": "https://huggingface.co/speridlabs/idol",
    "task": "image-to-3d",
-   "likes": 1859,
+   "likes": 1860,
    "downloads": 26470,
    "createdAt": "2026-10-28T15:55:17.000Z"
   },
@@ -196,7 +208,7 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 1865,
+   "likes": 1866,
    "downloads": 30721,
    "createdAt": "2026-11-02T04:13:51.000Z"
   },
@@ -212,7 +224,7 @@
    "id": "Lightricks/LTX-2.5",
    "url": "https://huggingface.co/Lightricks/LTX-2.5",
    "task": "image-to-video",
-   "likes": 11370,
+   "likes": 11371,
    "downloads": 2791606,
    "createdAt": "2026-07-23T07:55:24.000Z"
   },
@@ -236,7 +248,7 @@
    "id": "MiniMaxAI/MiniMax-H3-Image",
    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
    "task": "text-to-image",
-   "likes": 342,
+   "likes": 343,
    "downloads": 667,
    "createdAt": "2026-11-03T06:34:36.000Z"
   },
@@ -316,7 +328,7 @@
    "id": "facebook/sam3",
    "url": "https://huggingface.co/facebook/sam3",
    "task": "mask-generation",
-   "likes": 6255,
+   "likes": 6256,
    "downloads": 2025490,
    "createdAt": "2025-11-07T05:17:48.000Z"
   },
@@ -360,7 +372,7 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 1865,
+   "likes": 1866,
    "downloads": 30721,
    "createdAt": "2026-11-02T04:13:51.000Z",
    "lab": "moonshotai"
@@ -683,6 +695,15 @@
    "createdAt": "2026-11-06T16:54:36Z"
   },
   {
+   "id": "50438318",
+   "title": "AI usage generates a fragile codebase",
+   "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
+   "points": 315,
+   "comments": 368,
+   "createdAt": "2026-11-10T10:25:58Z"
+  },
+  {
    "id": "50416363",
    "title": "How I'm fighting the AI brain fry",
    "url": "https://sergeykuhne.com/blog/fighting-ai-brain-fry",
@@ -690,15 +711,6 @@
    "points": 309,
    "comments": 215,
    "createdAt": "2026-11-08T19:37:42Z"
-  },
-  {
-   "id": "50438318",
-   "title": "AI usage generates a fragile codebase",
-   "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
-   "points": 308,
-   "comments": 368,
-   "createdAt": "2026-11-10T10:25:58Z"
   }
  ],
  "repos": [
@@ -706,7 +718,7 @@
    "name": "ccch1mneyyy/dsh-Go",
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
-   "stars": 18644,
+   "stars": 18645,
    "starsPerDay": 1123,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
@@ -715,7 +727,7 @@
    "name": "wangzan101/Mika",
    "url": "https://github.com/wangzan101/Mika",
    "description": "An on-device AI agent for Android that operates apps and the web to get things done for you.",
-   "stars": 8066,
+   "stars": 8067,
    "starsPerDay": 654,
    "language": "Kotlin",
    "createdAt": "2026-10-29T14:34:07Z"
@@ -724,7 +736,7 @@
    "name": "KKKKhazix/agent-autoloop",
    "url": "https://github.com/KKKKhazix/agent-autoloop",
    "description": "让你的命令行 Agent 在后台自己接活、自己跟进到底；平时不烦你，遇到拿不准的事才发卡片找你拍板。",
-   "stars": 4422,
+   "stars": 4423,
    "starsPerDay": 581,
    "language": "TypeScript",
    "createdAt": "2026-11-03T08:02:11Z"
@@ -778,7 +790,7 @@
    "name": "JosssphZhou/poki",
    "url": "https://github.com/JosssphZhou/poki",
    "description": "Let AI agents operate a real iPhone. Local MCP server and agent, no jailbreak, no extra hardware.",
-   "stars": 913,
+   "stars": 914,
    "starsPerDay": 172,
    "language": "Swift",
    "createdAt": "2026-11-05T15:04:31Z"
@@ -868,7 +880,7 @@
    "name": "shinyobjectz/raea",
    "url": "https://github.com/shinyobjectz/raea",
    "description": "Render Anything Engine: tell your AI what to make. Videos, motion graphics, 3D and games as React and TypeScript, rendered on your own GPU. Rust + Bevy, macOS, Linux and Windows.",
-   "stars": 1962,
+   "stars": 1963,
    "starsPerDay": 85,
    "language": "Rust",
    "createdAt": "2026-10-18T18:08:48Z"
@@ -877,7 +889,7 @@
    "name": "zhuyansen/new-term-radar",
    "url": "https://github.com/zhuyansen/new-term-radar",
    "description": "Daily radar for new AI terms: names of new models, products and repos, caught on X, Hugging Face, GitHub and sitemaps before keyword tools list them.",
-   "stars": 2150,
+   "stars": 2152,
    "starsPerDay": 73,
    "language": "Python",
    "createdAt": "2026-10-12T07:11:01Z"
@@ -1008,6 +1020,12 @@
   },
   {
    "source": "Anthropic",
+   "title": "Introducing Claude Fable 5.2 and Claude Mythos 5.2",
+   "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "source": "Anthropic",
    "title": "Claude can design electronic prototypes from start to finish",
    "url": "https://www.anthropic.com/research/claude-electronics-design",
    "publishedAt": "2026-11-09T00:00:00.000Z"
@@ -1016,12 +1034,6 @@
    "source": "Anthropic",
    "title": "Teaching AI to build scientific models",
    "url": "https://www.anthropic.com/research/teaching-ai-to-build-scientific-models",
-   "publishedAt": "2026-11-06T00:00:00.000Z"
-  },
-  {
-   "source": "Anthropic",
-   "title": "The components of agent memory",
-   "url": "https://www.anthropic.com/research/components-of-agent-memory",
    "publishedAt": "2026-11-06T00:00:00.000Z"
   },
   {

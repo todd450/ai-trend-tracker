@@ -1,0 +1,400 @@
+{
+ "updatedAt": "2026-11-10T22:45:58.800Z",
+ "jobs": {
+  "asOf": "2026-09-30",
+  "months": [
+   {
+    "month": "2024-09",
+    "share": 2.4
+   },
+   {
+    "month": "2024-10",
+    "share": 2.54
+   },
+   {
+    "month": "2024-11",
+    "share": 2.6
+   },
+   {
+    "month": "2024-12",
+    "share": 2.71
+   },
+   {
+    "month": "2025-01",
+    "share": 2.78
+   },
+   {
+    "month": "2025-02",
+    "share": 2.79
+   },
+   {
+    "month": "2025-03",
+    "share": 2.77
+   },
+   {
+    "month": "2025-04",
+    "share": 2.79
+   },
+   {
+    "month": "2025-05",
+    "share": 2.88
+   },
+   {
+    "month": "2025-06",
+    "share": 3.1
+   },
+   {
+    "month": "2025-07",
+    "share": 3.22
+   },
+   {
+    "month": "2025-08",
+    "share": 3.45
+   },
+   {
+    "month": "2025-09",
+    "share": 3.71
+   },
+   {
+    "month": "2025-10",
+    "share": 4.06
+   },
+   {
+    "month": "2025-11",
+    "share": 4.28
+   },
+   {
+    "month": "2025-12",
+    "share": 4.44
+   },
+   {
+    "month": "2026-01",
+    "share": 4.77
+   },
+   {
+    "month": "2026-02",
+    "share": 5.05
+   },
+   {
+    "month": "2026-03",
+    "share": 5.44
+   },
+   {
+    "month": "2026-04",
+    "share": 5.47
+   },
+   {
+    "month": "2026-05",
+    "share": 5.8
+   },
+   {
+    "month": "2026-06",
+    "share": 5.99
+   },
+   {
+    "month": "2026-07",
+    "share": 6.39
+   },
+   {
+    "month": "2026-08",
+    "share": 6.81
+   },
+   {
+    "month": "2026-09",
+    "share": 7.34
+   }
+  ]
+ },
+ "federal": {
+  "months": [
+   {
+    "month": "2025-10",
+    "count": 13
+   },
+   {
+    "month": "2025-11",
+    "count": 13
+   },
+   {
+    "month": "2025-12",
+    "count": 19
+   },
+   {
+    "month": "2026-01",
+    "count": 19
+   },
+   {
+    "month": "2026-02",
+    "count": 18
+   },
+   {
+    "month": "2026-03",
+    "count": 14
+   },
+   {
+    "month": "2026-04",
+    "count": 38
+   },
+   {
+    "month": "2026-05",
+    "count": 38
+   },
+   {
+    "month": "2026-06",
+    "count": 19
+   },
+   {
+    "month": "2026-07",
+    "count": 39
+   },
+   {
+    "month": "2026-08",
+    "count": 33
+   },
+   {
+    "month": "2026-09",
+    "count": 29
+   },
+   {
+    "month": "2026-10",
+    "count": 31
+   }
+  ]
+ },
+ "releases": {
+  "log": [
+   {
+    "lab": "Anthropic",
+    "model": "Claude Fable 5.2 and Claude Mythos 5.2",
+    "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2",
+    "date": "2026-11-09T00:00:00.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Haiku 5.5",
+    "url": "https://www.anthropic.com/claude-haiku-5-5",
+    "date": "2026-10-07T00:00:00.000Z"
+   },
+   {
+    "lab": "Google DeepMind",
+    "model": "Gemini 4",
+    "url": "https://deepmind.google/blog/gemini-4-argon-our-next-era-of-frontier-intelligence/",
+    "date": "2026-09-30T20:01:45.000Z"
+   },
+   {
+    "lab": "OpenAI",
+    "model": "GPT-6.1",
+    "url": "https://openai.com/index/introducing-gpt-6-1-sol",
+    "date": "2026-09-29T17:00:00.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Sonnet 5.5",
+    "url": "https://www.anthropic.com/claude-sonnet-5-5",
+    "date": "2026-09-28T00:00:00.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Opus 5.5",
+    "url": "https://www.anthropic.com/claude-opus-5-5",
+    "date": "2026-09-22T00:00:00.000Z"
+   },
+   {
+    "lab": "OpenAI",
+    "model": "GPT-6",
+    "url": "https://openai.com/index/gpt-6-astra",
+    "date": "2026-09-03T11:00:00.000Z"
+   },
+   {
+    "lab": "Google DeepMind",
+    "model": "Gemini 3.8",
+    "url": "https://deepmind.google/blog/introducing-gemini-3-8-flash-and-38-flash-cyber/",
+    "date": "2026-09-02T16:18:31.000Z"
+   },
+   {
+    "lab": "Google DeepMind",
+    "model": "Gemini 3.7",
+    "url": "https://deepmind.google/blog/introducing-gemini-3-7-flash/",
+    "date": "2026-08-13T17:04:18.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Fable 5.1 and Claude Mythos 5.1",
+    "url": "https://www.anthropic.com/claude-fable-and-mythos-5-1",
+    "date": "2026-08-02T00:00:00.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Opus 5",
+    "url": "https://www.anthropic.com/news/claude-opus-5",
+    "date": "2026-07-24T00:00:00.000Z"
+   },
+   {
+    "lab": "Google DeepMind",
+    "model": "Gemini 3.6",
+    "url": "https://deepmind.google/blog/introducing-gemini-3-6-flash-3-5-flash-lite-and-3-5-flash-cyber/",
+    "date": "2026-07-21T15:16:30.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Sonnet 5",
+    "url": "https://www.anthropic.com/news/claude-sonnet-5",
+    "date": "2026-06-30T00:00:00.000Z"
+   },
+   {
+    "lab": "OpenAI",
+    "model": "GPT-5.6",
+    "url": "https://openai.com/index/previewing-gpt-5-6-sol",
+    "date": "2026-06-26T10:00:00.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Fable 5 and Claude Mythos 5",
+    "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+    "date": "2026-06-09T00:00:00.000Z"
+   },
+   {
+    "lab": "Anthropic",
+    "model": "Claude Opus 4.8",
+    "url": "https://www.anthropic.com/news/claude-opus-4-8",
+    "date": "2026-05-28T00:00:00.000Z"
+   },
+   {
+    "lab": "Google DeepMind",
+    "model": "Gemini 3.5",
+    "url": "https://deepmind.google/blog/gemini-3-5-frontier-intelligence-with-action/",
+    "date": "2026-05-15T22:50:12.000Z"
+   }
+  ],
+  "anthropicChecked": {
+   "https://www.anthropic.com/claude-fable-and-mythos-5-1": {
+    "lab": "Anthropic",
+    "model": "Claude Fable 5.1 and Claude Mythos 5.1",
+    "url": "https://www.anthropic.com/claude-fable-and-mythos-5-1",
+    "date": "2026-08-02T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/claude-fable-and-mythos-5-2": {
+    "lab": "Anthropic",
+    "model": "Claude Fable 5.2 and Claude Mythos 5.2",
+    "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2",
+    "date": "2026-11-09T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/claude-haiku-5-5": {
+    "lab": "Anthropic",
+    "model": "Claude Haiku 5.5",
+    "url": "https://www.anthropic.com/claude-haiku-5-5",
+    "date": "2026-10-07T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/claude-opus-5-5": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 5.5",
+    "url": "https://www.anthropic.com/claude-opus-5-5",
+    "date": "2026-09-22T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/claude-sonnet-5-5": {
+    "lab": "Anthropic",
+    "model": "Claude Sonnet 5.5",
+    "url": "https://www.anthropic.com/claude-sonnet-5-5",
+    "date": "2026-09-28T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-2": {
+    "lab": "Anthropic",
+    "model": "Claude 2",
+    "url": "https://www.anthropic.com/news/claude-2",
+    "date": "2023-07-11T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-2-1": {
+    "lab": "Anthropic",
+    "model": "Claude 2.1",
+    "url": "https://www.anthropic.com/news/claude-2-1",
+    "date": "2023-11-21T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-3-5-sonnet": {
+    "lab": "Anthropic",
+    "model": "Claude 3.5 Sonnet",
+    "url": "https://www.anthropic.com/news/claude-3-5-sonnet",
+    "date": "2024-06-21T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-3-7-sonnet": {
+    "lab": "Anthropic",
+    "model": "Claude 3.7 Sonnet and Claude Code",
+    "url": "https://www.anthropic.com/news/claude-3-7-sonnet",
+    "date": "2025-02-24T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-3-family": null,
+   "https://www.anthropic.com/news/claude-3-haiku": {
+    "lab": "Anthropic",
+    "model": "Claude 3 Haiku: our fastest model yet",
+    "url": "https://www.anthropic.com/news/claude-3-haiku",
+    "date": "2024-03-13T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-4": {
+    "lab": "Anthropic",
+    "model": "Claude 4",
+    "url": "https://www.anthropic.com/news/claude-4",
+    "date": "2025-05-22T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-fable-5-mythos-5": {
+    "lab": "Anthropic",
+    "model": "Claude Fable 5 and Claude Mythos 5",
+    "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+    "date": "2026-06-09T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-haiku-4-5": {
+    "lab": "Anthropic",
+    "model": "Claude Haiku 4.5",
+    "url": "https://www.anthropic.com/news/claude-haiku-4-5",
+    "date": "2025-10-15T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-opus-4-1": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 4.1",
+    "url": "https://www.anthropic.com/news/claude-opus-4-1",
+    "date": "2025-08-05T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-opus-4-5": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 4.5",
+    "url": "https://www.anthropic.com/news/claude-opus-4-5",
+    "date": "2025-11-24T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-opus-4-6": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 4.6",
+    "url": "https://www.anthropic.com/news/claude-opus-4-6",
+    "date": "2026-02-05T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-opus-4-7": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 4.7",
+    "url": "https://www.anthropic.com/news/claude-opus-4-7",
+    "date": "2026-04-16T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-opus-4-8": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 4.8",
+    "url": "https://www.anthropic.com/news/claude-opus-4-8",
+    "date": "2026-05-28T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-opus-5": {
+    "lab": "Anthropic",
+    "model": "Claude Opus 5",
+    "url": "https://www.anthropic.com/news/claude-opus-5",
+    "date": "2026-07-24T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-sonnet-4-5": {
+    "lab": "Anthropic",
+    "model": "Claude Sonnet 4.5",
+    "url": "https://www.anthropic.com/news/claude-sonnet-4-5",
+    "date": "2025-09-29T00:00:00.000Z"
+   },
+   "https://www.anthropic.com/news/claude-sonnet-4-6": null,
+   "https://www.anthropic.com/news/claude-sonnet-5": {
+    "lab": "Anthropic",
+    "model": "Claude Sonnet 5",
+    "url": "https://www.anthropic.com/news/claude-sonnet-5",
+    "date": "2026-06-30T00:00:00.000Z"
+   }
+  }
+ }
+}

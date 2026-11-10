@@ -61,3 +61,20 @@ export type Latest = {
   /** Newest announcements from the frontier labs' own news pages. */
   labNews: FeedItem[];
 };
+
+/** The first announcement of a new version of a lab's main model line. */
+export type Release = { lab: string; model: string; url: string; date: string };
+
+/** Slower-moving figures from outside the research world, in data/indicators.json. */
+export type Indicators = {
+  updatedAt: string;
+  /** Share of US job postings on Indeed mentioning AI skills (percent), one reading per month. */
+  jobs: { asOf: string; months: { month: string; share: number }[] } | null;
+  /** US Federal Register documents mentioning "artificial intelligence", per complete month. */
+  federal: { months: { month: string; count: number }[] } | null;
+  releases: {
+    log: Release[];
+    /** Anthropic model pages already opened, so each is fetched only once. */
+    anthropicChecked: Record<string, Release | null>;
+  } | null;
+};

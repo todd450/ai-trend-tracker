@@ -12,6 +12,9 @@ and lab news feeds, and needs no API keys.
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
 | Labs | Anthropic, OpenAI, Google DeepMind news | Newest announcements, including closed-model releases |
+| Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
+| Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
+| Releases | Lab news pages | First announcement of each new GPT, Gemini and Claude version |
 
 ## Run it
 
@@ -36,6 +39,7 @@ The collector writes to `data/`:
 
 - `history.json`: weekly counts per topic. It grows over time.
 - `latest.json`: the current ranked lists, plus whether each source succeeded.
+- `indicators.json`: the monthly hiring and policy figures and the model release log.
 - `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
 
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
