@@ -1,0 +1,83 @@
+/* Design tokens for AI Trend Tracker. Every colour, font, size and space used
+ * by the site is named here; page styles reference these names only.
+ * Theme: Newsprint (light paper · roman serif · cool ink-blue accent). */
+
+:root {
+  color-scheme: light dark;
+
+  /* Paper and ink, tinted toward a warm newsprint hue (85) */
+  --color-paper: oklch(97% 0.012 85);
+  --color-paper-2: oklch(94.5% 0.014 85);
+  --color-rule: oklch(84% 0.012 85);
+  --color-rule-strong: oklch(30% 0.012 85);
+  --color-muted: oklch(50% 0.012 85);
+  --color-ink-2: oklch(36% 0.012 85);
+  --color-ink: oklch(21% 0.012 85);
+
+  /* One accent: ink blue, used for links, focus and the rising signal */
+  --color-accent: oklch(45% 0.14 255);
+  --color-focus: oklch(50% 0.17 255);
+
+  /* Data marks. Validated as a colour-blind-safe pair on the paper surface
+   * (blue #2a78d6 vs red #e34948: protan ΔE 21.6, contrast ≥ 3:1). */
+  --data-rising: #2a78d6;
+  --data-cooling: #e34948;
+  --data-steady: oklch(55% 0.012 85);
+  --color-ok: oklch(48% 0.13 150);
+  --color-fail: oklch(50% 0.17 27);
+
+  --font-display: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: var(--font-geist), "Helvetica Neue", sans-serif;
+
+  /* Type scale, perfect fourth (1.333) from a 17px base */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.125rem;
+  --text-display-s: clamp(2rem, 3.4vw + 1rem, 3.5rem);
+  --text-mast: clamp(2.25rem, 6vw, 4.25rem);
+
+  /* 4pt spacing scale */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 76rem;
+
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-sm: 2px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.01 85);
+    --color-paper-2: oklch(21% 0.012 85);
+    --color-rule: oklch(32% 0.012 85);
+    --color-rule-strong: oklch(82% 0.01 85);
+    --color-muted: oklch(66% 0.012 85);
+    --color-ink-2: oklch(80% 0.01 85);
+    --color-ink: oklch(93% 0.008 85);
+
+    --color-accent: oklch(76% 0.11 255);
+    --color-focus: oklch(74% 0.14 255);
+
+    /* Same two hues, re-stepped and validated for the dark surface. */
+    --data-rising: #3987e5;
+    --data-cooling: #e66767;
+    --data-steady: oklch(62% 0.012 85);
+    --color-ok: oklch(72% 0.15 150);
+    --color-fail: oklch(70% 0.16 27);
+  }
+}

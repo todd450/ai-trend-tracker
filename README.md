@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Trend Tracker
 
-## Getting Started
+A public dashboard that shows where attention in AI is moving, week by week.
+It reads four free public sources and needs no API keys.
 
-First, run the development server:
+| Signal | Source | What is measured |
+| --- | --- | --- |
+| Research | arXiv | Weekly share of AI papers mentioning each topic |
+| Discussion | Hacker News | Weekly stories with each topic in the title, and the week's top AI stories |
+| Code | GitHub | New AI repositories ranked by stars gained per day |
+| Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
+
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Refresh the data
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run collect
+```
 
-## Learn More
+The first run backfills 12 weeks of history and takes about 15 minutes,
+because arXiv allows one request every three seconds. Later runs only
+re-count the two newest weeks. `npm run collect -- --fast` skips the backfill.
 
-To learn more about Next.js, take a look at the following resources:
+The collector writes to `data/`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `history.json`: weekly counts per topic. It grows over time.
+- `latest.json`: the current ranked lists, plus whether each source succeeded.
+- `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If a source is down, the previous data for it is kept and the site marks it
+as stale in the "Source status" list.
 
-## Deploy on Vercel
+## How it fits together
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+scripts/collect.ts   fetches from the four sources → data/*.json
+src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
+src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
+src/app/page.tsx     the dashboard, built as a static page from data/*.json
+tokens.css           every colour, font and size the design uses
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+There is no database. The site is a static page rebuilt whenever the data
+files change. `.github/workflows/collect.yml` refreshes the data daily once
+the project is on GitHub.
+
+## How a trend is decided
+
+For each topic, the average of the latest four weeks is compared with the four
+weeks before. A topic is "rising" or "cooling" when its share of AI papers
+moved by 10% or more. Topics are keyword lists, so counts are indicators
+rather than exact measurements. The page's "How this is measured" section
+explains the limits to readers.
