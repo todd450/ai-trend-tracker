@@ -78,6 +78,23 @@ export const topicTrends: TopicTrend[] = TOPICS.map((topic) => {
 
 export const hasHistory = weeks.length >= 2 * WINDOW;
 
+const weeklyMean = (xs: number[]) => mean(xs.slice(-2 * WINDOW));
+
+/** Average papers a week a topic needs before the headline or the map will use it. */
+export const HEADLINE_MIN_PAPERS = 25;
+/** Average Hacker News stories a week a topic needs before the map will place it. */
+export const MAP_MIN_STORIES = 5;
+
+/** Topics with enough papers that a swing is not noise, biggest riser first. */
+export const rankedTopics = topicTrends.filter(
+  (t) => t.hasPapers && mean(t.paperCounts.slice(-WINDOW)) >= HEADLINE_MIN_PAPERS,
+);
+
+/** Topics with enough papers and stories for both of their changes to mean something. */
+export const mapTopics = rankedTopics.filter(
+  (t) => t.papers.change !== null && t.stories.change !== null && weeklyMean(t.stories.values) >= MAP_MIN_STORIES,
+);
+
 // ---------------------------------------------------------------- themes
 
 /** Theme counts are small, so a theme needs a bigger move than a topic to be called rising or cooling. */

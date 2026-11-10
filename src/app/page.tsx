@@ -1,6 +1,10 @@
 import { Logo } from "@/components/Logo";
+import { MomentumMap } from "@/components/MomentumMap";
 import { Sparkline } from "@/components/Sparkline";
+import { briefing, headline } from "@/lib/briefing";
 import {
+  HEADLINE_MIN_PAPERS,
+  MAP_MIN_STORIES,
   THEME_STEADY_BAND,
   WINDOW,
   directionOf,
@@ -14,6 +18,7 @@ import {
   history,
   isoWeek,
   latest,
+  mapTopics,
   themeTrends,
   topicTrends,
   weeks,
@@ -24,8 +29,6 @@ import {
 import { federal, fmtMonth, indicators, jobs, releases } from "@/lib/indicators";
 
 const SHOWN = 10;
-/** Average papers a week a topic needs before the headline will name it. */
-const HEADLINE_MIN_PAPERS = 25;
 
 const DIRECTION_LABEL: Record<Direction, string> = { rising: "Rising", steady: "Steady", cooling: "Cooling" };
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
@@ -71,12 +74,7 @@ function Change({ signal, band }: { signal: Signal; band?: number }) {
 export default function Home() {
   const latestWeek = weeks.at(-1);
   const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
-  // The headline only names topics with enough papers that a swing is not noise.
-  const ranked = topicTrends.filter(
-    (t) => t.hasPapers && t.paperCounts.slice(-WINDOW).reduce((a, b) => a + b, 0) / WINDOW >= HEADLINE_MIN_PAPERS,
-  );
-  const top = ranked[0];
-  const bottom = ranked.at(-1);
+  const placed = new Set(mapTopics.map((t) => t.id));
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
 
   return (
@@ -110,25 +108,41 @@ export default function Home() {
 
       <main className="page">
         <section className="lede">
-          <h2 className="lede__head">
-            {hasHistory && top && bottom && top.direction === "rising" && bottom.direction === "cooling" ? (
-              <>
-                On the rise: {top.name}. <span className="lede__turn">Losing ground: {bottom.name}.</span>
-              </>
-            ) : (
-              "Where attention in AI is moving this week."
-            )}
-          </h2>
-          <div className="lede__dek">
-            <p>
-              A weekly reading of where attention in artificial intelligence is moving, measured from four public
-              sources: new research papers, open-source code, model releases and news discussion.
-            </p>
-            <p className="lede__meta">
-              Updated {fmtDate(latest.generatedAt)}
-              {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv last week</>}
-            </p>
+          <div className="lede__main">
+            <h2 className="lede__head">
+              {headline.lead}
+              {headline.turn && (
+                <>
+                  {" "}
+                  <span className="lede__turn">{headline.turn}</span>
+                </>
+              )}
+            </h2>
+            <div className="lede__dek">
+              <p>
+                A weekly reading of where attention in artificial intelligence is moving, measured from public
+                sources: research papers, open-source code, model releases, news discussion and economic indicators.
+              </p>
+              <p className="lede__meta">
+                Updated {fmtDate(latest.generatedAt)}
+                {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv last week</>}
+              </p>
+            </div>
           </div>
+          {briefing.length > 0 && (
+            <div className="brief">
+              <h3 className="brief__title">The week in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
+              <ol>
+                {briefing.map((line, n) => (
+                  <li key={line.label}>
+                    <span className="brief__num" aria-hidden="true">{n + 1}</span>
+                    <a className="brief__label" href={line.href}>{line.label}</a>
+                    <p>{line.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </section>
 
         <section id="momentum" className="band" aria-labelledby="momentum-h">
@@ -142,6 +156,16 @@ export default function Home() {
 
           {hasHistory ? (
             <>
+              <MomentumMap
+                points={mapTopics.map((t) => ({
+                  id: t.id,
+                  name: t.name,
+                  research: t.papers.change ?? 0,
+                  discussion: t.stories.change ?? 0,
+                  direction: t.direction,
+                }))}
+                unplaced={topicTrends.filter((t) => !placed.has(t.id)).map((t) => t.name)}
+              />
               <div className="trend-cols" aria-hidden="true">
                 <span>Topic</span>
                 <span>Research</span>
@@ -149,7 +173,7 @@ export default function Home() {
               </div>
               <ol className="trends">
                 {topicTrends.map((t, i) => (
-                  <li key={t.id} className="trend">
+                  <li key={t.id} id={`topic-${t.id}`} className="trend">
                     <div className="trend__topic">
                       <span className="trend__rank">{i + 1}</span>
                       <div>
@@ -655,6 +679,13 @@ export default function Home() {
                 four-week windows. Topics are defined by keyword lists, so a paper can count toward several topics,
                 and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
+              </p>
+              <p>
+                <strong>The map</strong> places a topic by two changes over the same four-week windows: its share
+                of AI papers (across) and its Hacker News stories (up). A topic is placed only when it averages at
+                least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week, because smaller counts swing
+                too easily. A change beyond the edge of the map is drawn on the edge. <strong>The week in five
+                lines</strong> is written by fixed rules from the same numbers, not by an editor or a model.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
