@@ -1,3 +1,4 @@
+import { Logo } from "@/components/Logo";
 import { Sparkline } from "@/components/Sparkline";
 import {
   WINDOW,
@@ -86,7 +87,10 @@ export default function Home() {
         <p className="mast__line">
           {latestWeek ? `No. ${isoWeek(latestWeek)} · Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
         </p>
-        <h1 className="mast__name">AI Trend Tracker</h1>
+        <h1 className="mast__name">
+          <Logo className="mast__mark" />
+          AI Trend Tracker
+        </h1>
         <nav className="mast__nav" aria-label="Sections">
           <ul>
             <li><a href="#momentum">Momentum</a></li>

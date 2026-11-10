@@ -134,6 +134,17 @@ code {
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.28em;
+}
+
+/* Sized to the capital height, sitting on the baseline of the name. */
+.mast__mark {
+  flex: none;
+  height: 0.66em;
+  width: auto;
 }
 
 .mast__nav {

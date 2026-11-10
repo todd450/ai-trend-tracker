@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Rising columns, simplified for 16px: every rule lands on a whole pixel. -->
+  <style>
+    .ink { fill: #1d1b17 }
+    .accent { fill: #2459b8 }
+    @media (prefers-color-scheme: dark) {
+      .ink { fill: #f6f2e8 }
+      .accent { fill: #7fb0f2 }
+    }
+  </style>
+  <g class="ink">
+    <path d="M3 18h8v4H3zM3 24h8v2H3zM3 28h8v2H3z"/>
+    <path d="M12 10h8v4h-8zM12 16h8v2h-8zM12 20h8v2h-8zM12 24h8v2h-8zM12 28h8v2h-8z"/>
+    <path d="M21 8h8v2h-8zM21 12h8v2h-8zM21 16h8v2h-8zM21 20h8v2h-8zM21 24h8v2h-8zM21 28h8v2h-8z"/>
+  </g>
+  <path class="accent" d="M21 2h8v4h-8z"/>
+</svg>
