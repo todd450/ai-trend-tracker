@@ -8,7 +8,7 @@
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
  *   data/latest.json               current ranked lists (papers, repos, models, news)
- *   data/indicators.json           monthly job-posting, federal, model-release and download figures
+ *   data/indicators.json           job-posting, federal, model-release, download and business-survey figures
  *   data/snapshots/YYYY-MM-DD.json a dated copy of the lists, kept as a record
  *
  * No API keys are required. Set GITHUB_TOKEN to raise GitHub's rate limit.
@@ -17,6 +17,7 @@
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { inflateRawSync } from "node:zlib";
 import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
@@ -50,6 +51,12 @@ async function getText(url: string): Promise<string> {
   });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${new URL(url).host}`);
   return res.text();
+}
+
+async function getBuffer(url: string): Promise<Buffer> {
+  const res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(60_000) });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${new URL(url).host}`);
+  return Buffer.from(await res.arrayBuffer());
 }
 
 async function readJson<T>(file: string, fallback: T): Promise<T> {
@@ -629,6 +636,99 @@ async function packageDownloads(previous: Indicators["downloads"]): Promise<Down
   return { packages };
 }
 
+// An .xlsx workbook is a zip archive of XML files. These two helpers read one
+// worksheet out of it, which is all the collector needs and avoids a dependency.
+
+/** The text of one file inside a zip archive. */
+function unzipEntry(zip: Buffer, name: string): string {
+  const end = zip.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06])); // the archive's closing record
+  if (end < 0) throw new Error("not a zip archive");
+  let at = zip.readUInt32LE(end + 16); // where the list of files starts
+  for (let i = zip.readUInt16LE(end + 10); i > 0 && zip.readUInt32LE(at) === 0x02014b50; i--) {
+    const nameLength = zip.readUInt16LE(at + 28);
+    if (zip.toString("utf8", at + 46, at + 46 + nameLength) === name) {
+      const local = zip.readUInt32LE(at + 42);
+      const start = local + 30 + zip.readUInt16LE(local + 26) + zip.readUInt16LE(local + 28);
+      const packed = zip.subarray(start, start + zip.readUInt32LE(at + 20));
+      return (zip.readUInt16LE(at + 10) === 0 ? packed : inflateRawSync(packed)).toString("utf8");
+    }
+    at += 46 + nameLength + zip.readUInt16LE(at + 30) + zip.readUInt16LE(at + 32);
+  }
+  throw new Error(`${name} is not in the archive`);
+}
+
+/** A worksheet's rows, each a map from column letter to the cell's text. Handles numbers and inline text only. */
+function xlsxSheet(workbook: Buffer, sheetName: string): Map<string, string>[] {
+  const attr = (tag: string, name: string) => tag.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1];
+  const sheet = (unzipEntry(workbook, "xl/workbook.xml").match(/<sheet [^>]*>/g) ?? []).find((tag) => attr(tag, "name") === sheetName);
+  const link = (unzipEntry(workbook, "xl/_rels/workbook.xml.rels").match(/<Relationship [^>]*>/g) ?? []).find(
+    (tag) => sheet && attr(tag, "Id") === attr(sheet, "r:id"),
+  );
+  const target = link && attr(link, "Target");
+  if (!target) throw new Error(`no sheet named "${sheetName}"`);
+  const xml = unzipEntry(workbook, target.startsWith("/") ? target.slice(1) : `xl/${target}`);
+  const text = (inner: string) =>
+    inner
+      .replace(/<[^>]+>/g, "")
+      .replace(/&(amp|lt|gt|quot|apos);/g, (_, e: string) => ({ amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" })[e] ?? "")
+      .trim();
+  return [...xml.matchAll(/<row [^>]*>([\s\S]*?)<\/row>/g)].map(
+    ([, row]) => new Map([...row.matchAll(/<c r="([A-Z]+)\d+"[^>]*?(?:\/>|>([\s\S]*?)<\/c>)/g)].map(([, column, inner]) => [column, text(inner ?? "")])),
+  );
+}
+
+/** Enough two-week periods for the dashboard's comparison (six against six) with room to spare. */
+const BUSINESS_MIN_PERIODS = 12;
+const BUSINESS_PERIODS_KEPT = 60;
+
+type Business = NonNullable<Indicators["business"]>;
+
+/**
+ * Share of US businesses that used AI in the last two weeks, and that expect to in the next six months,
+ * from the Census Bureau's Business Trends and Outlook Survey. Its API has no national figure short of
+ * a 10 MB download per period, so this reads the national spreadsheet the Bureau publishes alongside it.
+ * Rows are found by the question's wording, because question numbers differ between releases.
+ */
+async function businessAdoption(previous: Indicators["business"]): Promise<Business> {
+  const workbook = await getBuffer("https://www.census.gov/hfp/btos/downloads/National.xlsx");
+  const [header, ...rows] = xlsxSheet(workbook, "Response Estimates");
+  if (!header) throw new Error("the estimates sheet is empty");
+  const column = (title: string) => [...header].find(([, value]) => value === title)?.[0];
+  const question = column("Question");
+  const answer = column("Answer");
+  if (!question || !answer) throw new Error("the estimates sheet has no Question or Answer column");
+  const yes = (wording: RegExp) =>
+    rows.find((row) => row.get(answer) === "Yes" && /Intelligence/.test(row.get(question) ?? "") && wording.test(row.get(question) ?? ""));
+  const using = yes(/^In the last two weeks, did this business use /);
+  const planning = yes(/^During the next six months, do you think this business will be using /);
+  if (!using) throw new Error("the question on current AI use was not found");
+
+  // The dates sheet gives each period's last day of collection, as a spreadsheet day number.
+  const [datesHeader, ...dateRows] = xlsxSheet(workbook, "Collection and Reference Dates");
+  const dateColumn = (title: string) => [...(datesHeader ?? [])].find(([, value]) => value === title)?.[0];
+  const code = dateColumn("Smpdt");
+  const collectionEnd = dateColumn("Col End");
+  if (!code || !collectionEnd) throw new Error("the dates sheet has no Smpdt or Col End column");
+  const ends = new Map(dateRows.map((row) => [row.get(code), Number(row.get(collectionEnd))]));
+
+  const percent = (value: string | undefined) => (value && /^\d+(\.\d+)?%$/.test(value) ? Number(value.slice(0, -1)) : null);
+  const byPeriod = new Map(previous?.periods.map((p) => [p.period, p]));
+  for (const [letter, period] of header) {
+    const share = percent(using.get(letter));
+    const end = ends.get(period);
+    if (!/^\d{6}$/.test(period) || share === null || !end) continue;
+    byPeriod.set(period, {
+      period,
+      end: isoDay(new Date(Date.UTC(1899, 11, 30) + end * DAY)),
+      using: share,
+      planning: percent(planning?.get(letter)),
+    });
+  }
+  const periods = [...byPeriod.values()].sort((a, b) => a.period.localeCompare(b.period)).slice(-BUSINESS_PERIODS_KEPT);
+  if (periods.length < BUSINESS_MIN_PERIODS) throw new Error(`only ${periods.length} periods of AI-use answers`);
+  return { periods };
+}
+
 /** A release is only logged when first seen within this many days, so a feed's short memory cannot misdate old models. */
 const RELEASE_FRESH_DAYS = 200;
 
@@ -845,6 +945,7 @@ async function main() {
     if (failed.length) throw new Error(`no response from ${failed.join(", ")}`);
   });
   await indicator("downloads", async () => void (indicators.downloads = await packageDownloads(before.downloads)));
+  await indicator("business", async () => void (indicators.business = await businessAdoption(before.business)));
   await writeJson("indicators.json", indicators);
 
   console.log(`Collecting weekly topic history (${weeks[0]} → ${weeks.at(-1)})${FAST ? " [fast]" : ""}…`);

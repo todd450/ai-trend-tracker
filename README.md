@@ -16,6 +16,7 @@ and lab news feeds, and needs no API keys.
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
 | Releases | Lab news pages | First announcement of each new GPT, Gemini and Claude version |
+| Adoption | US Census Bureau business survey | Share of US businesses saying they use AI, every two weeks |
 | Usage | npm and PyPI Stats | Monthly downloads of ten developer toolkits, as a share of all ten |
 
 ## Run it
@@ -41,8 +42,8 @@ The collector writes to `data/`:
 
 - `history.json`: weekly counts per topic, theme and sub-theme. It grows over time.
 - `latest.json`: the current ranked lists, plus whether each source succeeded.
-- `indicators.json`: the monthly hiring and policy figures, the model release log and
-  monthly toolkit downloads.
+- `indicators.json`: the monthly hiring and policy figures, the model release log,
+  monthly toolkit downloads and the two-weekly business survey answers.
 - `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
 
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
@@ -115,3 +116,20 @@ is the same in all five views. PyPI Stats keeps about 180 days, so the first
 run has six months; the collector keeps every month it has seen (up to 25),
 so the record grows from there. Downloads include build servers and packages
 pulled in by other packages, so they show direction, not a number of users.
+
+## How business adoption is measured
+
+The "Business adoption" section uses the Census Bureau's Business Trends and
+Outlook Survey, which asks US businesses every two weeks whether they used AI
+in the last two weeks and whether they expect to in the next six months. The
+survey's API only gives the national figure inside a 10 MB download per
+period, so the collector reads the Bureau's national spreadsheet
+(`National.xlsx`, about 100 KB) with a small built-in reader, and finds the
+two questions by their wording.
+
+The trend compares the average of the latest six surveys with the six before,
+in all five views. The series starts in November 2025, when the Bureau
+broadened the question's wording; earlier answers were lower and are not
+joined on. If the Bureau rewords the question so that it no longer begins
+"In the last two weeks, did this business use", the source will show as stale
+and `businessAdoption` in `scripts/collect.ts` needs the new wording.

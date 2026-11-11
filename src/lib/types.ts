@@ -88,4 +88,10 @@ export type Indicators = {
    * (see src/lib/toolkits.ts), then by month. Months build up here beyond what the registries keep.
    */
   downloads?: { packages: Record<string, Record<string, number>> } | null;
+  /**
+   * Share of US businesses answering yes to the Census Bureau's two AI questions (percent),
+   * one reading per two-week survey period, oldest first. `period` is the survey's own code
+   * (year then fortnight, e.g. "202622") and `end` the last day of collection.
+   */
+  business?: { periods: { period: string; end: string; using: number; planning: number | null }[] } | null;
 };

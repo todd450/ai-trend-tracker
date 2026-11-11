@@ -58,13 +58,15 @@ export const USAGE_WINDOW = 3;
 
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
 
-/** The latest months against the same number before them; no change until both halves are filled. */
-function quarterOnQuarter(values: number[]): Signal {
-  const recent = mean(values.slice(-USAGE_WINDOW));
-  const prior = mean(values.slice(-USAGE_WINDOW * 2, -USAGE_WINDOW));
-  const filled = values.length >= USAGE_WINDOW * 2;
+/** The latest `window` readings against the same number before them; no change until both halves are filled. */
+function halves(values: number[], window: number): Signal {
+  const recent = mean(values.slice(-window));
+  const prior = mean(values.slice(-window * 2, -window));
+  const filled = values.length >= window * 2;
   return { values, recent, prior, change: filled && prior > 0 ? (recent - prior) / prior : null };
 }
+
+const quarterOnQuarter = (values: number[]) => halves(values, USAGE_WINDOW);
 
 /**
  * Each toolkit's share of tracked downloads, over the months every package has a figure for.
@@ -114,3 +116,28 @@ function usageSummary(packages: Record<string, Record<string, number>>) {
 }
 
 export const usage = indicators.downloads ? usageSummary(indicators.downloads.packages) : null;
+
+/** Two-week survey periods in each half of the business comparison: about three months against the three before. */
+export const ADOPTION_WINDOW = 6;
+/** Periods drawn in the trend line: a year of fortnights. */
+const ADOPTION_SHOWN = 26;
+
+function adoptionSummary(all: NonNullable<Indicators["business"]>["periods"]) {
+  const periods = all.slice(-ADOPTION_SHOWN);
+  const last = periods.at(-1);
+  if (!last || periods.length < 2) return null;
+  const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const planned = periods.map((p) => p.planning);
+  return {
+    asOf: last.end,
+    /** The earliest survey on record, which may be before the first one drawn. */
+    since: all[0].end,
+    labels: periods.map((p) => `2 weeks to ${day.format(new Date(`${p.end}T00:00:00Z`))}`),
+    latest: { using: last.using, planning: last.planning },
+    using: halves(periods.map((p) => p.using), ADOPTION_WINDOW),
+    /** Left out if any period lacks the answer, so the line never joins across a gap. */
+    planning: planned.every((v): v is number => v !== null) ? halves(planned, ADOPTION_WINDOW) : null,
+  };
+}
+
+export const adoption = indicators.business ? adoptionSummary(indicators.business.periods) : null;
