@@ -18,10 +18,11 @@
   --color-accent: oklch(45% 0.14 255);
   --color-focus: oklch(50% 0.17 255);
 
-  /* Data marks. Validated as a colour-blind-safe pair on the paper surface
-   * (blue #2a78d6 vs red #e34948: protan ΔE 21.6, contrast ≥ 3:1). */
+  /* Data marks. Blue for a rise and amber for a fall: a pair that stays apart for
+   * colour-blind readers and carries no alarm, since cooling is not bad news.
+   * Both hold at least 3.7:1 against the paper and the tinted paper. */
   --data-rising: #2a78d6;
-  --data-cooling: #e34948;
+  --data-cooling: #b86200;
   --data-steady: oklch(55% 0.012 85);
   --color-ok: oklch(48% 0.13 150);
   --color-fail: oklch(50% 0.17 27);
@@ -75,7 +76,7 @@
 
     /* Same two hues, re-stepped and validated for the dark surface. */
     --data-rising: #3987e5;
-    --data-cooling: #e66767;
+    --data-cooling: #e8943a;
     --data-steady: oklch(62% 0.012 85);
     --color-ok: oklch(72% 0.15 150);
     --color-fail: oklch(70% 0.16 27);
