@@ -759,7 +759,7 @@ code {
 .band__head {
   display: grid;
   gap: var(--space-2xs);
-  padding-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
 }
 
 .band__head h2 {
@@ -767,7 +767,7 @@ code {
 }
 
 .band__head p {
-  max-width: 62ch;
+  max-width: 80ch;
   font-size: var(--text-sm);
   color: var(--color-muted);
 }
@@ -810,7 +810,21 @@ code {
 .chapter__head {
   display: grid;
   gap: var(--space-2xs);
-  padding-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+}
+
+/* Wide screens: part number, title and one-line summary share a baseline. */
+@media (min-width: 60rem) {
+  .chapter__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-md);
+  }
+
+  .chapter__kicker {
+    flex-basis: 100%;
+  }
 }
 
 .chapter__kicker {
