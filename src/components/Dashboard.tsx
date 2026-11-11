@@ -275,9 +275,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <p className="lede__meta">
                 Updated {fmtDate(latest.generatedAt)}
                 {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv last week</>}
-              </p>
-              <p className="lede__meta">
-                Showing {HORIZONS[horizon].label}: charts cover {weeks.length} weeks, and each change is the {compared}.
+                {" · "}Showing {HORIZONS[horizon].label}: charts cover {weeks.length} weeks, and each change is the {compared}.
               </p>
             </div>
           </div>
