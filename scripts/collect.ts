@@ -22,7 +22,8 @@ import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
-const WEEKS_OF_HISTORY = 12;
+/** Enough for the long-term view: 13 weeks compared with the 13 before. */
+const WEEKS_OF_HISTORY = 26;
 /** The newest weeks are re-counted each run because sources index late. */
 const WEEKS_TO_REFRESH = 2;
 const USER_AGENT = "ai-trend-tracker (public dashboard; collector script)";
@@ -87,9 +88,10 @@ async function arxivCount(weekStart: string, phrases: string[] | null): Promise<
   const url = `https://export.arxiv.org/api/query?max_results=1&search_query=${encodeURIComponent(parts.join(" AND "))}`;
 
   let lastError: unknown;
-  for (let attempt = 0; attempt < 4; attempt++) {
-    // arXiv asks for at most one request every three seconds.
-    await sleep(attempt === 0 ? 3100 : 8000 * attempt);
+  for (let attempt = 0; attempt < 5; attempt++) {
+    // arXiv asks for at most one request every three seconds, and answers 429
+    // for a minute or more during a long backfill, so retries wait 30s, 60s, 90s, 120s.
+    await sleep(attempt === 0 ? 3100 : 30_000 * attempt);
     try {
       const res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(45_000) });
       if (!res.ok) throw new Error(`arXiv responded ${res.status}`);

@@ -32,7 +32,7 @@ Then open http://localhost:3000.
 npm run collect
 ```
 
-The first run backfills 12 weeks of history and takes about 15 minutes,
+The first run backfills 26 weeks of history and takes about 25 minutes,
 because arXiv allows one request every three seconds. Later runs only
 re-count the two newest weeks. `npm run collect -- --fast` skips the backfill.
 
@@ -56,7 +56,9 @@ as stale in the "Source status" list.
 scripts/collect.ts   fetches from the sources and feeds → data/*.json
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
-src/app/page.tsx     the dashboard, built as a static page from data/*.json
+src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
+src/app/page.tsx     the short-term view, at /
+src/app/long-term/   the long-term view, at /long-term
 tokens.css           every colour, font and size the design uses
 ```
 
@@ -66,8 +68,14 @@ the project is on GitHub.
 
 ## How a trend is decided
 
-For each topic, the average of the latest four weeks is compared with the four
-weeks before. A topic is "rising" or "cooling" when its share of AI papers
-moved by 10% or more. Topics are keyword lists, so counts are indicators
+The page has two views, switched from the masthead:
+
+- **Short term** compares the average of the latest 4 weeks with the 4 weeks
+  before. It shows what is moving now.
+- **Long term** compares the latest 13 weeks with the 13 before, about one
+  quarter against the previous one. It needs 26 weeks of history.
+
+In either view a topic is "rising" or "cooling" when its share of AI papers
+moved by 10% or more. The windows are set in `HORIZONS` in `src/lib/trends.ts`. Topics are keyword lists, so counts are indicators
 rather than exact measurements. The page's "How this is measured" section
 explains the limits to readers.

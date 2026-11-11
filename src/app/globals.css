@@ -184,6 +184,64 @@ code {
   }
 }
 
+/* The short-term / long-term switch: two links, the current one inked in. */
+.horizon ul {
+  display: inline-flex;
+  border: var(--rule-hair) solid var(--color-rule-strong);
+  border-radius: var(--radius-sm);
+}
+
+.horizon a {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.horizon__span {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.horizon a[aria-current="page"],
+.horizon a[aria-current="page"]:hover,
+.horizon a[aria-current="page"]:active {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+.horizon a[aria-current="page"] .horizon__span {
+  color: inherit;
+  opacity: 0.75;
+}
+
+@media (hover: hover) {
+  .horizon a:not([aria-current]):hover {
+    background: var(--color-paper-2);
+  }
+}
+
+@media (pointer: coarse) {
+  .horizon a {
+    padding-block: var(--space-xs);
+  }
+}
+
+.mast .horizon {
+  margin-top: var(--space-sm);
+}
+
+.band__head .horizon {
+  margin-top: var(--space-xs);
+}
+
 /* -------------------------------------------------------------- page */
 
 .page {

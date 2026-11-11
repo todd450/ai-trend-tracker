@@ -1,28 +1,25 @@
+import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Logo } from "@/components/Logo";
 import { MomentumMap } from "@/components/MomentumMap";
 import { Sparkline } from "@/components/Sparkline";
-import { briefing, headline } from "@/lib/briefing";
+import { buildBriefing } from "@/lib/briefing";
 import {
   HEADLINE_MIN_PAPERS,
+  HORIZONS,
   MAP_MIN_STORIES,
   THEME_STEADY_BAND,
-  WINDOW,
+  buildTrends,
   directionOf,
   fmtChange,
   fmtCompact,
   fmtDate,
   fmtDay,
   fmtWeek,
-  hasHistory,
-  hasThemes,
   history,
   isoWeek,
   latest,
-  mapTopics,
-  themeTrends,
-  topicTrends,
-  weeks,
   type Direction,
+  type Horizon,
   type Signal,
 } from "@/lib/trends";
 
@@ -71,7 +68,12 @@ function Change({ signal, band }: { signal: Signal; band?: number }) {
   );
 }
 
-export default function Home() {
+/** The whole dashboard, read over one time horizon. The two routes differ only in this prop. */
+export function Dashboard({ horizon }: { horizon: Horizon }) {
+  const trends = buildTrends(horizon);
+  const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, hasHistory, hasThemes } = trends;
+  const { headline, briefing } = buildBriefing(trends);
+  const { period } = HORIZONS[horizon];
   const latestWeek = weeks.at(-1);
   const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
   const placed = new Set(mapTopics.map((t) => t.id));
@@ -104,6 +106,7 @@ export default function Home() {
             <li><a href="#method">Method</a></li>
           </ul>
         </nav>
+        <HorizonSwitch current={horizon} label="Trend period" />
       </header>
 
       <main className="page">
@@ -131,7 +134,7 @@ export default function Home() {
           </div>
           {briefing.length > 0 && (
             <div className="brief">
-              <h3 className="brief__title">The week in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
+              <h3 className="brief__title">The {period} in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
               <ol>
                 {briefing.map((line, n) => (
                   <li key={line.label}>
@@ -152,6 +155,7 @@ export default function Home() {
               Each topic’s last {WINDOW} weeks compared with the {WINDOW} weeks before. Research is the topic’s share
               of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title.
             </p>
+            <HorizonSwitch current={horizon} label="Trend period for topics" />
           </div>
 
           {hasHistory ? (
@@ -261,7 +265,8 @@ export default function Home() {
             </>
           ) : (
             <p className="empty">
-              Weekly history is still being collected. Run <code>npm run collect</code> to backfill it.
+              This view needs {2 * WINDOW} weeks of history and {weeks.length} have been collected. Run{" "}
+              <code>npm run collect</code> to backfill the rest.
             </p>
           )}
         </section>
@@ -676,15 +681,18 @@ export default function Home() {
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10% between the two
-                four-week windows. Topics are defined by keyword lists, so a paper can count toward several topics,
+                windows being compared. The short-term view compares the last {HORIZONS.short.window} weeks with the{" "}
+                {HORIZONS.short.window} before, and shows what is moving now. The long-term view compares the last{" "}
+                {HORIZONS.long.window} weeks with the {HORIZONS.long.window} before, roughly one quarter against the
+                previous one; it reacts slowly, and a topic can be rising in one view and cooling in the other. Topics are defined by keyword lists, so a paper can count toward several topics,
                 and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
               </p>
               <p>
-                <strong>The map</strong> places a topic by two changes over the same four-week windows: its share
+                <strong>The map</strong> places a topic by two changes over the same windows: its share
                 of AI papers (across) and its Hacker News stories (up). A topic is placed only when it averages at
                 least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week, because smaller counts swing
-                too easily. A change beyond the edge of the map is drawn on the edge. <strong>The week in five
+                too easily. A change beyond the edge of the map is drawn on the edge. <strong>The {period} in five
                 lines</strong> is written by fixed rules from the same numbers, not by an editor or a model.
               </p>
               <p>

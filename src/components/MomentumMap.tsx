@@ -138,7 +138,7 @@ export function MomentumMap({ points, unplaced }: { points: MapPoint[]; unplaced
                   ))}
                 </ul>
               ) : (
-                <p>None this week</p>
+                <p>None</p>
               )}
             </div>
           );
