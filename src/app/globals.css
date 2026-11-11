@@ -332,11 +332,11 @@ code {
 .lede {
   display: grid;
   gap: var(--space-lg);
-  padding-block: var(--space-xl) var(--space-2xl);
+  padding-block: var(--space-lg) var(--space-xl);
 }
 
 .lede__head {
-  font-size: var(--text-display-s);
+  font-size: clamp(1.625rem, 1.4vw + 1rem, 2.375rem);
   font-weight: 600;
   line-height: 1.04;
   letter-spacing: -0.022em;
@@ -350,9 +350,10 @@ code {
 
 .lede__dek {
   display: grid;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   align-content: end;
-  max-width: 46ch;
+  max-width: 52ch;
+  font-size: var(--text-sm);
   color: var(--color-ink-2);
 }
 
@@ -362,20 +363,21 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 60rem) {
-  .lede {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: var(--space-2xl);
-    padding-block: var(--space-xl) var(--space-2xl);
-  }
-}
-
 /* The week in five lines: one rule-written sentence per layer of the tracker. */
 
 .lede__main {
   display: grid;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   min-width: 0;
+}
+
+/* Wide screens: headline beside the intro, then the five numbers as one row of columns. */
+@media (min-width: 60rem) {
+  .lede__main {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    column-gap: var(--space-2xl);
+    align-items: end;
+  }
 }
 
 .brief__title {
@@ -425,6 +427,48 @@ code {
   font-size: var(--text-sm);
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
+}
+
+/* Tablets and up: the five lines become cards in a row, label, then number, then sentence. */
+@media (min-width: 40rem) {
+  .brief ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .brief li {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    align-content: start;
+    row-gap: var(--space-3xs);
+    padding: var(--space-sm) var(--space-md) var(--space-xs);
+    border-top: 0;
+    border-left: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .brief li:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .brief__label {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .brief__figure {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .brief li p {
+    grid-row: 3;
+    grid-column: 1;
+    font-size: var(--text-xs);
+    line-height: 1.45;
+    color: var(--color-ink-2);
+  }
 }
 
 /* The momentum map: topics placed by research change (across) and discussion change (up). */
