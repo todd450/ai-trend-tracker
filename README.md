@@ -57,6 +57,8 @@ scripts/collect.ts   fetches from the sources and feeds → data/*.json
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
+src/app/one-week/    the 1-week view, at /one-week
+src/app/one-month/   the 1-month view, at /one-month
 src/app/page.tsx     the 3-month view, at /
 src/app/six-months/  the 6-month view, at /six-months
 src/app/one-year/    the 1-year view, at /one-year
@@ -69,14 +71,17 @@ the project is on GitHub.
 
 ## How a trend is decided
 
-The page has three views, switched from the masthead and named by how much
-history each one charts:
+The page has five views, switched from the masthead:
 
 | View | Compares | Needs |
 | --- | --- | --- |
+| 1 week (`/one-week`) | the latest week with the week before | 2 weeks |
+| 1 month (`/one-month`) | the latest 2 weeks with the 2 before | 4 weeks |
 | 3 months (`/`) | the latest 4 weeks with the 4 before | 8 weeks |
 | 6 months (`/six-months`) | the latest 13 weeks with the 13 before | 26 weeks |
 | 1 year (`/one-year`) | the latest 26 weeks with the 26 before | 52 weeks |
+
+The 1-week and 1-month views react fastest and are the noisiest.
 
 In every view a topic is "rising" or "cooling" when its share of AI papers
 moved by 10% or more. The windows are set in `HORIZONS` in `src/lib/trends.ts`. Topics are keyword lists, so counts are indicators

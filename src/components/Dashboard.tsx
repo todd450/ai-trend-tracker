@@ -140,12 +140,16 @@ function Mag({ value, max, unit }: { value: number; max: number; unit: string })
 const top = (xs: number[]) => Math.max(1, ...xs);
 const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
 
-/** The whole dashboard, read over one time horizon. The two routes differ only in this prop. */
+/** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
   const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, hasHistory, hasThemes } = trends;
   const { headline, briefing } = buildBriefing(trends);
   const { brief } = HORIZONS[horizon];
+  const compared =
+    WINDOW === 1
+      ? "latest week compared with the week before"
+      : `last ${WINDOW} weeks compared with the ${WINDOW} weeks before`;
   const latestWeek = weeks.at(-1);
   const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
   const placed = new Set(mapTopics.map((t) => t.id));
@@ -236,7 +240,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <div className="band__head">
             <h2 id="momentum-h">Topic momentum</h2>
             <p>
-              Each topic’s last {WINDOW} weeks compared with the {WINDOW} weeks before. Research is the topic’s share
+              Each topic’s {compared}. Research is the topic’s share
               of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title.
             </p>
             <HorizonSwitch current={horizon} label="Time span for topics" />
@@ -353,7 +357,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <h2 id="themes-h">Economy and society themes</h2>
             <p>
               What the discussion says AI is doing to work, companies and society. Each theme’s share of Hacker News
-              stories with AI in the title, last {WINDOW} weeks compared with the {WINDOW} weeks before.
+              stories with AI in the title, {compared}.
             </p>
           </div>
 
@@ -877,10 +881,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10% between the two
-                windows being compared. The switch at the top sets those windows, and each view is named by how
-                much history it charts. <strong>3 months</strong> compares the last{" "}
-                {HORIZONS.threeMonths.window} weeks with the {HORIZONS.threeMonths.window} before and shows what is
-                moving now. <strong>6 months</strong> compares the last {HORIZONS.sixMonths.window} weeks with the{" "}
+                windows being compared. The switch at the top sets those windows. <strong>1 week</strong> compares
+                the latest week with the week before, and <strong>1 month</strong> the last{" "}
+                {HORIZONS.oneMonth.window} weeks with the {HORIZONS.oneMonth.window} before. These two react
+                fastest and are the noisiest: one conference deadline or one news story can move them, so treat a
+                call there as a prompt to look, not a trend. <strong>3 months</strong> compares the last{" "}
+                {HORIZONS.threeMonths.window} weeks with the {HORIZONS.threeMonths.window} before.{" "}
+                <strong>6 months</strong> compares the last {HORIZONS.sixMonths.window} weeks with the{" "}
                 {HORIZONS.sixMonths.window} before, one quarter against the previous one.{" "}
                 <strong>1 year</strong> compares the last {HORIZONS.oneYear.window} weeks with the{" "}
                 {HORIZONS.oneYear.window} before, one half-year against the other. The longer views react slowly,
