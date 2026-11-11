@@ -129,42 +129,6 @@
    "publishedAt": "2026-11-09T00:00:00.000Z"
   },
   {
-   "id": "2611.10771",
-   "title": "WorldFoundry: Towards Unified Infrastructure for World Intelligence",
-   "url": "https://arxiv.org/abs/2611.10771",
-   "upvotes": 55,
-   "comments": 2,
-   "codeUrl": "https://github.com/OpenEnvision/WorldFoundry",
-   "publishedAt": "2026-11-07T14:59:22.000Z"
-  },
-  {
-   "id": "2611.14210",
-   "title": "Tree-Ising: Repairing Language Models with Bit-Level Ising Edits",
-   "url": "https://arxiv.org/abs/2611.14210",
-   "upvotes": 54,
-   "comments": 1,
-   "codeUrl": "https://github.com/TheQuantumGOAT/Tree-Ising",
-   "publishedAt": "2026-11-10T00:00:00.000Z"
-  },
-  {
-   "id": "2611.12762",
-   "title": "Sage-Taiyi: A Metacognitive Architecture for Scientific Discovery",
-   "url": "https://arxiv.org/abs/2611.12762",
-   "upvotes": 54,
-   "comments": 2,
-   "codeUrl": "https://github.com/Alpha-Innovator/Sage-Taiyi",
-   "publishedAt": "2026-11-09T00:00:00.000Z"
-  },
-  {
-   "id": "2611.12885",
-   "title": "World In-Context Learning for Agentic Robot Manipulation",
-   "url": "https://arxiv.org/abs/2611.12885",
-   "upvotes": 52,
-   "comments": 1,
-   "codeUrl": "https://github.com/ArcheOne-AI/RoboScript",
-   "publishedAt": "2026-11-09T00:00:00.000Z"
-  },
-  {
    "id": "2611.09124",
    "title": "Toward the Era of Agentic Embodied Intelligence",
    "url": "https://arxiv.org/abs/2611.09124",
