@@ -7,7 +7,7 @@ type Props = {
   /** One label per value, shown in the hover readout (e.g. "Week of 2 Nov"). */
   labels: string[];
   /** Formats a value for the readout, e.g. "4.2% of papers". */
-  unit: "share" | "storyShare" | "stories" | "postings" | "businesses" | "downloadShare" | "documents" | "releases";
+  unit: "share" | "storyShare" | "stories" | "postings" | "businesses" | "tokenShare" | "downloadShare" | "documents" | "releases";
   tone: "rising" | "steady" | "cooling";
   /** Text alternative describing the series. */
   summary: string;
@@ -27,6 +27,8 @@ function readout(value: number, unit: Props["unit"]) {
       return `${value.toFixed(1)}% of postings`;
     case "businesses":
       return `${value.toFixed(1)}% of businesses`;
+    case "tokenShare":
+      return `${value.toFixed(1)}% of tokens`;
     case "downloadShare":
       return `${value.toFixed(1)}% of downloads`;
     case "stories":

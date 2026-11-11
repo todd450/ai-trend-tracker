@@ -93,5 +93,10 @@ export type Indicators = {
    * one reading per two-week survey period, oldest first. `period` is the survey's own code
    * (year then fortnight, e.g. "202622") and `end` the last day of collection.
    */
+  /**
+   * Tokens processed on OpenRouter each complete week (starting on a Monday, UTC), by the maker of
+   * the model. Each week names only its nine largest makers; the rest are summed under "Others".
+   */
+  marketShare?: { weeks: { week: string; tokens: Record<string, number> }[] } | null;
   business?: { periods: { period: string; end: string; using: number; planning: number | null }[] } | null;
 };

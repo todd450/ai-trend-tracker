@@ -27,7 +27,7 @@ import {
   type Signal,
 } from "@/lib/trends";
 
-import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
+import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, buildMarketShare, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
 
 const SHOWN = 10;
 
@@ -49,6 +49,7 @@ const SOURCE_LABELS: Record<string, string> = {
   modelReleases: "Lab model release log",
   downloads: "npm and PyPI download counts",
   business: "Census Bureau business survey",
+  marketShare: "OpenRouter model rankings",
 };
 
 const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
@@ -203,6 +204,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       ]
     : [];
   const usage = usageSummary;
+  const marketShare = buildMarketShare(horizon);
 
   const stories = latest.stories.slice(0, SHOWN);
   const papers = latest.papers.slice(0, SHOWN);
@@ -837,6 +839,88 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </section>
         )}
 
+        {marketShare && (
+          <section id="market-share" className="band" aria-labelledby="market-share-h">
+            <div className="band__head">
+              <h2 id="market-share-h">Model share on OpenRouter</h2>
+              <p>
+                Whose models developers send their work to, on one large marketplace that offers every major model
+                side by side: {fmtCompact(marketShare.totalTokens)} tokens in the week of {fmtWeek(marketShare.latestWeek)}
+                . It leans toward cheap and open models, and leaves out everyone who goes to a lab directly, so read
+                it as one marketplace, not the whole market.
+              </p>
+            </div>
+
+            <div className="trend-cols trend-cols--plain" aria-hidden="true">
+              <span>Model maker</span>
+              <span>Share of tokens <i>change and recent average</i></span>
+              <span>Tokens</span>
+            </div>
+            <MoreRows count={marketShare.makers.length} noun="model makers">
+              {marketShare.makers.map((m) => (
+                <li key={m.id} className="trend trend--plain">
+                  <div className="trend__topic">
+                    <h3>{m.name}</h3>
+                  </div>
+                  <div className="trend__signal">
+                    <span className="trend__label">Share</span>
+                    <Sparkline
+                      values={m.share.values}
+                      labels={m.labels}
+                      unit="tokenShare"
+                      tone={toneOf(m.share)}
+                      summary={`${m.name}: share of tokens on OpenRouter, weekly over ${m.labels.length} weeks, now ${m.share.recent.toFixed(1)}%${m.share.change === null ? "" : `, ${fmtChange(m.share.change)}`}`}
+                    />
+                    {m.share.change === null ? (
+                      <span className="trend__few">not always in the top nine</span>
+                    ) : (
+                      <Change signal={m.share} />
+                    )}
+                    <span className="trend__level">
+                      {m.share.recent.toFixed(1)}%<span className="vh"> of tokens</span>
+                    </span>
+                  </div>
+                  <p className="trend__context">{fmtCompact(m.tokens)} in the latest week</p>
+                </li>
+              ))}
+            </MoreRows>
+            <p className="trend__context">
+              Other makers together: {marketShare.otherShare.toFixed(1)}% in the latest week ·{" "}
+              {WINDOW === 1 ? "latest week compared with the week before" : `last ${WINDOW} weeks compared with the ${WINDOW} before`} ·
+              Source: <a href="https://openrouter.ai/rankings">OpenRouter (openrouter.ai/rankings)</a>, as of{" "}
+              {fmtDate(indicators.updatedAt)}, licensed{" "}
+              <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+            </p>
+
+            <details className="table-view">
+              <summary>Show the model share numbers as a table</summary>
+              <div className="table-view__scroll">
+                <table>
+                  <caption>Share of tokens on OpenRouter by model maker, {compared}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Model maker</th>
+                      <th scope="col">Share now</th>
+                      <th scope="col">Share before</th>
+                      <th scope="col">Tokens, latest week</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {marketShare.makers.map((m) => (
+                      <tr key={m.id}>
+                        <th scope="row">{m.name}</th>
+                        <td>{m.share.recent.toFixed(1)}%</td>
+                        <td>{m.share.change === null ? "not in the top nine throughout" : `${m.share.prior.toFixed(1)}%`}</td>
+                        <td>{m.tokens.toLocaleString("en")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </section>
+        )}
+
         </section>
 
         <section className="chapter chapter--reading" aria-labelledby="reading-h">
@@ -1212,6 +1296,16 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 and are not joined on.
               </p>
               )}
+              <p>
+                <strong>Model share</strong> is the weekly count of tokens (the units of text a model reads and
+                writes) that passed through OpenRouter, grouped by the company that made the model. OpenRouter is a
+                marketplace developers use to reach many models through one account, so it shows the choices of
+                developers who shop around; companies that buy from OpenAI, Anthropic or Google directly, and
+                everyone using a chat app, are not in it. Free and low-priced models draw heavy automated use there,
+                which lifts their makers. Each maker counts tokens its own way, so shares are approximate. A week
+                names only its nine largest makers, so a maker’s line starts from when it last entered the nine, and
+                its change is shown only if it stayed there for the whole comparison.
+              </p>
               <p>
                 <strong>Developer usage</strong> counts downloads of each toolkit’s Python packages from PyPI and
                 JavaScript packages from npm, per complete month. A download is not a user: build servers fetch
