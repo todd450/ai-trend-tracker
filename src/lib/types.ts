@@ -83,4 +83,9 @@ export type Indicators = {
     /** Anthropic model pages already opened, so each is fetched only once. */
     anthropicChecked: Record<string, Release | null>;
   } | null;
+  /**
+   * Downloads per complete month of each developer package, keyed by "registry:package"
+   * (see src/lib/toolkits.ts), then by month. Months build up here beyond what the registries keep.
+   */
+  downloads?: { packages: Record<string, Record<string, number>> } | null;
 };

@@ -8,7 +8,7 @@
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
  *   data/latest.json               current ranked lists (papers, repos, models, news)
- *   data/indicators.json           monthly job-posting, federal and model-release figures
+ *   data/indicators.json           monthly job-posting, federal, model-release and download figures
  *   data/snapshots/YYYY-MM-DD.json a dated copy of the lists, kept as a record
  *
  * No API keys are required. Set GITHUB_TOKEN to raise GitHub's rate limit.
@@ -18,6 +18,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
+import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 
@@ -544,6 +545,90 @@ async function federalDocuments(previous: Indicators["federal"]): Promise<NonNul
   return { months };
 }
 
+/** Months of downloads kept per package: a year-on-year comparison plus a year to compare against. */
+const DOWNLOAD_MONTHS_KEPT = 25;
+
+type Downloads = NonNullable<Indicators["downloads"]>;
+
+/** Totals for the months a run of daily counts covers from first day to last; part-months are dropped. */
+function completeMonths(days: { day: string; downloads: number }[]): Record<string, number> {
+  const byMonth = new Map<string, { days: Set<string>; total: number }>();
+  for (const { day, downloads } of days) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !Number.isFinite(downloads)) continue;
+    const held = byMonth.get(day.slice(0, 7)) ?? { days: new Set<string>(), total: 0 };
+    if (!held.days.has(day)) held.total += downloads;
+    held.days.add(day);
+    byMonth.set(day.slice(0, 7), held);
+  }
+  const thisMonth = isoDay(new Date()).slice(0, 7);
+  const totals: Record<string, number> = {};
+  for (const [month, held] of byMonth) {
+    const [year, m] = month.split("-").map(Number);
+    const length = new Date(Date.UTC(year, m, 0)).getUTCDate();
+    if (month < thisMonth && held.days.size === length) totals[month] = held.total;
+  }
+  return totals;
+}
+
+/** Like getJson, but waits and tries again when a registry asks the collector to slow down. */
+async function getJsonPatiently<T>(url: string): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await getJson<T>(url);
+    } catch (err) {
+      if (attempt === 3 || !/^(429|5\d\d) /.test((err as Error).message)) throw err;
+      await sleep(attempt * 10_000);
+    }
+  }
+}
+
+/** A package's daily downloads from npm, for the thirteen complete months before this one. */
+async function npmDownloads(name: string): Promise<Record<string, number>> {
+  const now = new Date();
+  const from = isoDay(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 13, 1)));
+  const to = isoDay(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0)));
+  const data = await getJsonPatiently<{ downloads?: { day: string; downloads: number }[] }>(
+    `https://api.npmjs.org/downloads/range/${from}:${to}/${name}`,
+  );
+  if (!data.downloads?.length) throw new Error(`no npm downloads returned for ${name}`);
+  return completeMonths(data.downloads);
+}
+
+/** A package's daily downloads from PyPI, leaving out mirrors. PyPI Stats keeps about 180 days. */
+async function pypiDownloads(name: string): Promise<Record<string, number>> {
+  const data = await getJsonPatiently<{ data?: { category: string; date: string; downloads: number }[] }>(
+    `https://pypistats.org/api/packages/${name}/overall?mirrors=false`,
+  );
+  const days = (data.data ?? []).filter((d) => d.category === "without_mirrors").map((d) => ({ day: d.date, downloads: d.downloads }));
+  if (!days.length) throw new Error(`no PyPI downloads returned for ${name}`);
+  return completeMonths(days);
+}
+
+/**
+ * Monthly downloads of every toolkit package. Months already saved are kept and
+ * the months just fetched are laid over them, so the record outlasts PyPI's 180 days.
+ */
+async function packageDownloads(previous: Indicators["downloads"]): Promise<Downloads> {
+  const packages: Downloads["packages"] = {};
+  const save = (key: string, fetched: Record<string, number>) => {
+    const merged = { ...(previous?.packages[key] ?? {}), ...fetched };
+    const months = Object.keys(merged).sort().slice(-DOWNLOAD_MONTHS_KEPT);
+    if (!months.length) throw new Error(`no complete month of downloads for ${key}`);
+    packages[key] = Object.fromEntries(months.map((month) => [month, merged[month]]));
+  };
+  for (const toolkit of TOOLKITS) {
+    for (const name of toolkit.npm) {
+      save(packageKey("npm", name), await npmDownloads(name));
+      await sleep(300);
+    }
+    for (const name of toolkit.pypi) {
+      save(packageKey("pypi", name), await pypiDownloads(name));
+      await sleep(1000);
+    }
+  }
+  return { packages };
+}
+
 /** A release is only logged when first seen within this many days, so a feed's short memory cannot misdate old models. */
 const RELEASE_FRESH_DAYS = 200;
 
@@ -759,6 +844,7 @@ async function main() {
     indicators.releases = releases;
     if (failed.length) throw new Error(`no response from ${failed.join(", ")}`);
   });
+  await indicator("downloads", async () => void (indicators.downloads = await packageDownloads(before.downloads)));
   await writeJson("indicators.json", indicators);
 
   console.log(`Collecting weekly topic history (${weeks[0]} → ${weeks.at(-1)})${FAST ? " [fast]" : ""}…`);

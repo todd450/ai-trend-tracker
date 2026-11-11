@@ -1,4 +1,5 @@
 import indicatorsJson from "../../data/indicators.json";
+import { TOOLKITS, packageKey, packageKeys } from "./toolkits";
 import { latest, type Signal } from "./trends";
 import type { Indicators, Release } from "./types";
 
@@ -51,3 +52,65 @@ function releaseSummary(log: Release[]) {
 }
 
 export const releases = indicators.releases && releaseSummary(indicators.releases.log);
+
+/** Months in each half of the usage comparison: the latest three against the three before. */
+export const USAGE_WINDOW = 3;
+
+const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
+
+/** The latest months against the same number before them; no change until both halves are filled. */
+function quarterOnQuarter(values: number[]): Signal {
+  const recent = mean(values.slice(-USAGE_WINDOW));
+  const prior = mean(values.slice(-USAGE_WINDOW * 2, -USAGE_WINDOW));
+  const filled = values.length >= USAGE_WINDOW * 2;
+  return { values, recent, prior, change: filled && prior > 0 ? (recent - prior) / prior : null };
+}
+
+/**
+ * Each toolkit's share of tracked downloads, over the months every package has a figure for.
+ * Share is used because downloads as a whole keep growing, which would make every toolkit look like it is rising.
+ *
+ * The share is worked out inside each registry and the two are then averaged (a toolkit with no
+ * package in a registry has 0% there), so the shares still add up to 100%. Adding the registries'
+ * raw counts together would not do: when one registry changes how it counts, as PyPI's figures
+ * did for every package in September 2026, each toolkit would move by how much it leans on that registry.
+ */
+function usageSummary(packages: Record<string, Record<string, number>>) {
+  const keys = TOOLKITS.flatMap(packageKeys);
+  if (keys.some((key) => !packages[key])) return null;
+  const months = Object.keys(packages[keys[0]])
+    .filter((month) => keys.every((key) => packages[key][month] !== undefined))
+    .sort()
+    .slice(-13);
+  if (months.length < 2) return null;
+  const sum = (ks: string[], month: string) => ks.reduce((total, key) => total + packages[key][month], 0);
+  const registries = (["pypi", "npm"] as const).map((registry) => ({
+    registry,
+    totals: months.map((month) => sum(TOOLKITS.flatMap((t) => t[registry].map((name) => packageKey(registry, name))), month)),
+  }));
+  const toolkits = TOOLKITS.map((toolkit) => {
+    const shares = months.map((month, i) =>
+      mean(
+        registries.map(({ registry, totals }) => {
+          const count = sum(toolkit[registry].map((name) => packageKey(registry, name)), month);
+          return totals[i] > 0 ? (count / totals[i]) * 100 : 0;
+        }),
+      ),
+    );
+    return {
+      ...toolkit,
+      /** Downloads in the latest complete month, both registries together. */
+      downloads: sum(packageKeys(toolkit), months.at(-1)!),
+      share: quarterOnQuarter(shares),
+    };
+  }).sort((a, b) => b.share.recent - a.share.recent);
+  return {
+    latestMonth: months.at(-1)!,
+    labels: months.map(fmtMonth),
+    /** Downloads of every tracked package in the latest complete month. */
+    totalDownloads: sum(keys, months.at(-1)!),
+    toolkits,
+  };
+}
+
+export const usage = indicators.downloads ? usageSummary(indicators.downloads.packages) : null;

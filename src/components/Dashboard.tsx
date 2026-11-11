@@ -25,7 +25,7 @@ import {
   type Signal,
 } from "@/lib/trends";
 
-import { federal, fmtMonth, indicators, jobs, releases } from "@/lib/indicators";
+import { USAGE_WINDOW, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
 
 const SHOWN = 10;
 
@@ -45,6 +45,7 @@ const SOURCE_LABELS: Record<string, string> = {
   jobs: "Indeed Hiring Lab job postings",
   federal: "Federal Register document counts",
   modelReleases: "Lab model release log",
+  downloads: "npm and PyPI download counts",
 };
 
 const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
@@ -223,6 +224,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
   const topicScale = barScale(topicTrends.flatMap((t) => [t.hasPapers ? t.papers.change : null, t.stories.change]));
   const themeScale = barScale(themeTrends.flatMap((t) => [t.share.change, t.stories.change]));
+  const usage = usageSummary; // a local constant, so the null check below holds inside the row callbacks
+  const usageScale = barScale(usage?.toolkits.map((t) => t.share.change) ?? []);
   const indicatorScale = barScale([jobs?.signal.change ?? null, federal?.signal.change ?? null, releases?.signal.change ?? null]);
 
   const stories = latest.stories.slice(0, SHOWN);
@@ -255,6 +258,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <li><a href="#news">News</a></li>
             <li><a href="#papers">Papers</a></li>
             <li><a href="#indicators">Indicators</a></li>
+            <li><a href="#usage">Usage</a></li>
             <li><a href="#analysis">Analysis</a></li>
             <li><a href="#code">Code</a></li>
             <li><a href="#models">Models</a></li>
@@ -742,6 +746,93 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </details>
         </section>
 
+        {usage && (
+          <section id="usage" className="band" aria-labelledby="usage-h">
+            <div className="band__head">
+              <h2 id="usage-h">Developer usage</h2>
+              <p>
+                How often the toolkits developers build AI with were downloaded: {fmtCompact(usage.totalDownloads)}{" "}
+                downloads across {usage.toolkits.length} toolkits in {fmtMonth(usage.latestMonth)}. Each toolkit is
+                judged by its share of those downloads, averaged across Python and JavaScript, so growth in the whole
+                field is not read as a rise for everyone. Automated systems download too, so this shows direction,
+                not a count of people.
+              </p>
+            </div>
+
+            <div className="trend-cols trend-cols--plain" aria-hidden="true">
+              <span>Toolkit</span>
+              <span>Share of downloads <i>change and latest</i></span>
+              <span>Downloads</span>
+            </div>
+            <ol className="trends">
+              {usage.toolkits.map((t) => (
+                <li key={t.id} className="trend trend--plain">
+                  <div className="trend__topic">
+                    <h3>{t.name}</h3>
+                    <p>{t.blurb}.</p>
+                  </div>
+                  <div className="trend__signal">
+                    <span className="trend__label">Share</span>
+                    <Sparkline
+                      values={t.share.values}
+                      labels={usage.labels}
+                      unit="downloadShare"
+                      tone={toneOf(t.share)}
+                      summary={`${t.name}: share of tracked toolkit downloads, monthly over ${usage.labels.length} months, ${t.share.recent.toFixed(1)}% over the last ${USAGE_WINDOW}${t.share.change === null ? "" : `, ${fmtChange(t.share.change)} on the ${USAGE_WINDOW} before`}`}
+                    />
+                    {t.share.change === null ? (
+                      <span className="trend__few">too little history</span>
+                    ) : (
+                      <>
+                        <ChangeBar signal={t.share} scale={usageScale} />
+                        <Change signal={t.share} />
+                      </>
+                    )}
+                    <span className="trend__level">
+                      {t.share.recent.toFixed(1)}%<span className="vh"> of downloads</span>
+                    </span>
+                  </div>
+                  <p className="trend__context">
+                    {fmtCompact(t.downloads)} in {fmtMonth(usage.latestMonth)} ·{" "}
+                    {t.kind === "lab" ? "lab toolkit" : "building tool"}
+                  </p>
+                </li>
+              ))}
+            </ol>
+
+            <details className="table-view">
+              <summary>Show the usage numbers as a table</summary>
+              <div className="table-view__scroll">
+                <table>
+                  <caption>Toolkit downloads, share averaged across Python and JavaScript, and the packages counted</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Toolkit</th>
+                      <th scope="col">Downloads, {fmtMonth(usage.latestMonth)}</th>
+                      <th scope="col">Share, last {USAGE_WINDOW} months</th>
+                      <th scope="col">Share, {USAGE_WINDOW} months before</th>
+                      <th scope="col">Python packages (PyPI)</th>
+                      <th scope="col">JavaScript packages (npm)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usage.toolkits.map((t) => (
+                      <tr key={t.id}>
+                        <th scope="row">{t.name}</th>
+                        <td>{t.downloads.toLocaleString("en")}</td>
+                        <td>{t.share.recent.toFixed(1)}%</td>
+                        <td>{t.share.change === null ? "not yet collected" : `${t.share.prior.toFixed(1)}%`}</td>
+                        <td>{t.pypi.join(", ") || "none"}</td>
+                        <td>{t.npm.join(", ") || "none"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </section>
+        )}
+
         <div className="pair">
           <section id="analysis" className="band" aria-labelledby="analysis-h">
             <div className="band__head">
@@ -996,6 +1087,18 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 “artificial intelligence”. A model release is the first post announcing a new version number in a
                 lab’s main line (GPT, Gemini or Claude); variants of a version already announced, such as a smaller
                 or faster edition, are not counted again, and labs other than these three are not covered.
+              </p>
+              <p>
+                <strong>Developer usage</strong> counts downloads of each toolkit’s Python packages from PyPI and
+                JavaScript packages from npm, per complete month. A download is not a user: build servers fetch
+                packages again on every run, and one toolkit can pull in another, so a download of LangChain often
+                brings OpenAI’s toolkit with it. Share is worked out separately for Python and for JavaScript, as each
+                toolkit’s part of the downloads tracked here in that language, and the two are averaged; a toolkit
+                published in only one language counts as 0% in the other. Measuring each language on its own keeps a
+                change in how one registry counts from moving every share. A toolkit is rising or cooling when its
+                average share over the last {USAGE_WINDOW} months moved by 10% or more against the {USAGE_WINDOW}{" "}
+                before. Apps that call a model without one of these toolkits, and everyone using a chat app, are not
+                counted.
               </p>
               <p>
                 <strong>From the analysts</strong> lists the newest pieces from a fixed set of ten newsletters and
