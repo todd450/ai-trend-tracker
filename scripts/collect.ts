@@ -17,7 +17,7 @@
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { THEMES } from "../src/lib/themes.ts";
+import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 
@@ -152,15 +152,21 @@ function hnWeek(weekStart: string, query: string, hitsPerPage: number) {
   );
 }
 
-/** Number of distinct stories in a week matching any of a theme's searches. */
-async function hnThemeCount(weekStart: string, queries: string[]): Promise<number> {
-  const stories = new Set<string>();
-  for (const query of queries) {
-    const data = await hnWeek(weekStart, query, 1000);
-    for (const hit of data.hits) stories.add(hit.objectID);
+/**
+ * Distinct stories in a week matching a theme, and matching each of its sub-themes.
+ * Each search runs once; the theme is the union of its sub-themes' matches.
+ */
+async function hnThemeCounts(weekStart: string, theme: Theme): Promise<{ total: number; parts: Record<string, number> }> {
+  const matches = new Map<string, string[]>();
+  for (const query of theme.hn) {
+    matches.set(query, (await hnWeek(weekStart, query, 1000)).hits.map((hit) => hit.objectID));
     await sleep(120);
   }
-  return stories.size;
+  const distinct = (queries: string[]) => new Set(queries.flatMap((q) => matches.get(q) ?? [])).size;
+  return {
+    total: distinct(theme.hn),
+    parts: Object.fromEntries(theme.parts.map((part) => [part.id, distinct(part.hn)])),
+  };
 }
 
 /** All stories in a week with the word AI in the title; the denominator for theme share. */
@@ -642,9 +648,18 @@ async function collectHistory(history: History, weeks: string[], status: Record<
     const totals = (history.hnAiTotal ??= {});
     for (const week of weeks) if (needs(totals, week)) totals[week] = await hnAiCount(week);
     const themes = (history.themes ??= {});
+    const subthemes = (history.subthemes ??= {});
     for (const theme of THEMES) {
       const series = (themes[theme.id] ??= {});
-      for (const week of weeks) if (needs(series, week)) series[week] = await hnThemeCount(week, theme.hn);
+      const parts = theme.parts.map((part) => ({ id: part.id, series: (subthemes[subthemeKey(theme.id, part.id)] ??= {}) }));
+      for (const week of weeks) {
+        // A theme is recounted with its sub-themes, so the two always come from the same searches.
+        if (!needs(series, week) && parts.every((part) => !needs(part.series, week))) continue;
+        const counts = await hnThemeCounts(week, theme);
+        series[week] = counts.total;
+        for (const part of parts) part.series[week] = counts.parts[part.id];
+      }
+      await writeJson("history.json", history); // save progress; a sub-theme backfill takes several minutes
       console.log(`  theme  ${theme.id}`);
     }
     status.hnThemes = { ok: true, at: new Date().toISOString() };

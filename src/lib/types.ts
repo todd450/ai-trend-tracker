@@ -12,6 +12,8 @@ export type History = {
   hnAiTotal?: WeeklyCounts;
   /** Distinct Hacker News stories each week matching a theme, keyed by theme id. */
   themes?: Record<string, WeeklyCounts>;
+  /** Distinct Hacker News stories each week matching a sub-theme, keyed by "theme.subtheme". */
+  subthemes?: Record<string, WeeklyCounts>;
 };
 
 export type SourceStatus = { ok: boolean; at: string; error?: string };

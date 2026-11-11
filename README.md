@@ -12,7 +12,7 @@ and lab news feeds, and needs no API keys.
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
 | Labs | Anthropic, OpenAI, Google DeepMind news | Newest announcements, including closed-model releases |
-| Themes | Hacker News search | Stories on seven economy and society themes, as a share of all AI stories, weekly |
+| Themes | Hacker News search | Stories on seven economy and society themes, each split into four sub-themes, as a share of all AI stories, weekly |
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
 | Releases | Lab news pages | First announcement of each new GPT, Gemini and Claude version |
@@ -38,7 +38,7 @@ re-count the two newest weeks. `npm run collect -- --fast` skips the backfill.
 
 The collector writes to `data/`:
 
-- `history.json`: weekly counts per topic. It grows over time.
+- `history.json`: weekly counts per topic, theme and sub-theme. It grows over time.
 - `latest.json`: the current ranked lists, plus whether each source succeeded.
 - `indicators.json`: the monthly hiring and policy figures and the model release log.
 - `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
@@ -55,6 +55,7 @@ as stale in the "Source status" list.
 ```
 scripts/collect.ts   fetches from the sources and feeds → data/*.json
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
+src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a sub-theme)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
 src/app/one-week/    the 1-week view, at /one-week
@@ -85,5 +86,12 @@ The 1-week and 1-month views react fastest and are the noisiest.
 
 In every view a topic is "rising" or "cooling" when its share of AI papers
 moved by 10% or more. The windows are set in `HORIZONS` in `src/lib/trends.ts`. Topics are keyword lists, so counts are indicators
-rather than exact measurements. The page's "How this is measured" section
+rather than exact measurements.
+
+Each theme is the set of distinct stories matched by any of its sub-themes'
+searches, so adding a search to a sub-theme also changes its theme's count.
+A story can sit in more than one sub-theme. A sub-theme averaging fewer than
+3 stories a week in either half of the comparison is shown as "too few to call".
+Adding a sub-theme makes the next `npm run collect` backfill its 52 weeks
+from Hacker News (a few minutes). The page's "How this is measured" section
 explains the limits to readers.

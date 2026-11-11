@@ -2,11 +2,13 @@ import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Logo } from "@/components/Logo";
 import { MomentumMap } from "@/components/MomentumMap";
 import { Sparkline } from "@/components/Sparkline";
+import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
   MAP_MIN_STORIES,
+  SUBTHEME_MIN_STORIES,
   THEME_STEADY_BAND,
   buildTrends,
   directionOf,
@@ -97,6 +99,72 @@ function PerWeek({ value }: { value: number }) {
       <span aria-hidden="true">/wk</span>
       <span className="vh"> {n === 1 ? "story" : "stories"} a week</span>
     </span>
+  );
+}
+
+/**
+ * The two figure cells of a theme or sub-theme row: share of AI stories, then stories a week.
+ * With too few stories to judge, the change gives way to a note and the level stays.
+ */
+function ThemeCells({
+  name,
+  share,
+  stories,
+  scale,
+  labels,
+  enough = true,
+}: {
+  name: string;
+  share: Signal;
+  stories: Signal;
+  scale: number;
+  labels: string[];
+  enough?: boolean;
+}) {
+  const few = <span className="trend__few">too few to call</span>;
+  return (
+    <>
+      <div className="trend__signal">
+        <span className="trend__label">Share</span>
+        <Sparkline
+          values={share.values}
+          labels={labels}
+          unit="storyShare"
+          tone={enough ? directionOf(share.change, THEME_STEADY_BAND) : "steady"}
+          summary={`${name}: share of AI stories on Hacker News over ${labels.length} weeks, now ${share.recent.toFixed(1)}%${enough ? `, ${fmtChange(share.change)}` : ""}`}
+        />
+        {enough ? (
+          <>
+            <ChangeBar signal={share} scale={scale} band={THEME_STEADY_BAND} />
+            <Change signal={share} band={THEME_STEADY_BAND} />
+          </>
+        ) : (
+          few
+        )}
+        <span className="trend__level">
+          {share.recent.toFixed(1)}%<span className="vh"> of AI stories</span>
+        </span>
+      </div>
+      <div className="trend__signal">
+        <span className="trend__label">Stories</span>
+        <Sparkline
+          values={stories.values}
+          labels={labels}
+          unit="stories"
+          tone={enough ? directionOf(stories.change, THEME_STEADY_BAND) : "steady"}
+          summary={`${name}: Hacker News stories per week over ${labels.length} weeks, now ${Math.round(stories.recent)}${enough ? `, ${fmtChange(stories.change)}` : ""}`}
+        />
+        {enough ? (
+          <>
+            <ChangeBar signal={stories} scale={scale} band={THEME_STEADY_BAND} />
+            <Change signal={stories} band={THEME_STEADY_BAND} />
+          </>
+        ) : (
+          few
+        )}
+        <PerWeek value={stories.recent} />
+      </div>
+    </>
   );
 }
 
@@ -356,7 +424,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <h2 id="themes-h">Economy and society themes</h2>
             <p>
               What the discussion says AI is doing to work, companies and society. Each theme’s share of Hacker News
-              stories with AI in the title, {compared}.
+              stories with AI in the title, {compared}. Select a theme to see the sub-themes inside it.
             </p>
           </div>
 
@@ -369,41 +437,36 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </div>
               <ol className="trends">
                 {themeTrends.map((t, i) => (
-                  <li key={t.id} className="trend">
-                    <div className="trend__topic">
-                      <span className="trend__rank">{i + 1}</span>
-                      <h3>{t.name}</h3>
-                      <p>{t.blurb}</p>
-                    </div>
-                    <div className="trend__signal">
-                      <span className="trend__label">Share</span>
-                      <Sparkline
-                        values={t.share.values}
-                        labels={weekLabels}
-                        unit="storyShare"
-                        tone={t.direction}
-                        summary={`${t.name}: share of AI stories on Hacker News over ${weeks.length} weeks, now ${t.share.recent.toFixed(1)}%, ${fmtChange(t.share.change)}`}
-                      />
-                      <ChangeBar signal={t.share} scale={themeScale} band={THEME_STEADY_BAND} />
-                      <Change signal={t.share} band={THEME_STEADY_BAND} />
-                      <span className="trend__level">
-                        {t.share.recent.toFixed(1)}%<span className="vh"> of AI stories</span>
-                      </span>
-                    </div>
-                    <div className="trend__signal">
-                      <span className="trend__label">Stories</span>
-                      <Sparkline
-                        values={t.stories.values}
-                        labels={weekLabels}
-                        unit="stories"
-                        tone={directionOf(t.stories.change, THEME_STEADY_BAND)}
-                        summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
-                      />
-                      <ChangeBar signal={t.stories} scale={themeScale} band={THEME_STEADY_BAND} />
-                      <Change signal={t.stories} band={THEME_STEADY_BAND} />
-                      <PerWeek value={t.stories.recent} />
-                    </div>
-                  </li>
+                  <ThemeRow
+                    key={t.id}
+                    rank={i + 1}
+                    name={t.name}
+                    blurb={t.blurb}
+                    count={t.parts.length}
+                    cells={
+                      <>
+                        <ThemeCells name={t.name} share={t.share} stories={t.stories} scale={themeScale} labels={weekLabels} />
+                      </>
+                    }
+                  >
+                    {t.parts.map((part) => (
+                      <li key={part.id} className="trend trend--sub">
+                        <div className="trend__topic">
+                          <span className="trend__rank" aria-hidden="true" />
+                          <h4>{part.name}</h4>
+                          <p>Stories whose title matches: {part.searches.join(", ")}</p>
+                        </div>
+                        <ThemeCells
+                          name={`${t.name}, ${part.name}`}
+                          share={part.share}
+                          stories={part.stories}
+                          scale={themeScale}
+                          labels={weekLabels}
+                          enough={part.enough}
+                        />
+                      </li>
+                    ))}
+                  </ThemeRow>
                 ))}
               </ol>
 
@@ -411,7 +474,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <summary>Show the weekly theme numbers as a table</summary>
                 <div className="table-view__scroll">
                   <table>
-                    <caption>Hacker News stories matching each theme, per week</caption>
+                    <caption>Hacker News stories matching each theme and sub-theme, per week</caption>
                     <thead>
                       <tr>
                         <th scope="col">Theme</th>
@@ -421,14 +484,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {themeTrends.map((t) => (
+                      {themeTrends.flatMap((t) => [
                         <tr key={t.id}>
                           <th scope="row">{t.name}</th>
                           {weeks.map((w, i) => (
                             <td key={w}>{t.stories.values[i]}</td>
                           ))}
-                        </tr>
-                      ))}
+                        </tr>,
+                        ...t.parts.map((part) => (
+                          <tr key={`${t.id}.${part.id}`} className="table-view__sub">
+                            <th scope="row">{part.name}</th>
+                            {weeks.map((w, i) => (
+                              <td key={w}>{part.stories.values[i]}</td>
+                            ))}
+                          </tr>
+                        )),
+                      ])}
                       <tr>
                         <th scope="row">All AI stories</th>
                         {weeks.map((w) => (
@@ -907,6 +978,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}%. Hacker
                 News readers are mostly technologists, so this shows what that community is discussing, not public
                 opinion.
+              </p>
+              <p>
+                <strong>Sub-themes</strong> split each theme into four narrower groups of the same title searches;
+                point at a sub-theme’s name, or read it on a phone, to see its searches. A story counts once per
+                sub-theme but can sit in more than one, so the sub-themes add up to more than their theme. Their
+                counts are smaller still: a sub-theme averaging fewer than {SUBTHEME_MIN_STORIES} stories a week
+                in either half of the comparison is marked “too few to call” instead of rising or cooling.
               </p>
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models

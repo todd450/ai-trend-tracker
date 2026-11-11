@@ -1,6 +1,6 @@
 import historyJson from "../../data/history.json";
 import latestJson from "../../data/latest.json";
-import { THEMES } from "./themes";
+import { THEMES, subthemeKey } from "./themes";
 import { TOPICS } from "./topics";
 import type { History, Latest } from "./types";
 
@@ -15,6 +15,8 @@ export const THEME_STEADY_BAND = 0.15;
 export const HEADLINE_MIN_PAPERS = 25;
 /** Average Hacker News stories a week a topic needs before the map will place it. */
 export const MAP_MIN_STORIES = 5;
+/** Average stories a week a sub-theme needs, in both halves of the comparison, before it is called rising or cooling. */
+export const SUBTHEME_MIN_STORIES = 3;
 
 /**
  * The five readings of the same weekly counts. Each compares the latest `window`
@@ -69,6 +71,18 @@ export type TopicTrend = {
   hasPapers: boolean;
 };
 
+export type SubthemeTrend = {
+  id: string;
+  name: string;
+  /** The title searches that define the sub-theme. */
+  searches: string[];
+  share: Signal;
+  stories: Signal;
+  direction: Direction;
+  /** False when the counts are too small for a change to mean anything. */
+  enough: boolean;
+};
+
 export type ThemeTrend = {
   id: string;
   name: string;
@@ -78,6 +92,8 @@ export type ThemeTrend = {
   /** Distinct matching stories per week. */
   stories: Signal;
   direction: Direction;
+  /** The theme's sub-themes, largest first; empty until their history has been collected. */
+  parts: SubthemeTrend[];
 };
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -148,9 +164,34 @@ export function buildTrends(horizon: Horizon) {
     hasHistory &&
     weeks.every((w) => themeTotals[w] !== undefined && THEMES.every((t) => history.themes?.[t.id]?.[w] !== undefined));
 
+  const shareOf = (counts: number[]) =>
+    signal(weeks.map((w, i) => (themeTotals[w] > 0 ? (counts[i] / themeTotals[w]) * 100 : 0)));
+
   const themeTrends: ThemeTrend[] = THEMES.map((theme) => {
     const counts = weeks.map((w) => history.themes?.[theme.id]?.[w] ?? 0);
-    const share = signal(weeks.map((w, i) => (themeTotals[w] > 0 ? (counts[i] / themeTotals[w]) * 100 : 0)));
+    const share = shareOf(counts);
+    const series = theme.parts.map((part) => history.subthemes?.[subthemeKey(theme.id, part.id)]);
+    const collected = series.every((s) => s !== undefined && weeks.every((w) => s[w] !== undefined));
+    const parts: SubthemeTrend[] = collected
+      ? theme.parts
+          .map((part, n) => {
+            const partCounts = weeks.map((w) => series[n]?.[w] ?? 0);
+            const partShare = shareOf(partCounts);
+            const enough =
+              mean(partCounts.slice(-window)) >= SUBTHEME_MIN_STORIES &&
+              mean(partCounts.slice(-2 * window, -window)) >= SUBTHEME_MIN_STORIES;
+            return {
+              id: part.id,
+              name: part.name,
+              searches: part.hn,
+              share: partShare,
+              stories: signal(partCounts),
+              direction: enough ? directionOf(partShare.change, THEME_STEADY_BAND) : ("steady" as const),
+              enough,
+            };
+          })
+          .sort((a, b) => b.stories.recent - a.stories.recent)
+      : [];
     return {
       id: theme.id,
       name: theme.name,
@@ -158,6 +199,7 @@ export function buildTrends(horizon: Horizon) {
       share,
       stories: signal(counts),
       direction: directionOf(share.change, THEME_STEADY_BAND),
+      parts,
     };
   }).sort((a, b) => (b.share.change ?? 0) - (a.share.change ?? 0));
 

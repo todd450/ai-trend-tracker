@@ -875,6 +875,95 @@ code {
   }
 }
 
+/* ------------------------------------------------ sub-theme drill-down */
+
+/* The theme name is the control that opens the sub-themes under its row. */
+.drill {
+  display: inline-flex;
+  gap: var(--space-xs);
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.drill:hover {
+  color: var(--color-accent);
+}
+
+.drill__mark {
+  flex: none;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid var(--color-accent);
+  border-bottom: 1.5px solid var(--color-accent);
+  transform: translateY(-0.1rem) rotate(45deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.drill[aria-expanded="true"] .drill__mark {
+  transform: translateY(0.1rem) rotate(-135deg);
+}
+
+.subtrends {
+  grid-column: 1 / -1;
+  margin: var(--space-2xs) 0 var(--space-xs);
+  padding: 0;
+  list-style: none;
+  background: var(--color-paper-2);
+}
+
+.trend--sub {
+  padding-block: var(--space-2xs);
+  border-top-style: dotted;
+}
+
+.trend--sub:first-child {
+  border-top: 0;
+}
+
+.trend--sub .trend__topic h4 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.trend__few {
+  grid-column: span 2;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-align: end;
+  white-space: nowrap;
+}
+
+.table-view__sub th:first-child {
+  padding-inline-start: var(--space-md);
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+@media (min-width: 60rem) and (hover: hover) {
+  .trend__topic h3:has(.drill) {
+    cursor: auto;
+  }
+
+  .trend--sub .trend__topic h4 {
+    cursor: help;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drill__mark {
+    transition: none;
+  }
+}
+
 .table-view__scroll--set {
   display: flex;
   flex-wrap: wrap;

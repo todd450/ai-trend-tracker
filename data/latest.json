@@ -1,57 +1,58 @@
 {
- "generatedAt": "2026-11-11T14:14:27.278Z",
+ "generatedAt": "2026-11-11T14:03:08.447Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-11T14:14:27.455Z"
+   "at": "2026-11-11T14:03:08.766Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-11T14:14:27.484Z"
+   "at": "2026-11-11T14:03:08.868Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-11T14:14:31.471Z"
+   "at": "2026-11-11T14:03:14.628Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-11T14:14:35.141Z"
+   "at": "2026-11-11T14:03:19.114Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-11T14:14:44.722Z"
+   "at": "2026-11-11T14:04:03.913Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-11T14:15:43.608Z"
+   "at": "2026-11-11T14:04:53.461Z"
   },
   "arxivHistory": {
    "ok": true,
-   "at": "2026-11-11T14:18:14.793Z"
+   "at": "2026-11-11T14:47:53.954Z"
   },
   "analysis": {
-   "ok": true,
-   "at": "2026-11-11T14:14:50.577Z"
+   "ok": false,
+   "at": "2026-11-11T00:53:15.247Z",
+   "error": "no response from Pew Research Center"
   },
   "labNews": {
    "ok": true,
-   "at": "2026-11-11T14:14:57.322Z"
+   "at": "2026-11-11T14:04:18.215Z"
   },
   "jobs": {
    "ok": true,
-   "at": "2026-11-11T14:14:57.577Z"
+   "at": "2026-11-11T14:04:18.522Z"
   },
   "federal": {
    "ok": true,
-   "at": "2026-11-11T14:14:57.939Z"
+   "at": "2026-11-11T14:04:19.161Z"
   },
   "modelReleases": {
    "ok": true,
-   "at": "2026-11-11T14:14:58.334Z"
+   "at": "2026-11-11T14:04:19.404Z"
   },
   "hnThemes": {
    "ok": true,
-   "at": "2026-11-11T14:16:25.450Z"
+   "at": "2026-11-11T14:46:17.869Z"
   }
  },
  "papers": [
@@ -63,6 +64,15 @@
    "comments": 2,
    "codeUrl": "https://github.com/Robbyant/lingbot-touch",
    "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "id": "2611.06043",
+   "title": "Confucius4-R2T2: A Stable-Prefix Streaming ASR Model for Real Real-Time Transcription",
+   "url": "https://arxiv.org/abs/2611.06043",
+   "upvotes": 91,
+   "comments": 2,
+   "codeUrl": "https://github.com/netease-youdao/Confucius4-R2T2",
+   "publishedAt": "2026-11-04T06:46:50.000Z"
   },
   {
    "id": "2611.08264",
@@ -81,6 +91,42 @@
    "comments": 8,
    "codeUrl": "https://github.com/SinuoWang/P2-MOPD",
    "publishedAt": "2026-11-02T20:53:15.000Z"
+  },
+  {
+   "id": "2611.10771",
+   "title": "WorldFoundry: Towards Unified Infrastructure for World Intelligence",
+   "url": "https://arxiv.org/abs/2611.10771",
+   "upvotes": 55,
+   "comments": 2,
+   "codeUrl": "https://github.com/OpenEnvision/WorldFoundry",
+   "publishedAt": "2026-11-07T14:59:22.000Z"
+  },
+  {
+   "id": "2611.12762",
+   "title": "Sage-Taiyi: A Metacognitive Architecture for Scientific Discovery",
+   "url": "https://arxiv.org/abs/2611.12762",
+   "upvotes": 54,
+   "comments": 2,
+   "codeUrl": "https://github.com/Alpha-Innovator/Sage-Taiyi",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "id": "2611.14210",
+   "title": "Tree-Ising: Repairing Language Models with Bit-Level Ising Edits",
+   "url": "https://arxiv.org/abs/2611.14210",
+   "upvotes": 52,
+   "comments": 1,
+   "codeUrl": "https://github.com/TheQuantumGOAT/Tree-Ising",
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "id": "2611.12885",
+   "title": "World In-Context Learning for Agentic Robot Manipulation",
+   "url": "https://arxiv.org/abs/2611.12885",
+   "upvotes": 52,
+   "comments": 1,
+   "codeUrl": "https://github.com/ArcheOne-AI/RoboScript",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
   },
   {
    "id": "2611.10771",
@@ -155,15 +201,6 @@
    "publishedAt": "2026-11-03T00:00:00.000Z"
   },
   {
-   "id": "2611.14033",
-   "title": "Few-Step Streaming Video Generation via Condition Shifting",
-   "url": "https://arxiv.org/abs/2611.14033",
-   "upvotes": 38,
-   "comments": 1,
-   "codeUrl": null,
-   "publishedAt": "2026-11-10T00:00:00.000Z"
-  },
-  {
    "id": "2611.12886",
    "title": "Reframe: Observation-Aligned Multi-Teacher On-Policy Distillation for Agentic Visual Reasoning",
    "url": "https://arxiv.org/abs/2611.12886",
@@ -173,6 +210,15 @@
    "publishedAt": "2026-11-09T00:00:00.000Z"
   },
   {
+   "id": "2611.14033",
+   "title": "Few-Step Streaming Video Generation via Condition Shifting",
+   "url": "https://arxiv.org/abs/2611.14033",
+   "upvotes": 37,
+   "comments": 1,
+   "codeUrl": null,
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
    "id": "2611.06808",
    "title": "LLMs Don't Know What They Know: Benchmarking Temporal Self-Knowledge for Financial Backtesting",
    "url": "https://arxiv.org/abs/2611.06808",
@@ -180,15 +226,6 @@
    "comments": 3,
    "codeUrl": null,
    "publishedAt": "2026-11-04T00:00:00.000Z"
-  },
-  {
-   "id": "2611.07025",
-   "title": "LowRAM: Low-Rank Keys and Amortised Values for Composable KV Cache Compression at Test-Time",
-   "url": "https://arxiv.org/abs/2611.07025",
-   "upvotes": 34,
-   "comments": 4,
-   "codeUrl": "https://github.com/lowram-model/lowram",
-   "publishedAt": "2026-11-04T19:00:06.000Z"
   }
  ],
  "models": [
@@ -196,7 +233,7 @@
    "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "task": "text-generation",
-   "likes": 1406,
+   "likes": 1371,
    "downloads": 16693,
    "createdAt": "2026-10-30T10:21:29.000Z"
   },
@@ -204,7 +241,7 @@
    "id": "speridlabs/idol",
    "url": "https://huggingface.co/speridlabs/idol",
    "task": "image-to-3d",
-   "likes": 1941,
+   "likes": 1940,
    "downloads": 28250,
    "createdAt": "2026-10-28T15:55:17.000Z"
   },
@@ -212,7 +249,7 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 1902,
+   "likes": 1901,
    "downloads": 33617,
    "createdAt": "2026-11-02T04:13:51.000Z"
   },
@@ -220,7 +257,7 @@
    "id": "MiniMaxAI/MiniMax-H3-Image",
    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
    "task": "text-to-image",
-   "likes": 615,
+   "likes": 610,
    "downloads": 142989,
    "createdAt": "2026-11-03T06:34:36.000Z"
   },
@@ -236,7 +273,7 @@
    "id": "Lightricks/LTX-2.5",
    "url": "https://huggingface.co/Lightricks/LTX-2.5",
    "task": "image-to-video",
-   "likes": 11449,
+   "likes": 11448,
    "downloads": 2848771,
    "createdAt": "2026-07-23T07:55:24.000Z"
   },
@@ -268,7 +305,7 @@
    "id": "Qwen/Qwen3.8-27B",
    "url": "https://huggingface.co/Qwen/Qwen3.8-27B",
    "task": "image-text-to-text",
-   "likes": 19598,
+   "likes": 19596,
    "downloads": 7232703,
    "createdAt": "2026-08-05T08:22:59.000Z"
   },
@@ -276,7 +313,7 @@
    "id": "webAI-Official/TwIL-8B",
    "url": "https://huggingface.co/webAI-Official/TwIL-8B",
    "task": "text-generation",
-   "likes": 286,
+   "likes": 285,
    "downloads": 47087,
    "createdAt": "2026-10-14T16:50:12.000Z"
   },
@@ -300,7 +337,7 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 2914,
+   "likes": 2913,
    "downloads": 1271036,
    "createdAt": "2026-10-14T12:00:13.000Z"
   },
@@ -308,7 +345,7 @@
    "id": "Comfy-Org/MiniMax-H3-Image",
    "url": "https://huggingface.co/Comfy-Org/MiniMax-H3-Image",
    "task": "text-to-image",
-   "likes": 219,
+   "likes": 218,
    "downloads": 351803,
    "createdAt": "2026-11-08T20:37:23.000Z"
   },
@@ -324,7 +361,7 @@
    "id": "facebook/sam3",
    "url": "https://huggingface.co/facebook/sam3",
    "task": "mask-generation",
-   "likes": 6314,
+   "likes": 6312,
    "downloads": 2051107,
    "createdAt": "2025-11-07T05:17:48.000Z"
   },
@@ -367,7 +404,7 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 2914,
+   "likes": 2913,
    "downloads": 1271036,
    "createdAt": "2026-10-14T12:00:13.000Z",
    "lab": "black-forest-labs"
@@ -376,7 +413,7 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 1902,
+   "likes": 1901,
    "downloads": 33617,
    "createdAt": "2026-11-02T04:13:51.000Z",
    "lab": "moonshotai"
@@ -466,7 +503,7 @@
    "id": "nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16",
    "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16",
    "task": "text-generation",
-   "likes": 253,
+   "likes": 252,
    "downloads": 13855,
    "createdAt": "2026-10-16T18:25:29.000Z",
    "lab": "nvidia"
@@ -577,7 +614,7 @@
    "title": "Google Gemini routes personal Drive files and emails to human annotators",
    "url": "https://github.com/thisisme6598/gemini_files/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50429426",
-   "points": 723,
+   "points": 722,
    "comments": 147,
    "createdAt": "2026-11-09T18:24:38Z"
   },
@@ -595,8 +632,8 @@
    "title": "AI usage generates a fragile codebase",
    "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
-   "points": 606,
-   "comments": 575,
+   "points": 605,
+   "comments": 574,
    "createdAt": "2026-11-10T10:25:58Z"
   },
   {
@@ -640,8 +677,8 @@
    "title": "Tracking Anthropic-discovered vulnerabilities",
    "url": "https://www.vulncheck.com/blog/anthropic-glasswing-november-update",
    "discussionUrl": "https://news.ycombinator.com/item?id=50447074",
-   "points": 431,
-   "comments": 203,
+   "points": 430,
+   "comments": 202,
    "createdAt": "2026-11-10T22:17:56Z"
   },
   {
@@ -649,7 +686,7 @@
    "title": "Show HN: Get your coding agent off ~2019 JavaScript, onto modern web primitives",
    "url": "https://github.com/GoogleChrome/modern-web-guidance",
    "discussionUrl": "https://news.ycombinator.com/item?id=50443812",
-   "points": 403,
+   "points": 401,
    "comments": 132,
    "createdAt": "2026-11-10T18:01:15Z"
   },
@@ -685,8 +722,8 @@
    "title": "Apple has new Mac app coming to make running local AI models easy",
    "url": "https://9to5mac.com/2026/11/10/apple-has-new-mac-app-coming-to-make-running-local-ai-models-easy/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50446520",
-   "points": 366,
-   "comments": 368,
+   "points": 363,
+   "comments": 357,
    "createdAt": "2026-11-10T21:25:03Z"
   },
   {
@@ -722,7 +759,7 @@
    "name": "ccch1mneyyy/dsh-Go",
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
-   "stars": 19466,
+   "stars": 19451,
    "starsPerDay": 1128,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
@@ -731,7 +768,7 @@
    "name": "wangzan101/Mika",
    "url": "https://github.com/wangzan101/Mika",
    "description": "An on-device AI agent for Android that operates apps and the web to get things done for you.",
-   "stars": 8203,
+   "stars": 8201,
    "starsPerDay": 632,
    "language": "Kotlin",
    "createdAt": "2026-10-29T14:34:07Z"
@@ -740,7 +777,7 @@
    "name": "KKKKhazix/agent-autoloop",
    "url": "https://github.com/KKKKhazix/agent-autoloop",
    "description": "让你的命令行 Agent 在后台自己接活、自己跟进到底；平时不烦你，遇到拿不准的事才发卡片找你拍板。",
-   "stars": 4510,
+   "stars": 4509,
    "starsPerDay": 546,
    "language": "TypeScript",
    "createdAt": "2026-11-03T08:02:11Z"
@@ -749,7 +786,7 @@
    "name": "qybaihe/bla",
    "url": "https://github.com/qybaihe/bla",
    "description": "🛡️ BLA (Blind LLM Agents) — Adversarial defense shield that protects binaries, Electron apps, JS bundles, Python, and WebAssembly against AI reverse-engineering agents like REA. Poison -> Exhaust -> ",
-   "stars": 5245,
+   "stars": 5243,
    "starsPerDay": 302,
    "language": "TypeScript",
    "createdAt": "2026-10-25T05:25:45Z"
@@ -758,7 +795,7 @@
    "name": "expo/exact",
    "url": "https://github.com/expo/exact",
    "description": "Write an app once. It runs natively on the web, macOS, iOS, and Linux, and an AI agent can build it, run it, see it, and test it on every one of them.",
-   "stars": 2663,
+   "stars": 2660,
    "starsPerDay": 279,
    "language": "Rust",
    "createdAt": "2026-11-02T01:29:01Z"
@@ -767,7 +804,7 @@
    "name": "voyager-so/vork",
    "url": "https://github.com/voyager-so/vork",
    "description": "Headless 3D and VFX engine for agents. Research preview.",
-   "stars": 1389,
+   "stars": 1387,
    "starsPerDay": 246,
    "language": "Rust",
    "createdAt": "2026-11-05T22:37:07Z"
@@ -776,7 +813,7 @@
    "name": "Sandflow-ai/sand3d",
    "url": "https://github.com/Sandflow-ai/sand3d",
    "description": "3D modeling in Python, built for LLMs.",
-   "stars": 1831,
+   "stars": 1830,
    "starsPerDay": 222,
    "language": "HTML",
    "createdAt": "2026-11-03T08:23:03Z"
@@ -812,7 +849,7 @@
    "name": "N1nEmAn/sapper-v2",
    "url": "https://github.com/N1nEmAn/sapper-v2",
    "description": "Autonomous pentest legion — AI commander + worker swarm + layered fact-intent graph. 3rd Tencent Intelligent Attack-Defense online champion (634 teams · 8h unattended · 1B tokens beat 4.5B). The Nüwa ",
-   "stars": 1949,
+   "stars": 1948,
    "starsPerDay": 163,
    "language": "Python",
    "createdAt": "2026-10-30T15:12:35Z"
@@ -821,7 +858,7 @@
    "name": "JosssphZhou/poki",
    "url": "https://github.com/JosssphZhou/poki",
    "description": "Let AI agents operate a real iPhone. Local MCP server and agent, no jailbreak, no extra hardware.",
-   "stars": 958,
+   "stars": 957,
    "starsPerDay": 161,
    "language": "Swift",
    "createdAt": "2026-11-05T15:04:31Z"
@@ -848,8 +885,8 @@
    "name": "RunanywhereAI/trnrt",
    "url": "https://github.com/RunanywhereAI/trnrt",
    "description": "The open LLM inference engine for AWS Trainium: NKI megakernels, 1M-token context, OpenAI-compatible API. By RunAnywhere.",
-   "stars": 1207,
-   "starsPerDay": 102,
+   "stars": 1195,
+   "starsPerDay": 101,
    "language": "Python",
    "createdAt": "2026-10-30T18:30:04Z"
   },
@@ -893,7 +930,7 @@
    "name": "shinyobjectz/raea",
    "url": "https://github.com/shinyobjectz/raea",
    "description": "Render Anything Engine: tell your AI what to make. Videos, motion graphics, 3D and games as React and TypeScript, rendered on your own GPU. Rust + Bevy, macOS, Linux and Windows.",
-   "stars": 2084,
+   "stars": 2083,
    "starsPerDay": 87,
    "language": "TypeScript",
    "createdAt": "2026-10-18T18:08:48Z"
