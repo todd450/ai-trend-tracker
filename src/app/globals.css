@@ -184,7 +184,24 @@ code {
   }
 }
 
-/* The short-term / long-term switch: two links, the current one inked in. */
+/* The time-span switch: a caption and three links, the current one inked in. */
+.horizon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: inherit;
+  gap: var(--space-2xs) var(--space-sm);
+}
+
+.mast .horizon {
+  justify-content: center;
+}
+
+.horizon__title {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
 .horizon ul {
   display: inline-flex;
   border: var(--rule-hair) solid var(--color-rule-strong);
@@ -231,6 +248,15 @@ code {
 @media (pointer: coarse) {
   .horizon a {
     padding-block: var(--space-xs);
+  }
+}
+
+/* Three options do not fit side by side on a phone, so the comparison drops under the name. */
+@media (max-width: 34rem) {
+  .horizon a {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
   }
 }
 
@@ -607,78 +633,64 @@ code {
 
 /* ---------------------------------------------------- topic momentum */
 
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .trend-cols {
   display: none;
 }
 
+.trend-cols i {
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* One topic per line on wide screens; a name line and two signal lines on narrow ones. */
 .trend {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-md) var(--space-sm);
-  padding-block: var(--space-md);
+  gap: var(--space-2xs);
+  padding-block: var(--space-xs);
   border-top: var(--rule-hair) solid var(--color-rule);
 }
 
 .trend__topic {
-  grid-column: 1 / -1;
+  position: relative;
   display: grid;
-  grid-template-columns: 1.75rem minmax(0, 1fr);
+  grid-template-columns: 1.5rem minmax(0, 1fr);
   column-gap: var(--space-xs);
+  align-items: baseline;
 }
 
 .trend__rank {
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
-  line-height: 1.25;
+  font-size: var(--text-sm);
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .trend__topic h3 {
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   line-height: 1.25;
 }
 
 .trend__topic p {
-  font-size: var(--text-sm);
+  grid-column: 2;
+  font-size: var(--text-xs);
   color: var(--color-muted);
-}
-
-.trend__status {
-  display: inline-flex;
-  gap: var(--space-2xs);
-  align-items: baseline;
-  margin-top: var(--space-2xs);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-ink-2);
-}
-
-.trend__status > span,
-.change__mark {
-  font-size: 0.7em;
-}
-
-.trend__status--rising > span,
-.change__mark--rising {
-  color: var(--data-rising);
-}
-
-.trend__status--cooling > span,
-.change__mark--cooling {
-  color: var(--data-cooling);
-}
-
-.trend__status--steady > span,
-.change__mark--steady {
-  color: var(--data-steady);
 }
 
 .trend__signal {
   display: grid;
-  gap: var(--space-2xs);
-  align-content: start;
+  grid-template-columns: 4.25rem 3.75rem minmax(1.5rem, 1fr) 3.25rem 3.25rem;
+  column-gap: var(--space-xs);
+  align-items: center;
   min-width: 0;
+  padding-inline-start: calc(1.5rem + var(--space-xs));
 }
 
 .trend__label {
@@ -687,15 +699,17 @@ code {
   color: var(--color-muted);
 }
 
-.trend__figure {
-  display: grid;
+.trend__level {
   font-size: var(--text-sm);
   color: var(--color-muted);
+  text-align: end;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
 .trend__pending {
-  font-size: var(--text-sm);
+  grid-column: 2 / -1;
+  font-size: var(--text-xs);
   color: var(--color-muted);
 }
 
@@ -708,10 +722,66 @@ code {
   white-space: nowrap;
 }
 
+.trend .change {
+  justify-content: end;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.change__mark {
+  font-size: 0.7em;
+}
+
+.change__mark--rising {
+  color: var(--data-rising);
+}
+
+.change__mark--cooling {
+  color: var(--data-cooling);
+}
+
+.change__mark--steady {
+  color: var(--data-steady);
+}
+
+/* A change drawn from a centre line, on a scale shared by the whole list. */
+.bar {
+  position: relative;
+  display: block;
+  height: 0.875rem;
+  --bar-color: var(--data-steady);
+}
+
+.bar::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  width: var(--rule-hair);
+  margin-left: calc(var(--rule-hair) / -2);
+  background: var(--color-rule-strong);
+  opacity: 0.7;
+}
+
+.bar--rising {
+  --bar-color: var(--data-rising);
+}
+
+.bar--cooling {
+  --bar-color: var(--data-cooling);
+}
+
+.bar__fill {
+  position: absolute;
+  inset-block: 0.1875rem;
+  min-width: 2px;
+  background: var(--bar-color);
+}
+
 @media (min-width: 60rem) {
   .trend-cols,
   .trend {
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(11rem, 1fr) minmax(0, 1.5fr) minmax(0, 1.5fr);
     column-gap: var(--space-xl);
   }
 
@@ -725,10 +795,7 @@ code {
 
   .trend {
     align-items: center;
-  }
-
-  .trend__topic {
-    grid-column: auto;
+    padding-block: var(--space-2xs);
   }
 
   .trend__label {
@@ -736,11 +803,41 @@ code {
   }
 
   .trend__signal {
-    grid-template-columns: auto minmax(0, 1fr);
-    column-gap: var(--space-md);
-    align-items: center;
+    grid-template-columns: 5.5rem minmax(2rem, 1fr) 3.5rem 3.5rem;
+    column-gap: var(--space-sm);
+    padding-inline-start: 0;
   }
 
+  .trend__pending {
+    grid-column: 1 / -1;
+  }
+}
+
+/* With a pointer, the description waits behind the name instead of taking a line. */
+@media (min-width: 60rem) and (hover: hover) {
+  .trend__topic p {
+    position: absolute;
+    top: calc(100% + var(--space-2xs));
+    inset-inline-start: calc(1.5rem + var(--space-xs));
+    z-index: 2;
+    width: max-content;
+    max-width: 22rem;
+    padding: var(--space-2xs) var(--space-xs);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    line-height: 1.35;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .trend__topic:hover p {
+    visibility: visible;
+  }
+
+  .trend__topic h3 {
+    cursor: help;
+  }
 }
 
 /* ------------------------------------------------------------- tiles */
@@ -821,6 +918,10 @@ code {
   width: 100%;
   max-width: 132px;
   --spark-color: var(--data-steady);
+}
+
+.trend .spark {
+  max-width: 5.5rem;
 }
 
 .spark--rising {

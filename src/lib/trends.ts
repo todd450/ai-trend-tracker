@@ -17,14 +17,30 @@ export const HEADLINE_MIN_PAPERS = 25;
 export const MAP_MIN_STORIES = 5;
 
 /**
- * The two readings of the same weekly counts. Each compares the latest
- * `window` weeks with the `window` weeks before, and charts `shown` weeks.
+ * The three readings of the same weekly counts, named by how much history each
+ * charts. Each compares the latest `window` weeks with the `window` weeks before,
+ * so the chart always shows both sides of the comparison (plus, for the first,
+ * four earlier weeks of context).
  */
-export type Horizon = "short" | "long";
+export type Horizon = "threeMonths" | "sixMonths" | "oneYear";
 
-export const HORIZONS: Record<Horizon, { label: string; href: string; window: number; shown: number; period: string }> = {
-  short: { label: "Short term", href: "/", window: 4, shown: 12, period: "week" },
-  long: { label: "Long term", href: "/long-term", window: 13, shown: 26, period: "quarter" },
+export const HORIZONS: Record<
+  Horizon,
+  {
+    /** The name on the switch. */
+    label: string;
+    href: string;
+    window: number;
+    shown: number;
+    /** Opens the briefing title: "The week in five lines". */
+    brief: string;
+    /** Closes the fallback headline: "Where attention in AI is moving this week." */
+    when: string;
+  }
+> = {
+  threeMonths: { label: "3 months", href: "/", window: 4, shown: 12, brief: "The week", when: "this week" },
+  sixMonths: { label: "6 months", href: "/six-months", window: 13, shown: 26, brief: "Six months", when: "over six months" },
+  oneYear: { label: "1 year", href: "/one-year", window: 26, shown: 52, brief: "One year", when: "over one year" },
 };
 
 export type Direction = "rising" | "steady" | "cooling";

@@ -1,5 +1,5 @@
 import { Dashboard } from "@/components/Dashboard";
 
 export default function Home() {
-  return <Dashboard horizon="short" />;
+  return <Dashboard horizon="threeMonths" />;
 }

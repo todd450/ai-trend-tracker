@@ -32,7 +32,7 @@ Then open http://localhost:3000.
 npm run collect
 ```
 
-The first run backfills 26 weeks of history and takes about 25 minutes,
+The first run backfills 52 weeks of history and takes about 45 minutes,
 because arXiv allows one request every three seconds. Later runs only
 re-count the two newest weeks. `npm run collect -- --fast` skips the backfill.
 
@@ -57,8 +57,9 @@ scripts/collect.ts   fetches from the sources and feeds → data/*.json
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
-src/app/page.tsx     the short-term view, at /
-src/app/long-term/   the long-term view, at /long-term
+src/app/page.tsx     the 3-month view, at /
+src/app/six-months/  the 6-month view, at /six-months
+src/app/one-year/    the 1-year view, at /one-year
 tokens.css           every colour, font and size the design uses
 ```
 
@@ -68,14 +69,16 @@ the project is on GitHub.
 
 ## How a trend is decided
 
-The page has two views, switched from the masthead:
+The page has three views, switched from the masthead and named by how much
+history each one charts:
 
-- **Short term** compares the average of the latest 4 weeks with the 4 weeks
-  before. It shows what is moving now.
-- **Long term** compares the latest 13 weeks with the 13 before, about one
-  quarter against the previous one. It needs 26 weeks of history.
+| View | Compares | Needs |
+| --- | --- | --- |
+| 3 months (`/`) | the latest 4 weeks with the 4 before | 8 weeks |
+| 6 months (`/six-months`) | the latest 13 weeks with the 13 before | 26 weeks |
+| 1 year (`/one-year`) | the latest 26 weeks with the 26 before | 52 weeks |
 
-In either view a topic is "rising" or "cooling" when its share of AI papers
+In every view a topic is "rising" or "cooling" when its share of AI papers
 moved by 10% or more. The windows are set in `HORIZONS` in `src/lib/trends.ts`. Topics are keyword lists, so counts are indicators
 rather than exact measurements. The page's "How this is measured" section
 explains the limits to readers.

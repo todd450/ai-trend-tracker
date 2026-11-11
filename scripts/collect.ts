@@ -22,8 +22,8 @@ import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
-/** Enough for the long-term view: 13 weeks compared with the 13 before. */
-const WEEKS_OF_HISTORY = 26;
+/** Enough for the one-year view: 26 weeks compared with the 26 before. */
+const WEEKS_OF_HISTORY = 52;
 /** The newest weeks are re-counted each run because sources index late. */
 const WEEKS_TO_REFRESH = 2;
 const USER_AGENT = "ai-trend-tracker (public dashboard; collector script)";

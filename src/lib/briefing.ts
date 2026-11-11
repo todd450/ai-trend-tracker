@@ -41,7 +41,7 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
         }
       : topTopic?.direction === "rising" && bottomTopic?.direction === "cooling"
         ? { lead: `On the rise: ${topTopic.name}.`, turn: `Losing ground: ${bottomTopic.name}.` }
-        : { lead: `Where attention in AI is moving this ${HORIZONS[horizon].period}.` };
+        : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
 
   const lines: (BriefingLine | null)[] = [
     hasHistory

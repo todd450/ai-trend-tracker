@@ -27,7 +27,6 @@ import { federal, fmtMonth, indicators, jobs, releases } from "@/lib/indicators"
 
 const SHOWN = 10;
 
-const DIRECTION_LABEL: Record<Direction, string> = { rising: "Rising", steady: "Steady", cooling: "Cooling" };
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -68,16 +67,51 @@ function Change({ signal, band }: { signal: Signal; band?: number }) {
   );
 }
 
+/** The largest change in a list, kept between 20% and 100%, so every bar in the list shares one scale. */
+function barScale(changes: (number | null)[]) {
+  return Math.min(1, Math.max(0.2, ...changes.map((c) => Math.abs(c ?? 0))));
+}
+
+/** A change drawn from a centre line: right for a rise, left for a fall. Longer changes stop at the edge. */
+function ChangeBar({ signal, scale, band }: { signal: Signal; scale: number; band?: number }) {
+  const change = signal.change ?? 0;
+  const half = Math.min(Math.abs(change) / scale, 1) * 50;
+  return (
+    <span className={`bar bar--${toneOf(signal, band)}`} aria-hidden="true">
+      {half > 0 && (
+        <span
+          className="bar__fill"
+          style={change > 0 ? { left: "50%", width: `${half}%` } : { right: "50%", width: `${half}%` }}
+        />
+      )}
+    </span>
+  );
+}
+
+/** A weekly story count, shown short and read out in full. */
+function PerWeek({ value }: { value: number }) {
+  const n = Math.round(value);
+  return (
+    <span className="trend__level">
+      {n}
+      <span aria-hidden="true">/wk</span>
+      <span className="vh"> {n === 1 ? "story" : "stories"} a week</span>
+    </span>
+  );
+}
+
 /** The whole dashboard, read over one time horizon. The two routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
   const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, hasHistory, hasThemes } = trends;
   const { headline, briefing } = buildBriefing(trends);
-  const { period } = HORIZONS[horizon];
+  const { brief } = HORIZONS[horizon];
   const latestWeek = weeks.at(-1);
   const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
   const placed = new Set(mapTopics.map((t) => t.id));
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
+  const topicScale = barScale(topicTrends.flatMap((t) => [t.hasPapers ? t.papers.change : null, t.stories.change]));
+  const themeScale = barScale(themeTrends.flatMap((t) => [t.share.change, t.stories.change]));
 
   return (
     <>
@@ -106,7 +140,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <li><a href="#method">Method</a></li>
           </ul>
         </nav>
-        <HorizonSwitch current={horizon} label="Trend period" />
+        <HorizonSwitch current={horizon} label="Time span" />
       </header>
 
       <main className="page">
@@ -134,7 +168,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </div>
           {briefing.length > 0 && (
             <div className="brief">
-              <h3 className="brief__title">The {period} in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
+              <h3 className="brief__title">{brief} in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
               <ol>
                 {briefing.map((line, n) => (
                   <li key={line.label}>
@@ -155,7 +189,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               Each topic’s last {WINDOW} weeks compared with the {WINDOW} weeks before. Research is the topic’s share
               of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title.
             </p>
-            <HorizonSwitch current={horizon} label="Trend period for topics" />
+            <HorizonSwitch current={horizon} label="Time span for topics" />
           </div>
 
           {hasHistory ? (
@@ -172,39 +206,33 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               />
               <div className="trend-cols" aria-hidden="true">
                 <span>Topic</span>
-                <span>Research</span>
-                <span>Discussion</span>
+                <span>Research <i>share of AI papers</i></span>
+                <span>Discussion <i>Hacker News stories</i></span>
               </div>
               <ol className="trends">
                 {topicTrends.map((t, i) => (
                   <li key={t.id} id={`topic-${t.id}`} className="trend">
                     <div className="trend__topic">
                       <span className="trend__rank">{i + 1}</span>
-                      <div>
-                        <h3>{t.name}</h3>
-                        <p>{t.blurb}</p>
-                        {t.hasPapers && (
-                          <span className={`trend__status trend__status--${t.direction}`}>
-                            <span aria-hidden="true">{ARROW[t.direction]}</span> {DIRECTION_LABEL[t.direction]}
-                          </span>
-                        )}
-                      </div>
+                      <h3>{t.name}</h3>
+                      <p>{t.blurb}</p>
                     </div>
                     <div className="trend__signal">
                       <span className="trend__label">Research</span>
                       {t.hasPapers ? (
                         <>
-                        <Sparkline
-                          values={t.papers.values}
-                          labels={weekLabels}
-                          unit="share"
-                          tone={toneOf(t.papers)}
-                          summary={`${t.name}: share of AI papers over ${weeks.length} weeks, now ${t.papers.recent.toFixed(1)}%, ${fmtChange(t.papers.change)}`}
-                        />
-                        <p className="trend__figure">
+                          <Sparkline
+                            values={t.papers.values}
+                            labels={weekLabels}
+                            unit="share"
+                            tone={toneOf(t.papers)}
+                            summary={`${t.name}: share of AI papers over ${weeks.length} weeks, now ${t.papers.recent.toFixed(1)}%, ${fmtChange(t.papers.change)}`}
+                          />
+                          <ChangeBar signal={t.papers} scale={topicScale} />
                           <Change signal={t.papers} />
-                          <span>{t.papers.recent.toFixed(1)}% of papers</span>
-                        </p>
+                          <span className="trend__level">
+                            {t.papers.recent.toFixed(1)}%<span className="vh"> of papers</span>
+                          </span>
                         </>
                       ) : (
                         <p className="trend__pending">Paper counts not collected yet</p>
@@ -219,10 +247,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                         tone={toneOf(t.stories)}
                         summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
                       />
-                      <p className="trend__figure">
-                        <Change signal={t.stories} />
-                        <span>{Math.round(t.stories.recent) === 1 ? "1 story" : `${Math.round(t.stories.recent)} stories`} a week</span>
-                      </p>
+                      <ChangeBar signal={t.stories} scale={topicScale} />
+                      <Change signal={t.stories} />
+                      <PerWeek value={t.stories.recent} />
                     </div>
                   </li>
                 ))}
@@ -284,24 +311,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <>
               <div className="trend-cols" aria-hidden="true">
                 <span>Theme</span>
-                <span>Share of AI stories</span>
-                <span>Stories</span>
+                <span>Share <i>of AI stories</i></span>
+                <span>Stories <i>on Hacker News</i></span>
               </div>
               <ol className="trends">
                 {themeTrends.map((t, i) => (
                   <li key={t.id} className="trend">
                     <div className="trend__topic">
                       <span className="trend__rank">{i + 1}</span>
-                      <div>
-                        <h3>{t.name}</h3>
-                        <p>{t.blurb}</p>
-                        <span className={`trend__status trend__status--${t.direction}`}>
-                          <span aria-hidden="true">{ARROW[t.direction]}</span> {DIRECTION_LABEL[t.direction]}
-                        </span>
-                      </div>
+                      <h3>{t.name}</h3>
+                      <p>{t.blurb}</p>
                     </div>
                     <div className="trend__signal">
-                      <span className="trend__label">Share of AI stories</span>
+                      <span className="trend__label">Share</span>
                       <Sparkline
                         values={t.share.values}
                         labels={weekLabels}
@@ -309,10 +331,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                         tone={t.direction}
                         summary={`${t.name}: share of AI stories on Hacker News over ${weeks.length} weeks, now ${t.share.recent.toFixed(1)}%, ${fmtChange(t.share.change)}`}
                       />
-                      <p className="trend__figure">
-                        <Change signal={t.share} band={THEME_STEADY_BAND} />
-                        <span>{t.share.recent.toFixed(1)}% of AI stories</span>
-                      </p>
+                      <ChangeBar signal={t.share} scale={themeScale} band={THEME_STEADY_BAND} />
+                      <Change signal={t.share} band={THEME_STEADY_BAND} />
+                      <span className="trend__level">
+                        {t.share.recent.toFixed(1)}%<span className="vh"> of AI stories</span>
+                      </span>
                     </div>
                     <div className="trend__signal">
                       <span className="trend__label">Stories</span>
@@ -323,10 +346,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                         tone={directionOf(t.stories.change, THEME_STEADY_BAND)}
                         summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
                       />
-                      <p className="trend__figure">
-                        <Change signal={t.stories} band={THEME_STEADY_BAND} />
-                        <span>{Math.round(t.stories.recent) === 1 ? "1 story" : `${Math.round(t.stories.recent)} stories`} a week</span>
-                      </p>
+                      <ChangeBar signal={t.stories} scale={themeScale} band={THEME_STEADY_BAND} />
+                      <Change signal={t.stories} band={THEME_STEADY_BAND} />
+                      <PerWeek value={t.stories.recent} />
                     </div>
                   </li>
                 ))}
@@ -681,10 +703,14 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10% between the two
-                windows being compared. The short-term view compares the last {HORIZONS.short.window} weeks with the{" "}
-                {HORIZONS.short.window} before, and shows what is moving now. The long-term view compares the last{" "}
-                {HORIZONS.long.window} weeks with the {HORIZONS.long.window} before, roughly one quarter against the
-                previous one; it reacts slowly, and a topic can be rising in one view and cooling in the other. Topics are defined by keyword lists, so a paper can count toward several topics,
+                windows being compared. The switch at the top sets those windows, and each view is named by how
+                much history it charts. <strong>3 months</strong> compares the last{" "}
+                {HORIZONS.threeMonths.window} weeks with the {HORIZONS.threeMonths.window} before and shows what is
+                moving now. <strong>6 months</strong> compares the last {HORIZONS.sixMonths.window} weeks with the{" "}
+                {HORIZONS.sixMonths.window} before, one quarter against the previous one.{" "}
+                <strong>1 year</strong> compares the last {HORIZONS.oneYear.window} weeks with the{" "}
+                {HORIZONS.oneYear.window} before, one half-year against the other. The longer views react slowly,
+                and a topic can be rising in one view and cooling in another. Topics are defined by keyword lists, so a paper can count toward several topics,
                 and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
               </p>
@@ -692,8 +718,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>The map</strong> places a topic by two changes over the same windows: its share
                 of AI papers (across) and its Hacker News stories (up). A topic is placed only when it averages at
                 least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week, because smaller counts swing
-                too easily. A change beyond the edge of the map is drawn on the edge. <strong>The {period} in five
-                lines</strong> is written by fixed rules from the same numbers, not by an editor or a model.
+                too easily. A change beyond the edge of the map is drawn on the edge. <strong>{brief} in five lines</strong> is written by fixed rules from the same numbers, not by an editor or a model.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a

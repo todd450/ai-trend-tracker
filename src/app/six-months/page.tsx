@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Dashboard } from "@/components/Dashboard";
 
 export const metadata: Metadata = {
-  title: "AI Trend Tracker: what is rising in AI this quarter",
+  title: "AI Trend Tracker: what is rising in AI over six months",
   description:
-    "The long-term reading of where attention in artificial intelligence is moving: the last 13 weeks compared with the 13 before.",
+    "The six-month view of where attention in artificial intelligence is moving: the last 13 weeks compared with the 13 before.",
 };
 
-export default function LongTerm() {
-  return <Dashboard horizon="long" />;
+export default function SixMonths() {
+  return <Dashboard horizon="sixMonths" />;
 }
