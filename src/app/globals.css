@@ -17,7 +17,18 @@ body {
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: var(--space-lg);
+  scroll-padding-top: calc(var(--bar-h) + var(--space-md));
+}
+
+/* The height of the sticky bar, so a link to a section lands below it. */
+:root {
+  --bar-h: 6rem;
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --bar-h: 3.25rem;
+  }
 }
 
 body {
@@ -147,86 +158,101 @@ code {
   width: auto;
 }
 
-.mast__nav {
-  width: 100%;
+/* The sections and the time-span switch stay in view while the page scrolls. */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   margin-top: var(--space-sm);
+  background: var(--color-paper);
+}
+
+.bar__inner {
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.bar__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   border-top: var(--rule-hair) solid var(--color-rule-strong);
   border-bottom: var(--rule-heavy) double var(--color-rule-strong);
 }
 
-.mast__nav ul {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: space-evenly;
-  column-gap: var(--space-sm);
+/* One line that scrolls sideways when the sections do not fit; the fade says there is more. */
+.bar__nav {
+  min-width: 0;
+  mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
 }
 
-@media (min-width: 30rem) {
-  .mast__nav ul {
-    display: flex;
-    justify-content: center;
-    column-gap: var(--space-lg);
-  }
+.bar__nav ul {
+  display: flex;
+  column-gap: var(--space-lg);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-inline-end: 2.5rem;
 }
 
-.mast__nav a {
-  display: block;
-  padding: var(--space-xs) 0;
+.bar__nav ul::-webkit-scrollbar {
+  display: none;
+}
+
+/* Centred while everything fits, and still scrollable from the first link when it does not. */
+.bar__nav li:first-child {
+  margin-inline-start: auto;
+}
+
+.bar__nav li:last-child {
+  margin-inline-end: auto;
+}
+
+.bar__nav a {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
   font-size: var(--text-sm);
   font-weight: 500;
   white-space: nowrap;
   text-decoration-color: transparent;
 }
 
-@media (pointer: coarse) {
-  .mast__nav a {
-    padding-block: var(--space-sm);
-  }
-}
-
-/* The time-span switch: a caption and five links, the current one inked in. */
+/* The time-span switch: five links, the current one inked in. */
 .horizon {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: inherit;
-  gap: var(--space-2xs) var(--space-sm);
-}
-
-.mast .horizon {
   justify-content: center;
+  gap: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
 }
 
 .horizon__title {
+  display: none;
   font-size: var(--text-sm);
   color: var(--color-muted);
+  white-space: nowrap;
 }
 
 .horizon ul {
-  display: inline-flex;
-  border: var(--rule-hair) solid var(--color-rule-strong);
-  border-radius: var(--radius-sm);
+  display: flex;
+  flex: 1;
 }
 
-/* The comparison sits under the name so five options stay compact. */
+.horizon li {
+  flex: 1;
+}
+
 .horizon a {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: var(--space-2xs) var(--space-sm);
-  line-height: 1.25;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding-inline: var(--space-2xs);
   font-size: var(--text-sm);
   font-weight: 500;
   white-space: nowrap;
   text-decoration: none;
   transition: background-color var(--dur-fast) var(--ease-out);
-}
-
-.horizon__span {
-  font-size: var(--text-xs);
-  font-weight: 400;
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
 }
 
 .horizon a[aria-current="page"],
@@ -236,44 +262,63 @@ code {
   color: var(--color-paper);
 }
 
-.horizon a[aria-current="page"] .horizon__span {
-  color: inherit;
-  opacity: 0.75;
-}
-
 @media (hover: hover) {
   .horizon a:not([aria-current]):hover {
     background: var(--color-paper-2);
   }
 }
 
-@media (pointer: coarse) {
+/* With room, the switch becomes a labelled box in the middle of its row. */
+@media (min-width: 40rem) {
+  .horizon {
+    padding-block: var(--space-2xs);
+  }
+
+  .horizon__title {
+    display: block;
+  }
+
+  .horizon ul {
+    flex: none;
+    border: var(--rule-hair) solid var(--color-rule-strong);
+    border-radius: var(--radius-sm);
+  }
+
   .horizon a {
-    padding-block: var(--space-xs);
+    min-height: 2rem;
+    padding-inline: var(--space-sm);
   }
 }
 
-/* On a phone the five options only fit with tighter sides and without the word "weeks". */
-@media (max-width: 34rem) {
+@media (min-width: 40rem) and (pointer: coarse) {
   .horizon a {
-    padding-inline: var(--space-2xs);
-  }
-
-  .horizon li {
-    flex: 1 1 auto;
-  }
-
-  .horizon__unit {
-    display: none;
+    min-height: 2.75rem;
   }
 }
 
-.mast .horizon {
-  margin-top: var(--space-sm);
-}
+/* Wide screens set the sections and the switch on one line. */
+@media (min-width: 80rem) {
+  .bar__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-lg);
+    align-items: center;
+  }
 
-.band__head .horizon {
-  margin-top: var(--space-xs);
+  .bar__nav {
+    mask-image: none;
+  }
+
+  .bar__nav ul {
+    padding-inline-end: 0;
+  }
+
+  .bar__nav li:first-child {
+    margin-inline-start: 0;
+  }
+
+  .horizon {
+    border-top: 0;
+  }
 }
 
 /* -------------------------------------------------------------- page */
@@ -298,8 +343,9 @@ code {
   text-wrap: balance;
 }
 
+/* The second finding carries the same weight as the first, on a line of its own. */
 .lede__turn {
-  color: var(--color-muted);
+  display: block;
 }
 
 .lede__dek {
@@ -346,48 +392,45 @@ code {
 
 .brief li {
   display: grid;
-  grid-template-columns: 1.5rem minmax(0, 1fr);
-  column-gap: var(--space-xs);
+  grid-template-columns: 5.75rem minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  align-items: baseline;
   padding-block: var(--space-xs);
   border-top: var(--rule-hair) solid var(--color-rule);
 }
 
-.brief__num {
-  grid-row: span 2;
+/* The number leads; the label and sentence say what it is. */
+.brief__figure {
+  grid-column: 1;
+  grid-row: 1 / span 2;
   font-family: var(--font-display);
-  font-size: var(--text-base);
-  line-height: 1.2;
-  color: var(--color-muted);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .brief__label {
+  grid-column: 2;
   justify-self: start;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: 500;
-  color: var(--color-ink-2);
+  color: var(--color-muted);
 }
 
 .brief li p {
+  grid-column: 2;
   font-size: var(--text-sm);
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 40rem) {
-  .brief li {
-    grid-template-columns: 1.5rem 6.5rem minmax(0, 1fr);
-    align-items: baseline;
-  }
-
-  .brief__num {
-    grid-row: auto;
-  }
-}
-
 /* The momentum map: topics placed by research change (across) and discussion change (up). */
 
 .map {
+  position: relative;
   display: grid;
   gap: var(--space-sm);
   margin: 0;
@@ -409,7 +452,19 @@ code {
 .map__plot {
   position: relative;
   aspect-ratio: 1 / 1;
+  margin-inline-start: 2.75rem;
+  margin-bottom: var(--space-md);
   border: var(--rule-hair) solid var(--color-rule);
+}
+
+.map__axis-title {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-ink-2);
+}
+
+.map__axis-title--x {
+  text-align: end;
 }
 
 .map__axis {
@@ -429,17 +484,56 @@ code {
   width: var(--rule-hair);
 }
 
-.map__corner,
-.map__tick {
+/* Gridlines at round changes, each labelled outside the plot. */
+.map__grid {
+  position: absolute;
+  background: var(--color-rule);
+  opacity: 0.7;
+}
+
+.map__grid--x {
+  inset-block: 0;
+  width: var(--rule-hair);
+}
+
+.map__grid--y {
+  inset-inline: 0;
+  height: var(--rule-hair);
+}
+
+.map__grid > span {
   position: absolute;
   font-size: var(--text-xs);
-  line-height: 1.2;
+  line-height: 1;
   color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.map__grid--x > span {
+  top: calc(100% + var(--space-2xs));
+  left: 0;
+  translate: -50% 0;
+}
+
+@media (max-width: 47.99rem) {
+  .map__grid--minor > span {
+    display: none;
+  }
+}
+
+.map__grid--y > span {
+  right: calc(100% + var(--space-xs));
+  top: 0;
+  translate: 0 -50%;
 }
 
 .map__corner {
+  position: absolute;
   max-width: 45%;
+  font-size: var(--text-xs);
   font-weight: 500;
+  line-height: 1.2;
   color: var(--color-ink-2);
 }
 
@@ -447,16 +541,6 @@ code {
 .map__corner--tr { top: var(--space-xs); right: var(--space-xs); text-align: end; }
 .map__corner--bl { bottom: var(--space-xs); left: var(--space-xs); }
 .map__corner--br { bottom: var(--space-xs); right: var(--space-xs); text-align: end; }
-
-.map__tick {
-  display: none;
-  font-variant-numeric: tabular-nums;
-}
-
-.map__tick--left { left: 0; top: calc(100% + var(--space-2xs)); }
-.map__tick--right { right: 0; top: calc(100% + var(--space-2xs)); }
-.map__tick--top { left: calc(50% + var(--space-xs)); top: var(--space-xs); }
-.map__tick--bottom { left: calc(50% + var(--space-xs)); bottom: var(--space-xs); }
 
 .map__dot {
   position: absolute;
@@ -479,6 +563,38 @@ code {
 
 .map__dot--rising { background: var(--data-rising); }
 .map__dot--cooling { background: var(--data-cooling); }
+
+/* Small counts: an outline in the same colour, so the dot reads as less certain. */
+.map__dot--soft {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: inset 0 0 0 2px var(--data-steady);
+}
+
+.map__dot--soft.map__dot--rising { box-shadow: inset 0 0 0 2px var(--data-rising); }
+.map__dot--soft.map__dot--cooling { box-shadow: inset 0 0 0 2px var(--data-cooling); }
+
+/* A finger gets a target of 44px around the dot. */
+@media (pointer: coarse) {
+  .map__dot::before {
+    content: "";
+    position: absolute;
+    inset: -0.75rem;
+  }
+}
+
+.map__swatch {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-inline-end: var(--space-3xs);
+  border-radius: 50%;
+  background: var(--data-steady);
+}
+
+.map__swatch--rising { background: var(--data-rising); }
+.map__swatch--cooling { background: var(--data-cooling); }
+.map__swatch--soft { background: none; box-shadow: inset 0 0 0 2px var(--data-steady); }
 
 .map__dot:hover,
 .map__dot:focus-visible {
@@ -564,12 +680,10 @@ code {
 @media (min-width: 48rem) {
   .map__plot {
     aspect-ratio: auto;
-    height: 20rem;
-    margin-bottom: var(--space-md);
+    height: 24rem;
   }
 
-  .map__name,
-  .map__tick {
+  .map__name {
     display: block;
   }
 
@@ -579,8 +693,13 @@ code {
     margin: -0.75rem 0 0 -0.75rem;
   }
 
+  /* The names are on the plot at this width, so the lists stay for screen readers only. */
   .map__key {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
 
@@ -635,8 +754,69 @@ code {
   }
 }
 
-#momentum {
+/* A chapter groups the bands that answer one question. */
+.chapter {
+  margin-top: var(--space-3xl);
+}
+
+.lede + .chapter {
   margin-top: 0;
+}
+
+.chapter__head {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-bottom: var(--space-lg);
+}
+
+.chapter__kicker {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.018em;
+}
+
+.chapter__dek {
+  max-width: 62ch;
+  color: var(--color-ink-2);
+}
+
+.chapter__head + .band,
+.chapter__head + .pair > .band:first-child {
+  margin-top: 0;
+}
+
+@media (min-width: 60rem) {
+  .chapter__head + .pair > .band {
+    margin-top: 0;
+  }
+}
+
+/* The reading list sits on a tinted sheet that runs to both edges of the window. */
+.chapter--reading {
+  padding-block: var(--space-2xl);
+  background: var(--color-paper-2);
+  box-shadow: 0 0 0 100vmax var(--color-paper-2);
+  clip-path: inset(0 -100vmax);
+}
+
+.chapter--reading + .band {
+  margin-top: var(--space-2xl);
+}
+
+/* Where a list comes from, above its title. */
+.band__head .band__source {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-accent);
 }
 
 /* ---------------------------------------------------- topic momentum */
@@ -694,7 +874,7 @@ code {
 
 .trend__signal {
   display: grid;
-  grid-template-columns: 4.25rem 3.75rem minmax(1.5rem, 1fr) 3.25rem 3.25rem;
+  grid-template-columns: 4.25rem minmax(3.75rem, 1fr) 3.75rem 3.75rem;
   column-gap: var(--space-xs);
   align-items: center;
   min-width: 0;
@@ -770,40 +950,6 @@ code {
   color: var(--data-steady);
 }
 
-/* A change drawn from a centre line, on a scale shared by the whole list. */
-.bar {
-  position: relative;
-  display: block;
-  height: 0.875rem;
-  --bar-color: var(--data-steady);
-}
-
-.bar::before {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  left: 50%;
-  width: var(--rule-hair);
-  margin-left: calc(var(--rule-hair) / -2);
-  background: var(--color-rule-strong);
-  opacity: 0.7;
-}
-
-.bar--rising {
-  --bar-color: var(--data-rising);
-}
-
-.bar--cooling {
-  --bar-color: var(--data-cooling);
-}
-
-.bar__fill {
-  position: absolute;
-  inset-block: 0.1875rem;
-  min-width: 2px;
-  background: var(--bar-color);
-}
-
 @media (min-width: 60rem) {
   .trend-cols,
   .trend {
@@ -829,7 +975,7 @@ code {
   }
 
   .trend__signal {
-    grid-template-columns: 5.5rem minmax(2rem, 1fr) 3.5rem 3.5rem;
+    grid-template-columns: minmax(5.5rem, 1fr) 3.75rem 3.75rem;
     column-gap: var(--space-sm);
     padding-inline-start: 0;
   }
@@ -935,7 +1081,7 @@ code {
 }
 
 .trend__few {
-  grid-column: span 2;
+  justify-self: end;
   font-size: var(--text-xs);
   color: var(--color-muted);
   text-align: end;
@@ -955,6 +1101,12 @@ code {
 
   .trend--sub .trend__topic h4 {
     cursor: help;
+  }
+}
+
+@media (pointer: coarse) {
+  .drill {
+    min-height: 2.75rem;
   }
 }
 
@@ -987,7 +1139,7 @@ code {
 }
 
 .trend .spark {
-  max-width: 5.5rem;
+  max-width: 8.25rem;
 }
 
 .spark--rising {
@@ -1076,6 +1228,12 @@ code {
   padding-block: var(--space-2xs);
 }
 
+@media (pointer: coarse) {
+  .table-view summary {
+    padding-block: var(--space-sm);
+  }
+}
+
 .table-view__scroll {
   overflow-x: auto;
   margin-top: var(--space-sm);
@@ -1137,6 +1295,74 @@ code {
   display: none;
 }
 
+/* The first five show; the rest wait for the control under the list. */
+.ledger[data-open="false"] li:nth-child(n + 6),
+.trends[data-open="false"] > li:nth-child(n + 6) {
+  display: none;
+}
+
+/* A phone shows three, so each list fits on one screen. */
+@media (max-width: 40rem) {
+  .ledger[data-open="false"] li:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+/* A list of four or five has nothing more to show once there is room for five. */
+@media (min-width: 40.01rem) {
+  .ledger[data-short="true"] .ledger__toggle {
+    display: none;
+  }
+}
+
+.ledger__foot + .table-view {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.ledger__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-lg);
+  margin-top: var(--space-xs);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+
+.ledger__toggle {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.ledger__toggle::after {
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-start: var(--space-xs);
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-0.15rem) rotate(45deg);
+}
+
+.ledger__toggle[aria-expanded="true"]::after {
+  transform: translateY(0.1rem) rotate(-135deg);
+}
+
+@media (hover: hover) {
+  .ledger__toggle:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
 .ledger li {
   counter-increment: rank;
   display: grid;
@@ -1165,6 +1391,46 @@ code {
   line-height: 1.3;
   text-decoration-color: transparent;
   overflow-wrap: anywhere;
+}
+
+/* Paper titles are set in italic, as a citation would be. */
+.ledger--paper .ledger__main a {
+  font-style: italic;
+}
+
+/* Repositories and models are names of things to use, not headlines to read. */
+.ledger--thing .ledger__main a {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+/* A finger gets a taller title to hit, and room around the small links under it. */
+@media (pointer: coarse) {
+  .ledger li {
+    min-height: 2.75rem;
+  }
+
+  .ledger__main a,
+  .ledger__data a,
+  .trend__context a,
+  .brief__label {
+    position: relative;
+  }
+
+  .ledger__main a::after,
+  .ledger__data a::after,
+  .trend__context a::after,
+  .brief__label::after {
+    content: "";
+    position: absolute;
+    inset: -0.875rem -0.5rem;
+  }
+
+  .ledger__main a::after {
+    inset: -0.6875rem 0;
+  }
 }
 
 .ledger__note {
@@ -1197,9 +1463,9 @@ code {
   gap: var(--space-xs);
 }
 
+/* The bar needs its column heading to mean anything, so it waits for the wide layout. */
 .ledger__bar {
-  display: block;
-  width: 2.5rem;
+  display: none;
   height: 0.5rem;
 }
 
@@ -1302,7 +1568,7 @@ code {
   }
 
   .ledger__bar {
-    width: auto;
+    display: block;
   }
 
   .ledger__unit {
@@ -1315,9 +1581,9 @@ code {
 }
 
 .more {
-  display: inline-block;
-  margin-top: var(--space-sm);
-  padding-block: var(--space-xs);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-accent);

@@ -1,5 +1,7 @@
 import { HorizonSwitch } from "@/components/HorizonSwitch";
+import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
+import { MoreRows } from "@/components/MoreRows";
 import { MomentumMap } from "@/components/MomentumMap";
 import { Sparkline } from "@/components/Sparkline";
 import { ThemeRow } from "@/components/ThemeRow";
@@ -70,27 +72,6 @@ function Change({ signal, band }: { signal: Signal; band?: number }) {
   );
 }
 
-/** The largest change in a list, kept between 20% and 100%, so every bar in the list shares one scale. */
-function barScale(changes: (number | null)[]) {
-  return Math.min(1, Math.max(0.2, ...changes.map((c) => Math.abs(c ?? 0))));
-}
-
-/** A change drawn from a centre line: right for a rise, left for a fall. Longer changes stop at the edge. */
-function ChangeBar({ signal, scale, band }: { signal: Signal; scale: number; band?: number }) {
-  const change = signal.change ?? 0;
-  const half = Math.min(Math.abs(change) / scale, 1) * 50;
-  return (
-    <span className={`bar bar--${toneOf(signal, band)}`} aria-hidden="true">
-      {half > 0 && (
-        <span
-          className="bar__fill"
-          style={change > 0 ? { left: "50%", width: `${half}%` } : { right: "50%", width: `${half}%` }}
-        />
-      )}
-    </span>
-  );
-}
-
 /** A weekly story count, shown short and read out in full. */
 function PerWeek({ value }: { value: number }) {
   const n = Math.round(value);
@@ -111,14 +92,12 @@ function ThemeCells({
   name,
   share,
   stories,
-  scale,
   labels,
   enough = true,
 }: {
   name: string;
   share: Signal;
   stories: Signal;
-  scale: number;
   labels: string[];
   enough?: boolean;
 }) {
@@ -135,10 +114,7 @@ function ThemeCells({
           summary={`${name}: share of AI stories on Hacker News over ${labels.length} weeks, now ${share.recent.toFixed(1)}%${enough ? `, ${fmtChange(share.change)}` : ""}`}
         />
         {enough ? (
-          <>
-            <ChangeBar signal={share} scale={scale} band={THEME_STEADY_BAND} />
-            <Change signal={share} band={THEME_STEADY_BAND} />
-          </>
+          <Change signal={share} band={THEME_STEADY_BAND} />
         ) : (
           few
         )}
@@ -156,38 +132,13 @@ function ThemeCells({
           summary={`${name}: Hacker News stories per week over ${labels.length} weeks, now ${Math.round(stories.recent)}${enough ? `, ${fmtChange(stories.change)}` : ""}`}
         />
         {enough ? (
-          <>
-            <ChangeBar signal={stories} scale={scale} band={THEME_STEADY_BAND} />
-            <Change signal={stories} band={THEME_STEADY_BAND} />
-          </>
+          <Change signal={stories} band={THEME_STEADY_BAND} />
         ) : (
           few
         )}
         <PerWeek value={stories.recent} />
       </div>
     </>
-  );
-}
-
-type Cell = { head: string; width: string; start?: boolean };
-
-/**
- * A ranked list set as a ledger: one line per item where there is room, with the
- * figures in columns under shared headings. Narrow lists stack the figures under the title.
- */
-function Ledger({ first, cells, labelledBy, children }: { first: string; cells: Cell[]; labelledBy: string; children: React.ReactNode }) {
-  return (
-    <div className="ledger" style={{ "--cells": cells.map((c) => c.width).join(" ") } as React.CSSProperties}>
-      <div className="ledger__head" aria-hidden="true">
-        <span>{first}</span>
-        <span className="ledger__data">
-          {cells.map((c) => (
-            <span key={c.head} className={c.start ? "ledger__cell--start" : undefined}>{c.head}</span>
-          ))}
-        </span>
-      </div>
-      <ol aria-labelledby={labelledBy}>{children}</ol>
-    </div>
   );
 }
 
@@ -220,19 +171,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       : `last ${WINDOW} weeks compared with the ${WINDOW} weeks before`;
   const latestWeek = weeks.at(-1);
   const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
-  const placed = new Set(mapTopics.map((t) => t.id));
+  /** Topics whose counts are large enough for their place on the map to be trusted. */
+  const firm = new Set(mapTopics.map((t) => t.id));
+  /** Every topic with both changes to place, numbered as in the table. */
+  const mapPoints = topicTrends
+    .map((t, i) => ({ t, rank: i + 1 }))
+    .filter(({ t }) => t.hasPapers && t.papers.change !== null && t.stories.change !== null);
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
-  const topicScale = barScale(topicTrends.flatMap((t) => [t.hasPapers ? t.papers.change : null, t.stories.change]));
-  const themeScale = barScale(themeTrends.flatMap((t) => [t.share.change, t.stories.change]));
   const usage = usageSummary; // a local constant, so the null check below holds inside the row callbacks
-  const usageScale = barScale(usage?.toolkits.map((t) => t.share.change) ?? []);
-  const indicatorScale = barScale([jobs?.signal.change ?? null, federal?.signal.change ?? null, releases?.signal.change ?? null]);
 
   const stories = latest.stories.slice(0, SHOWN);
   const papers = latest.papers.slice(0, SHOWN);
   const repos = latest.repos.slice(0, SHOWN);
   const models = latest.models.slice(0, SHOWN);
   const labModels = latest.releases.slice(0, SHOWN);
+  const analysis = (latest.analysis ?? []).slice(0, SHOWN);
+  const labNews = (latest.labNews ?? []).slice(0, SHOWN);
   const sources = Object.entries(latest.sources);
   const stale = sources.filter(([, src]) => !src.ok).length;
   const oldest = sources.map(([, src]) => src.at).filter(Boolean).sort()[0];
@@ -251,22 +205,29 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <Logo className="mast__mark" />
           AI Trend Tracker
         </h1>
-        <nav className="mast__nav" aria-label="Sections">
-          <ul>
-            <li><a href="#momentum">Topics</a></li>
-            <li><a href="#themes">Themes</a></li>
-            <li><a href="#news">News</a></li>
-            <li><a href="#papers">Papers</a></li>
-            <li><a href="#indicators">Indicators</a></li>
-            <li><a href="#usage">Usage</a></li>
-            <li><a href="#analysis">Analysis</a></li>
-            <li><a href="#code">Code</a></li>
-            <li><a href="#models">Models</a></li>
-            <li><a href="#method">Method</a></li>
-          </ul>
-        </nav>
-        <HorizonSwitch current={horizon} label="Time span" />
       </header>
+
+      <div className="bar">
+        <div className="bar__inner">
+          <div className="bar__row">
+            <nav className="bar__nav" aria-label="Sections">
+              <ul>
+                <li><a href="#momentum">Topics</a></li>
+                <li><a href="#themes">Themes</a></li>
+                <li><a href="#indicators">Indicators</a></li>
+                <li><a href="#usage">Usage</a></li>
+                <li><a href="#news">News</a></li>
+                <li><a href="#papers">Papers</a></li>
+                <li><a href="#analysis">Analysis</a></li>
+                <li><a href="#code">Code</a></li>
+                <li><a href="#models">Models</a></li>
+                <li><a href="#method">Method</a></li>
+              </ul>
+            </nav>
+            <HorizonSwitch current={horizon} label="Time span" />
+          </div>
+        </div>
+      </div>
 
       <main className="page">
         <section className="lede">
@@ -289,16 +250,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 Updated {fmtDate(latest.generatedAt)}
                 {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv last week</>}
               </p>
+              <p className="lede__meta">
+                Showing {HORIZONS[horizon].label}: charts cover {weeks.length} weeks, and each change is the {compared}.
+              </p>
             </div>
           </div>
           {briefing.length > 0 && (
             <div className="brief">
-              <h3 className="brief__title">The week in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
+              <h3 className="brief__title">The week in {briefing.length === 5 ? "five" : briefing.length} numbers</h3>
               <ol>
-                {briefing.map((line, n) => (
+                {briefing.map((line) => (
                   <li key={line.label}>
-                    <span className="brief__num" aria-hidden="true">{n + 1}</span>
                     <a className="brief__label" href={line.href}>{line.label}</a>
+                    <span className="brief__figure">{line.figure}</span>
                     <p>{line.text}</p>
                   </li>
                 ))}
@@ -307,6 +271,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           )}
         </section>
 
+        <section className="chapter" aria-labelledby="trends-h">
+          <header className="chapter__head">
+            <p className="chapter__kicker">Part 1 of 3</p>
+            <p className="chapter__title" id="trends-h">The trends</p>
+            <p className="chapter__dek">What is rising and what is cooling, in research and in discussion.</p>
+          </header>
+
         <section id="momentum" className="band" aria-labelledby="momentum-h">
           <div className="band__head">
             <h2 id="momentum-h">Topic momentum</h2>
@@ -314,20 +285,21 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               Each topic’s {compared}. Research is the topic’s share
               of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title.
             </p>
-            <HorizonSwitch current={horizon} label="Time span for topics" />
           </div>
 
           {hasHistory ? (
             <>
               <MomentumMap
-                points={mapTopics.map((t) => ({
+                points={mapPoints.map(({ t, rank }) => ({
                   id: t.id,
                   name: t.name,
+                  rank,
                   research: t.papers.change ?? 0,
                   discussion: t.stories.change ?? 0,
                   direction: t.direction,
+                  firm: firm.has(t.id),
                 }))}
-                unplaced={topicTrends.filter((t) => !placed.has(t.id)).map((t) => t.name)}
+                unplaced={topicTrends.filter((t) => !mapPoints.some((p) => p.t.id === t.id)).map((t) => t.name)}
               />
               <div className="trend-cols" aria-hidden="true">
                 <span>Topic</span>
@@ -353,7 +325,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                             tone={toneOf(t.papers)}
                             summary={`${t.name}: share of AI papers over ${weeks.length} weeks, now ${t.papers.recent.toFixed(1)}%, ${fmtChange(t.papers.change)}`}
                           />
-                          <ChangeBar signal={t.papers} scale={topicScale} />
                           <Change signal={t.papers} />
                           <span className="trend__level">
                             {t.papers.recent.toFixed(1)}%<span className="vh"> of papers</span>
@@ -372,7 +343,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                         tone={toneOf(t.stories)}
                         summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
                       />
-                      <ChangeBar signal={t.stories} scale={topicScale} />
                       <Change signal={t.stories} />
                       <PerWeek value={t.stories.recent} />
                     </div>
@@ -449,7 +419,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     count={t.parts.length}
                     cells={
                       <>
-                        <ThemeCells name={t.name} share={t.share} stories={t.stories} scale={themeScale} labels={weekLabels} />
+                        <ThemeCells name={t.name} share={t.share} stories={t.stories} labels={weekLabels} />
                       </>
                     }
                   >
@@ -464,7 +434,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                           name={`${t.name}, ${part.name}`}
                           share={part.share}
                           stories={part.stories}
-                          scale={themeScale}
+                         
                           labels={weekLabels}
                           enough={part.enough}
                         />
@@ -520,75 +490,14 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           )}
         </section>
 
-        <div className="pair">
-          <section id="news" className="band" aria-labelledby="news-h">
-            <div className="band__head">
-              <h2 id="news-h">In the news</h2>
-              <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
-            </div>
-            <Ledger
-              first="Story"
-              labelledBy="news-h"
-              cells={[
-                { head: "Points", width: "5.5rem" },
-                { head: "Comments", width: "4.25rem" },
-              ]}
-            >
-              {stories.map((s) => (
-                <li key={s.id}>
-                  <span className="ledger__main">
-                    <a href={s.url} title={s.title}>{s.title}</a>
-                    <span className="ledger__note">{host(s.url)}</span>
-                  </span>
-                  <span className="ledger__data">
-                    <Mag value={s.points} max={top(stories.map((x) => x.points))} unit="points" />
-                    <span>
-                      <a href={s.discussionUrl}>
-                        {fmtCompact(s.comments)}
-                        <span className="ledger__unit"> comments</span>
-                      </a>
-                    </span>
-                    <span className="ledger__extra">{fmtDay(s.createdAt)}</span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-            <a className="more" href="https://hn.algolia.com/?dateRange=pastWeek&query=AI&sort=byPopularity&type=story">
-              More on Hacker News →
-            </a>
-          </section>
+        </section>
 
-          <section id="papers" className="band" aria-labelledby="papers-h">
-            <div className="band__head">
-              <h2 id="papers-h">Papers getting attention</h2>
-              <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
-            </div>
-            <Ledger
-              first="Paper"
-              labelledBy="papers-h"
-              cells={[
-                { head: "Upvotes", width: "5.5rem" },
-                { head: "Code", width: "2.25rem" },
-              ]}
-            >
-              {papers.map((p) => (
-                <li key={p.id}>
-                  <span className="ledger__main">
-                    <a href={p.url} title={p.title}>{p.title}</a>
-                  </span>
-                  <span className="ledger__data">
-                    <Mag value={p.upvotes} max={top(papers.map((x) => x.upvotes))} unit="upvotes" />
-                    <span className="ledger__extra">{fmtDay(p.publishedAt)}</span>
-                    <span>{p.codeUrl && <a href={p.codeUrl}>code</a>}</span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-            <a className="more" href="https://huggingface.co/papers">
-              More papers →
-            </a>
-          </section>
-        </div>
+        <section className="chapter" aria-labelledby="evidence-h">
+          <header className="chapter__head">
+            <p className="chapter__kicker">Part 2 of 3</p>
+            <p className="chapter__title" id="evidence-h">The evidence</p>
+            <p className="chapter__dek">Slower numbers from outside the conversation: hiring, policy, releases and what developers install.</p>
+          </header>
 
         <section id="indicators" className="band" aria-labelledby="indicators-h">
           <div className="band__head">
@@ -623,7 +532,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     tone={toneOf(jobs.signal)}
                     summary={`Share of US job postings on Indeed mentioning AI skills, monthly for a year: now ${jobs.signal.recent.toFixed(1)}%, ${fmtChange(jobs.signal.change)} on a year earlier`}
                   />
-                  <ChangeBar signal={jobs.signal} scale={indicatorScale} />
                   <Change signal={jobs.signal} />
                   <span className="trend__level">{jobs.signal.recent.toFixed(1)}%</span>
                 </div>
@@ -652,7 +560,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     tone={toneOf(federal.signal)}
                     summary={`Federal Register documents mentioning artificial intelligence, monthly for a year: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, ${fmtChange(federal.signal.change)} on a year earlier`}
                   />
-                  <ChangeBar signal={federal.signal} scale={indicatorScale} />
                   <Change signal={federal.signal} />
                   <span className="trend__level">{federal.signal.recent}</span>
                 </div>
@@ -683,7 +590,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     tone={toneOf(releases.signal)}
                     summary={`New model versions from Anthropic, Google DeepMind and OpenAI per 30 days over six periods: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
                   />
-                  <ChangeBar signal={releases.signal} scale={indicatorScale} />
                   <Change signal={releases.signal} />
                   <span className="trend__level">{releases.signal.recent}</span>
                 </div>
@@ -764,7 +670,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <span>Share of downloads <i>change and latest</i></span>
               <span>Downloads</span>
             </div>
-            <ol className="trends">
+            <MoreRows count={usage.toolkits.length} noun="toolkits">
               {usage.toolkits.map((t) => (
                 <li key={t.id} className="trend trend--plain">
                   <div className="trend__topic">
@@ -783,10 +689,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     {t.share.change === null ? (
                       <span className="trend__few">too little history</span>
                     ) : (
-                      <>
-                        <ChangeBar signal={t.share} scale={usageScale} />
-                        <Change signal={t.share} />
-                      </>
+                      <Change signal={t.share} />
                     )}
                     <span className="trend__level">
                       {t.share.recent.toFixed(1)}%<span className="vh"> of downloads</span>
@@ -798,7 +701,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                   </p>
                 </li>
               ))}
-            </ol>
+            </MoreRows>
 
             <details className="table-view">
               <summary>Show the usage numbers as a table</summary>
@@ -833,9 +736,98 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </section>
         )}
 
+        </section>
+
+        <section className="chapter chapter--reading" aria-labelledby="reading-h">
+          <header className="chapter__head">
+            <p className="chapter__kicker">Part 3 of 3</p>
+            <p className="chapter__title" id="reading-h">The reading list</p>
+            <p className="chapter__dek">The stories, papers, essays, code and models behind this week’s numbers.</p>
+          </header>
+
+        <div className="pair">
+          <section id="news" className="band" aria-labelledby="news-h">
+            <div className="band__head">
+              <p className="band__source">Hacker News · past 7 days</p>
+              <h2 id="news-h">In the news</h2>
+              <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
+            </div>
+            <Ledger
+              first="Story"
+              labelledBy="news-h"
+              count={stories.length}
+              more={
+                <a className="more" href="https://hn.algolia.com/?dateRange=pastWeek&query=AI&sort=byPopularity&type=story">
+                  More on Hacker News →
+                </a>
+              }
+              cells={[
+                { head: "Points", width: "5.5rem" },
+                { head: "Comments", width: "4.25rem" },
+              ]}
+            >
+              {stories.map((s) => (
+                <li key={s.id}>
+                  <span className="ledger__main">
+                    <a href={s.url} title={s.title}>{s.title}</a>
+                    <span className="ledger__note">{host(s.url)}</span>
+                  </span>
+                  <span className="ledger__data">
+                    <Mag value={s.points} max={top(stories.map((x) => x.points))} unit="points" />
+                    <span>
+                      <a href={s.discussionUrl}>
+                        {fmtCompact(s.comments)}
+                        <span className="ledger__unit"> comments</span>
+                      </a>
+                    </span>
+                    <span className="ledger__extra">{fmtDay(s.createdAt)}</span>
+                  </span>
+                </li>
+              ))}
+            </Ledger>
+          </section>
+
+          <section id="papers" className="band" aria-labelledby="papers-h">
+            <div className="band__head">
+              <p className="band__source">Hugging Face Papers · by upvotes</p>
+              <h2 id="papers-h">Papers getting attention</h2>
+              <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
+            </div>
+            <Ledger
+              first="Paper"
+              labelledBy="papers-h"
+              count={papers.length}
+              kind="paper"
+              more={
+                <a className="more" href="https://huggingface.co/papers">
+                  More papers →
+                </a>
+              }
+              cells={[
+                { head: "Upvotes", width: "5.5rem" },
+                { head: "Code", width: "2.25rem" },
+              ]}
+            >
+              {papers.map((p) => (
+                <li key={p.id}>
+                  <span className="ledger__main">
+                    <a href={p.url} title={p.title}>{p.title}</a>
+                  </span>
+                  <span className="ledger__data">
+                    <Mag value={p.upvotes} max={top(papers.map((x) => x.upvotes))} unit="upvotes" />
+                    <span className="ledger__extra">{fmtDay(p.publishedAt)}</span>
+                    <span>{p.codeUrl && <a href={p.codeUrl}>code</a>}</span>
+                  </span>
+                </li>
+              ))}
+            </Ledger>
+          </section>
+        </div>
+
         <div className="pair">
           <section id="analysis" className="band" aria-labelledby="analysis-h">
             <div className="band__head">
+              <p className="band__source">Newsletters and research institutions</p>
               <h2 id="analysis-h">From the analysts</h2>
               <p>
                 New writing on what AI is doing to work, companies and society, from newsletters and research
@@ -845,12 +837,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <Ledger
               first="Piece"
               labelledBy="analysis-h"
+              count={analysis.length}
               cells={[
                 { head: "Source", width: "8.5rem", start: true },
                 { head: "Published", width: "3.75rem" },
               ]}
             >
-              {(latest.analysis ?? []).slice(0, SHOWN).map((a) => (
+              {analysis.map((a) => (
                 <li key={a.url}>
                   <span className="ledger__main">
                     <a href={a.url} title={a.title}>{a.title}</a>
@@ -866,18 +859,20 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="announcements" className="band" aria-labelledby="announcements-h">
             <div className="band__head">
+              <p className="band__source">Lab blogs</p>
               <h2 id="announcements-h">Lab announcements</h2>
               <p>The latest posts from Anthropic, OpenAI and Google DeepMind, including closed-model releases.</p>
             </div>
             <Ledger
               first="Post"
               labelledBy="announcements-h"
+              count={labNews.length}
               cells={[
                 { head: "Lab", width: "7.5rem", start: true },
                 { head: "Published", width: "3.75rem" },
               ]}
             >
-              {(latest.labNews ?? []).slice(0, SHOWN).map((a) => (
+              {labNews.map((a) => (
                 <li key={a.url}>
                   <span className="ledger__main">
                     <a href={a.url} title={a.title}>{a.title}</a>
@@ -894,12 +889,20 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section id="code" className="band" aria-labelledby="code-h">
           <div className="band__head">
+            <p className="band__source">GitHub · created in the past 30 days</p>
             <h2 id="code-h">Repositories gaining stars</h2>
             <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
           </div>
           <Ledger
             first="Repository"
             labelledBy="code-h"
+            count={repos.length}
+            kind="thing"
+            more={
+              <a className="more" href="https://github.com/trending">
+                More on GitHub →
+              </a>
+            }
             cells={[
               { head: "Stars a day", width: "7.5rem" },
               { head: "Total", width: "3.25rem" },
@@ -928,20 +931,25 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </li>
             ))}
           </Ledger>
-          <a className="more" href="https://github.com/trending">
-            More on GitHub →
-          </a>
         </section>
 
         <div className="pair">
           <section id="models" className="band" aria-labelledby="models-h">
             <div className="band__head">
+              <p className="band__source">Hugging Face · trending now</p>
               <h2 id="models-h">Models trending</h2>
               <p>What builders are picking up on Hugging Face right now.</p>
             </div>
             <Ledger
               first="Model"
               labelledBy="models-h"
+              count={models.length}
+              kind="thing"
+              more={
+                <a className="more" href="https://huggingface.co/models?sort=trending">
+                  More models →
+                </a>
+              }
               cells={[
                 { head: "Likes", width: "5.5rem" },
                 { head: "Downloads", width: "4.5rem" },
@@ -963,19 +971,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
-            <a className="more" href="https://huggingface.co/models?sort=trending">
-              More models →
-            </a>
           </section>
 
           <section id="labs" className="band" aria-labelledby="labs-h">
             <div className="band__head">
+              <p className="band__source">Hugging Face · past 45 days</p>
               <h2 id="labs-h">New from the labs</h2>
               <p>Open models published by major AI labs in the past 45 days, by likes.</p>
             </div>
             <Ledger
               first="Model"
               labelledBy="labs-h"
+              count={labModels.length}
+              kind="thing"
               cells={[
                 { head: "Likes", width: "5.5rem" },
                 { head: "Released", width: "3.75rem" },
@@ -999,6 +1007,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </Ledger>
           </section>
         </div>
+
+        </section>
 
         <section id="method" className="band method" aria-labelledby="method-h">
           <div className="band__head">
@@ -1042,7 +1052,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10%, rounded to a whole percent as shown, between the two
-                windows being compared. The switch at the top sets those windows. <strong>1 week</strong> compares
+                windows being compared. The switch at the top sets those windows, and the colours carry no judgement: blue marks a rise and amber a fall. <strong>1 week</strong> compares
                 the latest week with the week before, and <strong>1 month</strong> the last{" "}
                 {HORIZONS.oneMonth.window} weeks with the {HORIZONS.oneMonth.window} before. These two react
                 fastest and are the noisiest: one conference deadline or one news story can move them, so treat a
@@ -1058,9 +1068,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 <strong>The map</strong> places a topic by two changes over the same windows: its share
-                of AI papers (across) and its Hacker News stories (up). A topic is placed only when it averages at
-                least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week, because smaller counts swing
-                too easily. A change beyond the edge of the map is drawn on the edge. <strong>The week in five lines</strong> is written by fixed rules from the same numbers, not by an editor or a model. Its research and discussion lines follow the view chosen and say which weeks they compare; its economy, releases and policy lines are the same in every view.
+                of AI papers (across) and its Hacker News stories (up). The map’s scale stretches near the middle, so small changes stay apart and one large change does not flatten the rest; the gridlines carry the real figures. A topic is drawn solid only when it averages at
+                least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week. Smaller topics swing too
+                easily, so they are drawn hollow and should be read with care. <strong>The week in five numbers</strong> is written by fixed rules from the same numbers, not by an editor or a model. Its research and discussion lines follow the view chosen; its economy, releases and policy lines are the same in every view.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
@@ -1107,8 +1117,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 mention AI.
               </p>
               <p>
-                <strong>In the ranked lists</strong>, the bar beside the figure a list is ranked by shows it against
-                the largest in that list.
+                <strong>The reading lists</strong> show their first few items; the rest open on request. Where a
+                list is set in columns, the bar beside the figure it is ranked by shows it against the largest in
+                that list.
               </p>
             </div>
           </details>
