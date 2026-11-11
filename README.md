@@ -1,7 +1,7 @@
 # AI Trend Tracker
 
 A public dashboard that shows where attention in AI is moving, week by week.
-It measures four free public sources, adds a reading list from newsletter
+It measures free public sources, adds a reading list from newsletter
 and lab news feeds, and needs no API keys.
 
 | Signal | Source | What is measured |
@@ -16,6 +16,7 @@ and lab news feeds, and needs no API keys.
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
 | Releases | Lab news pages | First announcement of each new GPT, Gemini and Claude version |
+| Usage | npm and PyPI Stats | Monthly downloads of ten developer toolkits, as a share of all ten |
 
 ## Run it
 
@@ -40,7 +41,8 @@ The collector writes to `data/`:
 
 - `history.json`: weekly counts per topic, theme and sub-theme. It grows over time.
 - `latest.json`: the current ranked lists, plus whether each source succeeded.
-- `indicators.json`: the monthly hiring and policy figures and the model release log.
+- `indicators.json`: the monthly hiring and policy figures, the model release log and
+  monthly toolkit downloads.
 - `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
 
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
@@ -56,6 +58,7 @@ as stale in the "Source status" list.
 scripts/collect.ts   fetches from the sources and feeds → data/*.json
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a sub-theme)
+src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a toolkit)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
 src/app/one-week/    the 1-week view, at /one-week
@@ -95,3 +98,20 @@ A story can sit in more than one sub-theme. A sub-theme averaging fewer than
 Adding a sub-theme makes the next `npm run collect` backfill its 52 weeks
 from Hacker News (a few minutes). The page's "How this is measured" section
 explains the limits to readers.
+
+## How developer usage is measured
+
+The "Developer usage" section counts downloads of the Python (PyPI) and
+JavaScript (npm) packages listed in `src/lib/toolkits.ts`, per complete month.
+A toolkit's share is worked out inside each registry and the two are averaged,
+with 0% where it has no package, so the shares add up to 100%. The registries
+are kept apart because they count differently: PyPI's figures fell by about a
+third for every tracked package in September 2026, which would otherwise have
+made Python-heavy toolkits look like they were cooling.
+
+A toolkit is "rising" or "cooling" when its average share over the latest
+three months moved by 10% or more against the three before. This comparison
+is the same in all five views. PyPI Stats keeps about 180 days, so the first
+run has six months; the collector keeps every month it has seen (up to 25),
+so the record grows from there. Downloads include build servers and packages
+pulled in by other packages, so they show direction, not a number of users.
