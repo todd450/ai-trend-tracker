@@ -1,57 +1,58 @@
 {
- "generatedAt": "2026-11-10T23:11:58.866Z",
+ "generatedAt": "2026-11-10T23:46:53.290Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-10T23:11:59.221Z"
+   "at": "2026-11-10T23:46:53.650Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-10T23:11:59.327Z"
+   "at": "2026-11-10T23:46:53.766Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-10T23:12:05.132Z"
+   "at": "2026-11-10T23:46:59.655Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-10T23:12:09.601Z"
+   "at": "2026-11-10T23:47:04.120Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-10T23:12:53.771Z"
+   "at": "2026-11-10T23:47:47.784Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-10T23:13:43.255Z"
+   "at": "2026-11-10T23:53:12.929Z"
   },
   "arxivHistory": {
-   "ok": true,
-   "at": "2026-11-10T23:16:46.444Z"
+   "ok": false,
+   "at": "2026-11-11T00:06:44.661Z",
+   "error": "arXiv responded 429"
   },
   "analysis": {
    "ok": true,
-   "at": "2026-11-10T23:12:59.507Z"
+   "at": "2026-11-10T23:47:55.125Z"
   },
   "labNews": {
    "ok": true,
-   "at": "2026-11-10T23:13:07.702Z"
+   "at": "2026-11-10T23:48:03.325Z"
   },
   "jobs": {
    "ok": true,
-   "at": "2026-11-10T23:13:07.960Z"
+   "at": "2026-11-10T23:48:03.688Z"
   },
   "federal": {
    "ok": true,
-   "at": "2026-11-10T23:13:08.632Z"
+   "at": "2026-11-10T23:48:04.405Z"
   },
   "modelReleases": {
    "ok": true,
-   "at": "2026-11-10T23:13:09.026Z"
+   "at": "2026-11-10T23:48:04.969Z"
   },
   "hnThemes": {
    "ok": true,
-   "at": "2026-11-10T23:15:12.081Z"
+   "at": "2026-11-10T23:58:59.932Z"
   }
  },
  "papers": [
@@ -193,20 +194,20 @@
  ],
  "models": [
   {
-   "id": "speridlabs/idol",
-   "url": "https://huggingface.co/speridlabs/idol",
-   "task": "image-to-3d",
-   "likes": 1866,
-   "downloads": 26470,
-   "createdAt": "2026-10-28T15:55:17.000Z"
-  },
-  {
    "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "task": "text-generation",
-   "likes": 1184,
+   "likes": 1191,
    "downloads": 14378,
    "createdAt": "2026-10-30T10:21:29.000Z"
+  },
+  {
+   "id": "speridlabs/idol",
+   "url": "https://huggingface.co/speridlabs/idol",
+   "task": "image-to-3d",
+   "likes": 1867,
+   "downloads": 26470,
+   "createdAt": "2026-10-28T15:55:17.000Z"
   },
   {
    "id": "moonshotai/Kimi-K3.1-Pro",
@@ -228,7 +229,7 @@
    "id": "Lightricks/LTX-2.5",
    "url": "https://huggingface.co/Lightricks/LTX-2.5",
    "task": "image-to-video",
-   "likes": 11371,
+   "likes": 11375,
    "downloads": 2791606,
    "createdAt": "2026-07-23T07:55:24.000Z"
   },
@@ -236,25 +237,25 @@
    "id": "NousResearch/Arete-27B",
    "url": "https://huggingface.co/NousResearch/Arete-27B",
    "task": "text-generation",
-   "likes": 401,
+   "likes": 402,
    "downloads": 3431,
    "createdAt": "2026-11-06T19:31:28.000Z"
-  },
-  {
-   "id": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-   "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
-   "task": "image-text-to-text",
-   "likes": 2835,
-   "downloads": 1459029,
-   "createdAt": "2026-09-01T07:01:09.000Z"
   },
   {
    "id": "MiniMaxAI/MiniMax-H3-Image",
    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
    "task": "text-to-image",
-   "likes": 354,
+   "likes": 364,
    "downloads": 667,
    "createdAt": "2026-11-03T06:34:36.000Z"
+  },
+  {
+   "id": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+   "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+   "task": "image-text-to-text",
+   "likes": 2839,
+   "downloads": 1459029,
+   "createdAt": "2026-09-01T07:01:09.000Z"
   },
   {
    "id": "ccore/Qwen3.5-4B-3D-Coder",
@@ -268,7 +269,7 @@
    "id": "Qwen/Qwen3.8-27B",
    "url": "https://huggingface.co/Qwen/Qwen3.8-27B",
    "task": "image-text-to-text",
-   "likes": 19566,
+   "likes": 19567,
    "downloads": 7443748,
    "createdAt": "2026-08-05T08:22:59.000Z"
   },
@@ -284,7 +285,7 @@
    "id": "Viggle/Viggle-Remake",
    "url": "https://huggingface.co/Viggle/Viggle-Remake",
    "task": "video-to-video",
-   "likes": 267,
+   "likes": 269,
    "downloads": 115384,
    "createdAt": "2026-10-22T19:06:17.000Z"
   },
@@ -308,7 +309,7 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 2868,
+   "likes": 2870,
    "downloads": 1251688,
    "createdAt": "2026-10-14T12:00:13.000Z"
   },
@@ -316,7 +317,7 @@
    "id": "PrunaAI/P-H3-Image-Comfy",
    "url": "https://huggingface.co/PrunaAI/P-H3-Image-Comfy",
    "task": "text-to-image",
-   "likes": 282,
+   "likes": 283,
    "downloads": 782946,
    "createdAt": "2026-10-28T11:26:05.000Z"
   },
@@ -348,7 +349,7 @@
    "id": "ccore/Qwen3.5-4B-GLB-3D-Coder",
    "url": "https://huggingface.co/ccore/Qwen3.5-4B-GLB-3D-Coder",
    "task": "text-generation",
-   "likes": 304,
+   "likes": 305,
    "downloads": 43008,
    "createdAt": "2026-11-01T22:30:01.000Z"
   }
@@ -358,7 +359,7 @@
    "id": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
    "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
    "task": "image-text-to-text",
-   "likes": 5468,
+   "likes": 5469,
    "downloads": 329529,
    "createdAt": "2026-10-17T02:40:38.000Z",
    "lab": "deepseek-ai"
@@ -367,7 +368,7 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 2868,
+   "likes": 2870,
    "downloads": 1251688,
    "createdAt": "2026-10-14T12:00:13.000Z",
    "lab": "black-forest-labs"
@@ -403,7 +404,7 @@
    "id": "black-forest-labs/flux-3-image-klein",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
    "task": "image-to-image",
-   "likes": 905,
+   "likes": 907,
    "downloads": 189231,
    "createdAt": "2026-10-13T10:58:40.000Z",
    "lab": "black-forest-labs"
@@ -578,7 +579,7 @@
    "url": "https://caleb.software/posts/claude-to-pi.html",
    "discussionUrl": "https://news.ycombinator.com/item?id=50410107",
    "points": 813,
-   "comments": 489,
+   "comments": 490,
    "createdAt": "2026-11-08T03:11:48Z"
   },
   {
@@ -595,7 +596,7 @@
    "title": "Google Gemini routes personal Drive files and emails to human annotators",
    "url": "https://github.com/thisisme6598/gemini_files/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50429426",
-   "points": 708,
+   "points": 710,
    "comments": 147,
    "createdAt": "2026-11-09T18:24:38Z"
   },
@@ -672,6 +673,15 @@
    "createdAt": "2026-11-06T13:35:27Z"
   },
   {
+   "id": "50438318",
+   "title": "AI usage generates a fragile codebase",
+   "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
+   "points": 344,
+   "comments": 378,
+   "createdAt": "2026-11-10T10:25:58Z"
+  },
+  {
    "id": "50376313",
    "title": "GPT-6 Astra covertly underperforms on safety research",
    "url": "https://alignment.openai.com/misalignment-reports/covert-underperformance-on-safety-research-tasks/",
@@ -679,15 +689,6 @@
    "points": 342,
    "comments": 196,
    "createdAt": "2026-11-05T07:44:30Z"
-  },
-  {
-   "id": "50438318",
-   "title": "AI usage generates a fragile codebase",
-   "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
-   "points": 329,
-   "comments": 374,
-   "createdAt": "2026-11-10T10:25:58Z"
   },
   {
    "id": "50363554",
@@ -722,8 +723,8 @@
    "name": "ccch1mneyyy/dsh-Go",
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
-   "stars": 18647,
-   "starsPerDay": 1121,
+   "stars": 18654,
+   "starsPerDay": 1120,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
   },
@@ -731,8 +732,8 @@
    "name": "wangzan101/Mika",
    "url": "https://github.com/wangzan101/Mika",
    "description": "An on-device AI agent for Android that operates apps and the web to get things done for you.",
-   "stars": 8070,
-   "starsPerDay": 653,
+   "stars": 8072,
+   "starsPerDay": 652,
    "language": "Kotlin",
    "createdAt": "2026-10-29T14:34:07Z"
   },
@@ -740,8 +741,8 @@
    "name": "KKKKhazix/agent-autoloop",
    "url": "https://github.com/KKKKhazix/agent-autoloop",
    "description": "让你的命令行 Agent 在后台自己接活、自己跟进到底；平时不烦你，遇到拿不准的事才发卡片找你拍板。",
-   "stars": 4423,
-   "starsPerDay": 580,
+   "stars": 4425,
+   "starsPerDay": 578,
    "language": "TypeScript",
    "createdAt": "2026-11-03T08:02:11Z"
   },
@@ -749,7 +750,7 @@
    "name": "qybaihe/bla",
    "url": "https://github.com/qybaihe/bla",
    "description": "🛡️ BLA (Blind LLM Agents) — Adversarial defense shield that protects binaries, Electron apps, JS bundles, Python, and WebAssembly against AI reverse-engineering agents like REA. Poison -> Exhaust -> ",
-   "stars": 4989,
+   "stars": 4995,
    "starsPerDay": 298,
    "language": "TypeScript",
    "createdAt": "2026-10-25T05:25:45Z"
@@ -758,17 +759,26 @@
    "name": "voyager-so/vork",
    "url": "https://github.com/voyager-so/vork",
    "description": "Headless 3D and VFX engine for agents. Research preview.",
-   "stars": 1357,
-   "starsPerDay": 270,
+   "stars": 1356,
+   "starsPerDay": 269,
    "language": "Rust",
    "createdAt": "2026-11-05T22:37:07Z"
+  },
+  {
+   "name": "expo/exact",
+   "url": "https://github.com/expo/exact",
+   "description": "Write an app once. It runs natively on the web, macOS, iOS, and Linux, and an AI agent can build it, run it, see it, and test it on every one of them.",
+   "stars": 2146,
+   "starsPerDay": 240,
+   "language": "Rust",
+   "createdAt": "2026-11-02T01:29:01Z"
   },
   {
    "name": "Sandflow-ai/sand3d",
    "url": "https://github.com/Sandflow-ai/sand3d",
    "description": "3D modeling in Python, built for LLMs.",
-   "stars": 1750,
-   "starsPerDay": 230,
+   "stars": 1752,
+   "starsPerDay": 229,
    "language": "HTML",
    "createdAt": "2026-11-03T08:23:03Z"
   },
@@ -777,7 +787,7 @@
    "url": "https://github.com/modelflare-ai/AnyModelBot",
    "description": "🤖 Open-source, local-first alternative to Grok Bot, OpenAI dots and Claude Duet. Your own AI bots on any model: GPT, Claude, Gemini, Grok, DeepSeek, Kimi, GLM and 70+ more through one Modelflare key.",
    "stars": 3018,
-   "starsPerDay": 207,
+   "starsPerDay": 206,
    "language": "Python",
    "createdAt": "2026-10-27T08:51:18Z"
   },
@@ -785,7 +795,7 @@
    "name": "microsoft/TokenEconomizer",
    "url": "https://github.com/microsoft/TokenEconomizer",
    "description": "Experience-Driven Black-Box Cost Control for Coding Agents",
-   "stars": 5647,
+   "stars": 5649,
    "starsPerDay": 196,
    "language": "Python",
    "createdAt": "2026-10-13T04:16:50Z"
@@ -794,7 +804,7 @@
    "name": "JosssphZhou/poki",
    "url": "https://github.com/JosssphZhou/poki",
    "description": "Let AI agents operate a real iPhone. Local MCP server and agent, no jailbreak, no extra hardware.",
-   "stars": 914,
+   "stars": 915,
    "starsPerDay": 171,
    "language": "Swift",
    "createdAt": "2026-11-05T15:04:31Z"
@@ -803,7 +813,7 @@
    "name": "Leonxlnx/earshot",
    "url": "https://github.com/Leonxlnx/earshot",
    "description": "Ears for coding agents: let AI hear, review and make sound. CPU-only, open source.",
-   "stars": 4448,
+   "stars": 4452,
    "starsPerDay": 167,
    "language": "Python",
    "createdAt": "2026-10-15T06:52:46Z"
@@ -822,7 +832,7 @@
    "url": "https://github.com/onehumanbeing/esp32-iphone-agent",
    "description": "Let an AI model use a real iPhone with a $7 ESP32: AirPlay eyes, USB HID hands, any OpenAI-compatible vision model. No Mac, no developer account, no jailbreak.",
    "stars": 4813,
-   "starsPerDay": 160,
+   "starsPerDay": 159,
    "language": "Swift",
    "createdAt": "2026-10-11T19:10:25Z"
   },
@@ -830,7 +840,7 @@
    "name": "lexifina/global-law",
    "url": "https://github.com/lexifina/global-law",
    "description": "The world's law in git: any provision, any country, any date, and the law that wrote each word.",
-   "stars": 1921,
+   "stars": 1922,
    "starsPerDay": 143,
    "language": "HTML",
    "createdAt": "2026-10-28T13:34:16Z"
@@ -839,7 +849,7 @@
    "name": "daveebbelaar/bama",
    "url": "https://github.com/daveebbelaar/bama",
    "description": "BAMA: Build Any Mac App. Agent skills to research, clone, design, build, optimize, and test native macOS apps with Swift and SwiftUI.",
-   "stars": 1747,
+   "stars": 1748,
    "starsPerDay": 99,
    "language": "Swift",
    "createdAt": "2026-10-24T08:44:36Z"
@@ -848,7 +858,7 @@
    "name": "reacher-z/Awesome-REA",
    "url": "https://github.com/reacher-z/Awesome-REA",
    "description": "Curated tools, case studies and papers for reverse engineering websites, games, apps, binaries, firmware and protocols. Source-reviewed, English and Chinese.",
-   "stars": 2467,
+   "stars": 2470,
    "starsPerDay": 95,
    "language": "Python",
    "createdAt": "2026-10-16T00:42:04Z"
@@ -857,7 +867,7 @@
    "name": "yjid/kensaku",
    "url": "https://github.com/yjid/kensaku",
    "description": "Search inside documents, code, and even screenshots - instantly and locally. A free, open-source file launcher with OCR, semantic search, and MCP agent access.",
-   "stars": 1594,
+   "stars": 1595,
    "starsPerDay": 93,
    "language": "Rust",
    "createdAt": "2026-10-24T21:00:26Z"
@@ -866,7 +876,7 @@
    "name": "RunanywhereAI/trnrt",
    "url": "https://github.com/RunanywhereAI/trnrt",
    "description": "The open LLM inference engine for AWS Trainium: NKI megakernels, 1M-token context, OpenAI-compatible API. By RunAnywhere.",
-   "stars": 1016,
+   "stars": 1017,
    "starsPerDay": 91,
    "language": "Python",
    "createdAt": "2026-10-30T18:30:04Z"
@@ -875,7 +885,7 @@
    "name": "kubai087/kubai-icons",
    "url": "https://github.com/kubai087/kubai-icons",
    "description": "An agent skill that draws animated icons in one consistent style, for Claude Code, Codex and other coding agents. Comes with 2,600+ open-source icons for React, Vue and SVG, and a website to browse th",
-   "stars": 649,
+   "stars": 650,
    "starsPerDay": 86,
    "language": "JavaScript",
    "createdAt": "2026-11-03T09:52:39Z"
@@ -884,19 +894,10 @@
    "name": "shinyobjectz/raea",
    "url": "https://github.com/shinyobjectz/raea",
    "description": "Render Anything Engine: tell your AI what to make. Videos, motion graphics, 3D and games as React and TypeScript, rendered on your own GPU. Rust + Bevy, macOS, Linux and Windows.",
-   "stars": 1969,
+   "stars": 1975,
    "starsPerDay": 85,
    "language": "Rust",
    "createdAt": "2026-10-18T18:08:48Z"
-  },
-  {
-   "name": "zhuyansen/new-term-radar",
-   "url": "https://github.com/zhuyansen/new-term-radar",
-   "description": "Daily radar for new AI terms: names of new models, products and repos, caught on X, Hugging Face, GitHub and sitemaps before keyword tools list them.",
-   "stars": 2153,
-   "starsPerDay": 73,
-   "language": "Python",
-   "createdAt": "2026-10-12T07:11:01Z"
   }
  ],
  "analysis": [
