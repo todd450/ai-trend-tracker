@@ -7,7 +7,7 @@ const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"
 const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Trend Tracker: what is rising in AI this week",
+  title: "AI Trend Tracker: what is rising in AI",
   description:
     "A weekly reading of where attention in artificial intelligence is moving, measured from research papers, open-source code, model releases and news discussion.",
 };

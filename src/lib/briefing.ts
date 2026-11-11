@@ -26,7 +26,13 @@ function movers(
 }
 
 /** The headline and the five lines for one time horizon. */
-export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, themeTrends }: Trends) {
+export function buildBriefing({ horizon, window, hasHistory, hasThemes, rankedTopics, themeTrends }: Trends) {
+  /** Ends the two trend lines, so a figure is never read against the wrong span of time. */
+  const comparing =
+    window === 1
+      ? "comparing the latest week with the week before"
+      : `comparing the last ${window} weeks with the ${window} before`;
+  const withComparison = (sentence: string) => sentence.replace(/\.$/, `, ${comparing}.`);
   const topTopic = hasHistory ? rankedTopics[0] : undefined;
   const bottomTopic = hasHistory ? rankedTopics.at(-1) : undefined;
   const topTheme = hasThemes ? themeTrends[0] : undefined;
@@ -48,7 +54,7 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
       ? {
           label: "Research",
           href: "#momentum",
-          text: movers(
+          text: withComparison(movers(
             topTopic && { name: topTopic.name, change: topTopic.papers.change, rising: topTopic.direction === "rising" },
             bottomTopic && {
               name: bottomTopic.name,
@@ -56,15 +62,15 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
               cooling: bottomTopic.direction === "cooling",
             },
             "share of AI papers",
-            "No large topic’s share of AI papers moved by more than 10%.",
-          ),
+            "No large topic’s share of AI papers moved by 10% or more.",
+          )),
         }
       : null,
     hasThemes
       ? {
           label: "Discussion",
           href: "#themes",
-          text: movers(
+          text: withComparison(movers(
             topTheme && { name: topTheme.name, change: topTheme.share.change, rising: topTheme.direction === "rising" },
             bottomTheme && {
               name: bottomTheme.name,
@@ -72,8 +78,8 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
               cooling: bottomTheme.direction === "cooling",
             },
             "share of AI stories",
-            "No theme’s share of AI stories moved by more than 15%.",
-          ),
+            "No theme’s share of AI stories moved by 15% or more.",
+          )),
         }
       : null,
     jobs

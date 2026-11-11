@@ -145,7 +145,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
   const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, hasHistory, hasThemes } = trends;
   const { headline, briefing } = buildBriefing(trends);
-  const { brief } = HORIZONS[horizon];
   const compared =
     WINDOW === 1
       ? "latest week compared with the week before"
@@ -170,7 +169,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   return (
     <>
       <a className="skip" href="#momentum">
-        Skip to this week’s trends
+        Skip to the trends
       </a>
 
       <header className="mast">
@@ -222,7 +221,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </div>
           {briefing.length > 0 && (
             <div className="brief">
-              <h3 className="brief__title">{brief} in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
+              <h3 className="brief__title">The week in {briefing.length === 5 ? "five" : briefing.length} lines</h3>
               <ol>
                 {briefing.map((line, n) => (
                   <li key={line.label}>
@@ -880,7 +879,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 numbers are small and jumpy, so read them as a second opinion, not a verdict.
               </p>
               <p>
-                A topic is called rising or cooling when its paper share moved by at least 10% between the two
+                A topic is called rising or cooling when its paper share moved by at least 10%, rounded to a whole percent as shown, between the two
                 windows being compared. The switch at the top sets those windows. <strong>1 week</strong> compares
                 the latest week with the week before, and <strong>1 month</strong> the last{" "}
                 {HORIZONS.oneMonth.window} weeks with the {HORIZONS.oneMonth.window} before. These two react
@@ -899,7 +898,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>The map</strong> places a topic by two changes over the same windows: its share
                 of AI papers (across) and its Hacker News stories (up). A topic is placed only when it averages at
                 least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week, because smaller counts swing
-                too easily. A change beyond the edge of the map is drawn on the edge. <strong>{brief} in five lines</strong> is written by fixed rules from the same numbers, not by an editor or a model.
+                too easily. A change beyond the edge of the map is drawn on the edge. <strong>The week in five lines</strong> is written by fixed rules from the same numbers, not by an editor or a model. Its research and discussion lines follow the view chosen and say which weeks they compare; its economy, releases and policy lines are the same in every view.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a

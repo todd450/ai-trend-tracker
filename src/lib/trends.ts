@@ -32,17 +32,15 @@ export const HORIZONS: Record<
     href: string;
     window: number;
     shown: number;
-    /** Opens the briefing title: "The week in five lines". */
-    brief: string;
     /** Closes the fallback headline: "Where attention in AI is moving this week." */
     when: string;
   }
 > = {
-  oneWeek: { label: "1 week", href: "/one-week", window: 1, shown: 4, brief: "The week", when: "this week" },
-  oneMonth: { label: "1 month", href: "/one-month", window: 2, shown: 8, brief: "One month", when: "over one month" },
-  threeMonths: { label: "3 months", href: "/", window: 4, shown: 12, brief: "Three months", when: "over three months" },
-  sixMonths: { label: "6 months", href: "/six-months", window: 13, shown: 26, brief: "Six months", when: "over six months" },
-  oneYear: { label: "1 year", href: "/one-year", window: 26, shown: 52, brief: "One year", when: "over one year" },
+  oneWeek: { label: "1 week", href: "/one-week", window: 1, shown: 4, when: "this week" },
+  oneMonth: { label: "1 month", href: "/one-month", window: 2, shown: 8, when: "over one month" },
+  threeMonths: { label: "3 months", href: "/", window: 4, shown: 12, when: "over three months" },
+  sixMonths: { label: "6 months", href: "/six-months", window: 13, shown: 26, when: "over six months" },
+  oneYear: { label: "1 year", href: "/one-year", window: 26, shown: 52, when: "over one year" },
 };
 
 export type Direction = "rising" | "steady" | "cooling";
@@ -84,8 +82,12 @@ export type ThemeTrend = {
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 
+/**
+ * Judged on the whole percentage the page prints, so a figure shown as −10%
+ * is never labelled steady when the rule says "at least 10%".
+ */
 export function directionOf(change: number | null, band: number): Direction {
-  if (change === null || Math.abs(change) < band) return "steady";
+  if (change === null || Math.round(Math.abs(change) * 100) < Math.round(band * 100)) return "steady";
   return change > 0 ? "rising" : "cooling";
 }
 
