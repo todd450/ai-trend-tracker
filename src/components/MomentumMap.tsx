@@ -119,9 +119,8 @@ export function MomentumMap({ points, unplaced }: { points: MapPoint[]; unplaced
   return (
     <figure className="map">
       <figcaption className="map__caption">
-        <strong>Where research and discussion agree.</strong> Further right means a bigger rise in the topic’s share of
-        AI papers; further up, a bigger rise in Hacker News stories. Each dot carries the topic’s number in the table
-        below and links to its row.
+        <strong>Where research and discussion agree.</strong> Each dot’s number matches the table below and links to
+        its row.
         <span className="map__legend">
           <span><span className="map__swatch map__swatch--rising" aria-hidden="true" /> research rising</span>
           <span><span className="map__swatch map__swatch--steady" aria-hidden="true" /> steady</span>
