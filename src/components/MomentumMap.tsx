@@ -25,7 +25,7 @@ const clamp = (v: number, max: number) => Math.max(-max, Math.min(max, v));
 
 // Label placement runs on a virtual canvas the shape of the plot at its narrowest labelled width.
 const VW = 700;
-const VH = 394;
+const VH = 320;
 const DOT = 13;
 type Box = { x: number; y: number; w: number; h: number };
 const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;

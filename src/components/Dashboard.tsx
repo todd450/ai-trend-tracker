@@ -100,6 +100,46 @@ function PerWeek({ value }: { value: number }) {
   );
 }
 
+type Cell = { head: string; width: string; start?: boolean };
+
+/**
+ * A ranked list set as a ledger: one line per item where there is room, with the
+ * figures in columns under shared headings. Narrow lists stack the figures under the title.
+ */
+function Ledger({ first, cells, labelledBy, children }: { first: string; cells: Cell[]; labelledBy: string; children: React.ReactNode }) {
+  return (
+    <div className="ledger" style={{ "--cells": cells.map((c) => c.width).join(" ") } as React.CSSProperties}>
+      <div className="ledger__head" aria-hidden="true">
+        <span>{first}</span>
+        <span className="ledger__data">
+          {cells.map((c) => (
+            <span key={c.head} className={c.start ? "ledger__cell--start" : undefined}>{c.head}</span>
+          ))}
+        </span>
+      </div>
+      <ol aria-labelledby={labelledBy}>{children}</ol>
+    </div>
+  );
+}
+
+/** The figure a list is ranked by, with a bar showing it against the largest in the list. */
+function Mag({ value, max, unit }: { value: number; max: number; unit: string }) {
+  return (
+    <span className="ledger__mag">
+      <span className="ledger__bar" aria-hidden="true">
+        <span style={{ width: `${max > 0 ? (value / max) * 100 : 0}%` }} />
+      </span>
+      <span className="ledger__num">
+        {fmtCompact(value)}
+        <span className="ledger__unit"> {unit}</span>
+      </span>
+    </span>
+  );
+}
+
+const top = (xs: number[]) => Math.max(1, ...xs);
+const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
+
 /** The whole dashboard, read over one time horizon. The two routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
@@ -112,6 +152,16 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
   const topicScale = barScale(topicTrends.flatMap((t) => [t.hasPapers ? t.papers.change : null, t.stories.change]));
   const themeScale = barScale(themeTrends.flatMap((t) => [t.share.change, t.stories.change]));
+  const indicatorScale = barScale([jobs?.signal.change ?? null, federal?.signal.change ?? null, releases?.signal.change ?? null]);
+
+  const stories = latest.stories.slice(0, SHOWN);
+  const papers = latest.papers.slice(0, SHOWN);
+  const repos = latest.repos.slice(0, SHOWN);
+  const models = latest.models.slice(0, SHOWN);
+  const labModels = latest.releases.slice(0, SHOWN);
+  const sources = Object.entries(latest.sources);
+  const stale = sources.filter(([, src]) => !src.ok).length;
+  const oldest = sources.map(([, src]) => src.at).filter(Boolean).sort()[0];
 
   return (
     <>
@@ -392,23 +442,39 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           )}
         </section>
 
-        <div className="pair pair--wide-left">
+        <div className="pair">
           <section id="news" className="band" aria-labelledby="news-h">
             <div className="band__head">
               <h2 id="news-h">In the news</h2>
               <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
             </div>
-            <ol className="list">
-              {latest.stories.slice(0, SHOWN).map((s) => (
+            <Ledger
+              first="Story"
+              labelledBy="news-h"
+              cells={[
+                { head: "Points", width: "5.5rem" },
+                { head: "Comments", width: "4.25rem" },
+              ]}
+            >
+              {stories.map((s) => (
                 <li key={s.id}>
-                  <a href={s.url}>{s.title}</a>
-                  <p className="list__meta">
-                    {host(s.url)} · {fmtCompact(s.points)} points ·{" "}
-                    <a href={s.discussionUrl}>{fmtCompact(s.comments)} comments</a> · {fmtDay(s.createdAt)}
-                  </p>
+                  <span className="ledger__main">
+                    <a href={s.url} title={s.title}>{s.title}</a>
+                    <span className="ledger__note">{host(s.url)}</span>
+                  </span>
+                  <span className="ledger__data">
+                    <Mag value={s.points} max={top(stories.map((x) => x.points))} unit="points" />
+                    <span>
+                      <a href={s.discussionUrl}>
+                        {fmtCompact(s.comments)}
+                        <span className="ledger__unit"> comments</span>
+                      </a>
+                    </span>
+                    <span className="ledger__extra">{fmtDay(s.createdAt)}</span>
+                  </span>
                 </li>
               ))}
-            </ol>
+            </Ledger>
             <a className="more" href="https://hn.algolia.com/?dateRange=pastWeek&query=AI&sort=byPopularity&type=story">
               More on Hacker News →
             </a>
@@ -419,21 +485,27 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="papers-h">Papers getting attention</h2>
               <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
             </div>
-            <ol className="list">
-              {latest.papers.slice(0, SHOWN).map((p) => (
+            <Ledger
+              first="Paper"
+              labelledBy="papers-h"
+              cells={[
+                { head: "Upvotes", width: "5.5rem" },
+                { head: "Code", width: "2.25rem" },
+              ]}
+            >
+              {papers.map((p) => (
                 <li key={p.id}>
-                  <a href={p.url}>{p.title}</a>
-                  <p className="list__meta">
-                    {fmtCompact(p.upvotes)} upvotes · {fmtDay(p.publishedAt)}
-                    {p.codeUrl && (
-                      <>
-                        {" "}· <a href={p.codeUrl}>code</a>
-                      </>
-                    )}
-                  </p>
+                  <span className="ledger__main">
+                    <a href={p.url} title={p.title}>{p.title}</a>
+                  </span>
+                  <span className="ledger__data">
+                    <Mag value={p.upvotes} max={top(papers.map((x) => x.upvotes))} unit="upvotes" />
+                    <span className="ledger__extra">{fmtDay(p.publishedAt)}</span>
+                    <span>{p.codeUrl && <a href={p.codeUrl}>code</a>}</span>
+                  </span>
                 </li>
               ))}
-            </ol>
+            </Ledger>
             <a className="more" href="https://huggingface.co/papers">
               More papers →
             </a>
@@ -449,87 +521,98 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </p>
           </div>
 
-          <div className="tiles">
+          <div className="trend-cols trend-cols--plain" aria-hidden="true">
+            <span>Indicator</span>
+            <span>Trend <i>change and latest reading</i></span>
+            <span>Compared with</span>
+          </div>
+          <ol className="trends">
             {jobs && (
-              <article className="tile">
-                <h3>AI share of US job postings</h3>
-                <p className="tile__figure">{jobs.signal.recent.toFixed(1)}%</p>
-                <p className="tile__change">
+              <li className="trend trend--plain">
+                <div className="trend__topic">
+                  <h3>AI share of US job postings</h3>
+                  <p>
+                    Postings on Indeed that ask for AI skills, as of {fmtDate(jobs.asOf)}. The data is refreshed
+                    monthly.
+                  </p>
+                </div>
+                <div className="trend__signal">
+                  <span className="trend__label">Trend</span>
+                  <Sparkline
+                    values={jobs.signal.values}
+                    labels={jobs.labels}
+                    unit="postings"
+                    tone={toneOf(jobs.signal)}
+                    summary={`Share of US job postings on Indeed mentioning AI skills, monthly for a year: now ${jobs.signal.recent.toFixed(1)}%, ${fmtChange(jobs.signal.change)} on a year earlier`}
+                  />
+                  <ChangeBar signal={jobs.signal} scale={indicatorScale} />
                   <Change signal={jobs.signal} />
-                  <span>from {jobs.signal.prior.toFixed(1)}% a year earlier</span>
+                  <span className="trend__level">{jobs.signal.recent.toFixed(1)}%</span>
+                </div>
+                <p className="trend__context">
+                  {jobs.signal.prior.toFixed(1)}% a year earlier ·{" "}
+                  <a href="https://github.com/hiring-lab/ai-tracker">Indeed Hiring Lab</a>
                 </p>
-                <Sparkline
-                  values={jobs.signal.values}
-                  labels={jobs.labels}
-                  unit="postings"
-                  tone={toneOf(jobs.signal)}
-                  summary={`Share of US job postings on Indeed mentioning AI skills, monthly for a year: now ${jobs.signal.recent.toFixed(1)}%, ${fmtChange(jobs.signal.change)} on a year earlier`}
-                />
-                <p className="tile__note">
-                  Postings on Indeed that ask for AI skills, as of {fmtDate(jobs.asOf)}. The data is refreshed
-                  monthly. Source: <a href="https://github.com/hiring-lab/ai-tracker">Indeed Hiring Lab</a>.
-                </p>
-              </article>
+              </li>
             )}
 
             {federal && (
-              <article className="tile">
-                <h3>US federal documents mentioning AI</h3>
-                <p className="tile__figure">{federal.signal.recent}</p>
-                <p className="tile__change">
+              <li className="trend trend--plain">
+                <div className="trend__topic">
+                  <h3>US federal documents mentioning AI</h3>
+                  <p>
+                    Rules, proposed rules and notices whose text includes “artificial intelligence”. A mention can be
+                    brief, so this shows attention, not regulation.
+                  </p>
+                </div>
+                <div className="trend__signal">
+                  <span className="trend__label">Trend</span>
+                  <Sparkline
+                    values={federal.signal.values}
+                    labels={federal.labels}
+                    unit="documents"
+                    tone={toneOf(federal.signal)}
+                    summary={`Federal Register documents mentioning artificial intelligence, monthly for a year: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, ${fmtChange(federal.signal.change)} on a year earlier`}
+                  />
+                  <ChangeBar signal={federal.signal} scale={indicatorScale} />
                   <Change signal={federal.signal} />
-                  <span>
-                    in {fmtMonth(federal.latestMonth)}, from {federal.signal.prior} a year earlier
-                  </span>
-                </p>
-                <Sparkline
-                  values={federal.signal.values}
-                  labels={federal.labels}
-                  unit="documents"
-                  tone={toneOf(federal.signal)}
-                  summary={`Federal Register documents mentioning artificial intelligence, monthly for a year: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, ${fmtChange(federal.signal.change)} on a year earlier`}
-                />
-                <p className="tile__note">
-                  Rules, proposed rules and notices whose text includes “artificial intelligence”. A mention can be
-                  brief, so this shows attention, not regulation. Source:{" "}
+                  <span className="trend__level">{federal.signal.recent}</span>
+                </div>
+                <p className="trend__context">
+                  {federal.signal.prior} a year earlier, in {fmtMonth(federal.latestMonth)} ·{" "}
                   <a href="https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22artificial+intelligence%22">
                     Federal Register
                   </a>
-                  .
                 </p>
-              </article>
+              </li>
             )}
 
             {releases && (
-              <article className="tile">
-                <h3>Frontier model releases</h3>
-                <p className="tile__figure">{releases.signal.recent}</p>
-                <p className="tile__change">
+              <li className="trend trend--plain">
+                <div className="trend__topic">
+                  <h3>Frontier model releases</h3>
+                  <p>
+                    New version numbers from Anthropic, Google DeepMind and OpenAI in the last 90 days. Latest:{" "}
+                    {releases.shown.slice(0, 3).map((r) => `${r.model} (${fmtDay(r.date)})`).join(", ")}.
+                  </p>
+                </div>
+                <div className="trend__signal">
+                  <span className="trend__label">Trend</span>
+                  <Sparkline
+                    values={releases.signal.values}
+                    labels={releases.labels}
+                    unit="releases"
+                    tone={toneOf(releases.signal)}
+                    summary={`New model versions from Anthropic, Google DeepMind and OpenAI per 30 days over six periods: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
+                  />
+                  <ChangeBar signal={releases.signal} scale={indicatorScale} />
                   <Change signal={releases.signal} />
-                  <span>
-                    new versions in 90 days, from {releases.signal.prior} in the 90 days before
-                  </span>
-                </p>
-                <Sparkline
-                  values={releases.signal.values}
-                  labels={releases.labels}
-                  unit="releases"
-                  tone={toneOf(releases.signal)}
-                  summary={`New model versions from Anthropic, Google DeepMind and OpenAI per 30 days over six periods: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
-                />
-                <p className="tile__note">
-                  New version numbers from Anthropic, Google DeepMind and OpenAI. Latest:{" "}
-                  {releases.shown.slice(0, 3).map((r, i) => (
-                    <span key={r.url}>
-                      {i > 0 && ", "}
-                      <a href={r.url}>{r.model}</a> ({fmtDay(r.date)})
-                    </span>
-                  ))}
-                  .
-                </p>
-              </article>
+                  <span className="trend__level">{releases.signal.recent}</span>
+                </div>
+                <p className="trend__context">{releases.signal.prior} in the 90 days before</p>
+              </li>
             )}
-          </div>
+          </ol>
 
           <details className="table-view">
             <summary>Show the indicator numbers as tables</summary>
@@ -585,7 +668,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </details>
         </section>
 
-        <div className="pair pair--wide-left">
+        <div className="pair">
           <section id="analysis" className="band" aria-labelledby="analysis-h">
             <div className="band__head">
               <h2 id="analysis-h">From the analysts</h2>
@@ -594,16 +677,26 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 institutions. Some pieces need a subscription to read in full.
               </p>
             </div>
-            <ol className="list">
+            <Ledger
+              first="Piece"
+              labelledBy="analysis-h"
+              cells={[
+                { head: "Source", width: "8.5rem", start: true },
+                { head: "Published", width: "3.75rem" },
+              ]}
+            >
               {(latest.analysis ?? []).slice(0, SHOWN).map((a) => (
                 <li key={a.url}>
-                  <a href={a.url}>{a.title}</a>
-                  <p className="list__meta">
-                    {a.source} · {fmtDay(a.publishedAt)}
-                  </p>
+                  <span className="ledger__main">
+                    <a href={a.url} title={a.title}>{a.title}</a>
+                  </span>
+                  <span className="ledger__data">
+                    <span className="ledger__cell--start">{a.source}</span>
+                    <span>{fmtDay(a.publishedAt)}</span>
+                  </span>
                 </li>
               ))}
-            </ol>
+            </Ledger>
           </section>
 
           <section id="announcements" className="band" aria-labelledby="announcements-h">
@@ -611,77 +704,134 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="announcements-h">Lab announcements</h2>
               <p>The latest posts from Anthropic, OpenAI and Google DeepMind, including closed-model releases.</p>
             </div>
-            <ol className="list">
+            <Ledger
+              first="Post"
+              labelledBy="announcements-h"
+              cells={[
+                { head: "Lab", width: "7.5rem", start: true },
+                { head: "Published", width: "3.75rem" },
+              ]}
+            >
               {(latest.labNews ?? []).slice(0, SHOWN).map((a) => (
                 <li key={a.url}>
-                  <a href={a.url}>{a.title}</a>
-                  <p className="list__meta">
-                    {a.source} · {fmtDay(a.publishedAt)}
-                  </p>
+                  <span className="ledger__main">
+                    <a href={a.url} title={a.title}>{a.title}</a>
+                  </span>
+                  <span className="ledger__data">
+                    <span className="ledger__cell--start">{a.source}</span>
+                    <span>{fmtDay(a.publishedAt)}</span>
+                  </span>
                 </li>
               ))}
-            </ol>
+            </Ledger>
           </section>
         </div>
 
-        <div className="pair pair--wide-right">
-          <section id="code" className="band" aria-labelledby="code-h">
-            <div className="band__head">
-              <h2 id="code-h">Repositories gaining stars</h2>
-              <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
-            </div>
-            <ol className="list">
-              {latest.repos.slice(0, SHOWN).map((r) => (
-                <li key={r.name}>
-                  <a href={r.url}>{r.name}</a>
-                  {r.description && <p className="list__desc">{r.description}</p>}
-                  <p className="list__meta">
-                    {fmtCompact(r.starsPerDay)} stars a day · {fmtCompact(r.stars)} total
-                    {r.language && <> · {r.language}</>} · created {fmtDay(r.createdAt)}
-                  </p>
-                </li>
-              ))}
-            </ol>
-            <a className="more" href="https://github.com/trending">
-              More on GitHub →
-            </a>
-          </section>
+        <section id="code" className="band" aria-labelledby="code-h">
+          <div className="band__head">
+            <h2 id="code-h">Repositories gaining stars</h2>
+            <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
+          </div>
+          <Ledger
+            first="Repository"
+            labelledBy="code-h"
+            cells={[
+              { head: "Stars a day", width: "7.5rem" },
+              { head: "Total", width: "3.25rem" },
+              { head: "Language", width: "5.5rem", start: true },
+              { head: "Created", width: "3.25rem" },
+            ]}
+          >
+            {repos.map((r) => (
+              <li key={r.name}>
+                <span className="ledger__main">
+                  <a href={r.url} title={r.name}>{r.name}</a>
+                  {r.description && <span className="ledger__note" title={r.description}>{r.description}</span>}
+                </span>
+                <span className="ledger__data">
+                  <Mag value={r.starsPerDay} max={top(repos.map((x) => x.starsPerDay))} unit="stars a day" />
+                  <span>
+                    {fmtCompact(r.stars)}
+                    <span className="ledger__unit"> total</span>
+                  </span>
+                  <span className="ledger__cell--start">{r.language}</span>
+                  <span>
+                    <span className="ledger__unit">created </span>
+                    {fmtDay(r.createdAt)}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </Ledger>
+          <a className="more" href="https://github.com/trending">
+            More on GitHub →
+          </a>
+        </section>
 
+        <div className="pair">
           <section id="models" className="band" aria-labelledby="models-h">
             <div className="band__head">
               <h2 id="models-h">Models trending</h2>
               <p>What builders are picking up on Hugging Face right now.</p>
             </div>
-            <ol className="list list--tight">
-              {latest.models.slice(0, SHOWN).map((m) => (
+            <Ledger
+              first="Model"
+              labelledBy="models-h"
+              cells={[
+                { head: "Likes", width: "5.5rem" },
+                { head: "Downloads", width: "4.5rem" },
+              ]}
+            >
+              {models.map((m) => (
                 <li key={m.id}>
-                  <a href={m.url}>{m.id}</a>
-                  <p className="list__meta">
-                    {m.task ? `${m.task.replaceAll("-", " ")} · ` : ""}
-                    {fmtCompact(m.likes)} likes · {fmtCompact(m.downloads)} downloads
-                  </p>
+                  <span className="ledger__main">
+                    <a href={m.url} title={m.id}>{m.id}</a>
+                    {m.task && <span className="ledger__note">{task(m.task)}</span>}
+                  </span>
+                  <span className="ledger__data">
+                    <Mag value={m.likes} max={top(models.map((x) => x.likes))} unit="likes" />
+                    <span>
+                      {fmtCompact(m.downloads)}
+                      <span className="ledger__unit"> downloads</span>
+                    </span>
+                  </span>
                 </li>
               ))}
-            </ol>
-
-            <div className="band__head band__head--sub">
-              <h2 id="labs-h">New from the labs</h2>
-              <p>Open models published by major AI labs in the past 45 days, by likes.</p>
-            </div>
-            <ol className="list list--tight" aria-labelledby="labs-h">
-              {latest.releases.slice(0, SHOWN).map((m) => (
-                <li key={m.id}>
-                  <a href={m.url}>{m.id}</a>
-                  <p className="list__meta">
-                    {m.task ? `${m.task.replaceAll("-", " ")} · ` : ""}
-                    {fmtCompact(m.likes)} likes · released {fmtDay(m.createdAt)}
-                  </p>
-                </li>
-              ))}
-            </ol>
+            </Ledger>
             <a className="more" href="https://huggingface.co/models?sort=trending">
               More models →
             </a>
+          </section>
+
+          <section id="labs" className="band" aria-labelledby="labs-h">
+            <div className="band__head">
+              <h2 id="labs-h">New from the labs</h2>
+              <p>Open models published by major AI labs in the past 45 days, by likes.</p>
+            </div>
+            <Ledger
+              first="Model"
+              labelledBy="labs-h"
+              cells={[
+                { head: "Likes", width: "5.5rem" },
+                { head: "Released", width: "3.75rem" },
+              ]}
+            >
+              {labModels.map((m) => (
+                <li key={m.id}>
+                  <span className="ledger__main">
+                    <a href={m.url} title={m.id}>{m.id}</a>
+                    {m.task && <span className="ledger__note">{task(m.task)}</span>}
+                  </span>
+                  <span className="ledger__data">
+                    <Mag value={m.likes} max={top(labModels.map((x) => x.likes))} unit="likes" />
+                    <span>
+                      <span className="ledger__unit">released </span>
+                      {fmtDay(m.createdAt)}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </Ledger>
           </section>
         </div>
 
@@ -689,7 +839,31 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <div className="band__head">
             <h2 id="method-h">How this is measured</h2>
           </div>
-          <div className="method__body">
+          <p className="method__status">
+            <span className={stale ? "status status--fail" : "status status--ok"}>
+              <span aria-hidden="true">{stale ? "▲" : "●"}</span>{" "}
+              {stale ? `${stale} of ${sources.length} sources stale` : `All ${sources.length} sources current`}
+            </span>
+            {oldest && <span className="sources__when">oldest collected {fmtDay(oldest)}</span>}
+          </p>
+          <details className="table-view" open={stale > 0}>
+            <summary>Show each source</summary>
+            <div className="sources">
+              <ul>
+                {sources.map(([key, src]) => (
+                  <li key={key}>
+                    <span className={src.ok ? "status status--ok" : "status status--fail"}>
+                      <span aria-hidden="true">{src.ok ? "●" : "▲"}</span> {src.ok ? "Current" : "Stale"}
+                    </span>
+                    <span>{SOURCE_LABELS[key] ?? key}</span>
+                    <span className="sources__when">{src.at ? fmtDay(src.at) : "never"}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </details>
+          <details className="table-view">
+            <summary>Read how each number is counted</summary>
             <div className="prose">
               <p>
                 <strong>Research momentum</strong> counts the papers submitted to arXiv’s AI-related categories each
@@ -745,22 +919,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 by the editor, not a ranking. Publishers that cover other subjects are filtered to pieces that
                 mention AI.
               </p>
+              <p>
+                <strong>In the ranked lists</strong>, the bar beside the figure a list is ranked by shows it against
+                the largest in that list.
+              </p>
             </div>
-            <div className="sources">
-              <h3>Source status</h3>
-              <ul>
-                {Object.entries(latest.sources).map(([key, s]) => (
-                  <li key={key}>
-                    <span className={s.ok ? "status status--ok" : "status status--fail"}>
-                      <span aria-hidden="true">{s.ok ? "●" : "▲"}</span> {s.ok ? "Current" : "Stale"}
-                    </span>
-                    <span>{SOURCE_LABELS[key] ?? key}</span>
-                    <span className="sources__when">{s.at ? fmtDay(s.at) : "never"}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          </details>
         </section>
       </main>
 
