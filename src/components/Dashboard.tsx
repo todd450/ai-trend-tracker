@@ -27,7 +27,7 @@ import {
   type Signal,
 } from "@/lib/trends";
 
-import { USAGE_WINDOW, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
+import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
 
 const SHOWN = 10;
 
@@ -48,6 +48,7 @@ const SOURCE_LABELS: Record<string, string> = {
   federal: "Federal Register document counts",
   modelReleases: "Lab model release log",
   downloads: "npm and PyPI download counts",
+  business: "Census Bureau business survey",
 };
 
 const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
@@ -178,7 +179,30 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
     .map((t, i) => ({ t, rank: i + 1 }))
     .filter(({ t }) => t.hasPapers && t.papers.change !== null && t.stories.change !== null);
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
-  const usage = usageSummary; // a local constant, so the null check below holds inside the row callbacks
+  const adoption = adoptionSummary; // local constants, so the null checks below hold inside the row callbacks
+  const adoptionRows = adoption
+    ? [
+        {
+          id: "using",
+          name: "US businesses using AI",
+          blurb: "Businesses saying yes when asked whether they used AI in any business function in the last two weeks.",
+          signal: adoption.using,
+          latest: adoption.latest.using,
+        },
+        ...(adoption.planning && adoption.latest.planning !== null
+          ? [
+              {
+                id: "planning",
+                name: "US businesses expecting to use AI",
+                blurb: "Businesses saying yes when asked whether they think they will be using AI during the next six months.",
+                signal: adoption.planning,
+                latest: adoption.latest.planning,
+              },
+            ]
+          : []),
+      ]
+    : [];
+  const usage = usageSummary;
 
   const stories = latest.stories.slice(0, SHOWN);
   const papers = latest.papers.slice(0, SHOWN);
@@ -215,7 +239,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <li><a href="#momentum">Topics</a></li>
                 <li><a href="#themes">Themes</a></li>
                 <li><a href="#indicators">Indicators</a></li>
-                <li><a href="#usage">Usage</a></li>
+                <li><a href={adoption ? "#adoption" : "#usage"}>Usage</a></li>
                 <li><a href="#news">News</a></li>
                 <li><a href="#papers">Papers</a></li>
                 <li><a href="#analysis">Analysis</a></li>
@@ -651,6 +675,83 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </div>
           </details>
         </section>
+
+        {adoption && (
+          <section id="adoption" className="band" aria-labelledby="adoption-h">
+            <div className="band__head">
+              <h2 id="adoption-h">Business adoption</h2>
+              <p>
+                How many US businesses say they use AI, from the Census Bureau’s business survey, asked every two
+                weeks. Latest survey: two weeks to {fmtDate(adoption.asOf)}. These are businesses’ own answers, and
+                each business counts once whatever its size.
+              </p>
+            </div>
+
+            <div className="trend-cols trend-cols--plain" aria-hidden="true">
+              <span>Measure</span>
+              <span>Trend <i>change and recent average</i></span>
+              <span>Compared with</span>
+            </div>
+            <ol className="trends">
+              {adoptionRows.map((row) => (
+                <li key={row.id} className="trend trend--plain">
+                  <div className="trend__topic">
+                    <h3>{row.name}</h3>
+                    <p>{row.blurb}</p>
+                  </div>
+                  <div className="trend__signal">
+                    <span className="trend__label">Trend</span>
+                    <Sparkline
+                      values={row.signal.values}
+                      labels={adoption.labels}
+                      unit="businesses"
+                      tone={toneOf(row.signal)}
+                      summary={`${row.name}: share of businesses saying yes, every two weeks over ${adoption.labels.length} surveys, ${row.latest.toFixed(1)}% in the latest${row.signal.change === null ? "" : `, with the last ${ADOPTION_WINDOW} surveys ${fmtChange(row.signal.change)} on the ${ADOPTION_WINDOW} before`}`}
+                    />
+                    {row.signal.change === null ? (
+                      <span className="trend__few">too little history</span>
+                    ) : (
+                      <Change signal={row.signal} />
+                    )}
+                    <span className="trend__level">
+                      {row.signal.recent.toFixed(1)}%<span className="vh"> of businesses, average of the last {ADOPTION_WINDOW} surveys</span>
+                    </span>
+                  </div>
+                  <p className="trend__context">
+                    {row.signal.change !== null && `${row.signal.prior.toFixed(1)}% over the ${ADOPTION_WINDOW} surveys before · `}
+                    {row.latest.toFixed(1)}% in the latest ·{" "}
+                    <a href="https://www.census.gov/hfp/btos/data_downloads">Census Bureau</a>
+                  </p>
+                </li>
+              ))}
+            </ol>
+
+            <details className="table-view">
+              <summary>Show the survey numbers as a table</summary>
+              <div className="table-view__scroll">
+                <table>
+                  <caption>Share of US businesses answering yes, by two-week survey</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Survey</th>
+                      <th scope="col">Used AI in the last two weeks</th>
+                      <th scope="col">Expect to use AI in the next six months</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adoption.labels.map((label, i) => (
+                      <tr key={label}>
+                        <th scope="row">{label}</th>
+                        <td>{adoption.using.values[i].toFixed(1)}%</td>
+                        <td>{adoption.planning ? `${adoption.planning.values[i].toFixed(1)}%` : "not published"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </section>
+        )}
 
         {usage && (
           <section id="usage" className="band" aria-labelledby="usage-h">
@@ -1098,6 +1199,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 lab’s main line (GPT, Gemini or Claude); variants of a version already announced, such as a smaller
                 or faster edition, are not counted again, and labs other than these three are not covered.
               </p>
+              {adoption && (
+              <p>
+                <strong>Business adoption</strong> is the Census Bureau’s Business Trends and Outlook Survey, which
+                asks a sample of US businesses the same questions every two weeks. The figure is the share answering
+                yes, as the Bureau publishes it for the country as a whole; it counts a business the same whether
+                one person or everyone there uses AI, and whether it has five staff or fifty thousand. The trend
+                compares the average of the last {ADOPTION_WINDOW} surveys with the {ADOPTION_WINDOW} before, so
+                that one survey’s sampling noise is not read as a move. The series here begins with the survey of
+                two weeks to {fmtDate(adoption.since)}, the first with the question’s current wording, which asks
+                about use “in any of its business functions”; answers to the narrower earlier wording were lower
+                and are not joined on.
+              </p>
+              )}
               <p>
                 <strong>Developer usage</strong> counts downloads of each toolkit’s Python packages from PyPI and
                 JavaScript packages from npm, per complete month. A download is not a user: build servers fetch
