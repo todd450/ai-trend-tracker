@@ -18,6 +18,7 @@ and lab news feeds, and needs no API keys.
 | Releases | Lab news pages | First announcement of each new GPT, Gemini and Claude version |
 | Adoption | US Census Bureau business survey | Share of US businesses saying they use AI, every two weeks |
 | Usage | npm and PyPI Stats | Monthly downloads of ten developer toolkits, as a share of all ten |
+| Model share | OpenRouter rankings | Weekly tokens by model maker on one marketplace, as a share of the total |
 
 ## Run it
 
@@ -133,3 +134,26 @@ broadened the question's wording; earlier answers were lower and are not
 joined on. If the Bureau rewords the question so that it no longer begins
 "In the last two weeks, did this business use", the source will show as stale
 and `businessAdoption` in `scripts/collect.ts` needs the new wording.
+
+## How model share is measured
+
+OpenRouter is a marketplace where developers reach many AI models through one account. Its
+[rankings page](https://openrouter.ai/rankings) publishes how many tokens (units of text read and
+written) each model maker's models handled each week. The dashboard turns that into each maker's
+share of the week's total and compares recent weeks with the weeks before, over the time range
+chosen at the top of the page.
+
+Read it as one marketplace, not the whole market:
+
+- Companies that buy from a lab directly, and everyone using a chat app, are not counted.
+- Free and low-priced models draw heavy automated use, which lifts their makers.
+- Each maker counts tokens its own way, so shares are approximate.
+- Each week names only its nine largest makers. A maker's line starts from when it last entered the
+  nine, and its change is shown only if it stayed there for the whole comparison.
+
+The data is OpenRouter's, used under CC BY 4.0 with the credit shown beside the figures. The
+collector reads the same address the rankings page itself loads, which needs no account but is not
+a documented service and could change; if it does, the dashboard keeps the last good data and marks
+the source as failed. OpenRouter also offers a documented data service that needs a free account
+key, which would be the sturdier choice. `modelMarketShare` in `scripts/collect.ts` is the place to
+switch.

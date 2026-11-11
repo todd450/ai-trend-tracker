@@ -8,7 +8,7 @@
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
  *   data/latest.json               current ranked lists (papers, repos, models, news)
- *   data/indicators.json           job-posting, federal, model-release, download and business-survey figures
+ *   data/indicators.json           job-posting, federal, model-release, download, business-survey and model-share figures
  *   data/snapshots/YYYY-MM-DD.json a dated copy of the lists, kept as a record
  *
  * No API keys are required. Set GITHUB_TOKEN to raise GitHub's rate limit.
@@ -729,6 +729,35 @@ async function businessAdoption(previous: Indicators["business"]): Promise<Busin
   return { periods };
 }
 
+/** Weeks of model share kept: the one-year view's 52 with a few to spare. */
+const MARKET_SHARE_WEEKS_KEPT = 60;
+
+/**
+ * Tokens processed on OpenRouter each week, by model maker. This is the figure behind the
+ * "Market Share" chart on openrouter.ai/rankings, read from the address that chart loads.
+ * OpenRouter also publishes it through a documented API, but that needs an account key.
+ * The data is licensed CC BY 4.0 and must be credited to OpenRouter wherever it is shown.
+ */
+async function modelMarketShare(previous: Indicators["marketShare"]): Promise<NonNullable<Indicators["marketShare"]>> {
+  const body = await getJson<{ data?: { data?: { x?: unknown; ys?: unknown }[] } }>(
+    "https://openrouter.ai/api/frontend/v1/rankings/author-market-share",
+  );
+  const byWeek = new Map(previous?.weeks.map((w) => [w.week, w]));
+  for (const row of body.data?.data ?? []) {
+    if (typeof row.x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(row.x) || !row.ys || typeof row.ys !== "object") continue;
+    // The newest row is the week in progress; only weeks that have ended are kept.
+    if (Date.parse(`${row.x}T00:00:00Z`) + 7 * DAY > Date.now()) continue;
+    const tokens = Object.fromEntries(
+      Object.entries(row.ys).filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] >= 0),
+    );
+    if (Object.keys(tokens).length >= 2) byWeek.set(row.x, { week: row.x, tokens });
+  }
+  const weeks = [...byWeek.values()].sort((a, b) => a.week.localeCompare(b.week)).slice(-MARKET_SHARE_WEEKS_KEPT);
+  const newest = weeks.at(-1);
+  if (!newest || Date.now() - Date.parse(`${newest.week}T00:00:00Z`) > 21 * DAY) throw new Error("no recent complete week returned");
+  return { weeks };
+}
+
 /** A release is only logged when first seen within this many days, so a feed's short memory cannot misdate old models. */
 const RELEASE_FRESH_DAYS = 200;
 
@@ -945,6 +974,7 @@ async function main() {
     if (failed.length) throw new Error(`no response from ${failed.join(", ")}`);
   });
   await indicator("downloads", async () => void (indicators.downloads = await packageDownloads(before.downloads)));
+  await indicator("marketShare", async () => void (indicators.marketShare = await modelMarketShare(before.marketShare)));
   await indicator("business", async () => void (indicators.business = await businessAdoption(before.business)));
   await writeJson("indicators.json", indicators);
 

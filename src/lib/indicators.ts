@@ -1,6 +1,6 @@
 import indicatorsJson from "../../data/indicators.json";
 import { TOOLKITS, packageKey, packageKeys } from "./toolkits";
-import { latest, type Signal } from "./trends";
+import { HORIZONS, fmtDay, latest, type Horizon, type Signal } from "./trends";
 import type { Indicators, Release } from "./types";
 
 export const indicators = indicatorsJson as unknown as Indicators;
@@ -141,3 +141,73 @@ function adoptionSummary(all: NonNullable<Indicators["business"]>["periods"]) {
 }
 
 export const adoption = indicators.business ? adoptionSummary(indicators.business.periods) : null;
+
+/** How OpenRouter's short names for model makers are written on the page. Unlisted makers show their short name. */
+const MAKER_NAMES: Record<string, string> = {
+  anthropic: "Anthropic",
+  "arcee-ai": "Arcee AI",
+  deepseek: "DeepSeek",
+  google: "Google",
+  meta: "Meta",
+  minimax: "MiniMax",
+  mistralai: "Mistral",
+  moonshotai: "Moonshot AI",
+  nvidia: "NVIDIA",
+  openai: "OpenAI",
+  openrouter: "OpenRouter",
+  poolside: "Poolside",
+  qwen: "Qwen (Alibaba)",
+  stealth: "Unnamed preview models",
+  stepfun: "StepFun",
+  tencent: "Tencent",
+  "x-ai": "xAI",
+  xiaomi: "Xiaomi",
+  "z-ai": "Z.ai",
+};
+
+/** The name OpenRouter gives the sum of every maker outside a week's nine largest. */
+const OTHER_MAKERS = "Others";
+
+/**
+ * Each model maker's share of the tokens processed on OpenRouter, read over one time horizon
+ * like the topic trends: the latest `window` weeks against the `window` before.
+ *
+ * A week names only its nine largest makers, so a maker missing from a week has an unknown
+ * share, not zero. Each maker's line therefore runs back only as far as it was named every
+ * week, and its change is left out unless that covers both halves of the comparison.
+ */
+export function buildMarketShare(horizon: Horizon) {
+  const all = indicators.marketShare?.weeks ?? [];
+  const { window, shown } = HORIZONS[horizon];
+  const weeks = all.slice(-shown);
+  const newest = weeks.at(-1);
+  if (!newest || weeks.length < 2) return null;
+  const total = (week: (typeof weeks)[number]) => Object.values(week.tokens).reduce((a, b) => a + b, 0);
+  const makers = Object.keys(newest.tokens)
+    .filter((maker) => maker !== OTHER_MAKERS)
+    .map((maker) => {
+      const unnamed = weeks.findLastIndex((week) => week.tokens[maker] === undefined);
+      const run = weeks.slice(unnamed + 1);
+      const values = run.map((week) => (week.tokens[maker] / (total(week) || 1)) * 100);
+      const recent = mean(values.slice(-window));
+      const prior = mean(values.slice(-2 * window, -window));
+      const share: Signal = { values, recent, prior, change: values.length >= 2 * window && prior > 0 ? (recent - prior) / prior : null };
+      return {
+        id: maker,
+        name: MAKER_NAMES[maker] ?? maker,
+        share,
+        labels: run.map((week) => `Week of ${fmtDay(week.week)}`),
+        /** Tokens in the newest week. */
+        tokens: newest.tokens[maker],
+      };
+    })
+    .sort((a, b) => b.share.recent - a.share.recent);
+  return {
+    latestWeek: newest.week,
+    window,
+    totalTokens: total(newest),
+    /** The newest week's share held by makers outside the nine named. */
+    otherShare: ((newest.tokens[OTHER_MAKERS] ?? 0) / (total(newest) || 1)) * 100,
+    makers,
+  };
+}
