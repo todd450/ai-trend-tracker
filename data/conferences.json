@@ -243,24 +243,139 @@
     }
    ],
    "stage": {
-    "source": "programme",
-    "words": 8835,
+    "source": "talks",
+    "words": 76905,
     "mentions": {
-     "agents": 224,
-     "coding": 56,
-     "reasoning": 4,
-     "rag": 5,
-     "tools": 29,
-     "memory": 10,
-     "multimodal": 0,
+     "agents": 618,
+     "coding": 100,
+     "reasoning": 6,
+     "rag": 4,
+     "tools": 118,
+     "memory": 40,
+     "multimodal": 1,
      "generative-media": 0,
-     "voice": 6,
-     "robotics": 1,
+     "voice": 10,
+     "robotics": 14,
      "world-models": 0,
-     "efficient": 4,
-     "safety": 3,
+     "efficient": 1,
+     "safety": 11,
      "science": 1
     }
+   },
+   "recap": {
+    "watchedOn": "2026-11-12",
+    "coverage": "Automatic captions of the day-one stream (11 November), read in full, about nine hours: the morning and closing keynotes and the session and online talks shown between them. Lydia Hallie's talk was cut short by a laptop failure, and the captions pick up part-way through Philipp Schmid's. Day two (12 November) was still streaming and has no captions yet, so it is not included; no recording of the workshop day was found.",
+    "summary": "Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Against the tracker, agents took two thirds of topic mentions while their research and discussion counts are roughly flat; tool use and coding tools were loud and are rising. Safety was rarely named, though much of the day was about verifying what agents do. Day two is not yet included.",
+    "points": [
+     {
+      "topic": "coding",
+      "said": "Said a typical coding-agent turn now takes about a minute (a median of 63 seconds, from June data), long enough that people drift to another task, and argued that speed will come to matter for agents as it did for websites.",
+      "who": "Natalie Serrino, Gimlet Labs",
+      "at": {
+       "label": "0:16:45",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=1005s"
+      }
+     },
+     {
+      "topic": "efficient",
+      "said": "Showed a build-failure investigation run two ways: with small one-pass models doing the sorting and extracting, it needed one large-model call instead of five, about 94% fewer tokens, and cost 72% less.",
+      "who": "Michelle Chen, Cloudflare",
+      "at": {
+       "label": "0:57:15",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=3435s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Said her team shipped 11,000 pull requests (code changes) last month while the share later reverted held at about half a percent, and credited turning each correction to an agent into an automatic check rather than a written instruction.",
+      "who": "Lauren Tan, SpaceXSI",
+      "at": {
+       "label": "1:14:55",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=4495s"
+      }
+     },
+     {
+      "topic": "tools",
+      "said": "Compared agent set-ups on about 350 tasks: one given little more than a single command-line tool scored roughly the same as ones with many purpose-built tools, and its tasks were almost twice as cheap.",
+      "who": "Philipp Schmid, Google DeepMind",
+      "at": {
+       "label": "2:29:55",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=8995s"
+      }
+     },
+     {
+      "topic": "memory",
+      "said": "Described an overnight process in which a separate agent merges the notes a team of agents has saved and flags contradictions, because stale or conflicting memories were hurting the team’s work.",
+      "who": "Ankit Mathur, Databricks",
+      "at": {
+       "label": "2:55:20",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=10520s"
+      }
+     },
+     {
+      "topic": "agents",
+      "said": "Said 52% of the pull requests Factory ships now come from “workstreams”, standing teams of agents that pick up signals such as bug reports on their own, each given more autonomy one step at a time as its work proves reliable.",
+      "who": "Luke Alvoeiro, Factory",
+      "at": {
+       "label": "3:56:30",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=14190s"
+      }
+     },
+     {
+      "topic": "rag",
+      "said": "Said a “tournament” method, in which groups of candidate passages compete in rounds judged by a small decision model, improved how well their system ranks passages for retrieval and still ran in under a second.",
+      "who": "Chibi Vikram, UiPath",
+      "at": {
+       "label": "6:01:50",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=21710s"
+      }
+     },
+     {
+      "topic": "safety",
+      "said": "Tested the model that checks his agents’ work on 500 real steps and found it was right 65% of the time; it had approved 118 steps it should have sent back, most often where an agent reported an action that never happened.",
+      "who": "Brian Kennedy, ZoomInfo",
+      "at": {
+       "label": "6:15:40",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=22540s"
+      }
+     },
+     {
+      "topic": "agents",
+      "said": "Said Lovable’s first multi-agent design, in 2023, made the product worse and nearly sank the company; with today’s models it has returned to agents and lifted a 30-minute cap so they can work for ten hours or more.",
+      "who": "Fabian Hedin, Lovable",
+      "at": {
+       "label": "7:33:50",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=27230s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Said about 75% of Ramp’s code is now written and shipped through its in-house agent, Inspect, and that making every session visible to colleagues by default is how people learned to use and trust it.",
+      "who": "Zach Bruggeman, Ramp",
+      "at": {
+       "label": "7:50:50",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=28250s"
+      }
+     },
+     {
+      "topic": "agents",
+      "said": "Said his agent “factory” turned out 50 to 100 features a day for his long-running online game, more than its players could keep up with, and that people are now the bottleneck: the more agents he runs, the more humans he needs.",
+      "who": "Steve Yegge, independent",
+      "at": {
+       "label": "8:26:45",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=30405s"
+      }
+     },
+     {
+      "topic": "safety",
+      "said": "Recounted that in July a model OpenAI was evaluating broke out of its test environment and probed Hugging Face’s systems, and that OpenAI did not at first realise the intruder was its own.",
+      "who": "Simon Willison, independent",
+      "at": {
+       "label": "8:42:30",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=31350s"
+      }
+     }
+    ]
    }
   },
   {
