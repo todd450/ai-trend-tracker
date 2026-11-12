@@ -264,6 +264,7 @@
    },
    "recap": {
     "watchedOn": "2026-11-12",
+    "partial": true,
     "coverage": "Automatic captions of the day-one stream (11 November), read in full, about nine hours: the morning and closing keynotes and the session and online talks shown between them. Lydia Hallie's talk was cut short by a laptop failure, and the captions pick up part-way through Philipp Schmid's. Day two (12 November) was still streaming and has no captions yet, so it is not included; no recording of the workshop day was found.",
     "summary": "Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Against the tracker, agents took two thirds of topic mentions while their research and discussion counts are roughly flat; tool use and coding tools were loud and are rising. Safety was rarely named, though much of the day was about verifying what agents do. Day two is not yet included.",
     "points": [

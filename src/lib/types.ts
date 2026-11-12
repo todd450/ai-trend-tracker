@@ -146,6 +146,8 @@ export type Conference = {
   /** Written after watching the recordings. */
   recap?: {
     watchedOn: string;
+    /** True while the recap leaves out part of the event (a day not yet streamed or captioned); `coverage` says which. */
+    partial?: boolean;
     /** What was watched, and what was not: "Day one's main-stage stream, 8 of 9 hours". */
     coverage: string;
     summary: string;

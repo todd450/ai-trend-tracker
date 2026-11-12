@@ -15,13 +15,19 @@ export const conferences: Conference[] = [...(conferencesJson as unknown as Conf
  */
 export const today = latest.generatedAt.slice(0, 10);
 
-/** Where an event is in its life: not yet held, being held, held but not watched, or watched. */
-export type Phase = "upcoming" | "underway" | "awaiting" | "watched";
+/** Where an event is in its life: not yet held, being held, held but not watched, watched in part, or watched. */
+export type Phase = "upcoming" | "underway" | "awaiting" | "partly" | "watched";
 
+/**
+ * The dates decide first: a recap written while an event is still running (after its
+ * first day, say) does not make the event over. Once it has ended, a recap marked
+ * `partial` keeps it from being called watched until the rest has been read.
+ */
 export function phaseOf(c: Conference): Phase {
-  if (c.recap) return "watched";
   if (today < c.start) return "upcoming";
-  return today <= c.end ? "underway" : "awaiting";
+  if (today <= c.end) return "underway";
+  if (!c.recap) return "awaiting";
+  return c.recap.partial ? "partly" : "watched";
 }
 
 const DAY = 86_400_000;

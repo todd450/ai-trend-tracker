@@ -153,7 +153,8 @@ the trends:
 2. Run `npm run conference -- <conference id> <transcript.txt>`. This counts how often
    each topic in `src/lib/topics.ts` was mentioned and stores the counts under `stage`.
 3. Add a `recap` to the event in `data/conferences.json`: the date watched, how much
-   was covered, a summary, and `points` (what was said about a topic, by whom, with a
+   was covered (with `"partial": true` while some talks are still unread, which keeps the
+   page from calling the event watched), a summary, and `points` (what was said about a topic, by whom, with a
    link to that moment in the video). Only write what the talks said.
 
 Before captions exist, `npm run conference -- <id> --programme <file>` counts the

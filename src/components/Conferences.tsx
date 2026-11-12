@@ -22,6 +22,7 @@ const PHASE_LABEL: Record<Phase, string> = {
   upcoming: "Upcoming",
   underway: "Under way",
   awaiting: "Held · recordings not yet watched",
+  partly: "Held · partly watched",
   watched: "Watched",
 };
 
@@ -183,12 +184,12 @@ function Programme({ c }: { c: Conference }) {
 export function Conferences() {
   const upcoming = conferences.filter((c) => phaseOf(c) === "upcoming");
   const underway = conferences.filter((c) => phaseOf(c) === "underway");
-  const past = conferences.filter((c) => ["awaiting", "watched"].includes(phaseOf(c))).reverse();
+  const past = conferences.filter((c) => ["awaiting", "partly", "watched"].includes(phaseOf(c))).reverse();
   /** Events with something to compare, newest first: these get a full reading. */
   const read = conferences.filter((c) => c.stage || c.recap).reverse();
   const next = upcoming[0];
   const months = [...new Set(upcoming.map((c) => c.start.slice(0, 7)))];
-  const watched = conferences.filter((c) => c.recap).length;
+  const watched = conferences.filter((c) => phaseOf(c) === "watched").length;
 
   const lead = underway.length
     ? `${underway.map((c) => c.name).join(" and ")} ${underway.length > 1 ? "are" : "is"} under way in ${underway[0].place.split(",")[0]}.`
@@ -337,7 +338,10 @@ export function Conferences() {
           <section id="held" className="band" aria-labelledby="held-h">
             <div className="band__head">
               <h2 id="held-h">Already held</h2>
-              <p>Most recent first. An event is marked watched once its talks have been read against the trends.</p>
+              <p>
+                Most recent first. An event is marked watched once its talks have been read against the trends, and
+                partly watched while some of them are still to come.
+              </p>
             </div>
             <div className="cal__month">
               <ol>
@@ -363,7 +367,9 @@ export function Conferences() {
               <strong>Watching</strong> means reading the captions of an event’s published recordings from start to
               finish, after it has ended. Until captions exist, the published programme is counted instead and the
               page says so. Nothing is summarised from titles alone: a written summary appears only for talks that
-              were watched, and it says how much was covered.
+              were watched, and it says how much was covered. When some talks are read before an event ends, or
+              before every recording has captions, the event stays under way or partly watched until the rest is
+              read.
             </p>
             <p>
               <strong>Share of topic mentions</strong> counts each time a tracked topic’s phrases are spoken (or,
