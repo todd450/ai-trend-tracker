@@ -63,6 +63,8 @@ src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a su
 src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a toolkit)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
+src/components/Conferences.tsx  the conference tracker, at /conferences
+scripts/conference.ts  counts topic mentions in a conference's programme or transcript
 src/app/one-week/    the 1-week view, at /one-week
 src/app/one-month/   the 1-month view, at /one-month
 src/app/page.tsx     the 3-month view, at /
@@ -134,6 +136,31 @@ broadened the question's wording; earlier answers were lower and are not
 joined on. If the Bureau rewords the question so that it no longer begins
 "In the last two weeks, did this business use", the source will show as stale
 and `businessAdoption` in `scripts/collect.ts` needs the new wording.
+
+## How conferences are tracked
+
+The page at `/conferences` is a calendar of major AI events, kept by hand in
+`data/conferences.json` with dates from each organiser's site. An event moves from
+upcoming to held on its own, because the page compares its dates with the day the data
+was last collected.
+
+Once an event is over and its recordings have captions, it is watched and read against
+the trends:
+
+1. Save the captions as text, for example with
+   `yt-dlp --write-auto-subs --sub-langs en --skip-download <video url>`.
+   Transcripts are not kept in the repository.
+2. Run `npm run conference -- <conference id> <transcript.txt>`. This counts how often
+   each topic in `src/lib/topics.ts` was mentioned and stores the counts under `stage`.
+3. Add a `recap` to the event in `data/conferences.json`: the date watched, how much
+   was covered, a summary, and `points` (what was said about a topic, by whom, with a
+   link to that moment in the video). Only write what the talks said.
+
+Before captions exist, `npm run conference -- <id> --programme <file>` counts the
+published titles and abstracts instead, and the page labels the figures as the
+programme, not the talks. The page sets each topic's share of mentions beside its
+three-month research and discussion trend and labels where they agree or part; the rule
+is in `stageAgainstTrends` in `src/lib/conferences.ts`.
 
 ## How model share is measured
 

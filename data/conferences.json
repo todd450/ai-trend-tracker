@@ -1,0 +1,433 @@
+{
+ "conferences": [
+  {
+   "id": "aie-nyc-2026",
+   "name": "AI Engineer New York",
+   "host": "AI Engineer",
+   "kind": "industry",
+   "start": "2026-10-12",
+   "end": "2026-10-14",
+   "place": "New York, USA",
+   "url": "https://www.ai.engineer/nyc/2026",
+   "recordings": "https://www.youtube.com/@aiDotEngineer"
+  },
+  {
+   "id": "emnlp-2026",
+   "name": "EMNLP 2026",
+   "host": "Association for Computational Linguistics",
+   "kind": "research",
+   "start": "2026-10-24",
+   "end": "2026-10-29",
+   "place": "Budapest, Hungary",
+   "url": "https://2026.emnlp.org/"
+  },
+  {
+   "id": "github-universe-2026",
+   "name": "GitHub Universe 2026",
+   "host": "GitHub",
+   "kind": "industry",
+   "start": "2026-10-28",
+   "end": "2026-10-29",
+   "place": "San Francisco, USA",
+   "url": "https://githubuniverse.com/"
+  },
+  {
+   "id": "aie-code-2026",
+   "name": "AI Engineer Code Summit",
+   "host": "AI Engineer",
+   "kind": "industry",
+   "start": "2026-11-10",
+   "end": "2026-11-12",
+   "place": "San Francisco, USA",
+   "url": "https://www.ai.engineer/code/2026",
+   "recordings": "https://www.youtube.com/@aiDotEngineer",
+   "note": "Three days for engineers who build with coding agents: a workshop day, then two days of talks from the labs and the companies using them.",
+   "videos": [
+    {
+     "title": "Session day 1 stream (11 November)",
+     "url": "https://www.youtube.com/live/ZZ19zhYnDKY"
+    }
+   ],
+   "programme": [
+    {
+     "day": "2026-11-11",
+     "title": "What Will You Build When AI Is 10x Faster?",
+     "speaker": "Natalie Serrino",
+     "org": "Gimlet Labs"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Rethinking Claude Code Best Practices",
+     "speaker": "Lydia Hallie",
+     "org": "Anthropic"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "cloudflare is a neolab",
+     "speaker": "Michelle Chen",
+     "org": "Cloudflare"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "All Code Is Slop (Except Mine)",
+     "speaker": "Lauren Tan",
+     "org": "SpaceXSI"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "I deleted 90% of my harness (And It Got Better)",
+     "speaker": "Philipp Schmid",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "The Rise of the Agent Workforce: Rethinking Agent Infrastructure",
+     "speaker": "Ankit Mathur",
+     "org": "Databricks"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Building a Safe Software Factory",
+     "speaker": "Andrew Finch",
+     "org": "Sonar"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Earning Autonomy: From Missions to Workstreams",
+     "speaker": "Luke Alvoeiro",
+     "org": "Factory"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "I love you so jevving much",
+     "speaker": "Diogo Almeida",
+     "org": "TypeSafe AI"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Beyond Generation: Fast, Structured AI Decisions with Jev at Glean",
+     "speaker": "Chinmay Goyal",
+     "org": "Glean"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Your Automation Is Overthinking It",
+     "speaker": "Chibi Vikram and Kevin Bernstein",
+     "org": "UiPath"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Your Judge Is Hallucinating Too",
+     "speaker": "Brian Kennedy",
+     "org": "ZoomInfo"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Autocomplete for Actions: System One from the UI to the DB",
+     "speaker": "Scott Roberts",
+     "org": "Workday"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "What it takes to set intelligence free",
+     "speaker": "Fabian Hedin",
+     "org": "Lovable"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "How to build an agent that builds the culture",
+     "speaker": "Zach Bruggeman",
+     "org": "Ramp"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "Software Factories: Escape from Trash Mountain",
+     "speaker": "Steve Yegge",
+     "org": "Independent"
+    },
+    {
+     "day": "2026-11-11",
+     "title": "2026 in LLMs",
+     "speaker": "Simon Willison",
+     "org": "Independent"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Ambition in AI",
+     "speaker": "Jason Liu",
+     "org": "OpenAI"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "The Software Atelier",
+     "speaker": "Armin Ronacher",
+     "org": "Earendil"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Software Engineering Is Becoming Factory Engineering",
+     "speaker": "Zach Lloyd",
+     "org": "Warp"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Let's Open Source the World",
+     "speaker": "Brandon Thomas",
+     "org": "ArtCraft"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "A New Age of Software Engineering",
+     "speaker": "Walden Yan",
+     "org": "Cognition"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "What Your AI Doesn't Know: The latest trends in agent searches",
+     "speaker": "Jeffrey Pinner",
+     "org": "Exa"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Ship more as a team with Kiro Crew",
+     "speaker": "Doug Clauson",
+     "org": "AWS"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Exploring Claude’s frontier",
+     "speaker": "Lance Martin",
+     "org": "Anthropic"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Title not announced",
+     "speaker": "Jarred Sumner",
+     "org": "Anthropic"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Judgement is the Last Job",
+     "speaker": "Ishaan Dey",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Brownfield Factories",
+     "speaker": "Justin McCarthy",
+     "org": "Diffusion"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Post-Training Gemini 4 for Real Engineering Work",
+     "speaker": "Melvin Johnson",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "A Company Built Around the Agent",
+     "speaker": "Quinn Slack",
+     "org": "Amp"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "12-Factor-Factories: Design Patterns for Agentic Coding",
+     "speaker": "Dexter Horthy",
+     "org": "Factory"
+    },
+    {
+     "day": "2026-11-12",
+     "title": "Title not announced",
+     "speaker": "Thariq Shihipar",
+     "org": "Independent"
+    }
+   ],
+   "stage": {
+    "source": "programme",
+    "words": 8835,
+    "mentions": {
+     "agents": 224,
+     "coding": 56,
+     "reasoning": 4,
+     "rag": 5,
+     "tools": 29,
+     "memory": 10,
+     "multimodal": 0,
+     "generative-media": 0,
+     "voice": 6,
+     "robotics": 1,
+     "world-models": 0,
+     "efficient": 4,
+     "safety": 3,
+     "science": 1
+    }
+   }
+  },
+  {
+   "id": "ignite-2026",
+   "name": "Microsoft Ignite 2026",
+   "host": "Microsoft",
+   "kind": "industry",
+   "start": "2026-11-17",
+   "end": "2026-11-20",
+   "place": "San Francisco, USA",
+   "url": "https://ignite.microsoft.com/"
+  },
+  {
+   "id": "reinvent-2026",
+   "name": "AWS re:Invent 2026",
+   "host": "Amazon Web Services",
+   "kind": "industry",
+   "start": "2026-11-30",
+   "end": "2026-12-04",
+   "place": "Las Vegas, USA",
+   "url": "https://aws.amazon.com/events/reinvent"
+  },
+  {
+   "id": "gtc-dc-2026",
+   "name": "NVIDIA GTC Washington, D.C.",
+   "host": "NVIDIA",
+   "kind": "industry",
+   "start": "2026-11-30",
+   "end": "2026-12-03",
+   "place": "Washington, D.C., USA",
+   "url": "https://www.nvidia.com/gtc/dc/"
+  },
+  {
+   "id": "neurips-2026",
+   "name": "NeurIPS 2026",
+   "host": "NeurIPS Foundation",
+   "kind": "research",
+   "start": "2026-12-06",
+   "end": "2026-12-12",
+   "place": "Sydney, Australia",
+   "url": "https://neurips.cc/Conferences/2026",
+   "note": "The largest machine-learning research meeting. Satellite events run in Atlanta and Paris from 9 to 13 December."
+  },
+  {
+   "id": "aie-sydney-2026",
+   "name": "AI Engineer Sydney",
+   "host": "Web Directions, with AI Engineer",
+   "kind": "industry",
+   "start": "2026-12-07",
+   "end": "2026-12-08",
+   "place": "Sydney, Australia",
+   "url": "https://webdirections.org/ai-engineer/",
+   "recordings": "https://www.youtube.com/@aiDotEngineer"
+  },
+  {
+   "id": "aaai-27",
+   "name": "AAAI-27",
+   "host": "Association for the Advancement of Artificial Intelligence",
+   "kind": "research",
+   "start": "2027-02-16",
+   "end": "2027-02-23",
+   "place": "Montreal, Canada",
+   "url": "https://aaai.org/conference/aaai/aaai-27/"
+  },
+  {
+   "id": "aie-europe-2027",
+   "name": "AI Engineer Europe",
+   "host": "AI Engineer",
+   "kind": "industry",
+   "start": "2027-02-17",
+   "end": "2027-02-19",
+   "place": "London, UK",
+   "url": "https://www.ai.engineer/europe/2027",
+   "recordings": "https://www.youtube.com/@aiDotEngineer"
+  },
+  {
+   "id": "gtc-2027",
+   "name": "NVIDIA GTC 2027",
+   "host": "NVIDIA",
+   "kind": "industry",
+   "start": "2027-03-15",
+   "end": "2027-03-18",
+   "place": "San Jose, USA",
+   "url": "https://www.nvidia.com/gtc/"
+  },
+  {
+   "id": "cloud-next-2027",
+   "name": "Google Cloud Next 2027",
+   "host": "Google Cloud",
+   "kind": "industry",
+   "start": "2027-04-13",
+   "end": "2027-04-15",
+   "place": "Las Vegas, USA",
+   "url": "https://www.googlecloudevents.com/next-vegas"
+  },
+  {
+   "id": "iclr-2027",
+   "name": "ICLR 2027",
+   "host": "International Conference on Learning Representations",
+   "kind": "research",
+   "start": "2027-04-26",
+   "end": "2027-04-30",
+   "place": "California, USA",
+   "url": "https://iclr.cc/Conferences/2027",
+   "note": "The city has not been announced."
+  },
+  {
+   "id": "aie-miami-2027",
+   "name": "AI Engineer Miami",
+   "host": "React Miami, with AI Engineer",
+   "kind": "industry",
+   "start": "2027-04-26",
+   "end": "2027-04-27",
+   "place": "Miami, USA",
+   "url": "https://www.ai.engineer/miami/2027",
+   "recordings": "https://www.youtube.com/@aiDotEngineer"
+  },
+  {
+   "id": "cvpr-2027",
+   "name": "CVPR 2027",
+   "host": "Computer Vision Foundation and IEEE",
+   "kind": "research",
+   "start": "2027-06-20",
+   "end": "2027-06-25",
+   "place": "Seattle, USA",
+   "url": "https://cvpr.thecvf.com/Conferences/2027"
+  },
+  {
+   "id": "data-ai-summit-2027",
+   "name": "Data + AI Summit 2027",
+   "host": "Databricks",
+   "kind": "industry",
+   "start": "2027-06-21",
+   "end": "2027-06-24",
+   "place": "San Francisco, USA",
+   "url": "https://www.databricks.com/dataaisummit"
+  },
+  {
+   "id": "aie-worlds-fair-2027",
+   "name": "AI Engineer World's Fair",
+   "host": "AI Engineer",
+   "kind": "industry",
+   "start": "2027-06-29",
+   "end": "2027-07-01",
+   "place": "San Francisco, USA",
+   "url": "https://www.ai.engineer/worldsfair/2027",
+   "recordings": "https://www.youtube.com/@aiDotEngineer"
+  },
+  {
+   "id": "icml-2027",
+   "name": "ICML 2027",
+   "host": "International Conference on Machine Learning",
+   "kind": "research",
+   "start": "2027-07-31",
+   "end": "2027-08-06",
+   "place": "Rio de Janeiro, Brazil",
+   "url": "https://icml.cc/Conferences/2027"
+  },
+  {
+   "id": "acl-2027",
+   "name": "ACL 2027",
+   "host": "Association for Computational Linguistics",
+   "kind": "research",
+   "start": "2027-08-17",
+   "end": "2027-08-22",
+   "place": "Kyoto, Japan",
+   "url": "https://2027.aclweb.org/"
+  }
+ ]
+}

@@ -100,3 +100,58 @@ export type Indicators = {
   marketShare?: { weeks: { week: string; tokens: Record<string, number> }[] } | null;
   business?: { periods: { period: string; end: string; using: number; planning: number | null }[] } | null;
 };
+
+/** One video of a conference's talks, usually a day-long stream. */
+export type ConferenceVideo = { title: string; url: string };
+
+/** One announced talk: its day (YYYY-MM-DD), title, and who gives it. */
+export type ConferenceTalk = { day: string; title: string; speaker: string; org?: string };
+
+/** What was said on stage about one tracked topic, written by whoever watched the talks. */
+export type StagePoint = {
+  /** A topic id from src/lib/topics.ts. */
+  topic: string;
+  /** The claim, in the tracker's words. */
+  said: string;
+  /** Who said it, and where in the recording (a link that opens the video at that moment). */
+  who?: string;
+  at?: { label: string; url: string };
+};
+
+export type Conference = {
+  id: string;
+  name: string;
+  /** Who runs it. */
+  host: string;
+  /** "research" for academic meetings, "industry" for practitioner and vendor events. */
+  kind: "research" | "industry";
+  /** First and last day, YYYY-MM-DD, in the event's own time zone. */
+  start: string;
+  end: string;
+  place: string;
+  url: string;
+  /** Where recordings are published once the event is over. */
+  recordings?: string;
+  /** One line on why the event matters to this tracker. */
+  note?: string;
+  /** The recordings the recap is based on. */
+  videos?: ConferenceVideo[];
+  /** The main-stage talks as announced, in running order. */
+  programme?: ConferenceTalk[];
+  /**
+   * Topic mentions counted by scripts/conference.ts: from the published programme (titles and
+   * abstracts) before the recordings can be watched, then from the talks' transcript.
+   */
+  stage?: { source: "programme" | "talks"; words: number; mentions: Record<string, number> };
+  /** Written after watching the recordings. */
+  recap?: {
+    watchedOn: string;
+    /** What was watched, and what was not: "Day one's main-stage stream, 8 of 9 hours". */
+    coverage: string;
+    summary: string;
+    points: StagePoint[];
+  };
+};
+
+/** data/conferences.json: the calendar, kept by hand, with a recap added to each event once watched. */
+export type ConferenceFile = { conferences: Conference[] };

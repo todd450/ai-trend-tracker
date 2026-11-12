@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
@@ -248,6 +249,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <li><a href="#code">Code</a></li>
                 <li><a href="#models">Models</a></li>
                 <li><a href="#method">Method</a></li>
+                <li><Link href="/conferences">Conferences →</Link></li>
               </ul>
             </nav>
             <HorizonSwitch current={horizon} label="Time span" />
