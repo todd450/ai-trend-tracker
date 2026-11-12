@@ -1,6 +1,16 @@
 import conferencesJson from "../../data/conferences.json";
 import { TOPICS } from "./topics";
-import { buildTrends, latest, type Direction, type Horizon, type TopicTrend } from "./trends";
+import {
+  HEADLINE_MIN_PAPERS,
+  HORIZONS,
+  MAP_MIN_STORIES,
+  buildTrends,
+  directionOf,
+  latest,
+  type Direction,
+  type Horizon,
+  type TopicTrend,
+} from "./trends";
 import type { Conference, ConferenceFile, StagePoint } from "./types";
 
 /** Every conference on the calendar, earliest first. */
@@ -59,16 +69,29 @@ export const STAGE_LOUD = 0.1;
 export const STAGE_QUIET = 0.02;
 
 /** How the stage and the tracker's counts compare for one topic. */
-export type Reading = "agree" | "loud-flat" | "stage-ahead" | "numbers-ahead" | "quiet" | "none";
+export type Reading =
+  | "agree"
+  | "loud-flat"
+  | "loud-mixed"
+  | "loud-thin"
+  | "stage-ahead"
+  | "numbers-ahead"
+  | "quiet"
+  | "none";
 
 export const READING_LABEL: Record<Reading, string> = {
   agree: "Loud here and rising in the numbers",
   "loud-flat": "Loud here, flat in the numbers",
+  "loud-mixed": "Loud here, mixed in the numbers",
+  "loud-thin": "Loud here, too few to call in the numbers",
   "stage-ahead": "Louder here than in the numbers",
   "numbers-ahead": "Rising, but little heard here",
   quiet: "Quiet on both",
   none: "",
 };
+
+/** What the trusted counts say together: one way, both ways at once, nothing, or too little to say. */
+type Numbers = "rising" | "cooling" | "mixed" | "flat" | "thin";
 
 export type StageRow = {
   topic: TopicTrend;
@@ -78,16 +101,28 @@ export type StageRow = {
   /** The direction of the topic's research share, and of its Hacker News stories. */
   research: Direction;
   discussion: Direction;
+  /**
+   * False when the count behind a direction is below the front page's minimum
+   * (HEADLINE_MIN_PAPERS, MAP_MIN_STORIES). Such a change is shown but never
+   * decides the reading: a move from 3 stories a week to 7 is not a trend.
+   */
+  researchFirm: boolean;
+  discussionFirm: boolean;
   reading: Reading;
   points: StagePoint[];
 };
 
+const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+
 /**
  * One row per tracked topic: how much of the stage it took, set against how its
  * research and discussion counts are moving over the given horizon. Loudest first.
+ * Only counts large enough for the front page to trust can make a topic rising or
+ * cooling here, so the two pages never disagree about the same topic.
  */
 export function stageAgainstTrends(c: Conference, horizon: Horizon = "threeMonths"): StageRow[] {
   const { topicTrends } = buildTrends(horizon);
+  const { window } = HORIZONS[horizon];
   const mentions = c.stage?.mentions ?? {};
   const total = TOPICS.reduce((sum, t) => sum + (mentions[t.id] ?? 0), 0);
   return topicTrends
@@ -95,33 +130,42 @@ export function stageAgainstTrends(c: Conference, horizon: Horizon = "threeMonth
       const n = mentions[topic.id] ?? 0;
       const share = total > 0 ? n / total : 0;
       const research = topic.direction;
-      const stories = topic.stories.change;
-      const discussion: Direction =
-        stories === null || Math.round(Math.abs(stories) * 100) < 10 ? "steady" : stories > 0 ? "rising" : "cooling";
-      const rising = research === "rising" || discussion === "rising";
-      const cooling = !rising && (research === "cooling" || discussion === "cooling");
+      const discussion = directionOf(topic.stories.change, 0.1);
+      const researchFirm = topic.hasPapers && mean(topic.paperCounts.slice(-window)) >= HEADLINE_MIN_PAPERS;
+      const discussionFirm =
+        topic.stories.change !== null && mean(topic.stories.values.slice(-2 * window)) >= MAP_MIN_STORIES;
+      const firm = [researchFirm ? research : null, discussionFirm ? discussion : null].filter((d) => d !== null);
+      const up = firm.includes("rising");
+      const down = firm.includes("cooling");
+      const numbers: Numbers =
+        firm.length === 0 ? "thin" : up && down ? "mixed" : up ? "rising" : down ? "cooling" : "flat";
       const loud = share >= STAGE_LOUD;
       const quiet = share < STAGE_QUIET;
+      const LOUD: Record<Numbers, Reading> = {
+        rising: "agree",
+        cooling: "stage-ahead",
+        mixed: "loud-mixed",
+        flat: "loud-flat",
+        thin: "loud-thin",
+      };
       const reading: Reading =
         total === 0
           ? "none"
-          : loud && rising
-            ? "agree"
-            : loud && cooling
-              ? "stage-ahead"
-              : loud
-                ? "loud-flat"
-                : quiet && rising
-                ? "numbers-ahead"
-                : quiet && cooling
-                  ? "quiet"
-                  : "none";
+          : loud
+            ? LOUD[numbers]
+            : quiet && numbers === "rising"
+              ? "numbers-ahead"
+              : quiet && numbers === "cooling"
+                ? "quiet"
+                : "none";
       return {
         topic,
         mentions: n,
         share,
         research,
         discussion,
+        researchFirm,
+        discussionFirm,
         reading,
         points: (c.recap?.points ?? []).filter((p) => p.topic === topic.id),
       };

@@ -13,7 +13,7 @@ import {
   today,
   type Phase,
 } from "@/lib/conferences";
-import { HORIZONS, directionOf, fmtChange, fmtDate, fmtDay, type Direction } from "@/lib/trends";
+import { HEADLINE_MIN_PAPERS, HORIZONS, MAP_MIN_STORIES, directionOf, fmtChange, fmtDate, fmtDay, type Direction } from "@/lib/trends";
 import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
@@ -31,15 +31,17 @@ const HORIZON = "threeMonths" as const;
 
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
 
-function Move({ change, label }: { change: number | null; label: string }) {
-  const tone = directionOf(change, 0.1);
+/** A change with its arrow. A change resting on too few papers or stories is shown grey and says so. */
+function Move({ change, label, firm }: { change: number | null; label: string; firm: boolean }) {
+  const tone = firm ? directionOf(change, 0.1) : "steady";
   return (
-    <span className="change">
+    <span className={firm ? "change" : "change change--thin"}>
       <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
-        {ARROW[tone]}
+        {firm ? ARROW[tone] : "○"}
       </span>
       <span className="vh">{label} </span>
       {fmtChange(change)}
+      {!firm && <span className="stage__thin"> small numbers</span>}
     </span>
   );
 }
@@ -108,11 +110,11 @@ function Stage({ c }: { c: Conference }) {
             </div>
             <div className="stage__move">
               <span className="stage__label">Research</span>
-              {r.topic.hasPapers ? <Move change={r.topic.papers.change} label="Research" /> : <span className="stage__none">not collected</span>}
+              {r.topic.hasPapers ? <Move change={r.topic.papers.change} label="Research" firm={r.researchFirm} /> : <span className="stage__none">not collected</span>}
             </div>
             <div className="stage__move">
               <span className="stage__label">Discussion</span>
-              <Move change={r.topic.stories.change} label="Discussion" />
+              <Move change={r.topic.stories.change} label="Discussion" firm={r.discussionFirm} />
             </div>
             <p className={`stage__reading stage__reading--${r.reading}`}>{READING_LABEL[r.reading]}</p>
             {r.points.length > 0 && (
@@ -380,10 +382,15 @@ export function Conferences() {
             </p>
             <p>
               <strong>The reading</strong> is a rule, not a judgement. A topic with {Math.round(STAGE_LOUD * 100)}% or
-              more of the mentions is loud; one under {Math.round(STAGE_QUIET * 100)}% is quiet. Loud and rising in
-              research or discussion: the event and the numbers agree. Loud while neither is rising and one is cooling:
-              louder here than in the numbers. Loud while both are flat: loud here, flat in the numbers. Quiet while rising: rising, but little heard here. The trend side uses the
-              three-month view, so it changes as new weeks are counted.
+              more of the mentions is loud; one under {Math.round(STAGE_QUIET * 100)}% is quiet. A change in research
+              counts only for a topic averaging at least {HEADLINE_MIN_PAPERS} papers a week, and a change in
+              discussion only at {MAP_MIN_STORIES} stories a week, the same minimums the front page uses; a
+              smaller count is shown with a hollow mark and “small numbers”, and never decides the reading. Loud
+              and rising on a count that is large enough, with none cooling: the event and the numbers agree. Loud
+              while one is cooling and none rising: louder here than in the numbers. Loud while one rises and the
+              other cools: mixed. Loud while both are flat: loud here, flat in the numbers. Loud while neither
+              count is large enough: too few to call. Quiet while rising: rising, but little heard here. The trend
+              side uses the three-month view, so it changes as new weeks are counted.
             </p>
           </div>
         </section>

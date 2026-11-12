@@ -1884,6 +1884,27 @@ code {
   color: var(--color-muted);
 }
 
+.stage__thin {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* The note drops under the figure, so the column keeps its width. */
+.change--thin {
+  flex-wrap: wrap;
+  color: var(--color-muted);
+}
+
+.change--thin .stage__thin {
+  flex-basis: 100%;
+}
+
+/* On a narrow screen the figure and its note go under the label. */
+.stage__move:has(.change--thin) {
+  flex-wrap: wrap;
+}
+
 .stage__reading {
   grid-column: 1 / -1;
   font-size: var(--text-sm);
