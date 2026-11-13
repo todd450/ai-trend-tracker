@@ -214,6 +214,9 @@ const dayMonth = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "shor
 const fullDate = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 
+const dayTime = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
+/** "12 Nov, 09:30", in UTC. */
+export const fmtDayTime = (iso: string) => dayTime.format(new Date(iso));
 export const fmtDay = (iso: string) => dayMonth.format(new Date(iso));
 export const fmtDate = (iso: string) => fullDate.format(new Date(iso));
 export const fmtCompact = (n: number) => (n < 10_000 ? n.toLocaleString("en") : compact.format(n));

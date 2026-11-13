@@ -188,8 +188,8 @@ const hnAiCount = async (weekStart: string) => (await hnWeek(weekStart, "AI", 0)
 
 const HN_NEWS_QUERIES = ["AI", "LLM", "OpenAI", "Anthropic", "Claude", "GPT", "Gemini", "DeepMind", "agents", "neural"];
 
-async function hnTopStories(): Promise<Latest["stories"]> {
-  const since = Math.floor((Date.now() - 7 * DAY) / 1000);
+/** The most upvoted AI stories newer than `since`, with at least `minPoints`, best first. */
+async function hnStories(since: number, minPoints: number, limit: number): Promise<Latest["stories"]> {
   const seen = new Map<string, HnHit>();
   for (const query of HN_NEWS_QUERIES) {
     const data = await getJson<HnResponse>(
@@ -198,7 +198,7 @@ async function hnTopStories(): Promise<Latest["stories"]> {
         restrictSearchableAttributes: "title",
         typoTolerance: "false",
         queryType: "prefixNone", // otherwise "AI" also matches "Airplanes"
-        numericFilters: `created_at_i>=${since},points>=100`,
+        numericFilters: `created_at_i>=${Math.floor(since / 1000)},points>=${minPoints}`,
         hitsPerPage: "40",
       }),
     );
@@ -213,7 +213,7 @@ async function hnTopStories(): Promise<Latest["stories"]> {
       const key = h.title.trim().toLowerCase();
       return titles.has(key) ? false : (titles.add(key), true);
     })
-    .slice(0, 20)
+    .slice(0, limit)
     .map((h) => ({
       id: h.objectID,
       title: h.title,
@@ -224,6 +224,14 @@ async function hnTopStories(): Promise<Latest["stories"]> {
       createdAt: h.created_at,
     }));
 }
+
+const hnTopStories = () => hnStories(Date.now() - 7 * DAY, 100, 20);
+
+/**
+ * The past day's AI stories, for "Today's AI news". The bar is far lower than the week's list,
+ * because a story a few hours old has not had time to collect points.
+ */
+const hnTodayStories = () => hnStories(Date.now() - DAY, 20, 12);
 
 // ---------------------------------------------------------------- GitHub
 
@@ -986,10 +994,10 @@ async function main() {
   const status: Record<string, SourceStatus> = { ...(previous?.sources ?? {}) };
 
   /** Runs one list collector; on failure keeps the previously saved list. */
-  async function list<K extends "papers" | "repos" | "models" | "releases" | "stories">(
+  async function list<K extends "papers" | "repos" | "models" | "releases" | "stories" | "today">(
     key: K,
-    collect: () => Promise<Latest[K]>,
-  ): Promise<Latest[K]> {
+    collect: () => Promise<NonNullable<Latest[K]>>,
+  ): Promise<NonNullable<Latest[K]>> {
     try {
       const items = await collect();
       if (items.length === 0) throw new Error("source returned no items");
@@ -999,7 +1007,7 @@ async function main() {
     } catch (err) {
       status[key] = { ok: false, at: status[key]?.at ?? "", error: (err as Error).message };
       console.warn(`  ! ${key} failed: ${(err as Error).message}`);
-      return (previous?.[key] ?? []) as Latest[K];
+      return (previous?.[key] ?? []) as NonNullable<Latest[K]>;
     }
   }
 
@@ -1021,6 +1029,7 @@ async function main() {
     models: await list("models", hfTrendingModels),
     releases: await list("releases", hfLabReleases),
     stories: await list("stories", hnTopStories),
+    today: await list("today", hnTodayStories),
     repos: await list("repos", githubRisingRepos),
     analysis: await feedList("analysis", ANALYST_SOURCES, 2),
     labNews: await feedList("labNews", LAB_SOURCES, 4),

@@ -53,6 +53,11 @@ export type Latest = {
     comments: number;
     createdAt: string;
   }[];
+  /**
+   * AI stories on Hacker News from the 24 hours before `generatedAt`, most upvoted first.
+   * Missing from files written before the "Today's AI news" section existed.
+   */
+  today?: Latest["stories"];
   repos: {
     name: string;
     url: string;
