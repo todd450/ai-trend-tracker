@@ -767,7 +767,6 @@ code {
 }
 
 .band__head p {
-  max-width: 80ch;
   font-size: var(--text-sm);
   color: var(--color-muted);
 }
@@ -827,12 +826,11 @@ code {
   }
 
   /* Beside the title the summary takes the rest of the row, so it only wraps
-     when the row is really out of room, and then into even lines. */
+     when the row is really out of room. */
   .chapter__dek {
     flex: 1 1 0;
     min-width: 20ch;
-    max-width: none;
-    text-wrap: balance;
+    text-wrap: pretty;
   }
 }
 
@@ -852,7 +850,6 @@ code {
 }
 
 .chapter__dek {
-  max-width: 62ch;
   color: var(--color-ink-2);
 }
 
