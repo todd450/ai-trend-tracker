@@ -81,7 +81,7 @@ export function Bar({
   const held = heldBack(signal, band);
   const width = `${(Math.min(Math.abs(change), extent) / extent) * 50}%`;
   return (
-    <div className={`mom__signal${firm ? "" : " mom__signal--soft"}${held ? " mom__signal--held" : ""}`} title={held ? `${tip} (within its usual swing, so not called)` : tip}>
+    <div className={`mom__signal mom__signal--${tone}${firm ? "" : " mom__signal--soft"}${held ? " mom__signal--held" : ""}`} title={held ? `${tip} (within its usual swing, so not called)` : tip}>
       <span className="mom__label">{label}</span>
       <Spark values={signal.values} tone={tone} />
       <span className={`mom__track${signal.change === null && note ? " mom__track--note" : ""}`} aria-hidden={signal.change === null && note ? undefined : true}>
@@ -92,7 +92,7 @@ export function Bar({
             style={{
               ...(change > 0 ? { left: "50%", width } : { right: "50%", width }),
               // Square root, so a series a tenth the size still gets a bar a third as thick, not a hairline.
-              height: `${0.1875 + 0.5625 * Math.sqrt(Math.min(1, Math.max(0, weight)))}rem`,
+              height: `${0.25 + 0.625 * Math.sqrt(Math.min(1, Math.max(0, weight)))}rem`,
             }}
           />
         )}
