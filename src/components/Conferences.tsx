@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { NEW_TAB } from "@/lib/links";
 import {
   READING_LABEL,
   STAGE_LOUD,
@@ -127,7 +128,7 @@ function Stage({ c }: { c: Conference }) {
                         {" "}
                         {p.who}
                         {p.who && p.at && ", "}
-                        {p.at && <a href={p.at.url}>{p.at.label}</a>}
+                        {p.at && <a href={p.at.url} {...NEW_TAB}>{p.at.label}</a>}
                       </span>
                     )}
                   </li>
@@ -297,7 +298,7 @@ export function Conferences() {
                           {c.videos.map((v, i) => (
                             <span key={v.url}>
                               {i > 0 && " · "}
-                              <a href={v.url}>{v.title}</a>
+                              <a href={v.url} {...NEW_TAB}>{v.title}</a>
                             </span>
                           ))}
                         </p>
@@ -415,7 +416,7 @@ function Entry({ c }: { c: Conference }) {
       <p className="cal__dates">{fmtSpan(c.start, c.end)}</p>
       <div className="cal__body">
         <h4>
-          <a href={c.url}>{c.name}</a>
+          <a href={c.url} {...NEW_TAB}>{c.name}</a>
         </h4>
         <p className="cal__where">
           {c.place} · {c.host} · {c.kind === "research" ? "Research meeting" : "Industry event"}
@@ -433,7 +434,7 @@ function Entry({ c }: { c: Conference }) {
         {!hasReading && phase !== "upcoming" && c.recordings && (
           <>
             {" · "}
-            <a href={c.recordings}>Recordings</a>
+            <a href={c.recordings} {...NEW_TAB}>Recordings</a>
           </>
         )}
       </p>

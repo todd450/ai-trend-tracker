@@ -8,6 +8,7 @@ import { Sparkline } from "@/components/Sparkline";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
 import { buildToday } from "@/lib/today";
+import { NEW_TAB } from "@/lib/links";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
@@ -325,13 +326,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {today.items.map((item) => (
                 <li key={item.url}>
                   <span className="ledger__main">
-                    <a href={item.url} title={item.title}>{item.title}</a>
+                    <a href={item.url} title={item.title} {...NEW_TAB}>{item.title}</a>
                   </span>
                   <span className="ledger__data">
                     <span className="ledger__cell--start">{item.from}</span>
                     <span>
                       {item.discussion && (
-                        <a href={item.discussion.url}>
+                        <a href={item.discussion.url} {...NEW_TAB}>
                           {fmtCompact(item.discussion.points)}
                           <span className="ledger__unit"> points</span>
                         </a>
@@ -615,7 +616,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </div>
                 <p className="trend__context">
                   {jobs.signal.prior.toFixed(1)}% a year earlier ·{" "}
-                  <a href="https://github.com/hiring-lab/ai-tracker">Indeed Hiring Lab</a>
+                  <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>
                 </p>
               </li>
             )}
@@ -643,7 +644,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </div>
                 <p className="trend__context">
                   {federal.signal.prior} a year earlier, in {fmtMonth(federal.latestMonth)} ·{" "}
-                  <a href="https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22artificial+intelligence%22">
+                  <a href="https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22artificial+intelligence%22" {...NEW_TAB}>
                     Federal Register
                   </a>
                 </p>
@@ -717,7 +718,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     {releases.shown.map((r) => (
                       <tr key={r.url}>
                         <th scope="row">
-                          <a href={r.url}>{r.model}</a>
+                          <a href={r.url} {...NEW_TAB}>{r.model}</a>
                         </th>
                         <td>{r.lab}</td>
                         <td>{fmtDate(r.date)}</td>
@@ -774,7 +775,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                   <p className="trend__context">
                     {row.signal.change !== null && `${row.signal.prior.toFixed(1)}% over the ${ADOPTION_WINDOW} surveys before · `}
                     {row.latest.toFixed(1)}% in the latest ·{" "}
-                    <a href="https://www.census.gov/hfp/btos/data_downloads">Census Bureau</a>
+                    <a href="https://www.census.gov/hfp/btos/data_downloads" {...NEW_TAB}>Census Bureau</a>
                   </p>
                 </li>
               ))}
@@ -939,9 +940,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <p className="trend__context">
               Other makers together: {marketShare.otherShare.toFixed(1)}% in the latest week ·{" "}
               {WINDOW === 1 ? "latest week compared with the week before" : `last ${WINDOW} weeks compared with the ${WINDOW} before`} ·
-              Source: <a href="https://openrouter.ai/rankings">OpenRouter (openrouter.ai/rankings)</a>, as of{" "}
+              Source: <a href="https://openrouter.ai/rankings" {...NEW_TAB}>OpenRouter (openrouter.ai/rankings)</a>, as of{" "}
               {fmtDate(indicators.updatedAt)}, licensed{" "}
-              <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+              <a href="https://creativecommons.org/licenses/by/4.0/" {...NEW_TAB}>CC BY 4.0</a>.
             </p>
 
             <details className="table-view">
@@ -993,7 +994,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               labelledBy="news-h"
               count={stories.length}
               more={
-                <a className="more" href="https://hn.algolia.com/?dateRange=pastWeek&query=AI&sort=byPopularity&type=story">
+                <a className="more" href="https://hn.algolia.com/?dateRange=pastWeek&query=AI&sort=byPopularity&type=story" {...NEW_TAB}>
                   More on Hacker News →
                 </a>
               }
@@ -1005,13 +1006,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {stories.map((s) => (
                 <li key={s.id}>
                   <span className="ledger__main">
-                    <a href={s.url} title={s.title}>{s.title}</a>
+                    <a href={s.url} title={s.title} {...NEW_TAB}>{s.title}</a>
                     <span className="ledger__note">{host(s.url)}</span>
                   </span>
                   <span className="ledger__data">
                     <Mag value={s.points} max={top(stories.map((x) => x.points))} unit="points" />
                     <span>
-                      <a href={s.discussionUrl}>
+                      <a href={s.discussionUrl} {...NEW_TAB}>
                         {fmtCompact(s.comments)}
                         <span className="ledger__unit"> comments</span>
                       </a>
@@ -1035,7 +1036,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               count={papers.length}
               kind="paper"
               more={
-                <a className="more" href="https://huggingface.co/papers">
+                <a className="more" href="https://huggingface.co/papers" {...NEW_TAB}>
                   More papers →
                 </a>
               }
@@ -1047,12 +1048,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {papers.map((p) => (
                 <li key={p.id}>
                   <span className="ledger__main">
-                    <a href={p.url} title={p.title}>{p.title}</a>
+                    <a href={p.url} title={p.title} {...NEW_TAB}>{p.title}</a>
                   </span>
                   <span className="ledger__data">
                     <Mag value={p.upvotes} max={top(papers.map((x) => x.upvotes))} unit="upvotes" />
                     <span className="ledger__extra">{fmtDay(p.publishedAt)}</span>
-                    <span>{p.codeUrl && <a href={p.codeUrl}>code</a>}</span>
+                    <span>{p.codeUrl && <a href={p.codeUrl} {...NEW_TAB}>code</a>}</span>
                   </span>
                 </li>
               ))}
@@ -1082,7 +1083,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {analysis.map((a) => (
                 <li key={a.url}>
                   <span className="ledger__main">
-                    <a href={a.url} title={a.title}>{a.title}</a>
+                    <a href={a.url} title={a.title} {...NEW_TAB}>{a.title}</a>
                   </span>
                   <span className="ledger__data">
                     <span className="ledger__cell--start">{a.source}</span>
@@ -1111,7 +1112,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {labNews.map((a) => (
                 <li key={a.url}>
                   <span className="ledger__main">
-                    <a href={a.url} title={a.title}>{a.title}</a>
+                    <a href={a.url} title={a.title} {...NEW_TAB}>{a.title}</a>
                   </span>
                   <span className="ledger__data">
                     <span className="ledger__cell--start">{a.source}</span>
@@ -1135,7 +1136,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             count={repos.length}
             kind="thing"
             more={
-              <a className="more" href="https://github.com/trending">
+              <a className="more" href="https://github.com/trending" {...NEW_TAB}>
                 More on GitHub →
               </a>
             }
@@ -1149,7 +1150,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             {repos.map((r) => (
               <li key={r.name}>
                 <span className="ledger__main">
-                  <a href={r.url} title={r.name}>{r.name}</a>
+                  <a href={r.url} title={r.name} {...NEW_TAB}>{r.name}</a>
                   {r.description && <span className="ledger__note" title={r.description}>{r.description}</span>}
                 </span>
                 <span className="ledger__data">
@@ -1182,7 +1183,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               count={models.length}
               kind="thing"
               more={
-                <a className="more" href="https://huggingface.co/models?sort=trending">
+                <a className="more" href="https://huggingface.co/models?sort=trending" {...NEW_TAB}>
                   More models →
                 </a>
               }
@@ -1194,7 +1195,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {models.map((m) => (
                 <li key={m.id}>
                   <span className="ledger__main">
-                    <a href={m.url} title={m.id}>{m.id}</a>
+                    <a href={m.url} title={m.id} {...NEW_TAB}>{m.id}</a>
                     {m.task && <span className="ledger__note">{task(m.task)}</span>}
                   </span>
                   <span className="ledger__data">
@@ -1228,7 +1229,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {labModels.map((m) => (
                 <li key={m.id}>
                   <span className="ledger__main">
-                    <a href={m.url} title={m.id}>{m.id}</a>
+                    <a href={m.url} title={m.id} {...NEW_TAB}>{m.id}</a>
                     {m.task && <span className="ledger__note">{task(m.task)}</span>}
                   </span>
                   <span className="ledger__data">
