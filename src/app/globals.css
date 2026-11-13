@@ -373,7 +373,7 @@ code {
 /* Wide screens: headline beside the intro, then the five numbers as one row of columns. */
 @media (min-width: 60rem) {
   .lede__main {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
     column-gap: var(--space-2xl);
     align-items: end;
   }
