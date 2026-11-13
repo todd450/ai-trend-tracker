@@ -5,7 +5,6 @@ import { MoreRows } from "@/components/MoreRows";
 import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
-import { Sparkline } from "@/components/Sparkline";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
 import { buildToday } from "@/lib/today";
@@ -17,8 +16,6 @@ import {
   SUBTHEME_MIN_STORIES,
   THEME_STEADY_BAND,
   buildTrends,
-  directionOf,
-  fmtChange,
   fmtCompact,
   fmtDate,
   fmtDay,
@@ -36,7 +33,6 @@ import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, buildMarket
 
 const SHOWN = 10;
 
-const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
 
 const SOURCE_LABELS: Record<string, string> = {
   arxivHistory: "arXiv weekly paper counts",
@@ -64,26 +60,12 @@ const THEME_GROUPS: { direction: Direction; title: string }[] = [
   { direction: "cooling", title: "Cooling" },
 ];
 
-const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
-
 function host(url: string) {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
   } catch {
     return "";
   }
-}
-
-function Change({ signal, band }: { signal: Signal; band?: number }) {
-  const tone = toneOf(signal, band);
-  return (
-    <span className="change">
-      <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
-        {ARROW[tone]}
-      </span>
-      {fmtChange(signal.change)}
-    </span>
-  );
 }
 
 /** A weekly story count, shown short and read out in full. */
@@ -194,6 +176,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
     : [];
   const usage = usageSummary;
   const marketShare = buildMarketShare(horizon);
+
+  /** One bar scale per list, set by its largest change. */
+  const indicatorExtent = extentOf([jobs, federal, releases].map((x) => x?.signal.change ?? null));
+  const adoptionExtent = extentOf(adoptionRows.map((row) => row.signal.change));
+  const usageExtent = extentOf((usage?.toolkits ?? []).map((t) => t.share.change));
+  const marketExtent = extentOf((marketShare?.makers ?? []).map((m) => m.share.change));
 
   const today = buildToday();
   const stories = latest.stories.slice(0, SHOWN);
@@ -548,31 +536,27 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <div className="trend-cols trend-cols--plain" aria-hidden="true">
             <span>Indicator</span>
-            <span>Trend <i>change and latest reading</i></span>
+            <span>Change <i>and latest reading</i></span>
             <span>Compared with</span>
           </div>
-          <ol className="trends">
+          <ol className="mom__list">
             {jobs && (
-              <li className="trend trend--plain">
-                <div className="trend__topic">
+              <li className="mom__row mom__row--plain">
+                <div className="mom__topic">
                   <h3>AI share of US job postings</h3>
-                  <p>
+                  <p className="mom__blurb">
                     Postings on Indeed that ask for AI skills, as of {fmtDate(jobs.asOf)}. The data is refreshed
                     monthly.
                   </p>
                 </div>
-                <div className="trend__signal">
-                  <span className="trend__label">Trend</span>
-                  <Sparkline
-                    values={jobs.signal.values}
-                    labels={jobs.labels}
-                    unit="postings"
-                    tone={toneOf(jobs.signal)}
-                    summary={`Share of US job postings on Indeed mentioning AI skills, monthly for a year: now ${jobs.signal.recent.toFixed(1)}%, ${fmtChange(jobs.signal.change)} on a year earlier`}
-                  />
-                  <Change signal={jobs.signal} />
-                  <span className="trend__level">{jobs.signal.recent.toFixed(1)}%</span>
-                </div>
+                <Bar
+                  signal={jobs.signal}
+                  extent={indicatorExtent}
+                  firm
+                  label="Change"
+                  tip={`Share of US job postings on Indeed asking for AI skills: ${jobs.signal.recent.toFixed(1)}%, was ${jobs.signal.prior.toFixed(1)}% a year earlier`}
+                  level={<>{jobs.signal.recent.toFixed(1)}%</>}
+                />
                 <p className="trend__context">
                   {jobs.signal.prior.toFixed(1)}% a year earlier ·{" "}
                   Source: <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>, each
@@ -583,26 +567,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             )}
 
             {federal && (
-              <li className="trend trend--plain">
-                <div className="trend__topic">
+              <li className="mom__row mom__row--plain">
+                <div className="mom__topic">
                   <h3>US federal documents mentioning AI</h3>
-                  <p>
+                  <p className="mom__blurb">
                     Rules, proposed rules and notices whose text includes “artificial intelligence”. A mention can be
                     brief, so this shows attention, not regulation.
                   </p>
                 </div>
-                <div className="trend__signal">
-                  <span className="trend__label">Trend</span>
-                  <Sparkline
-                    values={federal.signal.values}
-                    labels={federal.labels}
-                    unit="documents"
-                    tone={toneOf(federal.signal)}
-                    summary={`Federal Register documents mentioning artificial intelligence, monthly for a year: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, ${fmtChange(federal.signal.change)} on a year earlier`}
-                  />
-                  <Change signal={federal.signal} />
-                  <span className="trend__level">{federal.signal.recent}</span>
-                </div>
+                <Bar
+                  signal={federal.signal}
+                  extent={indicatorExtent}
+                  firm
+                  label="Change"
+                  tip={`Federal Register documents mentioning artificial intelligence: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, was ${federal.signal.prior} a year earlier`}
+                  level={<>{federal.signal.recent}</>}
+                />
                 <p className="trend__context">
                   {federal.signal.prior} a year earlier, in {fmtMonth(federal.latestMonth)} ·{" "}
                   <a href="https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22artificial+intelligence%22" {...NEW_TAB}>
@@ -613,26 +593,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             )}
 
             {releases && (
-              <li className="trend trend--plain">
-                <div className="trend__topic">
+              <li className="mom__row mom__row--plain">
+                <div className="mom__topic">
                   <h3>Frontier model releases</h3>
-                  <p>
+                  <p className="mom__blurb">
                     New version numbers from Anthropic, Google DeepMind and OpenAI in the last 90 days. Latest:{" "}
                     {releases.shown.slice(0, 3).map((r) => `${r.model} (${fmtDay(r.date)})`).join(", ")}.
                   </p>
                 </div>
-                <div className="trend__signal">
-                  <span className="trend__label">Trend</span>
-                  <Sparkline
-                    values={releases.signal.values}
-                    labels={releases.labels}
-                    unit="releases"
-                    tone={toneOf(releases.signal)}
-                    summary={`New model versions from Anthropic, Google DeepMind and OpenAI per 30 days over six periods: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
-                  />
-                  <Change signal={releases.signal} />
-                  <span className="trend__level">{releases.signal.recent}</span>
-                </div>
+                <Bar
+                  signal={releases.signal}
+                  extent={indicatorExtent}
+                  firm
+                  label="Change"
+                  tip={`New model versions from Anthropic, Google DeepMind and OpenAI: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
+                  level={<>{releases.signal.recent}</>}
+                />
                 <p className="trend__context">{releases.signal.prior} in the 90 days before</p>
               </li>
             )}
@@ -705,34 +681,25 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
             <div className="trend-cols trend-cols--plain" aria-hidden="true">
               <span>Measure</span>
-              <span>Trend <i>change and recent average</i></span>
+              <span>Change <i>and recent average</i></span>
               <span>Compared with</span>
             </div>
-            <ol className="trends">
+            <ol className="mom__list">
               {adoptionRows.map((row) => (
-                <li key={row.id} className="trend trend--plain">
-                  <div className="trend__topic">
+                <li key={row.id} className="mom__row mom__row--plain">
+                  <div className="mom__topic">
                     <h3>{row.name}</h3>
-                    <p>{row.blurb}</p>
+                    <p className="mom__blurb">{row.blurb}</p>
                   </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Trend</span>
-                    <Sparkline
-                      values={row.signal.values}
-                      labels={adoption.labels}
-                      unit="businesses"
-                      tone={toneOf(row.signal)}
-                      summary={`${row.name}: share of businesses saying yes, every two weeks over ${adoption.labels.length} surveys, ${row.latest.toFixed(1)}% in the latest${row.signal.change === null ? "" : `, with the last ${ADOPTION_WINDOW} surveys ${fmtChange(row.signal.change)} on the ${ADOPTION_WINDOW} before`}`}
-                    />
-                    {row.signal.change === null ? (
-                      <span className="trend__few">too little history</span>
-                    ) : (
-                      <Change signal={row.signal} />
-                    )}
-                    <span className="trend__level">
-                      {row.signal.recent.toFixed(1)}%<span className="vh"> of businesses, average of the last {ADOPTION_WINDOW} surveys</span>
-                    </span>
-                  </div>
+                  <Bar
+                    signal={row.signal}
+                    extent={adoptionExtent}
+                    firm
+                    label="Change"
+                    note="too little history"
+                    tip={`${row.name}: ${row.signal.recent.toFixed(1)}% of businesses over the last ${ADOPTION_WINDOW} surveys${row.signal.change === null ? "" : `, was ${row.signal.prior.toFixed(1)}% over the ${ADOPTION_WINDOW} before`}`}
+                    level={<>{row.signal.recent.toFixed(1)}%<span className="vh"> of businesses, average of the last {ADOPTION_WINDOW} surveys</span></>}
+                  />
                   <p className="trend__context">
                     {row.signal.change !== null && `${row.signal.prior.toFixed(1)}% over the ${ADOPTION_WINDOW} surveys before · `}
                     {row.latest.toFixed(1)}% in the latest ·{" "}
@@ -789,29 +756,20 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </div>
             <MoreRows count={usage.toolkits.length} noun="toolkits">
               {usage.toolkits.map((t) => (
-                <li key={t.id} className="trend trend--plain">
-                  <div className="trend__topic">
+                <li key={t.id} className="mom__row mom__row--plain">
+                  <div className="mom__topic">
                     <h3>{t.name}</h3>
-                    <p>{t.blurb}.</p>
+                    <p className="mom__blurb">{t.blurb}.</p>
                   </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Share</span>
-                    <Sparkline
-                      values={t.share.values}
-                      labels={usage.labels}
-                      unit="downloadShare"
-                      tone={toneOf(t.share)}
-                      summary={`${t.name}: share of tracked toolkit downloads, monthly over ${usage.labels.length} months, ${t.share.recent.toFixed(1)}% over the last ${USAGE_WINDOW}${t.share.change === null ? "" : `, ${fmtChange(t.share.change)} on the ${USAGE_WINDOW} before`}`}
-                    />
-                    {t.share.change === null ? (
-                      <span className="trend__few">too little history</span>
-                    ) : (
-                      <Change signal={t.share} />
-                    )}
-                    <span className="trend__level">
-                      {t.share.recent.toFixed(1)}%<span className="vh"> of downloads</span>
-                    </span>
-                  </div>
+                  <Bar
+                    signal={t.share}
+                    extent={usageExtent}
+                    firm
+                    label="Share"
+                    note="too little history"
+                    tip={`${t.name}: ${t.share.recent.toFixed(1)}% of tracked toolkit downloads over the last ${USAGE_WINDOW} months${t.share.change === null ? "" : `, was ${t.share.prior.toFixed(1)}% over the ${USAGE_WINDOW} before`}`}
+                    level={<>{t.share.recent.toFixed(1)}%<span className="vh"> of downloads</span></>}
+                  />
                   <p className="trend__context">
                     {fmtCompact(t.downloads)} in {fmtMonth(usage.latestMonth)} ·{" "}
                     {t.kind === "lab" ? "lab toolkit" : "building tool"}
@@ -872,28 +830,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </div>
             <MoreRows count={marketShare.makers.length} noun="model makers">
               {marketShare.makers.map((m) => (
-                <li key={m.id} className="trend trend--plain">
-                  <div className="trend__topic">
+                <li key={m.id} className="mom__row mom__row--plain">
+                  <div className="mom__topic">
                     <h3>{m.name}</h3>
                   </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Share</span>
-                    <Sparkline
-                      values={m.share.values}
-                      labels={m.labels}
-                      unit="tokenShare"
-                      tone={toneOf(m.share)}
-                      summary={`${m.name}: share of tokens on OpenRouter, weekly over ${m.labels.length} weeks, now ${m.share.recent.toFixed(1)}%${m.share.change === null ? "" : `, ${fmtChange(m.share.change)}`}`}
-                    />
-                    {m.share.change === null ? (
-                      <span className="trend__few">not always in the top nine</span>
-                    ) : (
-                      <Change signal={m.share} />
-                    )}
-                    <span className="trend__level">
-                      {m.share.recent.toFixed(1)}%<span className="vh"> of tokens</span>
-                    </span>
-                  </div>
+                  <Bar
+                    signal={m.share}
+                    extent={marketExtent}
+                    firm
+                    label="Share"
+                    note="not always in the top nine"
+                    tip={`${m.name}: ${m.share.recent.toFixed(1)}% of tokens on OpenRouter${m.share.change === null ? "" : `, was ${m.share.prior.toFixed(1)}%`}`}
+                    level={<>{m.share.recent.toFixed(1)}%<span className="vh"> of tokens</span></>}
+                  />
                   <p className="trend__context">{fmtCompact(m.tokens)} in the latest week</p>
                 </li>
               ))}

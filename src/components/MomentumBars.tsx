@@ -38,6 +38,7 @@ export function Bar({
   level,
   tip,
   band = 0.1,
+  note,
 }: {
   signal: Signal;
   extent: number;
@@ -47,6 +48,8 @@ export function Bar({
   tip: string;
   /** A change smaller than this is drawn as steady. */
   band?: number;
+  /** Shown in place of the bar when there is no change to draw. */
+  note?: string;
 }) {
   const change = signal.change ?? 0;
   const tone = directionOf(signal.change, band);
@@ -54,7 +57,8 @@ export function Bar({
   return (
     <div className={`mom__signal${firm ? "" : " mom__signal--soft"}`} title={tip}>
       <span className="mom__label">{label}</span>
-      <span className="mom__track" aria-hidden="true">
+      <span className={`mom__track${signal.change === null && note ? " mom__track--note" : ""}`} aria-hidden={signal.change === null && note ? undefined : true}>
+        {signal.change === null && note}
         {signal.change !== null && change !== 0 && (
           <span
             className={`mom__bar mom__bar--${tone}`}
@@ -63,7 +67,7 @@ export function Bar({
         )}
       </span>
       <span className="mom__change">
-        {fmtChange(signal.change)}
+        {signal.change === null && note ? "" : fmtChange(signal.change)}
         {!firm && <span className="vh"> (small numbers)</span>}
       </span>
       <span className="mom__level">{level}</span>

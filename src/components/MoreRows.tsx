@@ -10,7 +10,7 @@ export function MoreRows({ count, noun, children }: { count: number; noun: strin
   const [open, setOpen] = useState(false);
   return (
     <>
-      <ol className="trends" data-open={open}>
+      <ol className="mom__list" data-open={open}>
         {children}
       </ol>
       {count > 5 && (
