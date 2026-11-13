@@ -1101,7 +1101,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="announcements" className="band" aria-labelledby="announcements-h">
             <div className="band__head">
-              <p className="band__source">Lab blogs</p>
               <h2 id="announcements-h">Lab announcements</h2>
               <p>
                 The latest posts from the labs themselves, including closed-model releases: Anthropic, OpenAI,

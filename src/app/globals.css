@@ -914,6 +914,14 @@ code {
   color: var(--color-accent);
 }
 
+/* Side by side, a list without that line keeps its row empty, so both titles sit level. */
+@media (min-width: 60rem) {
+  .pair .band__head:not(:has(.band__source))::before {
+    content: "\00a0";
+    font-size: var(--text-xs);
+  }
+}
+
 /* ---------------------------------------------------- topic momentum */
 
 .vh {
