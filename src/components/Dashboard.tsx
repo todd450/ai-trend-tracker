@@ -4,6 +4,7 @@ import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
 import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
+import { type Product } from "@/lib/products";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { ThemeRow } from "@/components/ThemeRow";
@@ -17,6 +18,7 @@ import {
   HORIZONS,
   MAP_MIN_STORIES,
   SUBTHEME_MIN_STORIES,
+  PRODUCT_MIN_STORIES,
   THEME_STEADY_BAND,
   buildTrends,
   fmtCompact,
@@ -46,6 +48,9 @@ const SOURCE_LABELS: Record<string, string> = {
   releases: "Hugging Face lab uploads",
   stories: "Hacker News top stories",
   today: "Hacker News past-day stories",
+  launches: "Hacker News product launches",
+  hnProducts: "Hacker News product mentions",
+  wikiProducts: "Wikipedia page views",
   repos: "GitHub repository search",
   analysis: "Newsletter and institution feeds",
   labNews: "Lab news pages",
@@ -134,10 +139,16 @@ function Mag({ value, max, unit }: { value: number; max: number; unit: string })
 const top = (xs: number[]) => Math.max(1, ...xs);
 const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
 
+const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
+  { kind: "assistant", title: "Assistants" },
+  { kind: "coding", title: "Coding tools and agents" },
+  { kind: "media", title: "Image, video and voice" },
+];
+
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
-  const { window: WINDOW, weeks, topicTrends, rankedTopics, themeTrends, hasHistory, hasThemes } = trends;
+  const { window: WINDOW, weeks, topicTrends, rankedTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = trends;
   const { headline, lead, briefing } = buildBriefing(trends);
   const compared =
     WINDOW === 1
@@ -186,6 +197,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const usageExtent = extentOf((usage?.toolkits ?? []).map((t) => t.share.change));
   const marketExtent = extentOf((marketShare?.makers ?? []).map((m) => m.share.change));
 
+  /** Products in their groups, numbered down the page; within a group, most discussed first. */
+  const productRows = PRODUCT_GROUPS.flatMap((group) => productTrends.filter((p) => p.kind === group.kind)).map(
+    (p, i) => ({ p, rank: i + 1 }),
+  );
+  const productStoryExtent = extentOf(productTrends.filter((p) => p.enough).map((p) => p.stories.change));
+  const productViewExtent = extentOf(productTrends.map((p) => p.views?.change ?? null));
+
   const today = buildToday();
   const pinsNow = today.items.filter((item) => item.pinned);
   /**
@@ -202,6 +220,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const stories = visible(latest.stories, editorial).slice(0, SHOWN);
   const papers = visible(latest.papers, editorial).slice(0, SHOWN);
   const repos = visible(latest.repos, editorial).slice(0, SHOWN);
+  const launches = visible(latest.launches ?? [], editorial).slice(0, SHOWN);
   const models = visible(latest.models, editorial).slice(0, SHOWN);
   const labModels = visible(latest.releases, editorial).slice(0, SHOWN);
   const analysis = (latest.analysis ?? []).slice(0, SHOWN);
@@ -237,11 +256,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 { href: "#today", label: "Today" },
                 { href: "#momentum", label: "Topics" },
                 { href: "#themes", label: "Themes" },
+                ...(hasProducts ? [{ href: "#products" as const, label: "Products" }] : []),
                 { href: "#indicators", label: "Indicators" },
                 { href: adoption ? "#adoption" : "#usage", label: "Usage" },
                 { href: "#news", label: "News" },
                 { href: "#papers", label: "Papers" },
                 { href: "#analysis", label: "Analysis" },
+                ...(launches.length ? [{ href: "#launches" as const, label: "Launches" }] : []),
                 { href: "#code", label: "Code" },
                 { href: "#models", label: "Models" },
                 { href: "#method", label: "Method" },
@@ -597,6 +618,92 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         </section>
 
         </section>
+
+        {hasProducts && (
+          <section id="products" className="band" aria-labelledby="products-h">
+            <div className="band__head">
+              <h2 id="products-h">Product momentum</h2>
+              <p>
+                {productTrends.length} AI products people use, measured two ways: stories naming the product on
+                Hacker News, which shows what developers are talking about, and views of its Wikipedia article,
+                which shows how many people are looking it up. Each is the {compared}.
+              </p>
+            </div>
+
+            <div className="mom">
+              <div className="trend-cols" aria-hidden="true">
+                <span>Product</span>
+                <span>Discussion <i>change in Hacker News stories, now</i></span>
+                <span>Public interest <i>change in Wikipedia views, now</i></span>
+              </div>
+              {PRODUCT_GROUPS.map((group) => {
+                const members = productRows.filter(({ p }) => p.kind === group.kind);
+                if (members.length === 0) return null;
+                return (
+                  <section key={group.kind} className="mom__group">
+                    <h3>
+                      {group.title} <span>{members.length}</span>
+                    </h3>
+                    <ol start={members[0].rank}>
+                      {members.map(({ p, rank }) => {
+                        const views = p.views;
+                        return (
+                          <li key={p.id} className="mom__row">
+                            <div className="mom__topic" title={`${p.blurb}. Stories whose title contains: ${p.searches.join(", ")}`}>
+                              <span className="mom__rank">{rank}</span>
+                              <h4>{p.name}</h4>
+                            </div>
+                            <Bar
+                              signal={p.enough ? p.stories : { ...p.stories, change: null }}
+                              extent={productStoryExtent}
+                              firm
+                              band={THEME_STEADY_BAND}
+                              label="Discussion"
+                              note="too few to call"
+                              tip={`${p.name}: ${p.stories.recent.toFixed(1)} Hacker News stories a week, was ${p.stories.prior.toFixed(1)}${p.enough ? "" : " (too few stories to call)"}`}
+                              level={
+                                <>
+                                  {Math.round(p.stories.recent)}
+                                  <span aria-hidden="true">/wk</span>
+                                  <span className="vh"> stories a week</span>
+                                </>
+                              }
+                            />
+                            {views ? (
+                              <Bar
+                                signal={views}
+                                extent={productViewExtent}
+                                firm
+                                label="Interest"
+                                note="new article"
+                                tip={`${p.name}: ${Math.round(views.recent).toLocaleString("en")} Wikipedia views a day, was ${Math.round(views.prior).toLocaleString("en")}`}
+                                level={
+                                  <>
+                                    {fmtCompact(Math.round(views.recent))}
+                                    <span aria-hidden="true">/day</span>
+                                    <span className="vh"> views a day</span>
+                                  </>
+                                }
+                              />
+                            ) : (
+                              <p className="mom__pending">No article of its own</p>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </section>
+                );
+              })}
+              <p className="mom__note">
+                Bars run to ±{Math.round(productStoryExtent * 100)}% for discussion and ±{Math.round(productViewExtent * 100)}%
+                for public interest. A grey bar is a change too small to call, or no bigger than the product’s usual
+                swing from week to week. Discussion is not called for a product with fewer than{" "}
+                {PRODUCT_MIN_STORIES} stories a week.
+              </p>
+            </div>
+          </section>
+        )}
 
         <section className="chapter" aria-labelledby="evidence-h">
           <header className="chapter__head">
@@ -968,7 +1075,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <section className="chapter chapter--reading" aria-labelledby="reading-h">
           <header className="chapter__head">
             <p className="chapter__title" id="reading-h">The reading list</p>
-            <p className="chapter__dek">The stories, papers, essays, code and models behind this week’s numbers.</p>
+            <p className="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
           </header>
 
         <div className="pair">
@@ -1112,6 +1219,55 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </Ledger>
           </section>
         </div>
+
+        {launches.length > 0 && (
+        <section id="launches" className="band" aria-labelledby="launches-h">
+          <div className="band__head">
+            <h2 id="launches-h">Product launches</h2>
+            <p>AI products their makers posted to Hacker News in the past seven days, ranked by points.</p>
+          </div>
+          <Ledger
+            first="Product"
+            labelledBy="launches-h"
+            count={launches.length}
+            kind="thing"
+            more={
+              <a className="more" href="https://news.ycombinator.com/show" {...NEW_TAB}>
+                More on Show HN →
+              </a>
+            }
+            cells={[
+              { head: "Points", width: "7.5rem" },
+              { head: "Comments", width: "4.25rem" },
+              { head: "Posted as", width: "5.5rem", start: true },
+              { head: "Posted", width: "3.25rem" },
+            ]}
+          >
+            {launches.map((l) => (
+              <li key={l.id}>
+                <span className="ledger__main">
+                  <a href={l.url} title={l.title} {...NEW_TAB}>{l.title}</a>
+                  <span className="ledger__note">{host(l.url)}</span>
+                </span>
+                <span className="ledger__data">
+                  <Mag value={l.points} max={top(launches.map((x) => x.points))} unit="points" />
+                  <span>
+                    <a href={l.discussionUrl} {...NEW_TAB}>
+                      {fmtCompact(l.comments)}
+                      <span className="ledger__unit"> comments</span>
+                    </a>
+                  </span>
+                  <span className="ledger__cell--start">{l.kind}</span>
+                  <span>
+                    <span className="ledger__unit">posted </span>
+                    {fmtDay(l.createdAt)}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </Ledger>
+        </section>
+        )}
 
         <section id="code" className="band" aria-labelledby="code-h">
           <div className="band__head">
@@ -1319,6 +1475,21 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 in either half of the comparison is marked “too few to call” instead of rising or cooling.
               </p>
               <p>
+                <strong>Product momentum</strong> follows a fixed list of products chosen by the editor, so a
+                product not on the list cannot appear however fast it grows. Discussion counts Hacker News
+                stories with the product’s name in the title. A name inside a longer name counts for both, so a
+                story about Claude Code also counts for Claude, and a few names (Cursor, Gemini, Sora) are
+                ordinary words that sometimes mean something else. A product averaging fewer than{" "}
+                {PRODUCT_MIN_STORIES} stories a week in either half of the comparison is marked “too few to
+                call”, and discussion is called rising or cooling only on a move of at least{" "}
+                {THEME_STEADY_BAND * 100}%. Image, video and music products are rarely discussed there, so read
+                them by the second measure. Public interest is the daily views of the product’s English
+                Wikipedia article by people, not crawlers, averaged over each week. It shows how many people
+                looked the product up, which rises with news of any kind, good or bad, and is not a count of
+                users. It covers English readers only. A product whose article is part of a larger one has no
+                figure. Neither measure is use or revenue.
+              </p>
+              <p>
                 <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was
                 collected, which happens once a day: posts from the labs named under “Lab announcements”, pieces from the newsletters and
                 institutions, and up to twelve Hacker News stories with an AI term in the title and at least 20
@@ -1409,6 +1580,14 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 takes at most three places in the list, and a smaller lab two.
               </p>
               <p>
+                <strong>Product launches</strong> are the past seven days’ “Show HN” and “Launch HN” posts on
+                Hacker News, where makers present their own work, with an AI term in the title and at least 10
+                points. Launch HN posts come from Y Combinator companies. The list shows what technologists
+                launched and noticed: it leans to developer tools and open-source projects, and a consumer
+                product nobody posted there is missing. A launch that describes an AI product without an AI term
+                in its title is missed too. Points measure the attention of Hacker News readers, not use or sales.
+              </p>
+              <p>
                 <strong>The reading lists</strong> show their first few items; the rest open on request. Where a
                 list is set in columns, the bar beside the figure it is ranked by shows it against the largest in
                 that list.
@@ -1420,7 +1599,7 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
 
       <footer className="colophon">
         <p>
-          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub and Hugging Face, with headlines from publishers’ own feeds. Thank you to
+          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub, Hugging Face and Wikipedia page views, with headlines from publishers’ own feeds. Thank you to
           arXiv for use of its open access interoperability. Counts are keyword matches and should be read as
           indicators, not measurements. Set in Newsreader and Geist. Data last collected{" "}
           {fmtDate(latest.generatedAt)}.

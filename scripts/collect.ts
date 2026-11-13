@@ -21,6 +21,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { inflateRawSync } from "node:zlib";
+import { PRODUCTS } from "../src/lib/products.ts";
 import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
@@ -233,6 +234,106 @@ const hnTopStories = () => hnStories(Date.now() - 7 * DAY, 100, 20);
  * because a story a few hours old has not had time to collect points.
  */
 const hnTodayStories = () => hnStories(Date.now() - DAY, 20, 12);
+
+/**
+ * Title words that mark a launch as an AI product. Wider than the news searches, because a
+ * launch names what the thing does ("for agents", "an MCP for…") more often than it says "AI".
+ */
+const LAUNCH_MENTIONS_AI =
+  /\b(A\.?I|artificial intelligence|LLMs?|chatbots?|ChatGPT|GPT|generative|machine learning|agentic|agents?|MCP|Claude|Codex|Copilot|Gemini|Gemma|Llama|OpenAI|Anthropic|Mistral|DeepSeek|diffusion|neural|transformers?|fine-tun\w+|RAG)\b/;
+const LAUNCH_PREFIX = /^(Show|Launch) HN\s*[:–-]\s*/i;
+const LAUNCH_MIN_POINTS = 10;
+
+/**
+ * The past week's product launches on Hacker News that name AI in the title, most upvoted first.
+ * "Show HN" posts carry their own tag; "Launch HN" posts (Y Combinator companies) are ordinary
+ * stories found by title. Both come from the same search API as the news, so no new site is read.
+ */
+async function hnLaunches(): Promise<NonNullable<Latest["launches"]>> {
+  const window = `created_at_i>=${Math.floor((Date.now() - 7 * DAY) / 1000)},points>=${LAUNCH_MIN_POINTS}`;
+  const show = await getJson<HnResponse>(hnUrl({ tags: "show_hn", numericFilters: window, hitsPerPage: "500" }));
+  await sleep(120);
+  const launch = await getJson<HnResponse>(
+    hnUrl({
+      query: '"Launch HN"',
+      restrictSearchableAttributes: "title",
+      typoTolerance: "false",
+      numericFilters: window,
+      hitsPerPage: "100",
+    }),
+  );
+  const seen = new Map<string, HnHit>();
+  for (const hit of [...show.hits, ...launch.hits]) seen.set(hit.objectID, hit);
+  return [...seen.values()]
+    .filter((h) => LAUNCH_PREFIX.test(h.title) && LAUNCH_MENTIONS_AI.test(h.title.replace(LAUNCH_PREFIX, "")))
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 20)
+    .map((h) => {
+      const discussionUrl = `https://news.ycombinator.com/item?id=${h.objectID}`;
+      return {
+        id: h.objectID,
+        title: h.title.replace(LAUNCH_PREFIX, "").trim(),
+        kind: /^Launch/i.test(h.title) ? ("Launch HN" as const) : ("Show HN" as const),
+        url: h.url ?? discussionUrl, // a Launch HN post has no link of its own; the post is the launch
+        discussionUrl,
+        points: h.points,
+        comments: h.num_comments ?? 0,
+        createdAt: h.created_at,
+      };
+    });
+}
+
+// ------------------------------------------------------------- Wikipedia
+
+/**
+ * Wikimedia allows a script that sends no contact address ten requests a minute, so the
+ * collector sends one every seven seconds. A whole run is about thirty requests.
+ */
+const WIKI_PAUSE = 7000;
+
+type Pageviews = { items?: { timestamp: string; views: number }[] };
+
+/**
+ * Views of a product's English Wikipedia article in each of `weeks`, summed over every title
+ * the article has carried. Counts people only: the API's "user" agent leaves out crawlers.
+ * One request per title covers the whole span. A week is left out when its last day has not
+ * been published yet, so a short week is never stored as a fall.
+ */
+async function wikiWeeklyViews(titles: string[], weeks: string[]): Promise<Record<string, number>> {
+  const day = (iso: string) => iso.replaceAll("-", "");
+  const lastDay = isoDay(new Date(Date.parse(weeks.at(-1)! + "T00:00:00Z") + 6 * DAY));
+  const daily = new Map<string, number>();
+  for (const title of titles) {
+    const url =
+      "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/" +
+      `${encodeURIComponent(title.replaceAll(" ", "_"))}/daily/${day(weeks[0])}/${day(lastDay)}`;
+    let res: Response;
+    for (let attempt = 0; ; attempt++) {
+      res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(30_000) });
+      await sleep(WIKI_PAUSE);
+      if (res.status !== 429 || attempt === 2) break;
+      // Told to slow down: wait as long as asked (five seconds if not said), at most two minutes.
+      await sleep(Math.min(Number(res.headers.get("retry-after")) || 5, 120) * 1000);
+    }
+    if (res.status === 404) {
+      console.log(`  wiki   no views under "${title}"`); // a title not in use for any of the span
+      continue;
+    }
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} for wikimedia.org`);
+    for (const item of ((await res.json()) as Pageviews).items ?? []) {
+      const key = item.timestamp.slice(0, 8);
+      daily.set(key, (daily.get(key) ?? 0) + item.views);
+    }
+  }
+  const out: Record<string, number> = {};
+  for (const week of weeks) {
+    const days = Array.from({ length: 7 }, (_, i) => daily.get(day(isoDay(new Date(Date.parse(week + "T00:00:00Z") + i * DAY)))) ?? 0);
+    const total = days.reduce((a, b) => a + b, 0);
+    if (week === weeks.at(-1) && days[6] === 0 && total >= 6 * 20) continue;
+    out[week] = total;
+  }
+  return out;
+}
 
 // ---------------------------------------------------------------- GitHub
 
@@ -983,6 +1084,38 @@ async function collectHistory(history: History, weeks: string[], status: Record<
     fail("hnThemes", "Hacker News themes", err);
   }
 
+  // The product watchlist: one Hacker News count per product and week, and one Wikipedia
+  // request per article title, which returns the whole year.
+  const products = (history.products ??= {});
+  try {
+    for (const product of PRODUCTS) {
+      const series = ((products[product.id] ??= { hn: {}, wiki: {} }).hn ??= {});
+      for (const week of weeks) {
+        if (needs(series, week)) put(`stories ${product.id}`, "part", series, week, await hnCount(week, product.hn));
+      }
+      await writeJson("history.json", history); // save progress; the first backfill takes several minutes
+      console.log(`  hn     ${product.id}`);
+    }
+    settle("hnProducts");
+  } catch (err) {
+    fail("hnProducts", "Hacker News products", err);
+  }
+
+  try {
+    for (const product of PRODUCTS) {
+      if (product.wiki.length === 0) continue;
+      const series = ((products[product.id] ??= { hn: {}, wiki: {} }).wiki ??= {});
+      const views = await wikiWeeklyViews(product.wiki, weeks);
+      for (const week of weeks) {
+        if (views[week] !== undefined && needs(series, week)) put(`views ${product.id}`, "views", series, week, views[week]);
+      }
+      console.log(`  wiki   ${product.id}`);
+    }
+    settle("wikiProducts");
+  } catch (err) {
+    fail("wikiProducts", "Wikipedia page views", err);
+  }
+
   // arXiv is rate-limited to one request per three seconds; in --fast mode
   // only the newest weeks are refreshed and gaps are left for a full run.
   try {
@@ -1042,7 +1175,7 @@ async function main() {
   const status: Record<string, SourceStatus> = { ...(previous?.sources ?? {}) };
 
   /** Runs one list collector; on failure keeps the previously saved list. */
-  async function list<K extends "papers" | "repos" | "models" | "releases" | "stories" | "today">(
+  async function list<K extends "papers" | "repos" | "models" | "releases" | "stories" | "today" | "launches">(
     key: K,
     collect: () => Promise<NonNullable<Latest[K]>>,
   ): Promise<NonNullable<Latest[K]>> {
@@ -1078,6 +1211,7 @@ async function main() {
     releases: await list("releases", hfLabReleases),
     stories: await list("stories", hnTopStories),
     today: await list("today", hnTodayStories),
+    launches: await list("launches", hnLaunches),
     repos: await list("repos", githubRisingRepos),
     analysis: await feedList("analysis", ANALYST_SOURCES, 2),
     labNews: await feedList("labNews", LAB_SOURCES, 3, LAB_KEEP), // many labs share the list, so each gets fewer places

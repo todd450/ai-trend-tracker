@@ -14,6 +14,11 @@ export type History = {
   themes?: Record<string, WeeklyCounts>;
   /** Distinct Hacker News stories each week matching a sub-theme, keyed by "theme.subtheme". */
   subthemes?: Record<string, WeeklyCounts>;
+  /**
+   * Per product on the watchlist: Hacker News stories each week naming it in the title (`hn`),
+   * and views of its English Wikipedia article each week, people only (`wiki`).
+   */
+  products?: Record<string, { hn: WeeklyCounts; wiki: WeeklyCounts }>;
 };
 
 export type SourceStatus = { ok: boolean; at: string; error?: string };
@@ -58,6 +63,21 @@ export type Latest = {
    * Missing from files written before the "Today's AI news" section existed.
    */
   today?: Latest["stories"];
+  /**
+   * Product launches on Hacker News ("Show HN" and "Launch HN") from the 7 days before
+   * `generatedAt` whose title names AI, most upvoted first. `title` has the prefix removed.
+   * Missing from files written before the "Product launches" section existed.
+   */
+  launches?: {
+    id: string;
+    title: string;
+    kind: "Show HN" | "Launch HN";
+    url: string;
+    discussionUrl: string;
+    points: number;
+    comments: number;
+    createdAt: string;
+  }[];
   repos: {
     name: string;
     url: string;

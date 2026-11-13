@@ -98,3 +98,11 @@ test("every figure already in data/history.json passes its own check", () => {
   for (const [id, s] of Object.entries<WeeklyCounts>(history.subthemes ?? {})) check(`subtheme ${id}`, "part", s);
   assert.deepEqual(failures, []);
 });
+
+test("page views may surge without limit but not collapse", () => {
+  assert.equal(implausible("views", steady(7000), WEEK, 400_000), null);
+  assert.equal(implausible("views", steady(7000), WEEK, 3000), null);
+  assert.ok(implausible("views", steady(7000), WEEK, 700)); // what a renamed article looks like
+  assert.ok(implausible("views", steady(7000), WEEK, 0));
+  assert.equal(implausible("views", steady(10), WEEK, 0), null);
+});
