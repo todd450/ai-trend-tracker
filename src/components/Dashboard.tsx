@@ -7,6 +7,7 @@ import { MomentumMap } from "@/components/MomentumMap";
 import { Sparkline } from "@/components/Sparkline";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
+import { buildToday } from "@/lib/today";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
@@ -19,6 +20,7 @@ import {
   fmtCompact,
   fmtDate,
   fmtDay,
+  fmtDayTime,
   fmtWeek,
   history,
   isoWeek,
@@ -42,6 +44,7 @@ const SOURCE_LABELS: Record<string, string> = {
   models: "Hugging Face trending models",
   releases: "Hugging Face lab uploads",
   stories: "Hacker News top stories",
+  today: "Hacker News past-day stories",
   repos: "GitHub repository search",
   analysis: "Newsletter and institution feeds",
   labNews: "Lab news pages",
@@ -207,6 +210,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const usage = usageSummary;
   const marketShare = buildMarketShare(horizon);
 
+  const today = buildToday();
   const stories = latest.stories.slice(0, SHOWN);
   const papers = latest.papers.slice(0, SHOWN);
   const repos = latest.repos.slice(0, SHOWN);
@@ -239,6 +243,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <div className="bar__row">
             <nav className="bar__nav" aria-label="Sections">
               <ul>
+                <li><a href="#today">Today</a></li>
                 <li><a href="#momentum">Topics</a></li>
                 <li><a href="#themes">Themes</a></li>
                 <li><a href="#indicators">Indicators</a></li>
@@ -294,6 +299,58 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 ))}
               </ol>
             </div>
+          )}
+        </section>
+
+        <section id="today" className="band band--today" aria-labelledby="today-h">
+          <div className="band__head">
+            <p className="band__source">
+              Lab blogs, newsletters and Hacker News · 24 hours to {fmtDayTime(today.until)} UTC
+            </p>
+            <h2 id="today-h">Today’s AI news</h2>
+            <p>
+              What the labs announced, what the analysts published and which AI stories Hacker News picked up in the
+              24 hours before this page was last updated, newest first.
+            </p>
+          </div>
+          {today.items.length > 0 ? (
+            <Ledger
+              first="Headline"
+              labelledBy="today-h"
+              count={today.items.length}
+              more={<a className="more" href="#news">The week’s top stories ↓</a>}
+              cells={[
+                { head: "From", width: "9.5rem", start: true },
+                { head: "Hacker News", width: "5.5rem" },
+                { head: "Published (UTC)", width: "6.5rem" },
+              ]}
+            >
+              {today.items.map((item) => (
+                <li key={item.url}>
+                  <span className="ledger__main">
+                    <a href={item.url} title={item.title}>{item.title}</a>
+                  </span>
+                  <span className="ledger__data">
+                    <span className="ledger__cell--start">{item.from}</span>
+                    <span>
+                      {item.discussion && (
+                        <a href={item.discussion.url}>
+                          {fmtCompact(item.discussion.points)}
+                          <span className="ledger__unit"> points</span>
+                        </a>
+                      )}
+                    </span>
+                    {/* Some feeds give a day and no time; midnight exactly means the time is not known. */}
+                    <span>{item.publishedAt.includes("T00:00:00") ? fmtDay(item.publishedAt) : fmtDayTime(item.publishedAt)}</span>
+                  </span>
+                </li>
+              ))}
+            </Ledger>
+          ) : (
+            <p className="band__empty">
+              None of the sources published anything in the 24 hours before the last update. The week’s stories are
+              in <a href="#news">the reading list</a>.
+            </p>
           )}
         </section>
 
@@ -1271,6 +1328,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 sub-theme but can sit in more than one, so the sub-themes add up to more than their theme. Their
                 counts are smaller still: a sub-theme averaging fewer than {SUBTHEME_MIN_STORIES} stories a week
                 in either half of the comparison is marked “too few to call” instead of rising or cooling.
+              </p>
+              <p>
+                <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was
+                collected, which happens once a day: posts from the three labs, pieces from the newsletters and
+                institutions, and up to twelve Hacker News stories with an AI term in the title and at least 20
+                points. The times are in UTC. The list is in order of time, not importance, and none of it feeds
+                the trends.
               </p>
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models

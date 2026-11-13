@@ -8,6 +8,7 @@ and lab news feeds, and needs no API keys.
 | --- | --- | --- |
 | Research | arXiv | Weekly share of AI papers mentioning each topic |
 | Discussion | Hacker News | Weekly stories with each topic in the title, and the week's top AI stories |
+| Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, newest first |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
@@ -73,6 +74,11 @@ If a rejected figure turns out to be real, run
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
 `scripts/collect.ts`. Anthropic has no feed, so its newest articles are found
 through its sitemap and read one page at a time.
+
+"Today's AI news", at the top of the page, is built in `src/lib/today.ts` from
+the lab and newsletter lists plus the past day's Hacker News stories (20 points
+or more, at most twelve). The site is rebuilt once a day, so "today" means the
+24 hours before the last collection, and the section says which those are.
 
 If a source is down, the previous data for it is kept and the site marks it
 as stale in the "Source status" list.

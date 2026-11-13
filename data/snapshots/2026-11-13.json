@@ -1,69 +1,73 @@
 {
- "generatedAt": "2026-11-13T14:30:51.135Z",
+ "generatedAt": "2026-11-13T14:29:30.020Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-13T14:30:51.387Z"
+   "at": "2026-11-13T14:29:30.517Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-13T14:30:51.472Z"
+   "at": "2026-11-13T14:29:30.627Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-13T14:30:56.498Z"
+   "at": "2026-11-13T14:29:36.237Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-13T14:31:02.379Z"
+   "at": "2026-11-13T14:29:41.193Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-13T14:31:11.958Z"
+   "at": "2026-11-13T14:30:30.288Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-13T14:32:12.977Z"
+   "at": "2026-11-13T14:31:51.465Z"
   },
   "arxivHistory": {
    "ok": true,
-   "at": "2026-11-13T14:35:03.873Z"
+   "at": "2026-11-13T14:34:58.211Z"
   },
   "analysis": {
    "ok": true,
-   "at": "2026-11-13T14:31:18.542Z"
+   "at": "2026-11-13T14:30:38.012Z"
   },
   "labNews": {
    "ok": true,
-   "at": "2026-11-13T14:31:25.681Z"
+   "at": "2026-11-13T14:30:45.457Z"
   },
   "jobs": {
    "ok": true,
-   "at": "2026-11-13T14:31:25.817Z"
+   "at": "2026-11-13T14:30:45.733Z"
   },
   "federal": {
    "ok": true,
-   "at": "2026-11-13T14:31:26.344Z"
+   "at": "2026-11-13T14:30:46.458Z"
   },
   "modelReleases": {
    "ok": true,
-   "at": "2026-11-13T14:31:26.544Z"
+   "at": "2026-11-13T14:30:46.831Z"
   },
   "hnThemes": {
    "ok": true,
-   "at": "2026-11-13T14:33:28.796Z"
+   "at": "2026-11-13T14:33:17.116Z"
   },
   "downloads": {
    "ok": true,
-   "at": "2026-11-13T14:31:41.625Z"
+   "at": "2026-11-13T14:31:03.218Z"
   },
   "business": {
    "ok": true,
-   "at": "2026-11-13T14:31:41.873Z"
+   "at": "2026-11-13T14:31:03.617Z"
   },
   "marketShare": {
    "ok": true,
-   "at": "2026-11-13T14:31:41.688Z"
+   "at": "2026-11-13T14:31:03.322Z"
+  },
+  "today": {
+   "ok": true,
+   "at": "2026-11-13T14:29:45.637Z"
   }
  },
  "papers": [
@@ -301,20 +305,20 @@
    "createdAt": "2026-11-04T13:54:24.000Z"
   },
   {
-   "id": "unsloth/Qwen3.8-27B-GGUF",
-   "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF",
-   "task": null,
-   "likes": 5843,
-   "downloads": 6253865,
-   "createdAt": "2026-08-13T08:28:40.000Z"
-  },
-  {
    "id": "ricursiveAI/Ripple-65B-Preview",
    "url": "https://huggingface.co/ricursiveAI/Ripple-65B-Preview",
    "task": null,
    "likes": 545,
    "downloads": 8500,
    "createdAt": "2026-11-04T02:41:21.000Z"
+  },
+  {
+   "id": "unsloth/Qwen3.8-27B-GGUF",
+   "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF",
+   "task": null,
+   "likes": 5843,
+   "downloads": 6253865,
+   "createdAt": "2026-08-13T08:28:40.000Z"
   },
   {
    "id": "Viggle/Viggle-Remake",
@@ -357,12 +361,12 @@
    "createdAt": "2026-11-07T14:20:29.000Z"
   },
   {
-   "id": "ConwayResearch/Underdog-Woof",
-   "url": "https://huggingface.co/ConwayResearch/Underdog-Woof",
-   "task": "text-to-speech",
-   "likes": 226,
-   "downloads": 10,
-   "createdAt": "2026-11-05T19:07:08.000Z"
+   "id": "unsloth/Qwen3.8-Flash-Next-GGUF",
+   "url": "https://huggingface.co/unsloth/Qwen3.8-Flash-Next-GGUF",
+   "task": "image-text-to-text",
+   "likes": 1658,
+   "downloads": 2322693,
+   "createdAt": "2026-08-26T12:29:32.000Z"
   }
  ],
  "releases": [
@@ -688,7 +692,7 @@
    "title": "Gemini 4 Hydrogen and Orchestrator",
    "url": "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50472260",
-   "points": 455,
+   "points": 454,
    "comments": 140,
    "createdAt": "2026-11-12T18:52:01Z"
   },
@@ -707,7 +711,7 @@
    "url": "https://github.com/hyperionaidev/smolmaxxing/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50468888",
    "points": 415,
-   "comments": 154,
+   "comments": 152,
    "createdAt": "2026-11-12T15:23:10Z"
   },
   {
@@ -729,12 +733,122 @@
    "createdAt": "2026-11-09T20:04:55Z"
   }
  ],
+ "today": [
+  {
+   "id": "50471431",
+   "title": "Gemini 4 Hydrogen",
+   "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50471431",
+   "points": 551,
+   "comments": 342,
+   "createdAt": "2026-11-12T18:01:48Z"
+  },
+  {
+   "id": "50472260",
+   "title": "Gemini 4 Hydrogen and Orchestrator",
+   "url": "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50472260",
+   "points": 454,
+   "comments": 140,
+   "createdAt": "2026-11-12T18:52:01Z"
+  },
+  {
+   "id": "50468888",
+   "title": "I'm making LLMs work on small and old devices",
+   "url": "https://github.com/hyperionaidev/smolmaxxing/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50468888",
+   "points": 415,
+   "comments": 152,
+   "createdAt": "2026-11-12T15:23:10Z"
+  },
+  {
+   "id": "50481187",
+   "title": "Elevated errors on claude.ai, Claude Code, and platform.claude.com",
+   "url": "https://status.claude.com/incidents/nn11wk485zfn",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50481187",
+   "points": 339,
+   "comments": 298,
+   "createdAt": "2026-11-13T10:18:13Z"
+  },
+  {
+   "id": "50474883",
+   "title": "Chinese frontier AI models carry the fingerprint of export-controlled GPUs",
+   "url": "https://unemploymentlabs.com/checkpoint-forensics",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50474883",
+   "points": 323,
+   "comments": 122,
+   "createdAt": "2026-11-12T21:56:11Z"
+  },
+  {
+   "id": "50475713",
+   "title": "Edge0-145B: Frontier AI Capabilities on Your Own Computer",
+   "url": "https://edge0.ai/blog/introducing-edge0-145b-frontier-ai-capabilities-on-your-own-computer",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50475713",
+   "points": 294,
+   "comments": 87,
+   "createdAt": "2026-11-12T23:06:17Z"
+  },
+  {
+   "id": "50474311",
+   "title": "AI is turning Apple's app review process into a nightmare for synth developers",
+   "url": "https://synthanatomy.com/2026/11/ai-is-turning-apples-app-review-process-into-a-nightmare-for-developers.html",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50474311",
+   "points": 185,
+   "comments": 210,
+   "createdAt": "2026-11-12T21:09:49Z"
+  },
+  {
+   "id": "50481220",
+   "title": "Claude Is Down",
+   "url": "https://status.claude.com/history",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50481220",
+   "points": 166,
+   "comments": 140,
+   "createdAt": "2026-11-13T10:20:09Z"
+  },
+  {
+   "id": "50471650",
+   "title": "Show HN: AgentRun – open-source, Self-improving Managed Agents",
+   "url": "https://github.com/Parcha-ai/agentrun/blob/main/README.md",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50471650",
+   "points": 123,
+   "comments": 29,
+   "createdAt": "2026-11-12T18:15:48Z"
+  },
+  {
+   "id": "50475735",
+   "title": "Why You Should Expect an AI Crash",
+   "url": "https://www.economist.com/leaders/2026/11/12/why-you-should-expect-an-ai-crash",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50475735",
+   "points": 97,
+   "comments": 81,
+   "createdAt": "2026-11-12T23:08:31Z"
+  },
+  {
+   "id": "50476586",
+   "title": "Chicago schools to Google – we'd rather lose Search than be forced to accept AI",
+   "url": "https://www.techspot.com/news/114532-chicago-schools-tell-google-they-can-live-without.html",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50476586",
+   "points": 83,
+   "comments": 25,
+   "createdAt": "2026-11-13T00:38:41Z"
+  },
+  {
+   "id": "50467880",
+   "title": "Show HN: AI Red Lines – write down what would make you act on AI",
+   "url": "https://yourairedlines.com",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50467880",
+   "points": 38,
+   "comments": 30,
+   "createdAt": "2026-11-12T14:31:21Z"
+  }
+ ],
  "repos": [
   {
    "name": "ccch1mneyyy/dsh-Go",
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
-   "stars": 21562,
+   "stars": 21561,
    "starsPerDay": 1119,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
@@ -761,7 +875,7 @@
    "name": "FrigadeHQ/yogurt",
    "url": "https://github.com/FrigadeHQ/yogurt",
    "description": "Private AI meeting notes. Free and open source.",
-   "stars": 1173,
+   "stars": 1171,
    "starsPerDay": 423,
    "language": "TypeScript",
    "createdAt": "2026-11-10T20:01:01Z"
@@ -833,7 +947,7 @@
    "name": "alexeyw/lot-map",
    "url": "https://github.com/alexeyw/lot-map",
    "description": "A live map beside the chat that shows what Claude Code is doing: tool calls, model steps, hooks, skills and subagents light up as they happen. Local only, in 7 languages.",
-   "stars": 685,
+   "stars": 684,
    "starsPerDay": 180,
    "language": "TypeScript",
    "createdAt": "2026-11-09T19:13:52Z"
@@ -842,7 +956,7 @@
    "name": "vercel-labs/ui",
    "url": "https://github.com/vercel-labs/ui",
    "description": "A library of behaviors for agents to build the next generation of user interfaces.",
-   "stars": 3160,
+   "stars": 3158,
    "starsPerDay": 177,
    "language": "TypeScript",
    "createdAt": "2026-10-26T17:39:27Z"
@@ -887,7 +1001,7 @@
    "name": "dabingfy-dot/solo-to-team-skills",
    "url": "https://github.com/dabingfy-dot/solo-to-team-skills",
    "description": "Skills for human-led AI teams: delegate tasks, verify evidence, explain steps clearly, and learn from real cases. 一个人统筹 AI 团队：派活、核证、清楚说明、经验复用。",
-   "stars": 833,
+   "stars": 832,
    "starsPerDay": 127,
    "language": null,
    "createdAt": "2026-11-07T01:36:28Z"

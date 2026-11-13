@@ -879,6 +879,17 @@ code {
   margin-top: var(--space-2xl);
 }
 
+/* Said in place of a list when a band has nothing to show. */
+.band__empty {
+  max-width: 62ch;
+  color: var(--color-ink-2);
+}
+
+/* Today's news sits between the lede and the first chapter. */
+.lede + .band--today {
+  margin-top: var(--space-xl);
+}
+
 /* Where a list comes from, above its title. */
 .band__head .band__source {
   font-size: var(--text-xs);
