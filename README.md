@@ -10,7 +10,7 @@ key; everything else needs no keys.
 | Research | arXiv | Weekly share of AI papers mentioning each topic |
 | Discussion | Hacker News | Weekly stories with each topic in the title, and the week's top AI stories |
 | Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, biggest first by Hacker News points |
-| Products | Hacker News and Wikipedia page views | For 24 products: weekly stories naming the product, and weekly views of its Wikipedia article |
+| Products | Hacker News and Wikipedia page views | For 37 products, software and hardware: weekly stories naming the product, and weekly views of its Wikipedia article |
 | Launches | Hacker News | The past week's "Show HN" and "Launch HN" posts with an AI term in the title, ranked by points |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
@@ -39,8 +39,9 @@ Then open http://localhost:3000.
 npm run collect
 ```
 
-The first run backfills 52 weeks of history and takes about 45 minutes,
-because arXiv allows one request every three seconds. Later runs only
+The first run backfills 104 weeks (two years) of history and takes about two and a half
+hours, mostly Hacker News searches for every theme and product and arXiv's limit of one
+request every three seconds. Later runs only
 re-count the two newest weeks. `npm run collect -- --fast` skips the backfill.
 
 The collector writes to `data/`:
@@ -146,6 +147,44 @@ Neither list changes the trend figures.
 If a source is down, the previous data for it is kept and the site marks it
 as stale in the "Source status" list.
 
+## Ask it from an AI assistant (MCP)
+
+The site is also an MCP server, so an AI assistant such as Claude can read the
+trends and quote the figures instead of guessing from a web search. Add this
+address to the assistant as a remote MCP server (Streamable HTTP, no sign-in):
+
+```
+https://ai-trend-tracker-pearl.vercel.app/mcp
+```
+
+In Claude Code:
+
+```bash
+claude mcp add --transport http ai-trend-tracker https://ai-trend-tracker-pearl.vercel.app/mcp
+```
+
+On claude.ai, add it as a custom connector with the same address. While
+`npm run dev` is running, the local server is at http://localhost:3000/mcp.
+
+It offers five read-only tools:
+
+| Tool | What it returns |
+| --- | --- |
+| `get_briefing` | The headline and five-line briefing for a time horizon, and any failing sources |
+| `get_trends` | Rising, steady or cooling for every research topic, discussion theme (with its sub-themes) or product; with an `id`, that item's weekly figures |
+| `get_indicators` | Hiring, policy, business adoption, model releases, developer toolkits and model share |
+| `get_latest` | The reading lists: today's news, papers, models, repositories, stories, launches, analysis and lab news |
+| `get_conferences` | The calendar; with an `id`, the event's recap and how its talks compare with the trends |
+
+Every figure comes from the same functions that build the pages, and each
+move is labelled by the page's own rules, so the server and the site always
+agree. A tool takes the same horizons as the site (`one-week` to `one-year`,
+with `three-months` as the front page). The server keeps no sessions and
+stores nothing; each request is answered from the data built into the
+current deploy. The protocol layer is written by hand in `src/lib/mcp/protocol.ts`
+rather than with the official SDK, which would bring two web frameworks into a
+project that has three dependencies. `npm test` checks it.
+
 ## How it fits together
 
 ```
@@ -167,11 +206,15 @@ data/editorial.json  the editor's pins and hides, kept by hand
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
 src/components/Conferences.tsx  the conference tracker, at /conferences
 scripts/conference.ts  counts topic mentions in a conference's programme or transcript
+src/app/mcp/route.ts   the MCP server, at /mcp
+src/lib/mcp/tools.ts   the server's five tools, built on the same functions as the pages
+src/lib/mcp/protocol.ts  the protocol: answers each MCP message with JSON
 src/app/one-week/    the 1-week view, at /one-week
 src/app/one-month/   the 1-month view, at /one-month
 src/app/page.tsx     the 3-month view, at /
 src/app/six-months/  the 6-month view, at /six-months
 src/app/one-year/    the 1-year view, at /one-year
+src/app/two-years/   the 2-year view, at /two-years
 tokens.css           every colour, font and size the design uses
 ```
 
@@ -201,7 +244,7 @@ rules in modules like them.
 
 ## How a trend is decided
 
-The page has five views, switched from the masthead:
+The page has six views, switched from the masthead:
 
 | View | Compares | Needs |
 | --- | --- | --- |
@@ -210,6 +253,7 @@ The page has five views, switched from the masthead:
 | 3 months (`/`) | the latest 4 weeks with the 4 before | 8 weeks |
 | 6 months (`/six-months`) | the latest 13 weeks with the 13 before | 26 weeks |
 | 1 year (`/one-year`) | the latest 26 weeks with the 26 before | 52 weeks |
+| 2 years (`/two-years`) | the latest 52 weeks with the 52 before | 104 weeks |
 
 The 1-week and 1-month views react fastest and are the noisiest.
 
@@ -239,7 +283,7 @@ Each theme is the set of distinct stories matched by any of its sub-themes'
 searches, so adding a search to a sub-theme also changes its theme's count.
 A story can sit in more than one sub-theme. A sub-theme averaging fewer than
 3 stories a week in either half of the comparison is shown as "too few to call".
-Adding a sub-theme makes the next `npm run collect` backfill its 52 weeks
+Adding a sub-theme makes the next `npm run collect` backfill its 104 weeks
 from Hacker News (a few minutes). The page's "How this is measured" section
 explains the limits to readers.
 
@@ -254,7 +298,7 @@ The "Product momentum" section follows the products listed in
   comparison is shown as "too few to call".
 - **Public interest** is views of the product's English Wikipedia article, from
   Wikimedia's page-view API (`user` agent, so crawlers are left out). The data
-  is CC0. One request per article title returns the whole year.
+  is CC0. One request per article title returns the whole two years.
 
 Wikimedia allows a script that sends no contact address ten requests a minute,
 so the collector sends one every seven seconds and waits when told to
@@ -264,7 +308,7 @@ minute.
 
 Wikipedia articles are renamed often, and views are recorded under the title of
 the day. Each product therefore lists every title its article has carried in the
-past year. When an article is renamed its views collapse; `scripts/sanity.ts`
+past two years. When an article is renamed its views collapse; `scripts/sanity.ts`
 turns the figure away (below 0.15× the usual level), "Wikipedia page views"
 shows as stale in the source list with the product named, and the fix is to add
 the new title to the product's `wiki` list. Views are never rejected for being
@@ -282,7 +326,7 @@ made Python-heavy toolkits look like they were cooling.
 
 A toolkit is "rising" or "cooling" when its average share over the latest
 three months moved by 10% or more against the three before. This comparison
-is the same in all five views. PyPI Stats keeps about 180 days, so the first
+is the same in all six views. PyPI Stats keeps about 180 days, so the first
 run has six months; the collector keeps every month it has seen (up to 25),
 so the record grows from there. Downloads include build servers and packages
 pulled in by other packages, so they show direction, not a number of users.
@@ -298,7 +342,7 @@ period, so the collector reads the Bureau's national spreadsheet
 two questions by their wording.
 
 The trend compares the average of the latest six surveys with the six before,
-in all five views. The series starts in November 2025, when the Bureau
+in all six views. The series starts in November 2025, when the Bureau
 broadened the question's wording; earlier answers were lower and are not
 joined on. If the Bureau rewords the question so that it no longer begins
 "In the last two weeks, did this business use", the source will show as stale

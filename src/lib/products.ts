@@ -9,14 +9,16 @@
  * collapse, the collector turns the figure away and the source shows as stale: add
  * the new title here. A product with no article of its own has an empty list.
  *
- * A name that is also an ordinary word ("Runway") is searched in a narrower form.
+ * A name that is also an ordinary word ("Runway", "Optimus") is searched in a narrower form.
+ * Some hardware has no article of its own, so the maker's article stands in (Figure AI,
+ * Unitree Robotics, 1X Technologies); its views then include interest in the company.
  * To follow a new product, add an entry here and run `npm run collect`; a year of
  * history for it is backfilled automatically.
  */
 export type Product = {
   id: string;
   name: string;
-  kind: "assistant" | "coding" | "media";
+  kind: "assistant" | "coding" | "media" | "device" | "robot";
   blurb: string;
   hn: string[];
   /**
@@ -52,4 +54,17 @@ export const PRODUCTS: Product[] = [
   { id: "runway", name: "Runway", kind: "media", blurb: "Video generation and editing", hn: ["Runway AI", "RunwayML", "Runway Gen"], wiki: ["Runway (company)"] },
   { id: "suno", name: "Suno", kind: "media", blurb: "Music generator", hn: ["Suno"], wiki: ["Suno", "Suno AI"] },
   { id: "elevenlabs", name: "ElevenLabs", kind: "media", blurb: "Voice generation", hn: ["ElevenLabs"], wiki: ["ElevenLabs"] },
+  { id: "meta-glasses", name: "Meta smart glasses", kind: "device", blurb: "Ray-Ban and Oakley glasses with Meta’s assistant", hn: ["Meta glasses", "Ray-Ban Meta", "Meta Ray-Ban"], wiki: ["Meta smart glasses", "Ray-Ban Meta"] },
+  { id: "alexa", name: "Alexa", kind: "device", blurb: "Amazon’s voice assistant and Echo speakers", hn: ["Alexa"], wiki: ["Amazon Alexa"] },
+  { id: "rabbit-r1", name: "Rabbit r1", kind: "device", blurb: "Pocket assistant device", hn: ["Rabbit R1"], wiki: ["Rabbit r1"] },
+  { id: "friend", name: "Friend", kind: "device", blurb: "Always-listening companion pendant", hn: ["Friend pendant", "Friend AI", "friend.com"], wiki: ["Friend (product)"] },
+  { id: "waymo", name: "Waymo", kind: "robot", blurb: "Alphabet’s driverless taxi service", hn: ["Waymo"], wiki: ["Waymo"] },
+  { id: "tesla-robotaxi", name: "Tesla Robotaxi", kind: "robot", blurb: "Tesla’s driverless taxi service and Cybercab", hn: ["Tesla Robotaxi", "Cybercab"], wiki: ["Tesla Robotaxi"] },
+  { id: "zoox", name: "Zoox", kind: "robot", blurb: "Amazon’s driverless taxi service", hn: ["Zoox"], wiki: ["Zoox"] },
+  { id: "optimus", name: "Tesla Optimus", kind: "robot", blurb: "Tesla’s humanoid robot", hn: ["Tesla Optimus", "Optimus robot", "Optimus humanoid"], wiki: ["Optimus (robot)"] },
+  { id: "figure", name: "Figure", kind: "robot", blurb: "Figure AI’s humanoid robots", hn: ["Figure AI", "Figure 02", "Figure 03"], wiki: ["Figure AI"] },
+  { id: "unitree", name: "Unitree", kind: "robot", blurb: "Unitree’s humanoid and four-legged robots", hn: ["Unitree"], wiki: ["Unitree Robotics"] },
+  { id: "neo", name: "1X NEO", kind: "robot", blurb: "1X’s humanoid robot for the home", hn: ["1X NEO", "1X Technologies", "NEO robot"], wiki: ["1X Technologies"] },
+  { id: "atlas", name: "Atlas", kind: "robot", blurb: "Boston Dynamics’ humanoid robot", hn: ["Boston Dynamics"], wiki: ["Atlas (robot)"] },
+  { id: "roomba", name: "Roomba", kind: "robot", blurb: "iRobot’s robot vacuum cleaner", hn: ["Roomba"], wiki: ["Roomba"] },
 ];

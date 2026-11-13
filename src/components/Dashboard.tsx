@@ -27,7 +27,6 @@ import {
   fmtDayTime,
   fmtWeek,
   history,
-  isoWeek,
   latest,
   type Direction,
   type Horizon,
@@ -164,6 +163,8 @@ const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
   { kind: "assistant", title: "Assistants" },
   { kind: "coding", title: "Coding tools and agents" },
   { kind: "media", title: "Image, video and voice" },
+  { kind: "device", title: "Devices" },
+  { kind: "robot", title: "Robots and driverless cars" },
 ];
 
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
@@ -264,7 +265,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="mast__top">
           <PageTabs current="trends" />
           <p className="mast__line">
-            {latestWeek ? `No. ${isoWeek(latestWeek)} · Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
+            {latestWeek ? `Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
           </p>
         </div>
         <h1 className="mast__name">
@@ -644,7 +645,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <div className="band__head">
               <h2 id="products-h">Product momentum</h2>
               <p>
-                {productTrends.length} AI products people use, measured two ways: stories naming the product on
+                {productTrends.length} AI products people use, from chat assistants to glasses and robots, measured two ways: stories naming the product on
                 Hacker News, which shows what developers are talking about, and views of its Wikipedia article,
                 which shows how many people are looking it up. Each is the {compared}.
               </p>
@@ -1487,7 +1488,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>6 months</strong> compares the last {HORIZONS.sixMonths.window} weeks with the{" "}
                 {HORIZONS.sixMonths.window} before, one quarter against the previous one.{" "}
                 <strong>1 year</strong> compares the last {HORIZONS.oneYear.window} weeks with the{" "}
-                {HORIZONS.oneYear.window} before, one half-year against the other. The longer views react slowly,
+                {HORIZONS.oneYear.window} before, one half-year against the other.{" "}
+                <strong>2 years</strong> compares the last {HORIZONS.twoYears.window} weeks with the{" "}
+                {HORIZONS.twoYears.window} before, this year against last year. The longer views react slowly,
                 and a topic can be rising in one view and cooling in another. Topics are defined by keyword lists, so a paper can count toward several topics,
                 and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
@@ -1531,7 +1534,9 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 Wikipedia article by people, not crawlers, averaged over each week. It shows how many people
                 looked the product up, which rises with news of any kind, good or bad, and is not a count of
                 users. It covers English readers only. A product whose article is part of a larger one has no
-                figure. Neither measure is use or revenue.
+                figure. Neither measure is use or revenue. Devices, robots and driverless cars are discussed too little on Hacker News to call, so
+                they are read by public interest alone; where a robot has no article of its own, its maker’s
+                article stands in, and its views include interest in the company.
               </p>
               <p>
                 <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was

@@ -5,12 +5,12 @@
  * which may differ in detail from what the page said at the time.
  */
 import { buildBriefing } from "./briefing";
-import { buildTrends, everyWeek, fmtWeek, isoWeek } from "./trends";
+import { buildTrends, everyWeek, fmtWeek } from "./trends";
 
 export type Edition = {
   /** The Monday the edition's week starts on (YYYY-MM-DD). */
   week: string;
-  /** "No. 45 · Week of 2–8 November 2026" */
+  /** "Week of 2–8 November 2026" */
   name: string;
   /** The headline's sentences, as on the three-month view. */
   headline: string;
@@ -27,7 +27,7 @@ export function editions(count = 8): Edition[] {
       const { headline } = buildBriefing(buildTrends("threeMonths", week));
       return {
         week,
-        name: `No. ${isoWeek(week)} · Week of ${fmtWeek(week)}`,
+        name: `Week of ${fmtWeek(week)}`,
         headline: [headline.lead, headline.turn].filter(Boolean).join(" "),
         closed: new Date(Date.parse(week + "T00:00:00Z") + 7 * 86_400_000).toISOString(),
       };

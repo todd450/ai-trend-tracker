@@ -2,7 +2,8 @@ import Link from "next/link";
 
 const PAGES = [
   { id: "trends", label: "Trends", href: "/" },
-  { id: "conferences", label: "Conferences", href: "/conferences" },
+  // The conference calendar opens at today's line, with what has been held above it.
+  { id: "conferences", label: "Conferences", href: "/conferences#now" },
 ] as const;
 
 export type Page = (typeof PAGES)[number]["id"];

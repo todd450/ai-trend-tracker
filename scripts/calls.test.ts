@@ -1,7 +1,7 @@
 /** Run with `npm test`. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { compare, directionOf, fmtChange, fmtWeek, heldBack, isoWeek, signalDirection, type Signal } from "../src/lib/calls.ts";
+import { compare, directionOf, fmtChange, fmtWeek, heldBack, signalDirection, type Signal } from "../src/lib/calls.ts";
 
 const signal = (change: number | null, clear?: boolean): Signal => ({ values: [], recent: 0, prior: 0, change, clear });
 
@@ -75,11 +75,4 @@ test("a week is named by its Monday and Sunday", () => {
   assert.equal(fmtWeek("2026-11-02"), "2–8 November 2026");
   assert.equal(fmtWeek("2026-11-30"), "30 November – 6 December 2026");
   assert.equal(fmtWeek("2026-12-28"), "28 December – 3 January 2027");
-});
-
-test("the edition number is the ISO week, which belongs to the year of its Thursday", () => {
-  assert.equal(isoWeek("2026-11-02"), 45);
-  assert.equal(isoWeek("2025-12-29"), 1); // Thursday is 1 January 2026
-  assert.equal(isoWeek("2026-12-28"), 53); // Thursday is 31 December 2026
-  assert.equal(isoWeek("2027-01-04"), 1);
 });
