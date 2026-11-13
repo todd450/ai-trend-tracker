@@ -207,7 +207,9 @@ headline. With fewer than nine weeks of history only the fixed threshold
 applies. The monthly and two-weekly indicators are not tested this way.
 
 Discussion is measured on Hacker News alone, so the headline and the labels
-name it: "Hacker News discussion is moving toward…". Its readers are mostly
+name it: "On Hacker News, data centers, chips & energy rose to 2.9% of AI
+stories, from 1.8%." The headline always gives both figures, so it says what
+the chart under it shows. Its readers are mostly
 technologists; the figures show that community's conversation, not public
 opinion.
 
