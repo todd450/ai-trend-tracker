@@ -353,7 +353,12 @@ async function hfPapers(): Promise<Latest["papers"]> {
 
 // ------------------------------------------- newsletters and lab news
 
-type FeedSource = { source: string; collect: () => Promise<FeedItem[]> };
+type FeedSource = {
+  source: string;
+  collect: () => Promise<FeedItem[]>;
+  /** Places this source may take in its list, when fewer than the list's usual number. */
+  limit?: number;
+};
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
@@ -380,9 +385,10 @@ const MENTIONS_AI =
 
 /**
  * Reads an RSS or Atom feed. `aiOnly` keeps only items whose title or summary
- * mentions AI, for publishers that cover other subjects too.
+ * mentions AI, for publishers that cover other subjects too. `categories` keeps
+ * only items filed under one of those, for blogs that mix announcements with how-to articles.
  */
-function feed(source: string, url: string, aiOnly = false): FeedSource {
+function feed(source: string, url: string, aiOnly = false, categories?: string[]): FeedSource {
   return {
     source,
     collect: async () => {
@@ -400,6 +406,10 @@ function feed(source: string, url: string, aiOnly = false): FeedSource {
           plain(field(block, "pubDate") || field(block, "published") || field(block, "updated") || field(block, "dc:date")),
         );
         if (!title || !/^https?:\/\//.test(link) || Number.isNaN(when)) continue;
+        if (categories) {
+          const filed = [...block.matchAll(/<category(?:\s[^>]*)?>([\s\S]*?)<\/category>/gi)].map((m) => plain(m[1]));
+          if (!filed.some((c) => categories.includes(c))) continue;
+        }
         if (aiOnly) {
           // Only the opening of the summary: some feeds put the whole article there.
           const text = `${title} ${plain(field(block, "description") || field(block, "summary")).slice(0, 300)}`;
@@ -413,26 +423,26 @@ function feed(source: string, url: string, aiOnly = false): FeedSource {
   };
 }
 
-/** How far back Anthropic posts are looked for; the reading list shows 30 days. */
-const ANTHROPIC_DAYS = 30;
-/** An article or model page on Anthropic's site. Section pages such as /news/policy have one-word names. */
-const ANTHROPIC_POST = /^https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9]+-[a-z0-9-]+|claude-[a-z0-9-]+)$/;
+/** How far back a lab's posts are looked for on Hacker News; the reading list shows 30 days. */
+const HN_POST_DAYS = 30;
 
 /**
- * Anthropic publishes no feed, and its terms may not allow a script to read its pages, so
- * its posts are found through Hacker News instead: every story from the past 30 days that
- * links to an article on anthropic.com. Nothing is requested from Anthropic.
+ * For a lab that publishes no feed. A script reading its pages is what site terms most often
+ * bar, so its posts are found through Hacker News instead: every story from the past 30 days
+ * that links to an article on the lab's site. Nothing is requested from the lab.
  *
  * A post nobody submitted is missed. The headline is the one on the most-upvoted
  * submission, which is nearly always the article's own, and the date is the first submission.
+ * `domain` is searched for in story links, `post` says which of those links are articles, and
+ * `prefix` is a label submitters put before the headline.
  */
-async function anthropicPosts(): Promise<FeedItem[]> {
-  const since = Math.floor((Date.now() - ANTHROPIC_DAYS * DAY) / 1000);
+async function hnPosts(source: string, domain: string, post: RegExp, prefix: RegExp): Promise<FeedItem[]> {
+  const since = Math.floor((Date.now() - HN_POST_DAYS * DAY) / 1000);
   const data = await getJson<HnResponse>(
     "https://hn.algolia.com/api/v1/search_by_date?" +
       new URLSearchParams({
         tags: "story",
-        query: "anthropic.com",
+        query: domain,
         restrictSearchableAttributes: "url",
         numericFilters: `created_at_i>${since}`,
         hitsPerPage: "100",
@@ -441,8 +451,8 @@ async function anthropicPosts(): Promise<FeedItem[]> {
   const posts = new Map<string, { title: string; points: number; first: string }>();
   for (const hit of data.hits) {
     const url = (hit.url ?? "").replace(/[?#].*$/, "").replace(/\/$/, "");
-    const title = (hit.title ?? "").replace(/^Anthropic:\s*/i, "").replace(/\s*\[pdf\]$/i, "").trim();
-    if (!ANTHROPIC_POST.test(url) || !title) continue;
+    const title = (hit.title ?? "").replace(prefix, "").replace(/\s*\[pdf\]$/i, "").trim();
+    if (!post.test(url) || !title) continue;
     const held = posts.get(url);
     if (!held) posts.set(url, { title, points: hit.points ?? 0, first: hit.created_at });
     else {
@@ -450,13 +460,24 @@ async function anthropicPosts(): Promise<FeedItem[]> {
       if (hit.created_at < held.first) held.first = hit.created_at;
     }
   }
-  return [...posts].map(([url, post]) => ({
-    source: "Anthropic",
-    title: post.title,
+  return [...posts].map(([url, held]) => ({
+    source,
+    title: held.title,
     url,
-    publishedAt: new Date(post.first).toISOString(),
+    publishedAt: new Date(held.first).toISOString(),
   }));
 }
+
+/** An article or model page on Anthropic's site. Section pages such as /news/policy have one-word names. */
+const ANTHROPIC_POST = /^https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9]+-[a-z0-9-]+|claude-[a-z0-9-]+)$/;
+
+const anthropicPosts = () => hnPosts("Anthropic", "anthropic.com", ANTHROPIC_POST, /^Anthropic:\s*/i);
+
+/** A lab with no feed, read through Hacker News. An empty result is not a failure: a quiet month has no stories. */
+const viaHackerNews = (source: string, domain: string, post: RegExp): FeedSource => ({
+  source,
+  collect: () => hnPosts(source, domain, post, new RegExp(`^${source}:\\s*`, "i")),
+});
 
 const anthropicNews: FeedSource = { source: "Anthropic", collect: anthropicPosts };
 
@@ -476,14 +497,39 @@ const ANALYST_SOURCES: FeedSource[] = [
   feed("Pew Research Center", "https://www.pewresearch.org/topic/internet-technology/feed/", true),
 ];
 
+/** A specialist lab posts about one kind of model, so it gets fewer places than a frontier lab. */
+const specialist = (source: FeedSource): FeedSource => ({ ...source, limit: 2 });
+
+/**
+ * The labs whose own announcements are listed: the frontier labs, then smaller ones known for
+ * one kind of model.
+ *
+ * A lab's feed is read only where its terms were read first and do not bar it (November 2026):
+ * ElevenLabs' defer to its robots.txt, which allows the feed; Microsoft's and Mistral's have no
+ * bar on automated reading and both sites advertise the feed. The rest go through Hacker News,
+ * so nothing is requested from them: xAI, DeepSeek and Runway publish no feed and their terms
+ * bar scripted reading of pages, and Meta's, Suno's and Stability AI's terms bar automated
+ * access with no exception for the feeds they publish.
+ */
 const LAB_SOURCES: FeedSource[] = [
   anthropicNews,
   feed("OpenAI", "https://openai.com/news/rss.xml"),
   feed("Google DeepMind", "https://deepmind.google/blog/rss.xml"),
+  feed("Microsoft", "https://blogs.microsoft.com/feed/", true), // the company blog covers other subjects too
+  feed("Mistral AI", "https://mistral.ai/news/rss"),
+  viaHackerNews("Meta", "about.fb.com", /^https:\/\/about\.fb\.com\/news\/\d{4}\/\d{2}\/[a-z0-9-]+$/),
+  viaHackerNews("xAI", "x.ai", /^https:\/\/x\.ai\/news\/[a-z0-9-]+$/),
+  viaHackerNews("DeepSeek", "deepseek.com", /^https:\/\/api-docs\.deepseek\.com\/news\/news\d{6}$/),
+  specialist(feed("ElevenLabs", "https://elevenlabs.io/blog/rss.xml", false, ["Product", "Company", "Research"])), // voice
+  specialist(viaHackerNews("Runway", "runway.com", /^https:\/\/runway(?:ml)?\.com\/news\/(?:company-news|research)\/[a-z0-9-]+$/)), // video
+  specialist(viaHackerNews("Suno", "suno.com", /^https:\/\/suno\.com\/blog\/[A-Za-z0-9-]+$/)), // music
+  specialist(viaHackerNews("Stability AI", "stability.ai", /^https:\/\/stability\.ai\/news-updates\/[a-z0-9-]+$/)), // images and audio
 ];
 
 const FEED_WINDOW_DAYS = 30;
 const FEED_KEEP = 12;
+/** The lab list is longer: many labs share it, and a busy week should not push a quiet lab's launch off the end. */
+const LAB_KEEP = 18;
 
 /**
  * Newest items across several sources, with a cap per source so one prolific
@@ -493,6 +539,7 @@ async function newestFrom(
   sources: FeedSource[],
   perSource: number,
   previous: FeedItem[],
+  keep = FEED_KEEP,
 ): Promise<{ items: FeedItem[]; failed: string[] }> {
   const cutoff = Date.now() - FEED_WINDOW_DAYS * DAY;
   const latestAllowed = Date.now() + DAY; // institutions list future events in their feeds
@@ -515,12 +562,12 @@ async function newestFrom(
           return when >= cutoff && when <= latestAllowed && !seen.has(i.url) && seen.add(i.url);
         })
         .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-        .slice(0, perSource),
+        .slice(0, Math.min(perSource, s.limit ?? perSource)),
     );
     await sleep(300);
   }
   all.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  return { items: all.slice(0, FEED_KEEP), failed };
+  return { items: all.slice(0, keep), failed };
 }
 
 // ------------------------------------------------------------ indicators
@@ -1013,8 +1060,8 @@ async function main() {
   }
 
   /** Like `list`, for lists merged from several feeds; names the feeds that failed. */
-  async function feedList(key: "analysis" | "labNews", sources: FeedSource[], perSource: number) {
-    const { items, failed } = await newestFrom(sources, perSource, previous?.[key] ?? []);
+  async function feedList(key: "analysis" | "labNews", sources: FeedSource[], perSource: number, keep?: number) {
+    const { items, failed } = await newestFrom(sources, perSource, previous?.[key] ?? [], keep);
     status[key] = failed.length
       ? { ok: false, at: status[key]?.at ?? "", error: `no response from ${failed.join(", ")}` }
       : { ok: true, at: new Date().toISOString() };
@@ -1033,7 +1080,7 @@ async function main() {
     today: await list("today", hnTodayStories),
     repos: await list("repos", githubRisingRepos),
     analysis: await feedList("analysis", ANALYST_SOURCES, 2),
-    labNews: await feedList("labNews", LAB_SOURCES, 4),
+    labNews: await feedList("labNews", LAB_SOURCES, 3, LAB_KEEP), // many labs share the list, so each gets fewer places
   };
   await writeJson("latest.json", latest);
 

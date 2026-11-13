@@ -13,7 +13,7 @@ key; everything else needs no keys.
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Eight newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
-| Labs | OpenAI and Google DeepMind news feeds; Anthropic posts via Hacker News | Newest announcements, including closed-model releases |
+| Labs | News feeds of OpenAI, Google DeepMind, Microsoft, Mistral AI and ElevenLabs; posts from Anthropic, Meta, xAI, DeepSeek, Runway, Suno and Stability AI via Hacker News | Newest announcements, including closed-model releases |
 | Themes | Hacker News search | Stories on seven economy and society themes, each split into four sub-themes, as a share of all AI stories, weekly |
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
@@ -77,6 +77,14 @@ The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
 to read its pages, so its posts are found through Hacker News: stories from the
 past 30 days that link to an article on anthropic.com. A post nobody submitted
 there is missed, and the headline is the one on the most-upvoted submission.
+Six more labs are read the same way (`viaHackerNews`), so nothing is requested
+from their sites either: xAI, DeepSeek and Runway have no feed and terms that
+bar scripted reading of pages, and Meta's, Suno's and Stability AI's terms bar
+automated access with no exception for the feeds they publish. Microsoft's,
+Mistral AI's and ElevenLabs' feeds are read directly: their terms were read in
+November 2026 and do not bar it. The lab list keeps 18 posts: up to three from
+a frontier lab and two from a specialist one (ElevenLabs, Runway, Suno,
+Stability AI).
 
 Read a publisher's terms before adding a feed. NBER and PIIE were removed because
 theirs bar any automatic access to their sites, with no exception for feeds.

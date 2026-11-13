@@ -218,7 +218,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const models = latest.models.slice(0, SHOWN);
   const labModels = latest.releases.slice(0, SHOWN);
   const analysis = (latest.analysis ?? []).slice(0, SHOWN);
-  const labNews = (latest.labNews ?? []).slice(0, SHOWN);
+  const labNews = latest.labNews ?? []; // all of it: the collector already keeps this list short
   const sources = Object.entries(latest.sources);
   const stale = sources.filter(([, src]) => !src.ok).length;
   const oldest = sources.map(([, src]) => src.at).filter(Boolean).sort()[0];
@@ -1100,7 +1100,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <div className="band__head">
               <p className="band__source">Lab blogs</p>
               <h2 id="announcements-h">Lab announcements</h2>
-              <p>The latest posts from Anthropic, OpenAI and Google DeepMind, including closed-model releases.</p>
+              <p>
+                The latest posts from the labs themselves, including closed-model releases: Anthropic, OpenAI,
+                Google DeepMind, Meta, Microsoft, Mistral AI, xAI and DeepSeek, and four smaller labs known for one
+                kind of model: Runway (video), ElevenLabs (voice), Suno (music) and Stability AI (images and audio).
+              </p>
             </div>
             <Ledger
               first="Post"
@@ -1328,7 +1332,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was
-                collected, which happens once a day: posts from the three labs, pieces from the newsletters and
+                collected, which happens once a day: posts from the labs named under “Lab announcements”, pieces from the newsletters and
                 institutions, and up to twelve Hacker News stories with an AI term in the title and at least 20
                 points. The biggest stories come first, and size is measured by points on Hacker News, the one
                 figure the sources share. A lab or newsletter post takes the points of the story that links to it
@@ -1390,9 +1394,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 mention AI.
               </p>
               <p>
-                <strong>Lab announcements</strong> come from OpenAI’s and Google DeepMind’s own feeds. Anthropic
-                publishes no feed, so its posts are the ones submitted to Hacker News, under the headline given
-                there; a post nobody submitted is missing.
+                <strong>Lab announcements</strong> come from the feeds of OpenAI, Google DeepMind, Microsoft,
+                Mistral AI and ElevenLabs. The other seven labs publish no feed, or have terms that do not allow a
+                script to read it, so their posts are the ones submitted to Hacker News, under the headline given
+                there; a post nobody submitted is missing, which leaves the smaller labs thinly covered. A lab
+                takes at most three places in the list, and a smaller lab two.
               </p>
               <p>
                 <strong>The reading lists</strong> show their first few items; the rest open on request. Where a
