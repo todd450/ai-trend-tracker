@@ -12,7 +12,7 @@ and lab news feeds, and needs no API keys.
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
-| Labs | Anthropic, OpenAI, Google DeepMind news | Newest announcements, including closed-model releases |
+| Labs | News from seven frontier labs (Anthropic, OpenAI, Google DeepMind, Meta, Microsoft, Mistral AI, DeepSeek) and four specialist ones (Runway, ElevenLabs, Suno, Stability AI) | Newest announcements, including closed-model releases |
 | Themes | Hacker News search | Stories on seven economy and society themes, each split into four sub-themes, as a share of all AI stories, weekly |
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
@@ -72,8 +72,13 @@ If a rejected figure turns out to be real, run
 `npm run collect -- --fast --accept` once to store it without the checks.
 
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
-`scripts/collect.ts`. Anthropic has no feed, so its newest articles are found
-through its sitemap and read one page at a time.
+`scripts/collect.ts`. Anthropic, DeepSeek and Runway have no feed, so their
+newest articles are found through their sitemaps and read one page at a time.
+Meta's are its newsroom posts tagged AI, Microsoft's are the posts on its
+company blog that mention AI, and ElevenLabs' are the posts it files under
+Product, Company or Research. A frontier lab can take three places in the
+list and a specialist lab two. xAI is not listed: its site refuses automated
+readers.
 
 "Today's AI news", at the top of the page, is built in `src/lib/today.ts` from
 the lab and newsletter lists plus the past day's Hacker News stories (20 points

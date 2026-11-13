@@ -352,7 +352,12 @@ async function hfPapers(): Promise<Latest["papers"]> {
 
 // ------------------------------------------- newsletters and lab news
 
-type FeedSource = { source: string; collect: () => Promise<FeedItem[]> };
+type FeedSource = {
+  source: string;
+  collect: () => Promise<FeedItem[]>;
+  /** Places this source may take in its list, when fewer than the list's usual number. */
+  limit?: number;
+};
 
 const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
 
@@ -379,9 +384,10 @@ const MENTIONS_AI =
 
 /**
  * Reads an RSS or Atom feed. `aiOnly` keeps only items whose title or summary
- * mentions AI, for publishers that cover other subjects too.
+ * mentions AI, for publishers that cover other subjects too. `categories` keeps
+ * only items filed under one of those, for blogs that mix announcements with how-to articles.
  */
-function feed(source: string, url: string, aiOnly = false): FeedSource {
+function feed(source: string, url: string, aiOnly = false, categories?: string[]): FeedSource {
   return {
     source,
     collect: async () => {
@@ -399,6 +405,10 @@ function feed(source: string, url: string, aiOnly = false): FeedSource {
           plain(field(block, "pubDate") || field(block, "published") || field(block, "updated") || field(block, "dc:date")),
         );
         if (!title || !/^https?:\/\//.test(link) || Number.isNaN(when)) continue;
+        if (categories) {
+          const filed = [...block.matchAll(/<category(?:\s[^>]*)?>([\s\S]*?)<\/category>/gi)].map((m) => plain(m[1]));
+          if (!filed.some((c) => categories.includes(c))) continue;
+        }
         if (aiOnly) {
           // Only the opening of the summary: some feeds put the whole article there.
           const text = `${title} ${plain(field(block, "description") || field(block, "summary")).slice(0, 300)}`;
@@ -415,11 +425,11 @@ function feed(source: string, url: string, aiOnly = false): FeedSource {
 const metaTag = (html: string, property: string) =>
   html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] ?? "";
 
-/** Publication day of an Anthropic page; the site states it in one of three ways. */
-function anthropicPageDate(html: string): string | null {
+/** Publication day of an article page; sites state it in one of three ways. */
+function pageDate(html: string): string | null {
   const raw =
     metaTag(html, "article:published_time") ||
-    (html.match(/dateTime=["'](\d{4}-\d{2}-\d{2})/)?.[1] ?? "") ||
+    (html.match(/dateTime=["'](\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z)?)/)?.[1] ?? "") ||
     (html.match(
       /\b((?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, 20\d\d)\b/,
     )?.[1] ?? "");
@@ -453,7 +463,7 @@ const anthropicNews: FeedSource = {
     for (const { url } of pages) {
       const html = await getText(url);
       const title = plain(metaTag(html, "og:title"));
-      const publishedAt = anthropicPageDate(html);
+      const publishedAt = pageDate(html);
       if (title && publishedAt) items.push({ source: "Anthropic", title, url, publishedAt });
       await sleep(300);
     }
@@ -476,14 +486,94 @@ const ANALYST_SOURCES: FeedSource[] = [
   feed("Pew Research Center", "https://www.pewresearch.org/topic/internet-technology/feed/", true),
 ];
 
+/**
+ * DeepSeek publishes no feed either. Its announcements are pages of its API documentation named
+ * for the day they went up (/news/news261113 is 13 November 2026), all listed in the sitemap,
+ * so the date comes from the address and only the title needs the page opened.
+ */
+const DEEPSEEK_PAGES_TO_CHECK = 4;
+
+const deepseekNews: FeedSource = {
+  source: "DeepSeek",
+  collect: async () => {
+    const sitemap = await getText("https://api-docs.deepseek.com/sitemap.xml");
+    const pages = [...sitemap.matchAll(/<loc>(https:\/\/api-docs\.deepseek\.com\/news\/news(\d{2})(\d{2})(\d{2}))<\/loc>/g)]
+      .map(([, url, yy, mm, dd]) => ({ url, publishedAt: `20${yy}-${mm}-${dd}T00:00:00.000Z` }))
+      .filter((page) => !Number.isNaN(Date.parse(page.publishedAt)))
+      .sort((x, y) => y.publishedAt.localeCompare(x.publishedAt))
+      .slice(0, DEEPSEEK_PAGES_TO_CHECK);
+    if (pages.length === 0) throw new Error("no news pages in the sitemap");
+
+    const items: FeedItem[] = [];
+    for (const { url, publishedAt } of pages) {
+      const html = await getText(url);
+      const title = plain(metaTag(html, "og:title")).replace(/\s*\|\s*DeepSeek API Docs$/, "");
+      if (title) items.push({ source: "DeepSeek", title, url, publishedAt });
+      await sleep(300);
+    }
+    if (items.length === 0) throw new Error("news pages had no title (their layout may have changed)");
+    return items;
+  },
+};
+
+/**
+ * Runway publishes no feed. Its sitemap lists each news article with the date it last changed,
+ * so this opens the most recently changed ones, as for Anthropic. Customer stories are left out.
+ */
+const RUNWAY_PAGES_TO_CHECK = 4;
+
+const runwayNews: FeedSource = {
+  source: "Runway",
+  collect: async () => {
+    const sitemap = await getText("https://runwayml.com/sitemap.xml");
+    const pages = [
+      ...sitemap.matchAll(
+        /<loc>(https:\/\/runway\.com\/news\/(?:company-news|research)\/[a-z0-9-]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
+      ),
+    ]
+      .map(([, url, changed]) => ({ url, changed }))
+      .sort((x, y) => y.changed.localeCompare(x.changed))
+      .slice(0, RUNWAY_PAGES_TO_CHECK);
+    if (pages.length === 0) throw new Error("no articles in the sitemap");
+
+    const items: FeedItem[] = [];
+    for (const { url } of pages) {
+      const html = await getText(url);
+      const title = plain(metaTag(html, "og:title")).replace(/^Runway News\s*\|\s*/, "");
+      const publishedAt = pageDate(html);
+      if (title && publishedAt) items.push({ source: "Runway", title, url, publishedAt });
+      await sleep(300);
+    }
+    if (items.length === 0) throw new Error("article pages had no title or date (their layout may have changed)");
+    return items;
+  },
+};
+
+/** A specialist lab posts about one kind of model, so it gets fewer places than a frontier lab. */
+const specialist = (source: FeedSource): FeedSource => ({ ...source, limit: 2 });
+
+/**
+ * The labs whose own announcements are listed: the frontier labs, then smaller ones known for
+ * one kind of model. xAI is left out: its site turns away automated readers, feed or no feed.
+ */
 const LAB_SOURCES: FeedSource[] = [
   anthropicNews,
   feed("OpenAI", "https://openai.com/news/rss.xml"),
   feed("Google DeepMind", "https://deepmind.google/blog/rss.xml"),
+  feed("Meta", "https://about.fb.com/news/tag/ai/feed/"), // the newsroom's posts tagged AI
+  feed("Mistral AI", "https://mistral.ai/rss.xml"),
+  feed("Microsoft", "https://blogs.microsoft.com/feed/", true), // the company blog covers other subjects too
+  deepseekNews,
+  specialist(runwayNews), // video
+  specialist(feed("ElevenLabs", "https://elevenlabs.io/blog/rss.xml", false, ["Product", "Company", "Research"])), // voice
+  specialist(feed("Suno", "https://suno.com/blog/rss.xml")), // music
+  specialist(feed("Stability AI", "https://stability.ai/news-updates?format=rss")), // image and audio
 ];
 
 const FEED_WINDOW_DAYS = 30;
 const FEED_KEEP = 12;
+/** The lab list is longer: eleven labs share it, and a busy week should not push a quiet lab's launch off the end. */
+const LAB_KEEP = 18;
 
 /**
  * Newest items across several sources, with a cap per source so one prolific
@@ -493,6 +583,7 @@ async function newestFrom(
   sources: FeedSource[],
   perSource: number,
   previous: FeedItem[],
+  keep = FEED_KEEP,
 ): Promise<{ items: FeedItem[]; failed: string[] }> {
   const cutoff = Date.now() - FEED_WINDOW_DAYS * DAY;
   const latestAllowed = Date.now() + DAY; // institutions list future events in their feeds
@@ -515,12 +606,12 @@ async function newestFrom(
           return when >= cutoff && when <= latestAllowed && !seen.has(i.url) && seen.add(i.url);
         })
         .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
-        .slice(0, perSource),
+        .slice(0, Math.min(perSource, s.limit ?? perSource)),
     );
     await sleep(300);
   }
   all.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-  return { items: all.slice(0, FEED_KEEP), failed };
+  return { items: all.slice(0, keep), failed };
 }
 
 // ------------------------------------------------------------ indicators
@@ -811,7 +902,7 @@ async function anthropicReleases(checked: Record<string, Release | null>): Promi
     if (url in checked) continue;
     const html = await getText(url);
     const title = plain(metaTag(html, "og:title"));
-    const date = anthropicPageDate(html);
+    const date = pageDate(html);
     const model = title.match(/^(?:Introducing )?(Claude\b.*\d.*)$/)?.[1];
     checked[url] = model && date ? { lab: "Anthropic", model, url, date } : null;
     await sleep(300);
@@ -1012,8 +1103,8 @@ async function main() {
   }
 
   /** Like `list`, for lists merged from several feeds; names the feeds that failed. */
-  async function feedList(key: "analysis" | "labNews", sources: FeedSource[], perSource: number) {
-    const { items, failed } = await newestFrom(sources, perSource, previous?.[key] ?? []);
+  async function feedList(key: "analysis" | "labNews", sources: FeedSource[], perSource: number, keep?: number) {
+    const { items, failed } = await newestFrom(sources, perSource, previous?.[key] ?? [], keep);
     status[key] = failed.length
       ? { ok: false, at: status[key]?.at ?? "", error: `no response from ${failed.join(", ")}` }
       : { ok: true, at: new Date().toISOString() };
@@ -1032,7 +1123,7 @@ async function main() {
     today: await list("today", hnTodayStories),
     repos: await list("repos", githubRisingRepos),
     analysis: await feedList("analysis", ANALYST_SOURCES, 2),
-    labNews: await feedList("labNews", LAB_SOURCES, 4),
+    labNews: await feedList("labNews", LAB_SOURCES, 3, LAB_KEEP), // many labs share the list, so each gets fewer places
   };
   await writeJson("latest.json", latest);
 
