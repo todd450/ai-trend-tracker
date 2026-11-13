@@ -6,7 +6,6 @@ import { MoreRows } from "@/components/MoreRows";
 import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
 import { type Product } from "@/lib/products";
 import { PageTabs } from "@/components/PageTabs";
-import { SectionNav } from "@/components/SectionNav";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
 import { isBigStory, lineFor, visible } from "@/lib/editorial";
@@ -276,19 +275,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       <div className="bar">
         <div className="bar__inner">
           <div className="bar__row">
-            <SectionNav
-              sections={[
-                { href: "#today", label: "Today" },
-                { href: "#momentum", label: "Topics" },
-                { href: "#themes", label: "Themes" },
-                ...(hasProducts ? [{ href: "#products" as const, label: "Products" }] : []),
-                { href: "#indicators", label: "Indicators" },
-                { href: adoption ? "#adoption" : "#usage", label: "Usage" },
-                // The eight reference lists share one link, so the row fits without scrolling sideways.
-                { href: "#reading", label: "Reading list" },
-                { href: "#method", label: "Method" },
-              ]}
-            />
             <HorizonSwitch current={horizon} label="Time span" />
           </div>
         </div>
@@ -307,10 +293,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               )}
             </h2>
             <div className="lede__dek">
-              <p>
-                A weekly reading of where attention in artificial intelligence is moving, measured from public
-                sources: research papers, open-source code, model releases, discussion on Hacker News and economic indicators.
-              </p>
               <p className="lede__meta">
                 Updated {fmtDate(latest.generatedAt)}
                 {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv last week</>}
