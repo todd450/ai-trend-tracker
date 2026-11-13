@@ -183,7 +183,7 @@ difference between neighbouring weeks, over every week on record, and works out
 how large a difference between the two windows that noise alone would produce.
 A move counts only if it is at least twice that (`NOISE_MULTIPLE`). It applies
 to topics, discussion counts, themes and sub-themes; a move that fails keeps
-its figure, set in grey with the steady mark, and is never named in the
+its figure, with a grey bar under "steady", and is never named in the
 headline. With fewer than nine weeks of history only the fixed threshold
 applies. The monthly and two-weekly indicators are not tested this way.
 
