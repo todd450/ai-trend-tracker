@@ -1,4 +1,4 @@
-import { directionOf, fmtChange, type Direction, type Signal } from "@/lib/trends";
+import { fmtChange, heldBack, signalDirection, type Direction, type Signal } from "@/lib/trends";
 
 export type BarTopic = {
   id: string;
@@ -46,16 +46,18 @@ export function Bar({
   label: string;
   level: React.ReactNode;
   tip: string;
-  /** A change smaller than this is drawn as steady. */
+  /** A change smaller than this, or no bigger than the series' usual week-to-week swing, is drawn as steady. */
   band?: number;
   /** Shown in place of the bar when there is no change to draw. */
   note?: string;
 }) {
   const change = signal.change ?? 0;
-  const tone = directionOf(signal.change, band);
+  const tone = signalDirection(signal, band);
+  /** Large enough to print as a rise or fall, but within the series' usual swing: drawn grey, and says so. */
+  const held = heldBack(signal, band);
   const width = `${(Math.min(Math.abs(change), extent) / extent) * 50}%`;
   return (
-    <div className={`mom__signal${firm ? "" : " mom__signal--soft"}`} title={tip}>
+    <div className={`mom__signal${firm ? "" : " mom__signal--soft"}`} title={held ? `${tip} (within its usual swing, so not called)` : tip}>
       <span className="mom__label">{label}</span>
       <span className={`mom__track${signal.change === null && note ? " mom__track--note" : ""}`} aria-hidden={signal.change === null && note ? undefined : true}>
         {signal.change === null && note}
@@ -68,6 +70,7 @@ export function Bar({
       </span>
       <span className="mom__change">
         {signal.change === null && note ? "" : fmtChange(signal.change)}
+        {held && <span className="vh"> (within its usual swing, so not called)</span>}
         {!firm && <span className="vh"> (small numbers)</span>}
       </span>
       <span className="mom__level">{level}</span>
@@ -145,7 +148,8 @@ export function MomentumBars({ topics, minPapers, minStories }: { topics: BarTop
       })}
       <p className="mom__note">
         Bars run to ±{pct(researchExtent)} for research and ±{pct(discussionExtent)} for discussion. Steady means a
-        change under 10%.
+        change under 10%, or one no bigger than the topic’s usual swing from week to week: those keep their
+        figure and a grey bar.
         {anySoft && (
           <>
             {" "}

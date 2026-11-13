@@ -4,9 +4,10 @@ import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
   MAP_MIN_STORIES,
+  STEADY_BAND,
   buildTrends,
-  directionOf,
   latest,
+  signalDirection,
   type Direction,
   type Horizon,
   type TopicTrend,
@@ -134,7 +135,7 @@ export function stageAgainstTrends(c: Conference, horizon: Horizon = "threeMonth
       const n = mentions[topic.id] ?? 0;
       const share = total > 0 ? n / total : 0;
       const research = topic.direction;
-      const discussion = directionOf(topic.stories.change, 0.1);
+      const discussion = signalDirection(topic.stories, STEADY_BAND);
       const researchFirm = topic.hasPapers && mean(topic.paperCounts.slice(-window)) >= HEADLINE_MIN_PAPERS;
       const discussionFirm =
         topic.stories.change !== null && mean(topic.stories.values.slice(-2 * window)) >= MAP_MIN_STORIES;

@@ -14,7 +14,7 @@ import {
   today,
   type Phase,
 } from "@/lib/conferences";
-import { HORIZONS, directionOf, fmtChange, fmtDate, type Direction } from "@/lib/trends";
+import { HORIZONS, STEADY_BAND, fmtChange, fmtDate, heldBack, signalDirection, type Direction, type Signal } from "@/lib/trends";
 import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
@@ -33,15 +33,18 @@ const HORIZON = "threeMonths" as const;
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
 
 /** A change with its arrow. A change resting on too few papers or stories is shown grey and says so. */
-function Move({ change, label, firm }: { change: number | null; label: string; firm: boolean }) {
-  const tone = firm ? directionOf(change, 0.1) : "steady";
+function Move({ signal, label, firm }: { signal: Signal; label: string; firm: boolean }) {
+  const change = signal.change;
+  const tone = firm ? signalDirection(signal, STEADY_BAND) : "steady";
+  const held = firm && heldBack(signal, STEADY_BAND);
   return (
-    <span className={firm ? "change" : "change change--thin"}>
+    <span className={firm ? (held ? "change change--held" : "change") : "change change--thin"}>
       <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
         {firm ? ARROW[tone] : "○"}
       </span>
       <span className="vh">{label} </span>
       {fmtChange(change)}
+      {held && <span className="vh"> (within its usual swing, so not called)</span>}
       {!firm && <span className="stage__thin"> small numbers</span>}
     </span>
   );
@@ -111,11 +114,11 @@ function Stage({ c }: { c: Conference }) {
             </div>
             <div className="stage__move">
               <span className="stage__label">Research</span>
-              {r.topic.hasPapers ? <Move change={r.topic.papers.change} label="Research" firm={r.researchFirm} /> : <span className="stage__none">not collected</span>}
+              {r.topic.hasPapers ? <Move signal={r.topic.papers} label="Research" firm={r.researchFirm} /> : <span className="stage__none">not collected</span>}
             </div>
             <div className="stage__move">
               <span className="stage__label">Discussion</span>
-              <Move change={r.topic.stories.change} label="Discussion" firm={r.discussionFirm} />
+              <Move signal={r.topic.stories} label="Discussion" firm={r.discussionFirm} />
             </div>
             <p className={`stage__reading stage__reading--${r.reading}`}>{READING_LABEL[r.reading]}</p>
             {r.points.length > 0 && (

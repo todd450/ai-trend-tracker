@@ -7,8 +7,10 @@ import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
-import { buildToday } from "@/lib/today";
+import { visible } from "@/lib/editorial";
+import { buildToday, editorial } from "@/lib/today";
 import { NEW_TAB } from "@/lib/links";
+import { NOISE_MULTIPLE } from "@/lib/noise";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
@@ -184,11 +186,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const marketExtent = extentOf((marketShare?.makers ?? []).map((m) => m.share.change));
 
   const today = buildToday();
-  const stories = latest.stories.slice(0, SHOWN);
-  const papers = latest.papers.slice(0, SHOWN);
-  const repos = latest.repos.slice(0, SHOWN);
-  const models = latest.models.slice(0, SHOWN);
-  const labModels = latest.releases.slice(0, SHOWN);
+  const pinsNow = today.items.filter((item) => item.pinned);
+  // The editor's hides apply to every ranked list, before it is cut to length.
+  const stories = visible(latest.stories, editorial).slice(0, SHOWN);
+  const papers = visible(latest.papers, editorial).slice(0, SHOWN);
+  const repos = visible(latest.repos, editorial).slice(0, SHOWN);
+  const models = visible(latest.models, editorial).slice(0, SHOWN);
+  const labModels = visible(latest.releases, editorial).slice(0, SHOWN);
   const analysis = (latest.analysis ?? []).slice(0, SHOWN);
   const labNews = latest.labNews ?? []; // all of it: the collector already keeps this list short
   const sources = Object.entries(latest.sources);
@@ -252,7 +256,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <div className="lede__dek">
               <p>
                 A weekly reading of where attention in artificial intelligence is moving, measured from public
-                sources: research papers, open-source code, model releases, news discussion and economic indicators.
+                sources: research papers, open-source code, model releases, discussion on Hacker News and economic indicators.
               </p>
               <p className="lede__meta">
                 Updated {fmtDate(latest.generatedAt)}
@@ -282,7 +286,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <p>
               What the labs announced, what the analysts published and which AI stories Hacker News picked up in the
               24 hours before this page was last updated. The biggest stories come first, by points on Hacker News;
-              posts not discussed there follow, newest first.
+              posts not discussed there follow, newest first. Posts about one announcement are gathered under the
+              biggest of them, and the editor can pin a story to the top or leave one out;{" "}
+              <a href="#method">how this is measured</a> lists any such decision.
             </p>
           </div>
           {today.items.length > 0 ? (
@@ -300,6 +306,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {today.items.map((item) => (
                 <li key={item.url}>
                   <span className="ledger__main">
+                    {item.pinned && <span className="ledger__pick">Editor’s pick</span>}
                     <a href={item.url} title={item.title} {...NEW_TAB}>{item.title}</a>
                   </span>
                   <span className="ledger__data">
@@ -315,6 +322,26 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     {/* Some feeds give a day and no time; midnight exactly means the time is not known. */}
                     <span>{item.publishedAt.includes("T00:00:00") ? fmtDay(item.publishedAt) : fmtDayTime(item.publishedAt)}</span>
                   </span>
+                  {(item.pinned?.note || item.also.length > 0) && (
+                    <span className="ledger__also">
+                      {item.pinned?.note && <span>{item.pinned.note}</span>}
+                      {item.also.length > 0 && (
+                        <span>
+                          Same story:{" "}
+                          {item.also.map((other, n) => (
+                            <span key={other.url}>
+                              {n > 0 && ", "}
+                              <a href={other.url} title={other.title} {...NEW_TAB}>
+                                {other.title}
+                              </a>{" "}
+                              ({other.from}
+                              {other.discussion && <>, {fmtCompact(other.discussion.points)} points</>})
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                  )}
                 </li>
               ))}
             </Ledger>
@@ -329,7 +356,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <section className="chapter" aria-labelledby="trends-h">
           <header className="chapter__head">
             <p className="chapter__title" id="trends-h">The trends</p>
-            <p className="chapter__dek">What is rising and what is cooling, in research and in discussion.</p>
+            <p className="chapter__dek">What is rising and what is cooling, in research and in discussion on Hacker News.</p>
           </header>
 
         <section id="momentum" className="band" aria-labelledby="momentum-h">
@@ -337,7 +364,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <h2 id="momentum-h">Topic momentum</h2>
             <p>
               Each topic’s {compared}. Research is the topic’s share
-              of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title.
+              of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title. A grey
+              bar beside a large figure moved, but no further than that topic usually swings from week to week, so
+              it is not called a rise or a fall.
             </p>
           </div>
 
@@ -407,8 +436,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <div className="band__head">
             <h2 id="themes-h">Economy and society themes</h2>
             <p>
-              What the discussion says AI is doing to work, companies and society. Each theme’s share of Hacker News
-              stories with AI in the title, {compared}. Select a theme to see the sub-themes inside it.
+              What Hacker News is saying AI is doing to work, companies and society. Its readers are mostly
+              technologists, so this is one community’s conversation, not public opinion. Each theme’s share of
+              Hacker News stories with AI in the title, {compared}. Select a theme to see the sub-themes inside it.
             </p>
           </div>
 
@@ -460,7 +490,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                   );
                 })}
                 <p className="mom__note">
-                  Bars run to ±{Math.round(themeExtent * 100)}%. Steady means a change under {THEME_STEADY_BAND * 100}%.
+                  Bars run to ±{Math.round(themeExtent * 100)}%. Steady means a change under {THEME_STEADY_BAND * 100}%,
+                  or one no bigger than the theme’s usual swing from week to week.
                   {themeTrends.some((t) => t.parts.some((part) => !part.enough)) && (
                     <>
                       {" "}
@@ -1196,7 +1227,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10%, rounded to a whole percent as shown, between the two
-                windows being compared. The switch at the top sets those windows, and the colours carry no judgement: blue marks a rise and amber a fall. <strong>1 week</strong> compares
+                windows being compared, and when that move stands clear of the topic’s own wobble. The wobble is
+                measured from how much the topic’s weekly figure usually changes from one week to the next, over
+                every week on record; a move counts only if it is at least {NOISE_MULTIPLE} times what that wobble
+                alone would be expected to produce between the two windows. A move that fails this test keeps its
+                figure but its bar is drawn grey, under “steady”, and it is never named in the headline. The same test applies
+                to discussion, themes and sub-themes. It is a guard against calling noise a trend, not a proof:
+                with this many topics, an occasional call will still be chance. The switch at the top sets those windows, and the colours carry no judgement: blue marks a rise and amber a fall. <strong>1 week</strong> compares
                 the latest week with the week before, and <strong>1 month</strong> the last{" "}
                 {HORIZONS.oneMonth.window} weeks with the {HORIZONS.oneMonth.window} before. These two react
                 fastest and are the noisiest: one conference deadline or one news story can move them, so treat a
@@ -1221,7 +1258,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
                 theme word, such as “layoffs” or “data center”, as a share of all stories with AI in the title. Each
                 story counts once per theme. The counts are small, often 10 to 30 stories a week, so a theme is
-                called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}%. Hacker
+called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}% and
+                stands clear of its own wobble, as above. Hacker
                 News readers are mostly technologists, so this shows what that community is discussing, not public
                 opinion.
               </p>
@@ -1242,6 +1280,26 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 nothing says how big they are. The times are in UTC, and none of this feeds
                 the trends.
               </p>
+              <p>
+                <strong>The editor’s step.</strong> Points say what one community upvoted, so the ranked list is
+                finished by rules before it is shown. Posts about one event are gathered under the highest-ranked
+                of them and stay on the page beneath it: two headlines count as one event when one holds the other,
+                or when they share three or more words in a row that include a version number. The editor can also
+                pin a post to the top until a set day, and leave a link out of every list on this page; both are
+                kept in a file in the project’s repository, with a reason for each link left out.{" "}
+                {pinsNow.length === 0 && editorial.hide.length === 0
+                  ? "Nothing is pinned or left out today."
+                  : `Today ${pinsNow.length} ${pinsNow.length === 1 ? "post is" : "posts are"} pinned and ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}
+              </p>
+              {editorial.hide.length > 0 && (
+                <ul>
+                  {editorial.hide.map((h) => (
+                    <li key={h.url}>
+                      Left out: {host(h.url)}. {h.reason}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models
                 on Hugging Face. They show up in the news and in the lab announcements instead.
