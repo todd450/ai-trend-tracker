@@ -2,15 +2,16 @@ import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
-import { PRODUCT_KINDS } from "@/lib/products";
-import { MomentumMap } from "@/components/MomentumMap";
+import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
+import { type Product } from "@/lib/products";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
-import { Sparkline } from "@/components/Sparkline";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
-import { buildToday } from "@/lib/today";
+import { visible } from "@/lib/editorial";
+import { buildToday, editorial } from "@/lib/today";
 import { NEW_TAB } from "@/lib/links";
+import { NOISE_MULTIPLE } from "@/lib/noise";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
@@ -19,8 +20,6 @@ import {
   PRODUCT_MIN_STORIES,
   THEME_STEADY_BAND,
   buildTrends,
-  directionOf,
-  fmtChange,
   fmtCompact,
   fmtDate,
   fmtDay,
@@ -38,7 +37,6 @@ import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, buildMarket
 
 const SHOWN = 10;
 
-const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
 
 const SOURCE_LABELS: Record<string, string> = {
   arxivHistory: "arXiv weekly paper counts",
@@ -63,7 +61,11 @@ const SOURCE_LABELS: Record<string, string> = {
   marketShare: "OpenRouter model rankings",
 };
 
-const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
+const THEME_GROUPS: { direction: Direction; title: string }[] = [
+  { direction: "rising", title: "Rising" },
+  { direction: "steady", title: "Steady" },
+  { direction: "cooling", title: "Cooling" },
+];
 
 function host(url: string) {
   try {
@@ -71,18 +73,6 @@ function host(url: string) {
   } catch {
     return "";
   }
-}
-
-function Change({ signal, band }: { signal: Signal; band?: number }) {
-  const tone = toneOf(signal, band);
-  return (
-    <span className="change">
-      <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
-        {ARROW[tone]}
-      </span>
-      {fmtChange(signal.change)}
-    </span>
-  );
 }
 
 /** A weekly story count, shown short and read out in full. */
@@ -98,59 +88,34 @@ function PerWeek({ value }: { value: number }) {
 }
 
 /**
- * The two figure cells of a theme or sub-theme row: share of AI stories, then stories a week.
- * With too few stories to judge, the change gives way to a note and the level stays.
+ * The figure cells of a theme or sub-theme row: the change in its share of AI stories as a bar,
+ * the share now, then stories a week. With too few stories to judge, the bar is outlined.
  */
 function ThemeCells({
   name,
   share,
   stories,
-  labels,
+  extent,
   enough = true,
 }: {
   name: string;
   share: Signal;
   stories: Signal;
-  labels: string[];
+  extent: number;
   enough?: boolean;
 }) {
-  const few = <span className="trend__few">too few to call</span>;
   return (
     <>
-      <div className="trend__signal">
-        <span className="trend__label">Share</span>
-        <Sparkline
-          values={share.values}
-          labels={labels}
-          unit="storyShare"
-          tone={enough ? directionOf(share.change, THEME_STEADY_BAND) : "steady"}
-          summary={`${name}: share of AI stories on Hacker News over ${labels.length} weeks, now ${share.recent.toFixed(1)}%${enough ? `, ${fmtChange(share.change)}` : ""}`}
-        />
-        {enough ? (
-          <Change signal={share} band={THEME_STEADY_BAND} />
-        ) : (
-          few
-        )}
-        <span className="trend__level">
-          {share.recent.toFixed(1)}%<span className="vh"> of AI stories</span>
-        </span>
-      </div>
-      <div className="trend__signal">
-        <span className="trend__label">Stories</span>
-        <Sparkline
-          values={stories.values}
-          labels={labels}
-          unit="stories"
-          tone={enough ? directionOf(stories.change, THEME_STEADY_BAND) : "steady"}
-          summary={`${name}: Hacker News stories per week over ${labels.length} weeks, now ${Math.round(stories.recent)}${enough ? `, ${fmtChange(stories.change)}` : ""}`}
-        />
-        {enough ? (
-          <Change signal={stories} band={THEME_STEADY_BAND} />
-        ) : (
-          few
-        )}
-        <PerWeek value={stories.recent} />
-      </div>
+      <Bar
+        signal={share}
+        extent={extent}
+        firm={enough}
+        band={THEME_STEADY_BAND}
+        label="Share"
+        tip={`${name}: ${share.recent.toFixed(1)}% of AI stories, was ${share.prior.toFixed(1)}%${enough ? "" : " (too few stories to call)"}`}
+        level={<>{share.recent.toFixed(1)}%<span className="vh"> of AI stories</span></>}
+      />
+      <PerWeek value={stories.recent} />
     </>
   );
 }
@@ -173,23 +138,31 @@ function Mag({ value, max, unit }: { value: number; max: number; unit: string })
 const top = (xs: number[]) => Math.max(1, ...xs);
 const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
 
+const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
+  { kind: "assistant", title: "Assistants" },
+  { kind: "coding", title: "Coding tools and agents" },
+  { kind: "media", title: "Image, video and voice" },
+];
+
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
-  const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = trends;
+  const { window: WINDOW, weeks, topicTrends, rankedTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = trends;
   const { headline, briefing } = buildBriefing(trends);
   const compared =
     WINDOW === 1
       ? "latest week compared with the week before"
       : `last ${WINDOW} weeks compared with the ${WINDOW} weeks before`;
   const latestWeek = weeks.at(-1);
-  const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
-  /** Topics whose counts are large enough for their place on the map to be trusted. */
-  const firm = new Set(mapTopics.map((t) => t.id));
-  /** Every topic with both changes to place, numbered as in the table. */
-  const mapPoints = topicTrends
-    .map((t, i) => ({ t, rank: i + 1 }))
-    .filter(({ t }) => t.hasPapers && t.papers.change !== null && t.stories.change !== null);
+  /** Topics with enough papers a week for a change in their share to be trusted. */
+  const papersFirm = new Set(rankedTopics.map((t) => t.id));
+  const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  /** Themes numbered in the order shown, biggest rise in share first. */
+  const themeRows = themeTrends.map((t, i) => ({ t, rank: i + 1 }));
+  /** One scale for every theme bar; sub-themes with too few stories do not stretch it. */
+  const themeExtent = extentOf(
+    themeTrends.flatMap((t) => [t.share.change, ...t.parts.filter((part) => part.enough).map((part) => part.share.change)]),
+  );
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
   const adoption = adoptionSummary; // local constants, so the null checks below hold inside the row callbacks
   const adoptionRows = adoption
@@ -217,13 +190,28 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const usage = usageSummary;
   const marketShare = buildMarketShare(horizon);
 
+  /** One bar scale per list, set by its largest change. */
+  const indicatorExtent = extentOf([jobs, federal, releases].map((x) => x?.signal.change ?? null));
+  const adoptionExtent = extentOf(adoptionRows.map((row) => row.signal.change));
+  const usageExtent = extentOf((usage?.toolkits ?? []).map((t) => t.share.change));
+  const marketExtent = extentOf((marketShare?.makers ?? []).map((m) => m.share.change));
+
+  /** Products in their groups, numbered down the page; within a group, most discussed first. */
+  const productRows = PRODUCT_GROUPS.flatMap((group) => productTrends.filter((p) => p.kind === group.kind)).map(
+    (p, i) => ({ p, rank: i + 1 }),
+  );
+  const productStoryExtent = extentOf(productTrends.filter((p) => p.enough).map((p) => p.stories.change));
+  const productViewExtent = extentOf(productTrends.map((p) => p.views?.change ?? null));
+
   const today = buildToday();
-  const stories = latest.stories.slice(0, SHOWN);
-  const papers = latest.papers.slice(0, SHOWN);
-  const repos = latest.repos.slice(0, SHOWN);
-  const launches = (latest.launches ?? []).slice(0, SHOWN);
-  const models = latest.models.slice(0, SHOWN);
-  const labModels = latest.releases.slice(0, SHOWN);
+  const pinsNow = today.items.filter((item) => item.pinned);
+  // The editor's hides apply to every ranked list, before it is cut to length.
+  const stories = visible(latest.stories, editorial).slice(0, SHOWN);
+  const papers = visible(latest.papers, editorial).slice(0, SHOWN);
+  const repos = visible(latest.repos, editorial).slice(0, SHOWN);
+  const launches = visible(latest.launches ?? [], editorial).slice(0, SHOWN);
+  const models = visible(latest.models, editorial).slice(0, SHOWN);
+  const labModels = visible(latest.releases, editorial).slice(0, SHOWN);
   const analysis = (latest.analysis ?? []).slice(0, SHOWN);
   const labNews = latest.labNews ?? []; // all of it: the collector already keeps this list short
   const sources = Object.entries(latest.sources);
@@ -289,7 +277,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <div className="lede__dek">
               <p>
                 A weekly reading of where attention in artificial intelligence is moving, measured from public
-                sources: research papers, open-source code, model releases, news discussion and economic indicators.
+                sources: research papers, open-source code, model releases, discussion on Hacker News and economic indicators.
               </p>
               <p className="lede__meta">
                 Updated {fmtDate(latest.generatedAt)}
@@ -319,7 +307,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <p>
               What the labs announced, what the analysts published and which AI stories Hacker News picked up in the
               24 hours before this page was last updated. The biggest stories come first, by points on Hacker News;
-              posts not discussed there follow, newest first.
+              posts not discussed there follow, newest first. Posts about one announcement are gathered under the
+              biggest of them, and the editor can pin a story to the top or leave one out;{" "}
+              <a href="#method">how this is measured</a> lists any such decision.
             </p>
           </div>
           {today.items.length > 0 ? (
@@ -337,6 +327,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {today.items.map((item) => (
                 <li key={item.url}>
                   <span className="ledger__main">
+                    {item.pinned && <span className="ledger__pick">Editor’s pick</span>}
                     <a href={item.url} title={item.title} {...NEW_TAB}>{item.title}</a>
                   </span>
                   <span className="ledger__data">
@@ -352,6 +343,26 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     {/* Some feeds give a day and no time; midnight exactly means the time is not known. */}
                     <span>{item.publishedAt.includes("T00:00:00") ? fmtDay(item.publishedAt) : fmtDayTime(item.publishedAt)}</span>
                   </span>
+                  {(item.pinned?.note || item.also.length > 0) && (
+                    <span className="ledger__also">
+                      {item.pinned?.note && <span>{item.pinned.note}</span>}
+                      {item.also.length > 0 && (
+                        <span>
+                          Same story:{" "}
+                          {item.also.map((other, n) => (
+                            <span key={other.url}>
+                              {n > 0 && ", "}
+                              <a href={other.url} title={other.title} {...NEW_TAB}>
+                                {other.title}
+                              </a>{" "}
+                              ({other.from}
+                              {other.discussion && <>, {fmtCompact(other.discussion.points)} points</>})
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                  )}
                 </li>
               ))}
             </Ledger>
@@ -366,7 +377,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <section className="chapter" aria-labelledby="trends-h">
           <header className="chapter__head">
             <p className="chapter__title" id="trends-h">The trends</p>
-            <p className="chapter__dek">What is rising and what is cooling, in research and in discussion.</p>
+            <p className="chapter__dek">What is rising and what is cooling, in research and in discussion on Hacker News.</p>
           </header>
 
         <section id="momentum" className="band" aria-labelledby="momentum-h">
@@ -374,72 +385,30 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <h2 id="momentum-h">Topic momentum</h2>
             <p>
               Each topic’s {compared}. Research is the topic’s share
-              of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title.
+              of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title. A grey
+              bar beside a large figure moved, but no further than that topic usually swings from week to week, so
+              it is not called a rise or a fall.
             </p>
           </div>
 
           {hasHistory ? (
             <>
-              <MomentumMap
-                points={mapPoints.map(({ t, rank }) => ({
+              <MomentumBars
+                minPapers={HEADLINE_MIN_PAPERS}
+                minStories={MAP_MIN_STORIES}
+                topics={topicTrends.map((t, i) => ({
                   id: t.id,
                   name: t.name,
-                  rank,
-                  research: t.papers.change ?? 0,
-                  discussion: t.stories.change ?? 0,
+                  blurb: t.blurb,
+                  rank: i + 1,
                   direction: t.direction,
-                  firm: firm.has(t.id),
+                  papers: t.papers,
+                  stories: t.stories,
+                  hasPapers: t.hasPapers,
+                  papersFirm: papersFirm.has(t.id),
+                  storiesFirm: avg(t.stories.values.slice(-2 * WINDOW)) >= MAP_MIN_STORIES,
                 }))}
-                unplaced={topicTrends.filter((t) => !mapPoints.some((p) => p.t.id === t.id)).map((t) => t.name)}
               />
-              <div className="trend-cols" aria-hidden="true">
-                <span>Topic</span>
-                <span>Research <i>share of AI papers</i></span>
-                <span>Discussion <i>Hacker News stories</i></span>
-              </div>
-              <ol className="trends">
-                {topicTrends.map((t, i) => (
-                  <li key={t.id} id={`topic-${t.id}`} className="trend">
-                    <div className="trend__topic">
-                      <span className="trend__rank">{i + 1}</span>
-                      <h3>{t.name}</h3>
-                      <p>{t.blurb}</p>
-                    </div>
-                    <div className="trend__signal">
-                      <span className="trend__label">Research</span>
-                      {t.hasPapers ? (
-                        <>
-                          <Sparkline
-                            values={t.papers.values}
-                            labels={weekLabels}
-                            unit="share"
-                            tone={toneOf(t.papers)}
-                            summary={`${t.name}: share of AI papers over ${weeks.length} weeks, now ${t.papers.recent.toFixed(1)}%, ${fmtChange(t.papers.change)}`}
-                          />
-                          <Change signal={t.papers} />
-                          <span className="trend__level">
-                            {t.papers.recent.toFixed(1)}%<span className="vh"> of papers</span>
-                          </span>
-                        </>
-                      ) : (
-                        <p className="trend__pending">Paper counts not collected yet</p>
-                      )}
-                    </div>
-                    <div className="trend__signal">
-                      <span className="trend__label">Discussion</span>
-                      <Sparkline
-                        values={t.stories.values}
-                        labels={weekLabels}
-                        unit="stories"
-                        tone={toneOf(t.stories)}
-                        summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
-                      />
-                      <Change signal={t.stories} />
-                      <PerWeek value={t.stories.recent} />
-                    </div>
-                  </li>
-                ))}
-              </ol>
 
               <details className="table-view">
                 <summary>Show the weekly numbers as a table</summary>
@@ -488,52 +457,71 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <div className="band__head">
             <h2 id="themes-h">Economy and society themes</h2>
             <p>
-              What the discussion says AI is doing to work, companies and society. Each theme’s share of Hacker News
-              stories with AI in the title, {compared}. Select a theme to see the sub-themes inside it.
+              What Hacker News is saying AI is doing to work, companies and society. Its readers are mostly
+              technologists, so this is one community’s conversation, not public opinion. Each theme’s share of
+              Hacker News stories with AI in the title, {compared}. Select a theme to see the sub-themes inside it.
             </p>
           </div>
 
           {hasThemes ? (
             <>
-              <div className="trend-cols" aria-hidden="true">
-                <span>Theme</span>
-                <span>Share <i>of AI stories</i></span>
-                <span>Stories <i>on Hacker News</i></span>
+              <div className="mom mom--themes">
+                <div className="trend-cols" aria-hidden="true">
+                  <span>Theme</span>
+                  <span>Share of AI stories <i>change, now</i></span>
+                  <span>Stories</span>
+                </div>
+                {THEME_GROUPS.map((group) => {
+                  const members = themeRows.filter(({ t }) => t.direction === group.direction);
+                  if (members.length === 0) return null;
+                  return (
+                    <section key={group.direction} className="mom__group">
+                      <h3>
+                        {group.title} <span>{members.length}</span>
+                      </h3>
+                      <ol start={members[0].rank}>
+                        {members.map(({ t, rank }) => (
+                          <ThemeRow
+                            key={t.id}
+                            rank={rank}
+                            name={t.name}
+                            blurb={t.blurb}
+                            count={t.parts.length}
+                            cells={<ThemeCells name={t.name} share={t.share} stories={t.stories} extent={themeExtent} />}
+                          >
+                            {t.parts.map((part) => (
+                              <li key={part.id} className="mom__row mom__row--theme mom__row--sub">
+                                <div className="mom__topic" title={`Stories whose title matches: ${part.searches.join(", ")}`}>
+                                  <span className="mom__rank" aria-hidden="true" />
+                                  <h5>{part.name}</h5>
+                                </div>
+                                <ThemeCells
+                                  name={`${t.name}, ${part.name}`}
+                                  share={part.share}
+                                  stories={part.stories}
+                                  extent={themeExtent}
+                                  enough={part.enough}
+                                />
+                              </li>
+                            ))}
+                          </ThemeRow>
+                        ))}
+                      </ol>
+                    </section>
+                  );
+                })}
+                <p className="mom__note">
+                  Bars run to ±{Math.round(themeExtent * 100)}%. Steady means a change under {THEME_STEADY_BAND * 100}%,
+                  or one no bigger than the theme’s usual swing from week to week.
+                  {themeTrends.some((t) => t.parts.some((part) => !part.enough)) && (
+                    <>
+                      {" "}
+                      <span className="mom__swatch" aria-hidden="true" /> Outlined bars are sub-themes with fewer than{" "}
+                      {SUBTHEME_MIN_STORIES} stories a week; read them with care.
+                    </>
+                  )}
+                </p>
               </div>
-              <ol className="trends">
-                {themeTrends.map((t, i) => (
-                  <ThemeRow
-                    key={t.id}
-                    rank={i + 1}
-                    name={t.name}
-                    blurb={t.blurb}
-                    count={t.parts.length}
-                    cells={
-                      <>
-                        <ThemeCells name={t.name} share={t.share} stories={t.stories} labels={weekLabels} />
-                      </>
-                    }
-                  >
-                    {t.parts.map((part) => (
-                      <li key={part.id} className="trend trend--sub">
-                        <div className="trend__topic">
-                          <span className="trend__rank" aria-hidden="true" />
-                          <h4>{part.name}</h4>
-                          <p>Stories whose title matches: {part.searches.join(", ")}</p>
-                        </div>
-                        <ThemeCells
-                          name={`${t.name}, ${part.name}`}
-                          share={part.share}
-                          stories={part.stories}
-                         
-                          labels={weekLabels}
-                          enough={part.enough}
-                        />
-                      </li>
-                    ))}
-                  </ThemeRow>
-                ))}
-              </ol>
 
               <details className="table-view">
                 <summary>Show the weekly theme numbers as a table</summary>
@@ -594,58 +582,78 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
             </div>
 
-            <div className="trend-cols" aria-hidden="true">
-              <span>Product</span>
-              <span>Discussion <i>Hacker News stories</i></span>
-              <span>Public interest <i>Wikipedia views</i></span>
+            <div className="mom">
+              <div className="trend-cols" aria-hidden="true">
+                <span>Product</span>
+                <span>Discussion <i>change in Hacker News stories, now</i></span>
+                <span>Public interest <i>change in Wikipedia views, now</i></span>
+              </div>
+              {PRODUCT_GROUPS.map((group) => {
+                const members = productRows.filter(({ p }) => p.kind === group.kind);
+                if (members.length === 0) return null;
+                return (
+                  <section key={group.kind} className="mom__group">
+                    <h3>
+                      {group.title} <span>{members.length}</span>
+                    </h3>
+                    <ol start={members[0].rank}>
+                      {members.map(({ p, rank }) => {
+                        const views = p.views;
+                        return (
+                          <li key={p.id} className="mom__row">
+                            <div className="mom__topic" title={`${p.blurb}. Stories whose title contains: ${p.searches.join(", ")}`}>
+                              <span className="mom__rank">{rank}</span>
+                              <h4>{p.name}</h4>
+                            </div>
+                            <Bar
+                              signal={p.enough ? p.stories : { ...p.stories, change: null }}
+                              extent={productStoryExtent}
+                              firm
+                              band={THEME_STEADY_BAND}
+                              label="Discussion"
+                              note="too few to call"
+                              tip={`${p.name}: ${p.stories.recent.toFixed(1)} Hacker News stories a week, was ${p.stories.prior.toFixed(1)}${p.enough ? "" : " (too few stories to call)"}`}
+                              level={
+                                <>
+                                  {Math.round(p.stories.recent)}
+                                  <span aria-hidden="true">/wk</span>
+                                  <span className="vh"> stories a week</span>
+                                </>
+                              }
+                            />
+                            {views ? (
+                              <Bar
+                                signal={views}
+                                extent={productViewExtent}
+                                firm
+                                label="Interest"
+                                note="new article"
+                                tip={`${p.name}: ${Math.round(views.recent).toLocaleString("en")} Wikipedia views a day, was ${Math.round(views.prior).toLocaleString("en")}`}
+                                level={
+                                  <>
+                                    {fmtCompact(Math.round(views.recent))}
+                                    <span aria-hidden="true">/day</span>
+                                    <span className="vh"> views a day</span>
+                                  </>
+                                }
+                              />
+                            ) : (
+                              <p className="mom__pending">No article of its own</p>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </section>
+                );
+              })}
+              <p className="mom__note">
+                Bars run to ±{Math.round(productStoryExtent * 100)}% for discussion and ±{Math.round(productViewExtent * 100)}%
+                for public interest. A grey bar is a change too small to call, or no bigger than the product’s usual
+                swing from week to week. Discussion is not called for a product with fewer than{" "}
+                {PRODUCT_MIN_STORIES} stories a week.
+              </p>
             </div>
-            <MoreRows count={productTrends.length} noun="products">
-              {productTrends.map((p, i) => (
-                <li key={p.id} className="trend">
-                  <div className="trend__topic">
-                    <span className="trend__rank">{i + 1}</span>
-                    <h3>{p.name}</h3>
-                    <p>
-                      {p.blurb} · {PRODUCT_KINDS[p.kind]}
-                    </p>
-                  </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Discussion</span>
-                    <Sparkline
-                      values={p.stories.values}
-                      labels={weekLabels}
-                      unit="stories"
-                      tone={p.enough ? toneOf(p.stories, THEME_STEADY_BAND) : "steady"}
-                      summary={`${p.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(p.stories.recent)}${p.enough ? `, ${fmtChange(p.stories.change)}` : ""}`}
-                    />
-                    {p.enough ? <Change signal={p.stories} band={THEME_STEADY_BAND} /> : <span className="trend__few">too few to call</span>}
-                    <PerWeek value={p.stories.recent} />
-                  </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Public interest</span>
-                    {p.views ? (
-                      <>
-                        <Sparkline
-                          values={p.views.values}
-                          labels={weekLabels}
-                          unit="views"
-                          tone={toneOf(p.views)}
-                          summary={`${p.name}: Wikipedia article views a day, weekly over ${weeks.length} weeks, now ${fmtCompact(Math.round(p.views.recent))}, ${fmtChange(p.views.change)}`}
-                        />
-                        <Change signal={p.views} />
-                        <span className="trend__level">
-                          {fmtCompact(Math.round(p.views.recent))}
-                          <span aria-hidden="true">/day</span>
-                          <span className="vh"> views a day</span>
-                        </span>
-                      </>
-                    ) : (
-                      <span className="trend__few">no article to measure</span>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </MoreRows>
           </section>
         )}
 
@@ -666,31 +674,27 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <div className="trend-cols trend-cols--plain" aria-hidden="true">
             <span>Indicator</span>
-            <span>Trend <i>change and latest reading</i></span>
+            <span>Change <i>and latest reading</i></span>
             <span>Compared with</span>
           </div>
-          <ol className="trends">
+          <ol className="mom__list">
             {jobs && (
-              <li className="trend trend--plain">
-                <div className="trend__topic">
+              <li className="mom__row mom__row--plain">
+                <div className="mom__topic">
                   <h3>AI share of US job postings</h3>
-                  <p>
+                  <p className="mom__blurb">
                     Postings on Indeed that ask for AI skills, as of {fmtDate(jobs.asOf)}. The data is refreshed
                     monthly.
                   </p>
                 </div>
-                <div className="trend__signal">
-                  <span className="trend__label">Trend</span>
-                  <Sparkline
-                    values={jobs.signal.values}
-                    labels={jobs.labels}
-                    unit="postings"
-                    tone={toneOf(jobs.signal)}
-                    summary={`Share of US job postings on Indeed mentioning AI skills, monthly for a year: now ${jobs.signal.recent.toFixed(1)}%, ${fmtChange(jobs.signal.change)} on a year earlier`}
-                  />
-                  <Change signal={jobs.signal} />
-                  <span className="trend__level">{jobs.signal.recent.toFixed(1)}%</span>
-                </div>
+                <Bar
+                  signal={jobs.signal}
+                  extent={indicatorExtent}
+                  firm
+                  label="Change"
+                  tip={`Share of US job postings on Indeed asking for AI skills: ${jobs.signal.recent.toFixed(1)}%, was ${jobs.signal.prior.toFixed(1)}% a year earlier`}
+                  level={<>{jobs.signal.recent.toFixed(1)}%</>}
+                />
                 <p className="trend__context">
                   {jobs.signal.prior.toFixed(1)}% a year earlier ·{" "}
                   Source: <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>, each
@@ -701,26 +705,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             )}
 
             {federal && (
-              <li className="trend trend--plain">
-                <div className="trend__topic">
+              <li className="mom__row mom__row--plain">
+                <div className="mom__topic">
                   <h3>US federal documents mentioning AI</h3>
-                  <p>
+                  <p className="mom__blurb">
                     Rules, proposed rules and notices whose text includes “artificial intelligence”. A mention can be
                     brief, so this shows attention, not regulation.
                   </p>
                 </div>
-                <div className="trend__signal">
-                  <span className="trend__label">Trend</span>
-                  <Sparkline
-                    values={federal.signal.values}
-                    labels={federal.labels}
-                    unit="documents"
-                    tone={toneOf(federal.signal)}
-                    summary={`Federal Register documents mentioning artificial intelligence, monthly for a year: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, ${fmtChange(federal.signal.change)} on a year earlier`}
-                  />
-                  <Change signal={federal.signal} />
-                  <span className="trend__level">{federal.signal.recent}</span>
-                </div>
+                <Bar
+                  signal={federal.signal}
+                  extent={indicatorExtent}
+                  firm
+                  label="Change"
+                  tip={`Federal Register documents mentioning artificial intelligence: ${federal.signal.recent} in ${fmtMonth(federal.latestMonth)}, was ${federal.signal.prior} a year earlier`}
+                  level={<>{federal.signal.recent}</>}
+                />
                 <p className="trend__context">
                   {federal.signal.prior} a year earlier, in {fmtMonth(federal.latestMonth)} ·{" "}
                   <a href="https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=%22artificial+intelligence%22" {...NEW_TAB}>
@@ -731,26 +731,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             )}
 
             {releases && (
-              <li className="trend trend--plain">
-                <div className="trend__topic">
+              <li className="mom__row mom__row--plain">
+                <div className="mom__topic">
                   <h3>Frontier model releases</h3>
-                  <p>
+                  <p className="mom__blurb">
                     New version numbers from Anthropic, Google DeepMind and OpenAI in the last 90 days. Latest:{" "}
                     {releases.shown.slice(0, 3).map((r) => `${r.model} (${fmtDay(r.date)})`).join(", ")}.
                   </p>
                 </div>
-                <div className="trend__signal">
-                  <span className="trend__label">Trend</span>
-                  <Sparkline
-                    values={releases.signal.values}
-                    labels={releases.labels}
-                    unit="releases"
-                    tone={toneOf(releases.signal)}
-                    summary={`New model versions from Anthropic, Google DeepMind and OpenAI per 30 days over six periods: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
-                  />
-                  <Change signal={releases.signal} />
-                  <span className="trend__level">{releases.signal.recent}</span>
-                </div>
+                <Bar
+                  signal={releases.signal}
+                  extent={indicatorExtent}
+                  firm
+                  label="Change"
+                  tip={`New model versions from Anthropic, Google DeepMind and OpenAI: ${releases.signal.recent} in the last 90 days, ${releases.signal.prior} in the 90 days before`}
+                  level={<>{releases.signal.recent}</>}
+                />
                 <p className="trend__context">{releases.signal.prior} in the 90 days before</p>
               </li>
             )}
@@ -823,34 +819,25 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
             <div className="trend-cols trend-cols--plain" aria-hidden="true">
               <span>Measure</span>
-              <span>Trend <i>change and recent average</i></span>
+              <span>Change <i>and recent average</i></span>
               <span>Compared with</span>
             </div>
-            <ol className="trends">
+            <ol className="mom__list">
               {adoptionRows.map((row) => (
-                <li key={row.id} className="trend trend--plain">
-                  <div className="trend__topic">
+                <li key={row.id} className="mom__row mom__row--plain">
+                  <div className="mom__topic">
                     <h3>{row.name}</h3>
-                    <p>{row.blurb}</p>
+                    <p className="mom__blurb">{row.blurb}</p>
                   </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Trend</span>
-                    <Sparkline
-                      values={row.signal.values}
-                      labels={adoption.labels}
-                      unit="businesses"
-                      tone={toneOf(row.signal)}
-                      summary={`${row.name}: share of businesses saying yes, every two weeks over ${adoption.labels.length} surveys, ${row.latest.toFixed(1)}% in the latest${row.signal.change === null ? "" : `, with the last ${ADOPTION_WINDOW} surveys ${fmtChange(row.signal.change)} on the ${ADOPTION_WINDOW} before`}`}
-                    />
-                    {row.signal.change === null ? (
-                      <span className="trend__few">too little history</span>
-                    ) : (
-                      <Change signal={row.signal} />
-                    )}
-                    <span className="trend__level">
-                      {row.signal.recent.toFixed(1)}%<span className="vh"> of businesses, average of the last {ADOPTION_WINDOW} surveys</span>
-                    </span>
-                  </div>
+                  <Bar
+                    signal={row.signal}
+                    extent={adoptionExtent}
+                    firm
+                    label="Change"
+                    note="too little history"
+                    tip={`${row.name}: ${row.signal.recent.toFixed(1)}% of businesses over the last ${ADOPTION_WINDOW} surveys${row.signal.change === null ? "" : `, was ${row.signal.prior.toFixed(1)}% over the ${ADOPTION_WINDOW} before`}`}
+                    level={<>{row.signal.recent.toFixed(1)}%<span className="vh"> of businesses, average of the last {ADOPTION_WINDOW} surveys</span></>}
+                  />
                   <p className="trend__context">
                     {row.signal.change !== null && `${row.signal.prior.toFixed(1)}% over the ${ADOPTION_WINDOW} surveys before · `}
                     {row.latest.toFixed(1)}% in the latest ·{" "}
@@ -907,29 +894,20 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </div>
             <MoreRows count={usage.toolkits.length} noun="toolkits">
               {usage.toolkits.map((t) => (
-                <li key={t.id} className="trend trend--plain">
-                  <div className="trend__topic">
+                <li key={t.id} className="mom__row mom__row--plain">
+                  <div className="mom__topic">
                     <h3>{t.name}</h3>
-                    <p>{t.blurb}.</p>
+                    <p className="mom__blurb">{t.blurb}.</p>
                   </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Share</span>
-                    <Sparkline
-                      values={t.share.values}
-                      labels={usage.labels}
-                      unit="downloadShare"
-                      tone={toneOf(t.share)}
-                      summary={`${t.name}: share of tracked toolkit downloads, monthly over ${usage.labels.length} months, ${t.share.recent.toFixed(1)}% over the last ${USAGE_WINDOW}${t.share.change === null ? "" : `, ${fmtChange(t.share.change)} on the ${USAGE_WINDOW} before`}`}
-                    />
-                    {t.share.change === null ? (
-                      <span className="trend__few">too little history</span>
-                    ) : (
-                      <Change signal={t.share} />
-                    )}
-                    <span className="trend__level">
-                      {t.share.recent.toFixed(1)}%<span className="vh"> of downloads</span>
-                    </span>
-                  </div>
+                  <Bar
+                    signal={t.share}
+                    extent={usageExtent}
+                    firm
+                    label="Share"
+                    note="too little history"
+                    tip={`${t.name}: ${t.share.recent.toFixed(1)}% of tracked toolkit downloads over the last ${USAGE_WINDOW} months${t.share.change === null ? "" : `, was ${t.share.prior.toFixed(1)}% over the ${USAGE_WINDOW} before`}`}
+                    level={<>{t.share.recent.toFixed(1)}%<span className="vh"> of downloads</span></>}
+                  />
                   <p className="trend__context">
                     {fmtCompact(t.downloads)} in {fmtMonth(usage.latestMonth)} ·{" "}
                     {t.kind === "lab" ? "lab toolkit" : "building tool"}
@@ -990,28 +968,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </div>
             <MoreRows count={marketShare.makers.length} noun="model makers">
               {marketShare.makers.map((m) => (
-                <li key={m.id} className="trend trend--plain">
-                  <div className="trend__topic">
+                <li key={m.id} className="mom__row mom__row--plain">
+                  <div className="mom__topic">
                     <h3>{m.name}</h3>
                   </div>
-                  <div className="trend__signal">
-                    <span className="trend__label">Share</span>
-                    <Sparkline
-                      values={m.share.values}
-                      labels={m.labels}
-                      unit="tokenShare"
-                      tone={toneOf(m.share)}
-                      summary={`${m.name}: share of tokens on OpenRouter, weekly over ${m.labels.length} weeks, now ${m.share.recent.toFixed(1)}%${m.share.change === null ? "" : `, ${fmtChange(m.share.change)}`}`}
-                    />
-                    {m.share.change === null ? (
-                      <span className="trend__few">not always in the top nine</span>
-                    ) : (
-                      <Change signal={m.share} />
-                    )}
-                    <span className="trend__level">
-                      {m.share.recent.toFixed(1)}%<span className="vh"> of tokens</span>
-                    </span>
-                  </div>
+                  <Bar
+                    signal={m.share}
+                    extent={marketExtent}
+                    firm
+                    label="Share"
+                    note="not always in the top nine"
+                    tip={`${m.name}: ${m.share.recent.toFixed(1)}% of tokens on OpenRouter${m.share.change === null ? "" : `, was ${m.share.prior.toFixed(1)}%`}`}
+                    level={<>{m.share.recent.toFixed(1)}%<span className="vh"> of tokens</span></>}
+                  />
                   <p className="trend__context">{fmtCompact(m.tokens)} in the latest week</p>
                 </li>
               ))}
@@ -1064,7 +1033,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="pair">
           <section id="news" className="band" aria-labelledby="news-h">
             <div className="band__head">
-              <p className="band__source">Hacker News · past 7 days</p>
               <h2 id="news-h">In the news</h2>
               <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
             </div>
@@ -1105,7 +1073,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="papers" className="band" aria-labelledby="papers-h">
             <div className="band__head">
-              <p className="band__source">Hugging Face Papers · by upvotes</p>
               <h2 id="papers-h">Papers getting attention</h2>
               <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
             </div>
@@ -1143,7 +1110,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="pair">
           <section id="analysis" className="band" aria-labelledby="analysis-h">
             <div className="band__head">
-              <p className="band__source">Newsletters and research institutions</p>
               <h2 id="analysis-h">From the analysts</h2>
               <p>
                 New writing on what AI is doing to work, companies and society, from newsletters and research
@@ -1175,7 +1141,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="announcements" className="band" aria-labelledby="announcements-h">
             <div className="band__head">
-              <p className="band__source">Lab blogs</p>
               <h2 id="announcements-h">Lab announcements</h2>
               <p>
                 The latest posts from the labs themselves, including closed-model releases: Anthropic, OpenAI,
@@ -1210,7 +1175,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         {launches.length > 0 && (
         <section id="launches" className="band" aria-labelledby="launches-h">
           <div className="band__head">
-            <p className="band__source">Hacker News · past 7 days</p>
             <h2 id="launches-h">Product launches</h2>
             <p>AI products their makers posted to Hacker News in the past seven days, ranked by points.</p>
           </div>
@@ -1259,7 +1223,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section id="code" className="band" aria-labelledby="code-h">
           <div className="band__head">
-            <p className="band__source">GitHub · created in the past 30 days</p>
             <h2 id="code-h">Repositories gaining stars</h2>
             <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
           </div>
@@ -1306,7 +1269,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="pair">
           <section id="models" className="band" aria-labelledby="models-h">
             <div className="band__head">
-              <p className="band__source">Hugging Face · trending now</p>
               <h2 id="models-h">Models trending</h2>
               <p>What builders are picking up on Hugging Face right now.</p>
             </div>
@@ -1345,7 +1307,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="labs" className="band" aria-labelledby="labs-h">
             <div className="band__head">
-              <p className="band__source">Hugging Face · past 45 days</p>
               <h2 id="labs-h">New from the labs</h2>
               <p>Open models published by major AI labs in the past 45 days, by likes.</p>
             </div>
@@ -1422,7 +1383,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10%, rounded to a whole percent as shown, between the two
-                windows being compared. The switch at the top sets those windows, and the colours carry no judgement: blue marks a rise and amber a fall. <strong>1 week</strong> compares
+                windows being compared, and when that move stands clear of the topic’s own wobble. The wobble is
+                measured from how much the topic’s weekly figure usually changes from one week to the next, over
+                every week on record; a move counts only if it is at least {NOISE_MULTIPLE} times what that wobble
+                alone would be expected to produce between the two windows. A move that fails this test keeps its
+                figure but its bar is drawn grey, under “steady”, and it is never named in the headline. The same test applies
+                to discussion, themes and sub-themes. It is a guard against calling noise a trend, not a proof:
+                with this many topics, an occasional call will still be chance. The switch at the top sets those windows, and the colours carry no judgement: blue marks a rise and amber a fall. <strong>1 week</strong> compares
                 the latest week with the week before, and <strong>1 month</strong> the last{" "}
                 {HORIZONS.oneMonth.window} weeks with the {HORIZONS.oneMonth.window} before. These two react
                 fastest and are the noisiest: one conference deadline or one news story can move them, so treat a
@@ -1437,16 +1404,18 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
               </p>
               <p>
-                <strong>The map</strong> places a topic by two changes over the same windows: its share
-                of AI papers (across) and its Hacker News stories (up). The map’s scale stretches near the middle, so small changes stay apart and one large change does not flatten the rest; the gridlines carry the real figures. A topic is drawn solid only when it averages at
-                least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week. Smaller topics swing too
-                easily, so they are drawn hollow and should be read with care. <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
+                <strong>Topic momentum</strong> sets two changes over the same windows side by side: a topic’s share
+                of AI papers and its Hacker News stories. Each column of bars has its own scale, given under the
+                list. A bar is drawn solid only when the topic averages at least {HEADLINE_MIN_PAPERS} papers, or
+                for discussion {MAP_MIN_STORIES} stories, a week. Smaller counts swing too easily, so their bars
+                are outlined and should be read with care. <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
                 theme word, such as “layoffs” or “data center”, as a share of all stories with AI in the title. Each
                 story counts once per theme. The counts are small, often 10 to 30 stories a week, so a theme is
-                called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}%. Hacker
+called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}% and
+                stands clear of its own wobble, as above. Hacker
                 News readers are mostly technologists, so this shows what that community is discussing, not public
                 opinion.
               </p>
@@ -1482,6 +1451,26 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 nothing says how big they are. The times are in UTC, and none of this feeds
                 the trends.
               </p>
+              <p>
+                <strong>The editor’s step.</strong> Points say what one community upvoted, so the ranked list is
+                finished by rules before it is shown. Posts about one event are gathered under the highest-ranked
+                of them and stay on the page beneath it: two headlines count as one event when one holds the other,
+                or when they share three or more words in a row that include a version number. The editor can also
+                pin a post to the top until a set day, and leave a link out of every list on this page; both are
+                kept in a file in the project’s repository, with a reason for each link left out.{" "}
+                {pinsNow.length === 0 && editorial.hide.length === 0
+                  ? "Nothing is pinned or left out today."
+                  : `Today ${pinsNow.length} ${pinsNow.length === 1 ? "post is" : "posts are"} pinned and ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}
+              </p>
+              {editorial.hide.length > 0 && (
+                <ul>
+                  {editorial.hide.map((h) => (
+                    <li key={h.url}>
+                      Left out: {host(h.url)}. {h.reason}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p>
                 Closed models released only through an API do not appear in the model lists, which cover open models
                 on Hugging Face. They show up in the news and in the lab announcements instead.

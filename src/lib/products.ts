@@ -22,12 +22,6 @@ export type Product = {
   wiki: string[];
 };
 
-export const PRODUCT_KINDS: Record<Product["kind"], string> = {
-  assistant: "assistant",
-  coding: "coding tool",
-  media: "image, video and voice",
-};
-
 export const PRODUCTS: Product[] = [
   { id: "chatgpt", name: "ChatGPT", kind: "assistant", blurb: "OpenAI’s assistant", hn: ["ChatGPT"], wiki: ["ChatGPT"] },
   { id: "claude", name: "Claude", kind: "assistant", blurb: "Anthropic’s assistant and models", hn: ["Claude"], wiki: ["Claude (AI)", "Claude (language model)"] },
