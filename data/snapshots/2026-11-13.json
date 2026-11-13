@@ -1,0 +1,1062 @@
+{
+ "generatedAt": "2026-11-13T14:30:51.135Z",
+ "sources": {
+  "papers": {
+   "ok": true,
+   "at": "2026-11-13T14:30:51.387Z"
+  },
+  "models": {
+   "ok": true,
+   "at": "2026-11-13T14:30:51.472Z"
+  },
+  "releases": {
+   "ok": true,
+   "at": "2026-11-13T14:30:56.498Z"
+  },
+  "stories": {
+   "ok": true,
+   "at": "2026-11-13T14:31:02.379Z"
+  },
+  "repos": {
+   "ok": true,
+   "at": "2026-11-13T14:31:11.958Z"
+  },
+  "hnHistory": {
+   "ok": true,
+   "at": "2026-11-13T14:32:12.977Z"
+  },
+  "arxivHistory": {
+   "ok": true,
+   "at": "2026-11-13T14:35:03.873Z"
+  },
+  "analysis": {
+   "ok": true,
+   "at": "2026-11-13T14:31:18.542Z"
+  },
+  "labNews": {
+   "ok": true,
+   "at": "2026-11-13T14:31:25.681Z"
+  },
+  "jobs": {
+   "ok": true,
+   "at": "2026-11-13T14:31:25.817Z"
+  },
+  "federal": {
+   "ok": true,
+   "at": "2026-11-13T14:31:26.344Z"
+  },
+  "modelReleases": {
+   "ok": true,
+   "at": "2026-11-13T14:31:26.544Z"
+  },
+  "hnThemes": {
+   "ok": true,
+   "at": "2026-11-13T14:33:28.796Z"
+  },
+  "downloads": {
+   "ok": true,
+   "at": "2026-11-13T14:31:41.625Z"
+  },
+  "business": {
+   "ok": true,
+   "at": "2026-11-13T14:31:41.873Z"
+  },
+  "marketShare": {
+   "ok": true,
+   "at": "2026-11-13T14:31:41.688Z"
+  }
+ },
+ "papers": [
+  {
+   "id": "2611.14033",
+   "title": "Few-Step Streaming Video Generation via Condition Shifting",
+   "url": "https://arxiv.org/abs/2611.14033",
+   "upvotes": 88,
+   "comments": 2,
+   "codeUrl": null,
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "id": "2611.14320",
+   "title": "Don't Just Trust Your Memory: Evidence-Linked Memory Reduces Memory-Induced Degradation in LLM Agents",
+   "url": "https://arxiv.org/abs/2611.14320",
+   "upvotes": 69,
+   "comments": 7,
+   "codeUrl": "https://github.com/yukyeongleee/wikitrace",
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "id": "2611.14210",
+   "title": "Tree-Ising: Repairing Language Models with Bit-Level Ising Edits",
+   "url": "https://arxiv.org/abs/2611.14210",
+   "upvotes": 66,
+   "comments": 3,
+   "codeUrl": "https://github.com/TheQuantumGOAT/Tree-Ising",
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "id": "2611.15777",
+   "title": "SO-Arena: Benchmarking the Capability Spectrum and Reliability of System One Models",
+   "url": "https://arxiv.org/abs/2611.15777",
+   "upvotes": 61,
+   "comments": 1,
+   "codeUrl": "https://github.com/holdrain/SO-Arena",
+   "publishedAt": "2026-11-11T00:00:00.000Z"
+  },
+  {
+   "id": "2611.12885",
+   "title": "World In-Context Learning for Agentic Robot Manipulation",
+   "url": "https://arxiv.org/abs/2611.12885",
+   "upvotes": 58,
+   "comments": 3,
+   "codeUrl": "https://github.com/ArcheOne-AI/RoboScript",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "id": "2611.14815",
+   "title": "BirdDreams: Joint Perspective and BEV Video Generation for a Plausible, Reactive Driving World Model",
+   "url": "https://arxiv.org/abs/2611.14815",
+   "upvotes": 42,
+   "comments": 1,
+   "codeUrl": null,
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "id": "2611.13001",
+   "title": "One Table, Many Queries: Benchmarking Generalist Tabular Models Across Generation, Imputation, and Prediction",
+   "url": "https://arxiv.org/abs/2611.13001",
+   "upvotes": 40,
+   "comments": 7,
+   "codeUrl": "https://github.com/limix-ldm-ai/OTBench",
+   "publishedAt": "2026-11-08T00:00:00.000Z"
+  },
+  {
+   "id": "2611.13004",
+   "title": "G-STAR: Group-Scaled Token Capacity for Deeply Compressed Autoregressive Generation",
+   "url": "https://arxiv.org/abs/2611.13004",
+   "upvotes": 39,
+   "comments": 1,
+   "codeUrl": "https://github.com/DAGroup-PKU/G-STAR",
+   "publishedAt": "2026-11-08T00:00:00.000Z"
+  },
+  {
+   "id": "2611.11995",
+   "title": "Infrathon: Benchmarking Language Agents for Real-World, Long-Horizon AI Infra Optimization",
+   "url": "https://arxiv.org/abs/2611.11995",
+   "upvotes": 38,
+   "comments": 9,
+   "codeUrl": "https://github.com/InfrathonX/Infrathon",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "id": "2611.12426",
+   "title": "dNaViT: Discrete Codes are General-Purpose Visual Representations",
+   "url": "https://arxiv.org/abs/2611.12426",
+   "upvotes": 35,
+   "comments": 3,
+   "codeUrl": null,
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "id": "2611.13410",
+   "title": "SteerDistill: Quantizing LLM Agents via Closed-Loop Teacher Steering",
+   "url": "https://arxiv.org/abs/2611.13410",
+   "upvotes": 34,
+   "comments": 3,
+   "codeUrl": "https://github.com/air-embodied-brain/SteerDistill",
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "id": "2611.15131",
+   "title": "Duo: A Reciprocal World Model for Full-Duplex Interaction",
+   "url": "https://arxiv.org/abs/2611.15131",
+   "upvotes": 33,
+   "comments": 1,
+   "codeUrl": "https://github.com/inclusionAI/Duo",
+   "publishedAt": "2026-11-11T00:00:00.000Z"
+  },
+  {
+   "id": "2611.16748",
+   "title": "PhysLoop: Harnessing LLMs' Physics Awareness for Self-Improving Video Generation Models",
+   "url": "https://arxiv.org/abs/2611.16748",
+   "upvotes": 31,
+   "comments": 1,
+   "codeUrl": "https://github.com/DAGroup-PKU/PhysLoop",
+   "publishedAt": "2026-11-12T00:00:00.000Z"
+  },
+  {
+   "id": "2611.10649",
+   "title": "MACaQ: Fast, Model Agnostic Calibrated Quantization for Low-Precision Weights and Activations",
+   "url": "https://arxiv.org/abs/2611.10649",
+   "upvotes": 30,
+   "comments": 2,
+   "codeUrl": "https://github.com/huawei-csl/MACaQ",
+   "publishedAt": "2026-11-07T00:00:00.000Z"
+  },
+  {
+   "id": "2611.12177",
+   "title": "Embodied First Exam",
+   "url": "https://arxiv.org/abs/2611.12177",
+   "upvotes": 28,
+   "comments": 3,
+   "codeUrl": "https://github.com/mll-lab-nu/embodied-first-exam",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  }
+ ],
+ "models": [
+  {
+   "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
+   "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
+   "task": "text-generation",
+   "likes": 4870,
+   "downloads": 21586,
+   "createdAt": "2026-10-30T10:21:29.000Z"
+  },
+  {
+   "id": "MiniMaxAI/MiniMax-H3-Image",
+   "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
+   "task": "text-to-image",
+   "likes": 960,
+   "downloads": 437039,
+   "createdAt": "2026-11-03T06:34:36.000Z"
+  },
+  {
+   "id": "NousResearch/Arete-27B",
+   "url": "https://huggingface.co/NousResearch/Arete-27B",
+   "task": "text-generation",
+   "likes": 518,
+   "downloads": 5545,
+   "createdAt": "2026-11-06T19:31:28.000Z"
+  },
+  {
+   "id": "Lightricks/LTX-2.5",
+   "url": "https://huggingface.co/Lightricks/LTX-2.5",
+   "task": "image-to-video",
+   "likes": 11700,
+   "downloads": 2778909,
+   "createdAt": "2026-07-23T07:55:24.000Z"
+  },
+  {
+   "id": "speridlabs/idol",
+   "url": "https://huggingface.co/speridlabs/idol",
+   "task": "image-to-3d",
+   "likes": 2260,
+   "downloads": 31367,
+   "createdAt": "2026-10-28T15:55:17.000Z"
+  },
+  {
+   "id": "Qwen/Qwen3.8-27B",
+   "url": "https://huggingface.co/Qwen/Qwen3.8-27B",
+   "task": "image-text-to-text",
+   "likes": 19813,
+   "downloads": 6960395,
+   "createdAt": "2026-08-05T08:22:59.000Z"
+  },
+  {
+   "id": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+   "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+   "task": "image-text-to-text",
+   "likes": 3016,
+   "downloads": 1639400,
+   "createdAt": "2026-09-01T07:01:09.000Z"
+  },
+  {
+   "id": "Comfy-Org/MiniMax-H3-Image",
+   "url": "https://huggingface.co/Comfy-Org/MiniMax-H3-Image",
+   "task": "text-to-image",
+   "likes": 325,
+   "downloads": 1257301,
+   "createdAt": "2026-11-08T20:37:23.000Z"
+  },
+  {
+   "id": "ccore/Qwen3.5-4B-3D-Coder",
+   "url": "https://huggingface.co/ccore/Qwen3.5-4B-3D-Coder",
+   "task": null,
+   "likes": 1070,
+   "downloads": 392582,
+   "createdAt": "2026-10-25T05:43:34.000Z"
+  },
+  {
+   "id": "black-forest-labs/flux-3-image-klein-comfy",
+   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
+   "task": "image-to-image",
+   "likes": 3064,
+   "downloads": 1330289,
+   "createdAt": "2026-10-14T12:00:13.000Z"
+  },
+  {
+   "id": "Zyphra/ZONOS3-Mini",
+   "url": "https://huggingface.co/Zyphra/ZONOS3-Mini",
+   "task": "text-to-speech",
+   "likes": 257,
+   "downloads": 13068,
+   "createdAt": "2026-11-09T05:03:57.000Z"
+  },
+  {
+   "id": "VideoRebirthAI/hyperflow-h3-flash",
+   "url": "https://huggingface.co/VideoRebirthAI/hyperflow-h3-flash",
+   "task": "image-text-to-video",
+   "likes": 249,
+   "downloads": 389065,
+   "createdAt": "2026-11-04T13:54:24.000Z"
+  },
+  {
+   "id": "unsloth/Qwen3.8-27B-GGUF",
+   "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF",
+   "task": null,
+   "likes": 5843,
+   "downloads": 6253865,
+   "createdAt": "2026-08-13T08:28:40.000Z"
+  },
+  {
+   "id": "ricursiveAI/Ripple-65B-Preview",
+   "url": "https://huggingface.co/ricursiveAI/Ripple-65B-Preview",
+   "task": null,
+   "likes": 545,
+   "downloads": 8500,
+   "createdAt": "2026-11-04T02:41:21.000Z"
+  },
+  {
+   "id": "Viggle/Viggle-Remake",
+   "url": "https://huggingface.co/Viggle/Viggle-Remake",
+   "task": "video-to-video",
+   "likes": 358,
+   "downloads": 183188,
+   "createdAt": "2026-10-22T19:06:17.000Z"
+  },
+  {
+   "id": "Cactus-Compute/mirage",
+   "url": "https://huggingface.co/Cactus-Compute/mirage",
+   "task": "image-text-to-text",
+   "likes": 224,
+   "downloads": 18959,
+   "createdAt": "2026-11-05T19:01:53.000Z"
+  },
+  {
+   "id": "mradermacher/gemma-4-31B-it-ARA-heretic-GGUF",
+   "url": "https://huggingface.co/mradermacher/gemma-4-31B-it-ARA-heretic-GGUF",
+   "task": null,
+   "likes": 248,
+   "downloads": 105256,
+   "createdAt": "2026-11-07T05:50:30.000Z"
+  },
+  {
+   "id": "facebook/sam3",
+   "url": "https://huggingface.co/facebook/sam3",
+   "task": "mask-generation",
+   "likes": 6491,
+   "downloads": 2092498,
+   "createdAt": "2025-11-07T05:17:48.000Z"
+  },
+  {
+   "id": "tencent/Qwen3.8-27B-DSpine-b16",
+   "url": "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16",
+   "task": "text-generation",
+   "likes": 222,
+   "downloads": 4332,
+   "createdAt": "2026-11-07T14:20:29.000Z"
+  },
+  {
+   "id": "ConwayResearch/Underdog-Woof",
+   "url": "https://huggingface.co/ConwayResearch/Underdog-Woof",
+   "task": "text-to-speech",
+   "likes": 226,
+   "downloads": 10,
+   "createdAt": "2026-11-05T19:07:08.000Z"
+  }
+ ],
+ "releases": [
+  {
+   "id": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "task": "image-text-to-text",
+   "likes": 5610,
+   "downloads": 398161,
+   "createdAt": "2026-10-17T02:40:38.000Z",
+   "lab": "deepseek-ai"
+  },
+  {
+   "id": "black-forest-labs/flux-3-image-klein-comfy",
+   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
+   "task": "image-to-image",
+   "likes": 3064,
+   "downloads": 1330289,
+   "createdAt": "2026-10-14T12:00:13.000Z",
+   "lab": "black-forest-labs"
+  },
+  {
+   "id": "moonshotai/Kimi-K3.1-Pro",
+   "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
+   "task": "image-text-to-text",
+   "likes": 2000,
+   "downloads": 40953,
+   "createdAt": "2026-11-02T04:13:51.000Z",
+   "lab": "moonshotai"
+  },
+  {
+   "id": "mistralai/Mistral-Large-4-1T-A52B",
+   "url": "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B",
+   "task": "image-text-to-text",
+   "likes": 1655,
+   "downloads": 14078,
+   "createdAt": "2026-09-30T18:35:13.000Z",
+   "lab": "mistralai"
+  },
+  {
+   "id": "Qwen/Qwen-Image-2.1-Turbo",
+   "url": "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo",
+   "task": "text-to-image",
+   "likes": 1140,
+   "downloads": 39021,
+   "createdAt": "2026-10-09T04:50:01.000Z",
+   "lab": "Qwen"
+  },
+  {
+   "id": "black-forest-labs/flux-3-image-klein",
+   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
+   "task": "image-to-image",
+   "likes": 946,
+   "downloads": 204224,
+   "createdAt": "2026-10-13T10:58:40.000Z",
+   "lab": "black-forest-labs"
+  },
+  {
+   "id": "baidu/Unlimited-OCR-2",
+   "url": "https://huggingface.co/baidu/Unlimited-OCR-2",
+   "task": "image-text-to-text",
+   "likes": 687,
+   "downloads": 525885,
+   "createdAt": "2026-10-26T03:57:46.000Z",
+   "lab": "baidu"
+  },
+  {
+   "id": "mistralai/Timestral-209M",
+   "url": "https://huggingface.co/mistralai/Timestral-209M",
+   "task": "time-series-forecasting",
+   "likes": 493,
+   "downloads": 30497,
+   "createdAt": "2026-10-14T08:52:36.000Z",
+   "lab": "mistralai"
+  },
+  {
+   "id": "tencent/Hy-SimulMT-30B-A3B-FP8",
+   "url": "https://huggingface.co/tencent/Hy-SimulMT-30B-A3B-FP8",
+   "task": "translation",
+   "likes": 461,
+   "downloads": 1342,
+   "createdAt": "2026-10-22T07:29:37.000Z",
+   "lab": "tencent"
+  },
+  {
+   "id": "baidu/ERNIE-5.5-Flash-Base-BF16",
+   "url": "https://huggingface.co/baidu/ERNIE-5.5-Flash-Base-BF16",
+   "task": "text-generation",
+   "likes": 390,
+   "downloads": 1157,
+   "createdAt": "2026-10-21T05:04:01.000Z",
+   "lab": "baidu"
+  },
+  {
+   "id": "tencent/Hy-Memory-30B-A3B",
+   "url": "https://huggingface.co/tencent/Hy-Memory-30B-A3B",
+   "task": "text-generation",
+   "likes": 325,
+   "downloads": 7755,
+   "createdAt": "2026-10-15T09:52:00.000Z",
+   "lab": "tencent"
+  },
+  {
+   "id": "baidu/ERNIE-5.5-Flash-Base",
+   "url": "https://huggingface.co/baidu/ERNIE-5.5-Flash-Base",
+   "task": "text-generation",
+   "likes": 303,
+   "downloads": 3372,
+   "createdAt": "2026-10-21T08:40:58.000Z",
+   "lab": "baidu"
+  },
+  {
+   "id": "nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16",
+   "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16",
+   "task": "text-generation",
+   "likes": 256,
+   "downloads": 15034,
+   "createdAt": "2026-10-16T18:25:29.000Z",
+   "lab": "nvidia"
+  },
+  {
+   "id": "black-forest-labs/flux-3-image-klein-base",
+   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-base",
+   "task": "image-to-image",
+   "likes": 236,
+   "downloads": 135059,
+   "createdAt": "2026-10-13T10:19:46.000Z",
+   "lab": "black-forest-labs"
+  },
+  {
+   "id": "microsoft/Mage-VL-Cowork",
+   "url": "https://huggingface.co/microsoft/Mage-VL-Cowork",
+   "task": "image-text-to-text",
+   "likes": 223,
+   "downloads": 4411,
+   "createdAt": "2026-10-30T12:13:24.000Z",
+   "lab": "microsoft"
+  },
+  {
+   "id": "tencent/Qwen3.8-27B-DSpine-b16",
+   "url": "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16",
+   "task": "text-generation",
+   "likes": 222,
+   "downloads": 4332,
+   "createdAt": "2026-11-07T14:20:29.000Z",
+   "lab": "tencent"
+  },
+  {
+   "id": "nvidia/DeepSeek-V4.1-Flash-1017-NVFP4",
+   "url": "https://huggingface.co/nvidia/DeepSeek-V4.1-Flash-1017-NVFP4",
+   "task": "image-text-to-text",
+   "likes": 189,
+   "downloads": 13893,
+   "createdAt": "2026-10-30T17:37:02.000Z",
+   "lab": "nvidia"
+  },
+  {
+   "id": "tencent/Hy-Nomas",
+   "url": "https://huggingface.co/tencent/Hy-Nomas",
+   "task": null,
+   "likes": 154,
+   "downloads": 91931,
+   "createdAt": "2026-10-21T02:17:37.000Z",
+   "lab": "tencent"
+  },
+  {
+   "id": "nvidia/MotionBricks",
+   "url": "https://huggingface.co/nvidia/MotionBricks",
+   "task": "robotics",
+   "likes": 138,
+   "downloads": 0,
+   "createdAt": "2026-10-23T18:49:27.000Z",
+   "lab": "nvidia"
+  },
+  {
+   "id": "tencent/WeVisOne-VL-4B",
+   "url": "https://huggingface.co/tencent/WeVisOne-VL-4B",
+   "task": "image-text-to-text",
+   "likes": 124,
+   "downloads": 22625,
+   "createdAt": "2026-10-22T09:48:14.000Z",
+   "lab": "tencent"
+  }
+ ],
+ "stories": [
+  {
+   "id": "50452455",
+   "title": "My AI agents found an unmapped Maya site?",
+   "url": "https://pietromiotti.com/latest/maya-site",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50452455",
+   "points": 1033,
+   "comments": 392,
+   "createdAt": "2026-11-11T12:05:22Z"
+  },
+  {
+   "id": "50429906",
+   "title": "Claude Fable 5.2 and Mythos 5.2",
+   "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50429906",
+   "points": 998,
+   "comments": 8,
+   "createdAt": "2026-11-09T18:56:29Z"
+  },
+  {
+   "id": "50465829",
+   "title": "Anthropic IPO",
+   "url": "https://ipo.anthropic.com/us/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50465829",
+   "points": 972,
+   "comments": 881,
+   "createdAt": "2026-11-12T11:46:41Z"
+  },
+  {
+   "id": "50415628",
+   "title": "Goldman Sachs is pulling Claude Code from its bankers and traders",
+   "url": "https://www.thestateofai.com/news/goldman-sachs-claude-code-traders-bankers",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50415628",
+   "points": 903,
+   "comments": 496,
+   "createdAt": "2026-11-08T18:16:07Z"
+  },
+  {
+   "id": "50410107",
+   "title": "Goodbye Claude, hello Pi",
+   "url": "https://caleb.software/posts/claude-to-pi.html",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50410107",
+   "points": 822,
+   "comments": 493,
+   "createdAt": "2026-11-08T03:11:48Z"
+  },
+  {
+   "id": "50429426",
+   "title": "Google Gemini routes personal Drive files and emails to human annotators",
+   "url": "https://github.com/thisisme6598/gemini_files/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50429426",
+   "points": 737,
+   "comments": 148,
+   "createdAt": "2026-11-09T18:24:38Z"
+  },
+  {
+   "id": "50458900",
+   "title": "United Airlines bans AI agents from booking flights on behalf of travelers",
+   "url": "https://www.cbsnews.com/news/united-airlines-bans-ai-agents-booking-flights/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50458900",
+   "points": 675,
+   "comments": 697,
+   "createdAt": "2026-11-11T21:24:35Z"
+  },
+  {
+   "id": "50438318",
+   "title": "AI usage generates a fragile codebase",
+   "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
+   "points": 641,
+   "comments": 625,
+   "createdAt": "2026-11-10T10:25:58Z"
+  },
+  {
+   "id": "50407882",
+   "title": "Claude Code's \"Don't Ask Again\" exposes passwords in 1,122 public GitHub files",
+   "url": "https://apiiro.com/blog/coding-agents-leaking-secrets-github-dont-ask-again",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50407882",
+   "points": 626,
+   "comments": 430,
+   "createdAt": "2026-11-07T20:45:32Z"
+  },
+  {
+   "id": "50418975",
+   "title": "I'm not convinced the AI bubble exists",
+   "url": "https://matteoraso.github.io/im-not-convinced-the-ai-bubble-exists.html#im-not-convinced-the-ai-bubble-exists",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50418975",
+   "points": 573,
+   "comments": 972,
+   "createdAt": "2026-11-08T23:44:36Z"
+  },
+  {
+   "id": "50456791",
+   "title": "Gemini Decisions API",
+   "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50456791",
+   "points": 563,
+   "comments": 160,
+   "createdAt": "2026-11-11T18:32:42Z"
+  },
+  {
+   "id": "50446520",
+   "title": "Apple has new Mac app coming to make running local AI models easy",
+   "url": "https://9to5mac.com/2026/11/10/apple-has-new-mac-app-coming-to-make-running-local-ai-models-easy/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50446520",
+   "points": 559,
+   "comments": 554,
+   "createdAt": "2026-11-10T21:25:03Z"
+  },
+  {
+   "id": "50471431",
+   "title": "Gemini 4 Hydrogen",
+   "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50471431",
+   "points": 551,
+   "comments": 342,
+   "createdAt": "2026-11-12T18:01:48Z"
+  },
+  {
+   "id": "50406563",
+   "title": "The end of Microsoft Research's AI Frontiers group",
+   "url": "https://hunch.net/?p=13764006",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50406563",
+   "points": 513,
+   "comments": 309,
+   "createdAt": "2026-11-07T18:02:17Z"
+  },
+  {
+   "id": "50447074",
+   "title": "Tracking Anthropic-discovered vulnerabilities",
+   "url": "https://www.vulncheck.com/blog/anthropic-glasswing-november-update",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50447074",
+   "points": 458,
+   "comments": 221,
+   "createdAt": "2026-11-10T22:17:56Z"
+  },
+  {
+   "id": "50472260",
+   "title": "Gemini 4 Hydrogen and Orchestrator",
+   "url": "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50472260",
+   "points": 455,
+   "comments": 140,
+   "createdAt": "2026-11-12T18:52:01Z"
+  },
+  {
+   "id": "50443812",
+   "title": "Show HN: Get your coding agent off ~2019 JavaScript, onto modern web primitives",
+   "url": "https://github.com/GoogleChrome/modern-web-guidance",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50443812",
+   "points": 441,
+   "comments": 145,
+   "createdAt": "2026-11-10T18:01:15Z"
+  },
+  {
+   "id": "50468888",
+   "title": "I'm making LLMs work on small and old devices",
+   "url": "https://github.com/hyperionaidev/smolmaxxing/",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50468888",
+   "points": 415,
+   "comments": 154,
+   "createdAt": "2026-11-12T15:23:10Z"
+  },
+  {
+   "id": "50397994",
+   "title": "AI is dramatically accelerating AI research",
+   "url": "https://www.planned-obsolescence.org/p/ai-is-dramatically-accelerating-ai",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50397994",
+   "points": 382,
+   "comments": 360,
+   "createdAt": "2026-11-06T20:27:23Z"
+  },
+  {
+   "id": "50431144",
+   "title": "Claude Fable 5.2 scores 65 on Artificial Analysis, highest so far",
+   "url": "https://artificialanalysis.ai/models/claude-fable-5-2",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50431144",
+   "points": 379,
+   "comments": 280,
+   "createdAt": "2026-11-09T20:04:55Z"
+  }
+ ],
+ "repos": [
+  {
+   "name": "ccch1mneyyy/dsh-Go",
+   "url": "https://github.com/ccch1mneyyy/dsh-Go",
+   "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
+   "stars": 21562,
+   "starsPerDay": 1119,
+   "language": "Dart",
+   "createdAt": "2026-10-25T08:09:52Z"
+  },
+  {
+   "name": "wangzan101/Mika",
+   "url": "https://github.com/wangzan101/Mika",
+   "description": "An on-device AI agent for Android that operates apps and the web to get things done for you.",
+   "stars": 8503,
+   "starsPerDay": 567,
+   "language": "Kotlin",
+   "createdAt": "2026-10-29T14:34:07Z"
+  },
+  {
+   "name": "KKKKhazix/agent-autoloop",
+   "url": "https://github.com/KKKKhazix/agent-autoloop",
+   "description": "让你的命令行 Agent 在后台自己接活、自己跟进到底；平时不烦你，遇到拿不准的事才发卡片找你拍板。",
+   "stars": 5074,
+   "starsPerDay": 494,
+   "language": "TypeScript",
+   "createdAt": "2026-11-03T08:02:11Z"
+  },
+  {
+   "name": "FrigadeHQ/yogurt",
+   "url": "https://github.com/FrigadeHQ/yogurt",
+   "description": "Private AI meeting notes. Free and open source.",
+   "stars": 1173,
+   "starsPerDay": 423,
+   "language": "TypeScript",
+   "createdAt": "2026-11-10T20:01:01Z"
+  },
+  {
+   "name": "expo/exact",
+   "url": "https://github.com/expo/exact",
+   "description": "Write an app once. It runs natively on the web, macOS, iOS, and Linux, and an AI agent can build it, run it, see it, and test it on every one of them.",
+   "stars": 3771,
+   "starsPerDay": 327,
+   "language": "Rust",
+   "createdAt": "2026-11-02T01:29:01Z"
+  },
+  {
+   "name": "DIYgod/pinky",
+   "url": "https://github.com/DIYgod/pinky",
+   "description": "Let AI use your iPhone or Android phone, with you in the loop: any MCP agent from macOS, Windows or Linux, or Pinky itself, right on the phone.",
+   "stars": 2065,
+   "starsPerDay": 299,
+   "language": "Go",
+   "createdAt": "2026-11-06T16:53:14Z"
+  },
+  {
+   "name": "qybaihe/bla",
+   "url": "https://github.com/qybaihe/bla",
+   "description": "🛡️ BLA (Blind LLM Agents) — Adversarial defense shield that protects binaries, Electron apps, JS bundles, Python, and WebAssembly against AI reverse-engineering agents like REA. Poison -> Exhaust -> ",
+   "stars": 5526,
+   "starsPerDay": 285,
+   "language": "TypeScript",
+   "createdAt": "2026-10-25T05:25:45Z"
+  },
+  {
+   "name": "agentes-chat/agentes-chat",
+   "url": "https://github.com/agentes-chat/agentes-chat",
+   "description": "Open-source, self-hosted Slack alternative where your team and AI agents work together in channels and DMs. Agents run on Claude, ChatGPT/Codex, Gemini or Grok, with MCP tools, their own computer and ",
+   "stars": 1292,
+   "starsPerDay": 283,
+   "language": "TypeScript",
+   "createdAt": "2026-11-09T00:50:28Z"
+  },
+  {
+   "name": "modelflare-ai/AnyModelBot",
+   "url": "https://github.com/modelflare-ai/AnyModelBot",
+   "description": "🤖 Open-source, local-first alternative to Grok Bot, OpenAI dots and Claude Duet. Your own AI bots on any model: GPT, Claude, Gemini, Grok, DeepSeek, Kimi, GLM and 70+ more through one Modelflare key.",
+   "stars": 3563,
+   "starsPerDay": 207,
+   "language": "Python",
+   "createdAt": "2026-10-27T08:51:18Z"
+  },
+  {
+   "name": "voyager-so/vork",
+   "url": "https://github.com/voyager-so/vork",
+   "description": "Headless 3D and VFX engine for agents. Research preview.",
+   "stars": 1510,
+   "starsPerDay": 197,
+   "language": "Rust",
+   "createdAt": "2026-11-05T22:37:07Z"
+  },
+  {
+   "name": "Sandflow-ai/sand3d",
+   "url": "https://github.com/Sandflow-ai/sand3d",
+   "description": "3D modeling in Python, built for LLMs.",
+   "stars": 1954,
+   "starsPerDay": 191,
+   "language": "HTML",
+   "createdAt": "2026-11-03T08:23:03Z"
+  },
+  {
+   "name": "alexeyw/lot-map",
+   "url": "https://github.com/alexeyw/lot-map",
+   "description": "A live map beside the chat that shows what Claude Code is doing: tool calls, model steps, hooks, skills and subagents light up as they happen. Local only, in 7 languages.",
+   "stars": 685,
+   "starsPerDay": 180,
+   "language": "TypeScript",
+   "createdAt": "2026-11-09T19:13:52Z"
+  },
+  {
+   "name": "vercel-labs/ui",
+   "url": "https://github.com/vercel-labs/ui",
+   "description": "A library of behaviors for agents to build the next generation of user interfaces.",
+   "stars": 3160,
+   "starsPerDay": 177,
+   "language": "TypeScript",
+   "createdAt": "2026-10-26T17:39:27Z"
+  },
+  {
+   "name": "Marcian15350/mt5-tradeprotocol",
+   "url": "https://github.com/Marcian15350/mt5-tradeprotocol",
+   "description": "",
+   "stars": 1103,
+   "starsPerDay": 164,
+   "language": "TypeScript",
+   "createdAt": "2026-11-06T21:20:48Z"
+  },
+  {
+   "name": "Leonxlnx/earshot",
+   "url": "https://github.com/Leonxlnx/earshot",
+   "description": "Ears for coding agents: let AI hear, review and make sound. CPU-only, open source.",
+   "stars": 4717,
+   "starsPerDay": 161,
+   "language": "Python",
+   "createdAt": "2026-10-15T06:52:46Z"
+  },
+  {
+   "name": "N1nEmAn/sapper-v2",
+   "url": "https://github.com/N1nEmAn/sapper-v2",
+   "description": "The first fruit of the Nüwa tree — an autonomous AI pentest legion (634-team champion, 8h unattended, 1B tokens beat 4.5B). Not just a tool: evolvable by design. Grow your own fruit on the Nüwa Founda",
+   "stars": 2042,
+   "starsPerDay": 146,
+   "language": "Python",
+   "createdAt": "2026-10-30T15:12:35Z"
+  },
+  {
+   "name": "JosssphZhou/poki",
+   "url": "https://github.com/JosssphZhou/poki",
+   "description": "Let AI agents operate a real iPhone. Local MCP server and agent, no jailbreak, no extra hardware.",
+   "stars": 1047,
+   "starsPerDay": 131,
+   "language": "Swift",
+   "createdAt": "2026-11-05T15:04:31Z"
+  },
+  {
+   "name": "dabingfy-dot/solo-to-team-skills",
+   "url": "https://github.com/dabingfy-dot/solo-to-team-skills",
+   "description": "Skills for human-led AI teams: delegate tasks, verify evidence, explain steps clearly, and learn from real cases. 一个人统筹 AI 团队：派活、核证、清楚说明、经验复用。",
+   "stars": 833,
+   "starsPerDay": 127,
+   "language": null,
+   "createdAt": "2026-11-07T01:36:28Z"
+  },
+  {
+   "name": "Dodaios/ste80-humanizer",
+   "url": "https://github.com/Dodaios/ste80-humanizer",
+   "description": "STE80 Humanizer: agent skill that removes AI tells and rewrites text 80% of the way to ASD-STE100 (Simplified Technical English), the method Andrej Karpathy shared.",
+   "stars": 478,
+   "starsPerDay": 123,
+   "language": "Python",
+   "createdAt": "2026-11-09T17:18:59Z"
+  },
+  {
+   "name": "lexifina/global-law",
+   "url": "https://github.com/lexifina/global-law",
+   "description": "The world's law in git: any provision, any country, any date, and the law that wrote each word.",
+   "stars": 1969,
+   "starsPerDay": 123,
+   "language": "HTML",
+   "createdAt": "2026-10-28T13:34:16Z"
+  }
+ ],
+ "analysis": [
+  {
+   "source": "AI Supremacy",
+   "title": "A Disaster for U.S. AI Supremacy",
+   "url": "https://www.ai-supremacy.com/p/a-disaster-for-us-ai-supremacy-jensen-huang-november-2026",
+   "publishedAt": "2026-11-13T10:10:36.000Z"
+  },
+  {
+   "source": "The Pragmatic Engineer",
+   "title": "The Pulse: What can we learn from the Railway hack?",
+   "url": "https://newsletter.pragmaticengineer.com/p/the-pulse-what-can-we-learn-from-114",
+   "publishedAt": "2026-11-12T18:53:19.000Z"
+  },
+  {
+   "source": "a16z News",
+   "title": "Gaming’s Next Origin Stories",
+   "url": "https://www.a16z.news/p/gamings-next-origin-stories",
+   "publishedAt": "2026-11-12T15:03:24.000Z"
+  },
+  {
+   "source": "AI Supremacy",
+   "title": "How to Build Your Own Equity Research Analyst with Grok Bot",
+   "url": "https://www.ai-supremacy.com/p/how-to-build-your-own-equity-research-analyst-with-grok-bot",
+   "publishedAt": "2026-11-12T10:50:34.000Z"
+  },
+  {
+   "source": "Pew Research Center",
+   "title": "Expert Brief: Public Opinion on AI in Healthcare",
+   "url": "https://www.pewresearch.org/2026/11/11/expert-brief-public-opinion-on-ai-in-healthcare/",
+   "publishedAt": "2026-11-11T22:00:30.000Z"
+  },
+  {
+   "source": "Pew Research Center",
+   "title": "Key Facts About U.S. Data Centers",
+   "url": "https://www.pewresearch.org/short-reads/2026/11/11/key-facts-about-us-data-centers/",
+   "publishedAt": "2026-11-11T14:59:24.000Z"
+  },
+  {
+   "source": "The Pragmatic Engineer",
+   "title": "Software correctness & supply chain security, with Sean Allen",
+   "url": "https://newsletter.pragmaticengineer.com/p/software-correctness",
+   "publishedAt": "2026-11-10T15:00:21.000Z"
+  },
+  {
+   "source": "One Useful Thing",
+   "title": "Fable 5.2 and Jagged AGI",
+   "url": "https://www.oneusefulthing.org/p/fable-52-and-jagged-agi",
+   "publishedAt": "2026-11-09T19:04:26.000Z"
+  },
+  {
+   "source": "Epoch AI",
+   "title": "Inference Performance Index: changing the way we measure inference capacity",
+   "url": "https://epoch.ai/publications/inference-performance-index",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "source": "a16z News",
+   "title": "Charts of the Week: Apple Skips Capex, and the Crowd Goes Wild (Sort Of)",
+   "url": "https://www.a16z.news/p/charts-of-the-week-apple-skips-capex",
+   "publishedAt": "2026-11-06T15:02:08.000Z"
+  },
+  {
+   "source": "Epoch AI",
+   "title": "What Huawei’s Horinger data center reveals about China’s compute gap",
+   "url": "https://epoch.ai/publications/huawei-horinger-china-compute-gap",
+   "publishedAt": "2026-11-06T00:00:00.000Z"
+  },
+  {
+   "source": "The Product Compass",
+   "title": "Agent Harness: How I Built My Own Claude Code, Step by Step",
+   "url": "https://www.productcompass.pm/p/build-your-own-agent-harness",
+   "publishedAt": "2026-11-05T11:10:12.000Z"
+  }
+ ],
+ "labNews": [
+  {
+   "source": "OpenAI",
+   "title": "How Amplitude ships product improvements in 1–2 days with OpenAI",
+   "url": "https://openai.com/business/customer-stories/amplitude",
+   "publishedAt": "2026-11-12T20:00:00.000Z"
+  },
+  {
+   "source": "Google DeepMind",
+   "title": "Introducing Gemini 4 Hydrogen",
+   "url": "https://deepmind.google/blog/introducing-gemini-4-hydrogen/",
+   "publishedAt": "2026-11-12T18:00:50.000Z"
+  },
+  {
+   "source": "OpenAI",
+   "title": "Gondola doubles revenue as its team builds more with Codex",
+   "url": "https://openai.com/business/customer-stories/gondola",
+   "publishedAt": "2026-11-12T12:00:00.000Z"
+  },
+  {
+   "source": "OpenAI",
+   "title": "Holiday Extras is rethinking what it can build with Codex",
+   "url": "https://openai.com/business/customer-stories/holidays-extras-codex",
+   "publishedAt": "2026-11-12T09:30:00.000Z"
+  },
+  {
+   "source": "OpenAI",
+   "title": "Supporting research on AI and children’s safety",
+   "url": "https://openai.com/index/children-first-declaration",
+   "publishedAt": "2026-11-12T00:00:00.000Z"
+  },
+  {
+   "source": "Google DeepMind",
+   "title": "AlphaGenome 2: Deciphering how cells read DNA to better understand disease",
+   "url": "https://deepmind.google/blog/alphagenome-2-deciphering-how-cells-read-dna-to-better-understand-disease/",
+   "publishedAt": "2026-11-11T15:00:15.000Z"
+  },
+  {
+   "source": "Google DeepMind",
+   "title": "Gemini 4 Carbon is now available",
+   "url": "https://deepmind.google/blog/gemini-4-carbon-is-now-available/",
+   "publishedAt": "2026-11-10T16:03:47.000Z"
+  },
+  {
+   "source": "Google DeepMind",
+   "title": "Introducing AlphaProof Code: a breakthrough in verifying complex software at depth",
+   "url": "https://deepmind.google/blog/introducing-alphaproof-code/",
+   "publishedAt": "2026-11-10T12:02:28.000Z"
+  },
+  {
+   "source": "Anthropic",
+   "title": "Anthropic launches roadshow for proposed initial public offering",
+   "url": "https://www.anthropic.com/news/roadshow-launch",
+   "publishedAt": "2026-11-10T00:00:00.000Z"
+  },
+  {
+   "source": "Anthropic",
+   "title": "Introducing Claude Fable 5.2 and Claude Mythos 5.2",
+   "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "source": "Anthropic",
+   "title": "Claude can design electronic prototypes from start to finish",
+   "url": "https://www.anthropic.com/research/claude-electronics-design",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "source": "Anthropic",
+   "title": "Teaching AI to build scientific models",
+   "url": "https://www.anthropic.com/research/teaching-ai-to-build-scientific-models",
+   "publishedAt": "2026-11-06T00:00:00.000Z"
+  }
+ ]
+}
