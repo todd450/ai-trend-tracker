@@ -1,4 +1,5 @@
 import { HorizonSwitch } from "@/components/HorizonSwitch";
+import { LeadChart } from "@/components/LeadChart";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
@@ -8,7 +9,7 @@ import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
-import { visible } from "@/lib/editorial";
+import { isBigStory, lineFor, visible } from "@/lib/editorial";
 import { buildToday, editorial } from "@/lib/today";
 import { NEW_TAB } from "@/lib/links";
 import { NOISE_MULTIPLE } from "@/lib/noise";
@@ -148,7 +149,7 @@ const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
   const { window: WINDOW, weeks, topicTrends, rankedTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = trends;
-  const { headline, briefing } = buildBriefing(trends);
+  const { headline, lead, briefing } = buildBriefing(trends);
   const compared =
     WINDOW === 1
       ? "latest week compared with the week before"
@@ -205,6 +206,16 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
   const today = buildToday();
   const pinsNow = today.items.filter((item) => item.pinned);
+  /**
+   * The day's first story is set large, above the list, when the editor pinned it or when it is
+   * already as big as the week's top stories. On an ordinary day every story is a row.
+   */
+  const [first, ...rest] = today.items;
+  const bigDay =
+    first !== undefined &&
+    (first.pinned !== undefined || isBigStory(first.discussion?.points, latest.stories.map((s) => s.points)));
+  const todayRows = bigDay ? rest : today.items;
+  const editorLine = lineFor(editorial, latest.generatedAt.slice(0, 10));
   // The editor's hides apply to every ranked list, before it is cut to length.
   const stories = visible(latest.stories, editorial).slice(0, SHOWN);
   const papers = visible(latest.papers, editorial).slice(0, SHOWN);
@@ -286,6 +297,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
             </div>
           </div>
+          {editorLine && (
+            <p className="lede__note">
+              <span>Editor’s note</span> {editorLine}
+            </p>
+          )}
+          <LeadChart series={lead} window={WINDOW} from={weeks[0] ? fmtDay(weeks[0]) : ""} />
           {briefing.length > 0 && (
             <div className="brief">
               <ol aria-label="The week in numbers">
@@ -312,11 +329,42 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <a href="#method">how this is measured</a> lists any such decision.
             </p>
           </div>
-          {today.items.length > 0 ? (
+          {bigDay && (
+            <article className="top-story">
+              <p className="top-story__kicker">{first.pinned ? "Editor’s pick" : "The day’s biggest story"}</p>
+              <h3>
+                <a href={first.url} {...NEW_TAB}>{first.title}</a>
+              </h3>
+              <p className="top-story__meta">
+                {first.from}
+                {first.discussion && (
+                  <>
+                    {" · "}
+                    <a href={first.discussion.url} {...NEW_TAB}>{fmtCompact(first.discussion.points)} points on Hacker News</a>
+                  </>
+                )}
+                {" · "}
+                {first.publishedAt.includes("T00:00:00") ? fmtDay(first.publishedAt) : `${fmtDayTime(first.publishedAt)} UTC`}
+              </p>
+              {first.pinned?.note && <p className="top-story__note">{first.pinned.note}</p>}
+              {first.also.length > 0 && (
+                <ul className="top-story__also" aria-label="Other posts on the same story">
+                  {first.also.map((other) => (
+                    <li key={other.url}>
+                      <a href={other.url} {...NEW_TAB}>{other.title}</a> ({other.from}
+                      {other.discussion && <>, {fmtCompact(other.discussion.points)} points</>})
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          )}
+          {todayRows.length > 0 ? (
             <Ledger
               first="Headline"
               labelledBy="today-h"
-              count={today.items.length}
+              count={todayRows.length}
+              start={bigDay ? 2 : 1}
               more={<a className="more" href="#news">The week’s top stories ↓</a>}
               cells={[
                 { head: "From", width: "9.5rem", start: true },
@@ -324,7 +372,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 { head: "Published (UTC)", width: "6.5rem" },
               ]}
             >
-              {today.items.map((item) => (
+              {todayRows.map((item) => (
                 <li key={item.url}>
                   <span className="ledger__main">
                     {item.pinned && <span className="ledger__pick">Editor’s pick</span>}
@@ -366,7 +414,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
-          ) : (
+          ) : bigDay ? null : (
             <p className="band__empty">
               None of the sources published anything in the 24 hours before the last update. The week’s stories are
               in <a href="#news">the reading list</a>.
@@ -1036,7 +1084,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="news-h">In the news</h2>
               <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
             </div>
-            <Ledger
+            <Ledger brief
               first="Story"
               labelledBy="news-h"
               count={stories.length}
@@ -1076,7 +1124,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="papers-h">Papers getting attention</h2>
               <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
             </div>
-            <Ledger
+            <Ledger brief
               first="Paper"
               labelledBy="papers-h"
               count={papers.length}
@@ -1116,7 +1164,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 institutions. Some pieces need a subscription to read in full.
               </p>
             </div>
-            <Ledger
+            <Ledger brief
               first="Piece"
               labelledBy="analysis-h"
               count={analysis.length}
@@ -1148,7 +1196,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 kind of model: Runway (video), ElevenLabs (voice), Suno (music) and Stability AI (images and audio).
               </p>
             </div>
-            <Ledger
+            <Ledger brief
               first="Post"
               labelledBy="announcements-h"
               count={labNews.length}
@@ -1226,7 +1274,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <h2 id="code-h">Repositories gaining stars</h2>
             <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
           </div>
-          <Ledger
+          <Ledger brief
             first="Repository"
             labelledBy="code-h"
             count={repos.length}
@@ -1272,7 +1320,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="models-h">Models trending</h2>
               <p>What builders are picking up on Hugging Face right now.</p>
             </div>
-            <Ledger
+            <Ledger brief
               first="Model"
               labelledBy="models-h"
               count={models.length}
@@ -1310,7 +1358,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="labs-h">New from the labs</h2>
               <p>Open models published by major AI labs in the past 45 days, by likes.</p>
             </div>
-            <Ledger
+            <Ledger brief
               first="Model"
               labelledBy="labs-h"
               count={labModels.length}
