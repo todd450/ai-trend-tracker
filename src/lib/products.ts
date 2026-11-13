@@ -19,12 +19,17 @@ export type Product = {
   kind: "assistant" | "coding" | "media";
   blurb: string;
   hn: string[];
+  /**
+   * Phrases whose stories are taken off the count: a product whose name sits inside another's
+   * ("Claude" inside "Claude Code") would otherwise count the other's stories as its own.
+   */
+  hnExcept?: string[];
   wiki: string[];
 };
 
 export const PRODUCTS: Product[] = [
   { id: "chatgpt", name: "ChatGPT", kind: "assistant", blurb: "OpenAI’s assistant", hn: ["ChatGPT"], wiki: ["ChatGPT"] },
-  { id: "claude", name: "Claude", kind: "assistant", blurb: "Anthropic’s assistant and models", hn: ["Claude"], wiki: ["Claude (AI)", "Claude (language model)"] },
+  { id: "claude", name: "Claude", kind: "assistant", blurb: "Anthropic’s assistant and models, Claude Code apart", hn: ["Claude"], hnExcept: ["Claude Code"], wiki: ["Claude (AI)", "Claude (language model)"] },
   { id: "gemini", name: "Gemini", kind: "assistant", blurb: "Google’s assistant and models", hn: ["Gemini"], wiki: ["Google Gemini", "Gemini (chatbot)"] },
   { id: "copilot", name: "Copilot", kind: "assistant", blurb: "Microsoft’s assistants, GitHub Copilot included", hn: ["Copilot"], wiki: ["Microsoft Copilot", "GitHub Copilot"] },
   { id: "grok", name: "Grok", kind: "assistant", blurb: "xAI’s assistant", hn: ["Grok"], wiki: ["Grok (chatbot)"] },

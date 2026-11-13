@@ -1091,7 +1091,10 @@ async function collectHistory(history: History, weeks: string[], status: Record<
     for (const product of PRODUCTS) {
       const series = ((products[product.id] ??= { hn: {}, wiki: {} }).hn ??= {});
       for (const week of weeks) {
-        if (needs(series, week)) put(`stories ${product.id}`, "part", series, week, await hnCount(week, product.hn));
+        if (!needs(series, week)) continue;
+        // Stories naming a longer product that contains this one's name are taken off (see `hnExcept`).
+        const except = product.hnExcept ? await hnCount(week, product.hnExcept) : 0;
+        put(`stories ${product.id}`, "part", series, week, Math.max(0, (await hnCount(week, product.hn)) - except));
       }
       await writeJson("history.json", history); // save progress; the first backfill takes several minutes
       console.log(`  hn     ${product.id}`);

@@ -12,6 +12,7 @@ import { buildBriefing } from "@/lib/briefing";
 import { isBigStory, lineFor, visible } from "@/lib/editorial";
 import { buildToday, editorial } from "@/lib/today";
 import { NEW_TAB } from "@/lib/links";
+import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
 import { NOISE_MULTIPLE } from "@/lib/noise";
 import {
   HEADLINE_MIN_PAPERS,
@@ -685,7 +686,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                         const views = p.views;
                         return (
                           <li key={p.id} className="mom__row">
-                            <div className="mom__topic" title={`${p.blurb}. Stories whose title contains: ${p.searches.join(", ")}`}>
+                            <div className="mom__topic" title={`${p.blurb}. Stories whose title contains: ${p.searches.join(", ")}${p.except.length ? `, but not ${p.except.join(", ")}` : ""}`}>
                               <span className="mom__rank">{rank}</span>
                               <h4>{p.name}</h4>
                             </div>
@@ -1524,9 +1525,12 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
               <p>
                 <strong>Product momentum</strong> follows a fixed list of products chosen by the editor, so a
                 product not on the list cannot appear however fast it grows. Discussion counts Hacker News
-                stories with the product’s name in the title. A name inside a longer name counts for both, so a
-                story about Claude Code also counts for Claude, and a few names (Cursor, Gemini, Sora) are
-                ordinary words that sometimes mean something else. A product averaging fewer than{" "}
+                stories with the product’s name in the title. Claude is counted without its Claude Code stories,
+                which have their own row. A few names are also ordinary words: in a sample of 40 recent titles
+                each, about one in ten for Cursor (mouse cursors), one in twelve for Gemini (a network protocol
+                of the same name) and one in seven for Copilot (“copilot” used for any assistant) were not about
+                the product; none were for Codex, Devin, Grok, Antigravity or Perplexity. The phrases are left
+                broad because narrowing them would miss far more real stories than it removes. A product averaging fewer than{" "}
                 {PRODUCT_MIN_STORIES} stories a week in either half of the comparison is marked “too few to
                 call”, and discussion is called rising or cooling only on a move of at least{" "}
                 {THEME_STEADY_BAND * 100}%. Image, video and music products are rarely discussed there, so read
@@ -1650,6 +1654,9 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
           arXiv for use of its open access interoperability. Counts are keyword matches and should be read as
           indicators, not measurements. Set in Newsreader and Geist. Data last collected{" "}
           {fmtDate(latest.generatedAt)}.
+        </p>
+        <p>
+          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>.
         </p>
       </footer>
     </>
