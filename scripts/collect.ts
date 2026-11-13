@@ -4,6 +4,7 @@
  *
  *   npm run collect            everything
  *   npm run collect -- --fast  skip the slow arXiv history backfill
+ *   npm run collect -- --accept  store weekly counts without the plausibility checks
  *
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
@@ -13,7 +14,9 @@
  *
  * No API keys are required. Set GITHUB_TOKEN to raise GitHub's rate limit.
  * If one source fails, the previous data for that source is kept and the
- * failure is recorded in latest.json so the site can show it.
+ * failure is recorded in latest.json so the site can show it. A weekly count
+ * that a source returns but that is not believable (see sanity.ts) is treated
+ * the same way, and the newest week is held back until all of it is in.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -22,6 +25,7 @@ import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
+import { implausible, type Kind } from "./sanity.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
 /** Enough for the one-year view: 26 weeks compared with the 26 before. */
@@ -31,6 +35,8 @@ const WEEKS_TO_REFRESH = 2;
 const USER_AGENT = "ai-trend-tracker (public dashboard; collector script)";
 const DAY = 86_400_000;
 const FAST = process.argv.includes("--fast");
+/** Skips the plausibility checks, for a person who has looked at a rejected figure and found it real. */
+const ACCEPT = process.argv.includes("--accept");
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -296,6 +302,7 @@ const MODEL_LABS = [
 async function hfLabReleases(): Promise<Latest["releases"]> {
   const cutoff = Date.now() - 45 * DAY;
   const releases: Latest["releases"] = [];
+  const skipped: string[] = [];
   for (const lab of MODEL_LABS) {
     try {
       const data = await getJson<HfModel[]>(
@@ -305,9 +312,14 @@ async function hfLabReleases(): Promise<Latest["releases"]> {
         if (Date.parse(m.createdAt) >= cutoff) releases.push({ ...toModel(m), lab });
       }
     } catch (err) {
+      skipped.push(lab);
       console.warn(`  ! skipped ${lab}: ${(err as Error).message}`);
     }
     await sleep(150);
+  }
+  // A list built from a minority of the labs is not the list; the caller keeps the previous one.
+  if (skipped.length > MODEL_LABS.length / 2) {
+    throw new Error(`no response for ${skipped.length} of ${MODEL_LABS.length} labs`);
   }
   return releases.sort((a, b) => b.likes - a.likes).slice(0, 20);
 }
@@ -845,22 +857,55 @@ async function collectHistory(history: History, weeks: string[], status: Record<
   const needs = (series: Record<string, number> | undefined, week: string) =>
     refresh.has(week) || series?.[week] === undefined;
 
+  /**
+   * Stores a count only if it is believable. A rejected count leaves what was
+   * stored before (or nothing, for a new week), and is reported with its source.
+   */
+  let rejected: string[] = [];
+  const put = (label: string, kind: Kind, series: Record<string, number>, week: string, value: number) => {
+    const why = ACCEPT ? null : implausible(kind, series, week, value);
+    if (why) {
+      rejected.push(`${label} ${week}: ${why}`);
+      console.warn(`  ! rejected ${label} ${week}: ${why}`);
+      return false;
+    }
+    series[week] = value;
+    return true;
+  };
+  /** The status for one source: current, or failing with the counts that were turned away. */
+  const settle = (key: string) => {
+    status[key] = rejected.length
+      ? {
+          ok: false,
+          at: status[key]?.at ?? "",
+          error: `${rejected.length} implausible count${rejected.length > 1 ? "s" : ""} not stored (${rejected.slice(0, 3).join("; ")}${rejected.length > 3 ? "; …" : ""})`,
+        }
+      : { ok: true, at: new Date().toISOString() };
+    rejected = [];
+  };
+  const fail = (key: string, what: string, err: unknown) => {
+    rejected = [];
+    status[key] = { ok: false, at: status[key]?.at ?? "", error: (err as Error).message };
+    console.warn(`  ! ${what} failed: ${(err as Error).message}`);
+  };
+
   // Hacker News is quick, so it goes first.
   try {
     for (const topic of TOPICS) {
       const series = ((history.topics[topic.id] ??= { arxiv: {}, hn: {} }).hn ??= {});
-      for (const week of weeks) if (needs(series, week)) series[week] = await hnCount(week, topic.hn);
+      for (const week of weeks) {
+        if (needs(series, week)) put(`stories ${topic.id}`, "part", series, week, await hnCount(week, topic.hn));
+      }
       console.log(`  hn     ${topic.id}`);
     }
-    status.hnHistory = { ok: true, at: new Date().toISOString() };
+    settle("hnHistory");
   } catch (err) {
-    status.hnHistory = { ok: false, at: new Date().toISOString(), error: (err as Error).message };
-    console.warn(`  ! Hacker News history failed: ${(err as Error).message}`);
+    fail("hnHistory", "Hacker News history", err);
   }
 
   try {
     const totals = (history.hnAiTotal ??= {});
-    for (const week of weeks) if (needs(totals, week)) totals[week] = await hnAiCount(week);
+    for (const week of weeks) if (needs(totals, week)) put("AI stories", "total", totals, week, await hnAiCount(week));
     const themes = (history.themes ??= {});
     const subthemes = (history.subthemes ??= {});
     for (const theme of THEMES) {
@@ -870,16 +915,16 @@ async function collectHistory(history: History, weeks: string[], status: Record<
         // A theme is recounted with its sub-themes, so the two always come from the same searches.
         if (!needs(series, week) && parts.every((part) => !needs(part.series, week))) continue;
         const counts = await hnThemeCounts(week, theme);
-        series[week] = counts.total;
+        // The sub-themes come from the same searches, so they are stored only with a believable theme.
+        if (!put(`theme ${theme.id}`, "part", series, week, counts.total)) continue;
         for (const part of parts) part.series[week] = counts.parts[part.id];
       }
       await writeJson("history.json", history); // save progress; a sub-theme backfill takes several minutes
       console.log(`  theme  ${theme.id}`);
     }
-    status.hnThemes = { ok: true, at: new Date().toISOString() };
+    settle("hnThemes");
   } catch (err) {
-    status.hnThemes = { ok: false, at: new Date().toISOString(), error: (err as Error).message };
-    console.warn(`  ! Hacker News themes failed: ${(err as Error).message}`);
+    fail("hnThemes", "Hacker News themes", err);
   }
 
   // arXiv is rate-limited to one request per three seconds; in --fast mode
@@ -887,21 +932,50 @@ async function collectHistory(history: History, weeks: string[], status: Record<
   try {
     const arxivWeeks = FAST ? weeks.slice(-WEEKS_TO_REFRESH) : weeks;
     for (const week of arxivWeeks) {
-      if (needs(history.arxivTotal, week)) history.arxivTotal[week] = await arxivCount(week, null);
+      if (needs(history.arxivTotal, week)) put("all papers", "total", history.arxivTotal, week, await arxivCount(week, null));
     }
     for (const topic of TOPICS) {
       const series = ((history.topics[topic.id] ??= { arxiv: {}, hn: {} }).arxiv ??= {});
       for (const week of arxivWeeks) {
-        if (needs(series, week)) series[week] = await arxivCount(week, topic.arxiv);
+        if (!needs(series, week)) continue;
+        const count = await arxivCount(week, topic.arxiv);
+        const total = history.arxivTotal[week];
+        if (!ACCEPT && total !== undefined && count > total) {
+          rejected.push(`papers ${topic.id} ${week}: ${count} is more than all ${total} papers`);
+          console.warn(`  ! rejected papers ${topic.id} ${week}: ${count} is more than all ${total} papers`);
+        } else put(`papers ${topic.id}`, "part", series, week, count);
       }
       console.log(`  arxiv  ${topic.id}`);
       await writeJson("history.json", history); // save progress; a full backfill takes several minutes
     }
-    status.arxivHistory = { ok: true, at: new Date().toISOString() };
+    settle("arxivHistory");
   } catch (err) {
-    status.arxivHistory = { ok: false, at: new Date().toISOString(), error: (err as Error).message };
-    console.warn(`  ! arXiv history failed: ${(err as Error).message}`);
+    fail("arxivHistory", "arXiv history", err);
   }
+
+  holdBackUnfinishedWeek(history, weeks.at(-1)!);
+}
+
+/**
+ * The site lists the weeks that have a paper total. If any count for the newest
+ * week is missing (a source failed part-way, or returned a figure that was turned
+ * away), its total is removed so the site stays on the week before, instead of
+ * showing a half-collected week as a set of collapses. The next run tries again.
+ */
+function holdBackUnfinishedWeek(history: History, week: string) {
+  if (history.arxivTotal[week] === undefined) return;
+  const missing: string[] = [];
+  for (const topic of TOPICS) {
+    if (history.topics[topic.id]?.arxiv?.[week] === undefined) missing.push(`papers ${topic.id}`);
+    if (history.topics[topic.id]?.hn?.[week] === undefined) missing.push(`stories ${topic.id}`);
+  }
+  if (history.hnAiTotal?.[week] === undefined) missing.push("AI stories");
+  for (const theme of THEMES) {
+    if (history.themes?.[theme.id]?.[week] === undefined) missing.push(`theme ${theme.id}`);
+  }
+  if (missing.length === 0) return;
+  delete history.arxivTotal[week];
+  console.warn(`  ! week ${week} held back: ${missing.length} count${missing.length > 1 ? "s" : ""} missing (${missing.slice(0, 5).join(", ")}${missing.length > 5 ? ", …" : ""})`);
 }
 
 async function main() {
