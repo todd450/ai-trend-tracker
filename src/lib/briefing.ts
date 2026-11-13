@@ -54,31 +54,6 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
     ? (themeTrends.findLast((t) => t.direction === "cooling") ?? themeTrends.at(-1))
     : undefined;
 
-  /** One sentence on where a measure is heading: toward its clearest riser, or away from its clearest faller. */
-  const heading = (
-    subject: string,
-    top: { name: string; direction: string } | undefined,
-    bottom: { name: string; direction: string } | undefined,
-  ) =>
-    top?.direction === "rising"
-      ? `${subject} is moving toward ${inSentence(top.name)}.`
-      : bottom?.direction === "cooling"
-        ? `${subject} is moving away from ${inSentence(bottom.name)}.`
-        : undefined;
-
-  /**
-   * The page headline: where research and where discussion are heading. A measure with no clear
-   * mover gets no sentence, and with none at all the headline only names the page. Discussion is
-   * named for its one source, so the sentence does not claim more than Hacker News can show.
-   */
-  const research = heading("Research", topTopic, bottomTopic);
-  const discussion = heading("Hacker News discussion", topTheme, bottomTheme);
-  const headline: { lead: string; turn?: string } = research
-    ? { lead: research, turn: discussion }
-    : discussion
-      ? { lead: discussion }
-      : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
-
   /** The series behind each sentence of the headline, in the same order. */
   const researchMover =
     topTopic?.direction === "rising" ? topTopic : bottomTopic?.direction === "cooling" ? bottomTopic : undefined;
@@ -92,6 +67,25 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
       ? [{ measure: "Hacker News discussion", name: discussionMover.name, unit: "of AI stories", signal: discussionMover.share, direction: discussionMover.direction }]
       : []),
   ];
+
+  /**
+   * The page headline states the finding, figures included: what each named mover's share was
+   * and what it is now, so the sentence says what the chart under it shows. A measure with no clear
+   * mover gets no sentence, and with none at all the headline only names the page. Discussion is
+   * named for its one source, so the sentence does not claim more than Hacker News can show.
+   */
+  const finding = (mover: LeadSeries, opening: string) => {
+    const { recent, prior } = mover.signal;
+    // One decimal place, unless that would print the same figure twice.
+    const places = recent.toFixed(1) === prior.toFixed(1) ? 2 : 1;
+    const name = opening ? `${opening} ${inSentence(mover.name)}` : mover.name;
+    return `${name} ${recent >= prior ? "rose" : "fell"} to ${recent.toFixed(places)}% ${mover.unit}, from ${prior.toFixed(places)}%.`;
+  };
+  const sentences = lead.map((mover) => finding(mover, mover.measure === "Research" ? "" : "On Hacker News,"));
+  const headline: { lead: string; turn?: string } =
+    sentences.length > 0
+      ? { lead: sentences[0], turn: sentences[1] }
+      : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
 
   const lines: (BriefingLine | null)[] = [
     hasHistory
