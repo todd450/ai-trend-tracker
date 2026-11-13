@@ -825,6 +825,15 @@ code {
   .chapter__kicker {
     flex-basis: 100%;
   }
+
+  /* Beside the title the summary takes the rest of the row, so it only wraps
+     when the row is really out of room, and then into even lines. */
+  .chapter__dek {
+    flex: 1 1 0;
+    min-width: 20ch;
+    max-width: none;
+    text-wrap: balance;
+  }
 }
 
 .chapter__kicker {
@@ -957,6 +966,12 @@ code {
   font-size: var(--text-sm);
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
+  text-wrap: balance;
+}
+
+/* A source name never splits across lines. */
+.trend__context a {
+  white-space: nowrap;
 }
 
 .trend--plain .trend__topic {
