@@ -14,8 +14,22 @@ export const SITE_ISSUES_URL = "https://github.com/todd450/ai-trend-tracker/issu
 export const SITE_DESCRIPTION =
   "A weekly reading of where attention in artificial intelligence is moving, measured from research papers, open-source code, model releases and news discussion.";
 
-/** The site's fixed pages, in the order the sitemap lists them; each conference adds a page after them. */
-export const PAGES = ["/", "/one-week", "/one-month", "/six-months", "/one-year", "/two-years", "/conferences"] as const;
+/**
+ * The site's fixed pages, in the order the sitemap lists them; each conference adds a page after them.
+ * A dataset page is listed at its front-page range only: its other ranges are views of the same
+ * figures, linked from the switch on the page, and would only crowd the sitemap.
+ */
+export const PAGES = [
+  "/",
+  "/one-week",
+  "/one-month",
+  "/six-months",
+  "/one-year",
+  "/two-years",
+  "/data/topics",
+  "/reading",
+  "/conferences",
+] as const;
 
 /** The share card drawn by app/opengraph-image.tsx. */
 const SHARE_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "AI Trend Tracker: what is rising in AI" };
@@ -24,8 +38,8 @@ const SHARE_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "A
  * One page's metadata. Next replaces nested fields such as `openGraph` whole rather than
  * merging them with the layout's, so each page states all of them here, the share card included.
  */
-/** A fixed page, or one conference's page. */
-export type PagePath = (typeof PAGES)[number] | `/conferences/${string}`;
+/** A fixed page, one conference's page, or one range of a dataset page. */
+export type PagePath = (typeof PAGES)[number] | `/conferences/${string}` | `/data/topics/${string}`;
 
 export function pageMetadata(page: { path: PagePath; title: string; description: string }): Metadata {
   const { path, title, description } = page;

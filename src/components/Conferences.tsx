@@ -3,6 +3,7 @@ import { Logo } from "@/components/Logo";
 import { Spark } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
+import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
 import { PHASE_LABEL, PHASE_MARK, dayParts, type AgendaMonth } from "@/lib/agenda";
@@ -125,7 +126,7 @@ export function Stage({ c }: { c: Conference }) {
         {heard.map((r) => (
           <li key={r.topic.id} className="stage__row">
             <h3 className="stage__topic">
-              <Link href={`/#topic-${r.topic.id}`}>{r.topic.name}</Link>
+              <Link href={`${topicsHref(HORIZON)}#topic-${r.topic.id}`}>{r.topic.name}</Link>
             </h3>
             <div className="stage__share">
               <span className="stage__label">{fromTalks ? "On stage" : "Programme"}</span>

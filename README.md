@@ -33,6 +33,30 @@ npm run dev
 
 Then open http://localhost:3000.
 
+`./check.sh` runs every check CI should run: lint, the unit tests, a production
+build, tests of the pages the build wrote, and HTML validation of those pages.
+
+## Download the data
+
+Topic momentum has its own page, `/data/topics`, with a graph, a table and a file.
+`/data/topics.csv` holds every week on record, whichever range the page shows, in
+long form, one row per topic and week:
+
+| Column | Meaning |
+| --- | --- |
+| `week` | The Monday the week starts |
+| `topic_id`, `topic` | The topic's id and name |
+| `source` | `arxiv` |
+| `count` | AI papers mentioning the topic that week |
+| `total` | All AI papers that week |
+| `share` | `count / total` |
+
+The tracker's counts are free to reuse under CC BY 4.0, with credit. arXiv offers its
+metadata under CC0 and its API terms welcome visualizations of topics over time. The
+Hacker News story counts are shown on the page but are not in the file: Y Combinator's
+terms bar distributing works derived from the site except as expressly allowed, and the
+Hacker News API does not grant a licence for its data. Add them only once that is settled.
+
 ## Refresh the data
 
 ```bash
@@ -200,6 +224,11 @@ src/lib/noise.ts     decides whether a change is bigger than a series' usual wob
 src/lib/editorial.ts gathers posts about one event and applies the pins and hides
 data/editorial.json  the editor's pins and hides, kept by hand
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
+src/components/DataIndex.tsx    the front page's list of the seven datasets, each with its biggest move
+src/lib/datasets.ts  the topics page's table, its CSV file and the index's moves, from the same figures
+src/components/TopicsPage.tsx  the topic momentum page, at /data/topics (3 months) and /data/topics/one-year etc.
+src/app/data/topics.csv/  the topics file, made at build time, at /data/topics.csv
+src/components/ReadingList.tsx  the reading lists, at /reading
 src/components/Conferences.tsx  the conference tracker, at /conferences
 scripts/conference.ts  counts topic mentions in a conference's programme or transcript
 src/app/mcp/route.ts   the MCP server, at /mcp

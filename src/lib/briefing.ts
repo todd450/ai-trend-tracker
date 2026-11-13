@@ -2,6 +2,7 @@
  * The week in five numbers. Every figure and sentence is written by a fixed rule
  * from the collected data, so the same data always produces the same briefing.
  */
+import { topicsHref } from "./datasets";
 import { federal, fmtMonth, jobs, releases } from "./indicators";
 import { HORIZONS, type Direction, type Signal, type Trends } from "./trends";
 
@@ -91,7 +92,8 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
     hasHistory
       ? {
           label: "Research",
-          href: "#momentum",
+          // Topic momentum has its own page, at the same range.
+          href: topicsHref(horizon),
           ...movers(
             topTopic && { name: topTopic.name, change: topTopic.papers.change, rising: topTopic.direction === "rising" },
             bottomTopic && {
