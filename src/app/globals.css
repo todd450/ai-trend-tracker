@@ -352,7 +352,6 @@ code {
   display: grid;
   gap: var(--space-xs);
   align-content: end;
-  max-width: 52ch;
   font-size: var(--text-sm);
   color: var(--color-ink-2);
 }
@@ -483,7 +482,6 @@ code {
 
 .map__caption,
 .map__note {
-  max-width: 62ch;
   font-size: var(--text-sm);
   color: var(--color-muted);
 }
@@ -878,7 +876,6 @@ code {
 
 /* Said in place of a list when a band has nothing to show. */
 .band__empty {
-  max-width: 62ch;
   color: var(--color-ink-2);
 }
 
@@ -1699,7 +1696,6 @@ code {
 .prose {
   display: grid;
   gap: var(--space-md);
-  max-width: 65ch;
   color: var(--color-ink-2);
 }
 
@@ -1779,7 +1775,6 @@ code {
 .conf__pending,
 .conf__unheard,
 .conf__videos {
-  max-width: 80ch;
   font-size: var(--text-sm);
   color: var(--color-ink-2);
 }
@@ -1952,7 +1947,6 @@ code {
   grid-column: 1 / -1;
   display: grid;
   gap: var(--space-2xs);
-  max-width: 75ch;
   padding-top: var(--space-2xs);
   font-size: var(--text-sm);
   color: var(--color-ink-2);
@@ -2082,7 +2076,6 @@ code {
 }
 
 .cal__note {
-  max-width: 65ch;
   color: var(--color-ink-2);
 }
 
