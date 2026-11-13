@@ -1,4 +1,9 @@
 {
   "pin": [],
-  "hide": []
+  "hide": [
+    {
+      "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
+      "reason": "A fine-tune published to remove another model's safety behaviour; left out by the editor."
+    }
+  ]
 }

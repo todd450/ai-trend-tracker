@@ -113,6 +113,8 @@ export type ProductTrend = {
   blurb: string;
   /** The title searches behind the story count. */
   searches: string[];
+  /** Phrases whose stories are left out of the count. */
+  except: string[];
   /** Hacker News stories per week naming the product in the title. */
   stories: Signal;
   /** False when the story counts are too small for a change to mean anything. */
@@ -266,6 +268,7 @@ export function buildTrends(horizon: Horizon) {
       kind: product.kind,
       blurb: product.blurb,
       searches: product.hn,
+      except: product.hnExcept ?? [],
       stories: signal(collected(series?.hn).map((w) => series?.hn?.[w] ?? 0)),
       enough:
         mean(counts.slice(-window)) >= PRODUCT_MIN_STORIES &&

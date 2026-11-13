@@ -4,6 +4,7 @@ import { Spark } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { NEW_TAB } from "@/lib/links";
+import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
 import {
   READING_LABEL,
   conferences,
@@ -413,6 +414,9 @@ export function Conferences() {
           Conference dates come from each organiser’s site and can change; check the event’s own page before
           travelling. Talk titles and speaker names are the organisers’. Counts are keyword matches and should be
           read as indicators, not measurements. Data last collected {fmtDate(today)}.
+        </p>
+        <p>
+          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>.
         </p>
       </footer>
     </>
