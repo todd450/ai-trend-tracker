@@ -952,6 +952,22 @@ code {
   margin-inline: var(--space-2xs) var(--space-3xs);
 }
 
+/* Themes carry one bar; the stories figure sits at the end of the line. */
+.mom__row--theme > .trend__level {
+  font-size: var(--text-xs);
+}
+
+.mom__row--sub + .mom__row--sub {
+  border-top: var(--rule-hair) dotted var(--color-rule);
+}
+
+.mom__topic h5 {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
 .mom__row:target {
   background: var(--color-paper-2);
 }
@@ -964,8 +980,22 @@ code {
     padding-block: 0;
   }
 
-  .mom__topic h4 {
+  .mom__topic h4,
+  .mom__topic h5 {
     cursor: help;
+  }
+
+  .mom__topic h4:has(.drill) {
+    cursor: auto;
+  }
+
+  .mom--themes .trend-cols,
+  .mom__row--theme {
+    grid-template-columns: minmax(14rem, 1.4fr) minmax(0, 2fr) 4rem;
+  }
+
+  .mom--themes .trend-cols > :last-child {
+    text-align: end;
   }
 
   .mom__label {
@@ -1060,23 +1090,6 @@ code {
   background: var(--color-paper-2);
 }
 
-.trend--sub {
-  padding-block: var(--space-2xs);
-  border-top-style: dotted;
-}
-
-.trend--sub:first-child {
-  border-top: 0;
-}
-
-.trend--sub .trend__topic h4 {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  line-height: 1.3;
-}
-
 .trend__few {
   justify-self: end;
   font-size: var(--text-xs);
@@ -1089,16 +1102,6 @@ code {
   padding-inline-start: var(--space-md);
   font-weight: 400;
   color: var(--color-muted);
-}
-
-@media (min-width: 60rem) and (hover: hover) {
-  .trend__topic h3:has(.drill) {
-    cursor: auto;
-  }
-
-  .trend--sub .trend__topic h4 {
-    cursor: help;
-  }
 }
 
 @media (pointer: coarse) {

@@ -24,19 +24,20 @@ const GROUPS: { direction: Direction; title: string }[] = [
 
 /** A column's bars end on the first of these that covers its largest change. */
 const EXTENTS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 5, 10];
-const extentOf = (changes: (number | null)[]) => {
+export const extentOf = (changes: (number | null)[]) => {
   const top = Math.max(0.1, ...changes.map((c) => Math.abs(c ?? 0)));
   return EXTENTS.find((e) => e >= top) ?? top;
 };
 
 /** One change as a bar growing left or right from a shared zero line, with its figure and the current level. */
-function Bar({
+export function Bar({
   signal,
   extent,
   firm,
   label,
   level,
   tip,
+  band = 0.1,
 }: {
   signal: Signal;
   extent: number;
@@ -44,9 +45,11 @@ function Bar({
   label: string;
   level: React.ReactNode;
   tip: string;
+  /** A change smaller than this is drawn as steady. */
+  band?: number;
 }) {
   const change = signal.change ?? 0;
-  const tone = directionOf(signal.change, 0.1);
+  const tone = directionOf(signal.change, band);
   const width = `${(Math.min(Math.abs(change), extent) / extent) * 50}%`;
   return (
     <div className={`mom__signal${firm ? "" : " mom__signal--soft"}`} title={tip}>

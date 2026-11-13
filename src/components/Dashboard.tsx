@@ -2,7 +2,7 @@ import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
-import { MomentumBars } from "@/components/MomentumBars";
+import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { Sparkline } from "@/components/Sparkline";
@@ -58,6 +58,12 @@ const SOURCE_LABELS: Record<string, string> = {
   marketShare: "OpenRouter model rankings",
 };
 
+const THEME_GROUPS: { direction: Direction; title: string }[] = [
+  { direction: "rising", title: "Rising" },
+  { direction: "steady", title: "Steady" },
+  { direction: "cooling", title: "Cooling" },
+];
+
 const toneOf = (signal: Signal, band = 0.1) => directionOf(signal.change, band);
 
 function host(url: string) {
@@ -93,59 +99,34 @@ function PerWeek({ value }: { value: number }) {
 }
 
 /**
- * The two figure cells of a theme or sub-theme row: share of AI stories, then stories a week.
- * With too few stories to judge, the change gives way to a note and the level stays.
+ * The figure cells of a theme or sub-theme row: the change in its share of AI stories as a bar,
+ * the share now, then stories a week. With too few stories to judge, the bar is outlined.
  */
 function ThemeCells({
   name,
   share,
   stories,
-  labels,
+  extent,
   enough = true,
 }: {
   name: string;
   share: Signal;
   stories: Signal;
-  labels: string[];
+  extent: number;
   enough?: boolean;
 }) {
-  const few = <span className="trend__few">too few to call</span>;
   return (
     <>
-      <div className="trend__signal">
-        <span className="trend__label">Share</span>
-        <Sparkline
-          values={share.values}
-          labels={labels}
-          unit="storyShare"
-          tone={enough ? directionOf(share.change, THEME_STEADY_BAND) : "steady"}
-          summary={`${name}: share of AI stories on Hacker News over ${labels.length} weeks, now ${share.recent.toFixed(1)}%${enough ? `, ${fmtChange(share.change)}` : ""}`}
-        />
-        {enough ? (
-          <Change signal={share} band={THEME_STEADY_BAND} />
-        ) : (
-          few
-        )}
-        <span className="trend__level">
-          {share.recent.toFixed(1)}%<span className="vh"> of AI stories</span>
-        </span>
-      </div>
-      <div className="trend__signal">
-        <span className="trend__label">Stories</span>
-        <Sparkline
-          values={stories.values}
-          labels={labels}
-          unit="stories"
-          tone={enough ? directionOf(stories.change, THEME_STEADY_BAND) : "steady"}
-          summary={`${name}: Hacker News stories per week over ${labels.length} weeks, now ${Math.round(stories.recent)}${enough ? `, ${fmtChange(stories.change)}` : ""}`}
-        />
-        {enough ? (
-          <Change signal={stories} band={THEME_STEADY_BAND} />
-        ) : (
-          few
-        )}
-        <PerWeek value={stories.recent} />
-      </div>
+      <Bar
+        signal={share}
+        extent={extent}
+        firm={enough}
+        band={THEME_STEADY_BAND}
+        label="Share"
+        tip={`${name}: ${share.recent.toFixed(1)}% of AI stories, was ${share.prior.toFixed(1)}%${enough ? "" : " (too few stories to call)"}`}
+        level={<>{share.recent.toFixed(1)}%<span className="vh"> of AI stories</span></>}
+      />
+      <PerWeek value={stories.recent} />
     </>
   );
 }
@@ -178,10 +159,15 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       ? "latest week compared with the week before"
       : `last ${WINDOW} weeks compared with the ${WINDOW} weeks before`;
   const latestWeek = weeks.at(-1);
-  const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
   /** Topics with enough papers a week for a change in their share to be trusted. */
   const papersFirm = new Set(rankedTopics.map((t) => t.id));
   const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+  /** Themes numbered in the order shown, biggest rise in share first. */
+  const themeRows = themeTrends.map((t, i) => ({ t, rank: i + 1 }));
+  /** One scale for every theme bar; sub-themes with too few stories do not stretch it. */
+  const themeExtent = extentOf(
+    themeTrends.flatMap((t) => [t.share.change, ...t.parts.filter((part) => part.enough).map((part) => part.share.change)]),
+  );
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
   const adoption = adoptionSummary; // local constants, so the null checks below hold inside the row callbacks
   const adoptionRows = adoption
@@ -440,45 +426,62 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           {hasThemes ? (
             <>
-              <div className="trend-cols" aria-hidden="true">
-                <span>Theme</span>
-                <span>Share <i>of AI stories</i></span>
-                <span>Stories <i>on Hacker News</i></span>
+              <div className="mom mom--themes">
+                <div className="trend-cols" aria-hidden="true">
+                  <span>Theme</span>
+                  <span>Share of AI stories <i>change, now</i></span>
+                  <span>Stories</span>
+                </div>
+                {THEME_GROUPS.map((group) => {
+                  const members = themeRows.filter(({ t }) => t.direction === group.direction);
+                  if (members.length === 0) return null;
+                  return (
+                    <section key={group.direction} className="mom__group">
+                      <h3>
+                        {group.title} <span>{members.length}</span>
+                      </h3>
+                      <ol start={members[0].rank}>
+                        {members.map(({ t, rank }) => (
+                          <ThemeRow
+                            key={t.id}
+                            rank={rank}
+                            name={t.name}
+                            blurb={t.blurb}
+                            count={t.parts.length}
+                            cells={<ThemeCells name={t.name} share={t.share} stories={t.stories} extent={themeExtent} />}
+                          >
+                            {t.parts.map((part) => (
+                              <li key={part.id} className="mom__row mom__row--theme mom__row--sub">
+                                <div className="mom__topic" title={`Stories whose title matches: ${part.searches.join(", ")}`}>
+                                  <span className="mom__rank" aria-hidden="true" />
+                                  <h5>{part.name}</h5>
+                                </div>
+                                <ThemeCells
+                                  name={`${t.name}, ${part.name}`}
+                                  share={part.share}
+                                  stories={part.stories}
+                                  extent={themeExtent}
+                                  enough={part.enough}
+                                />
+                              </li>
+                            ))}
+                          </ThemeRow>
+                        ))}
+                      </ol>
+                    </section>
+                  );
+                })}
+                <p className="mom__note">
+                  Bars run to ±{Math.round(themeExtent * 100)}%. Steady means a change under {THEME_STEADY_BAND * 100}%.
+                  {themeTrends.some((t) => t.parts.some((part) => !part.enough)) && (
+                    <>
+                      {" "}
+                      <span className="mom__swatch" aria-hidden="true" /> Outlined bars are sub-themes with fewer than{" "}
+                      {SUBTHEME_MIN_STORIES} stories a week; read them with care.
+                    </>
+                  )}
+                </p>
               </div>
-              <ol className="trends">
-                {themeTrends.map((t, i) => (
-                  <ThemeRow
-                    key={t.id}
-                    rank={i + 1}
-                    name={t.name}
-                    blurb={t.blurb}
-                    count={t.parts.length}
-                    cells={
-                      <>
-                        <ThemeCells name={t.name} share={t.share} stories={t.stories} labels={weekLabels} />
-                      </>
-                    }
-                  >
-                    {t.parts.map((part) => (
-                      <li key={part.id} className="trend trend--sub">
-                        <div className="trend__topic">
-                          <span className="trend__rank" aria-hidden="true" />
-                          <h4>{part.name}</h4>
-                          <p>Stories whose title matches: {part.searches.join(", ")}</p>
-                        </div>
-                        <ThemeCells
-                          name={`${t.name}, ${part.name}`}
-                          share={part.share}
-                          stories={part.stories}
-                         
-                          labels={weekLabels}
-                          enough={part.enough}
-                        />
-                      </li>
-                    ))}
-                  </ThemeRow>
-                ))}
-              </ol>
 
               <details className="table-view">
                 <summary>Show the weekly theme numbers as a table</summary>
