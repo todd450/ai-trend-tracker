@@ -1,5 +1,11 @@
 # Refreshes the data every day and commits it. If the site is deployed from
 # this repository (for example on Vercel), each commit triggers a rebuild.
+#
+# GitHub's terms allow hosted runners only for work that builds or publishes the
+# repository's own project, and not as a server. This job fits because it runs
+# once a day and only produces this site's data. Keep it that way: do not trigger
+# it on demand from outside, serve anything from the runner, or collect data for
+# another project here.
 name: Collect data
 
 on:
@@ -27,6 +33,8 @@ jobs:
         run: node scripts/collect.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Any OpenRouter account key; the model share figures are skipped without it.
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       - name: Commit new data
         run: |
           git config user.name "github-actions[bot]"

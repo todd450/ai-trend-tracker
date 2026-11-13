@@ -1,8 +1,9 @@
 # AI Trend Tracker
 
 A public dashboard that shows where attention in AI is moving, week by week.
-It measures free public sources, adds a reading list from newsletter
-and lab news feeds, and needs no API keys.
+It measures free public sources and adds a reading list from newsletter
+and lab news feeds. One section, model share, needs a free OpenRouter account
+key; everything else needs no keys.
 
 | Signal | Source | What is measured |
 | --- | --- | --- |
@@ -11,8 +12,8 @@ and lab news feeds, and needs no API keys.
 | Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, biggest first by Hacker News points |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
-| Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
-| Labs | News from seven frontier labs (Anthropic, OpenAI, Google DeepMind, Meta, Microsoft, Mistral AI, DeepSeek) and four specialist ones (Runway, ElevenLabs, Suno, Stability AI) | Newest announcements, including closed-model releases |
+| Analysis | Eight newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
+| Labs | OpenAI and Google DeepMind news feeds; Anthropic, xAI, DeepSeek and Runway posts via Hacker News | Newest announcements, including closed-model releases |
 | Themes | Hacker News search | Stories on seven economy and society themes, each split into four sub-themes, as a share of all AI stories, weekly |
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
@@ -72,13 +73,16 @@ If a rejected figure turns out to be real, run
 `npm run collect -- --fast --accept` once to store it without the checks.
 
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
-`scripts/collect.ts`. Anthropic, DeepSeek and Runway have no feed, so their
-newest articles are found through their sitemaps and read one page at a time.
-Meta's are its newsroom posts tagged AI, Microsoft's are the posts on its
-company blog that mention AI, and ElevenLabs' are the posts it files under
-Product, Company or Research. A frontier lab can take three places in the
-list and a specialist lab two. xAI is not listed: its site refuses automated
-readers.
+`scripts/collect.ts`. Anthropic has no feed, and its terms may not allow a script
+to read its pages, so its posts are found through Hacker News: stories from the
+past 30 days that link to an article on anthropic.com. A post nobody submitted
+there is missed, and the headline is the one on the most-upvoted submission.
+xAI, DeepSeek and Runway are read the same way (`viaHackerNews`), so nothing is
+requested from their sites either. The lab list keeps 18 posts: up to three from
+a frontier lab and two from a specialist one such as Runway.
+
+Read a publisher's terms before adding a feed. NBER and PIIE were removed because
+theirs bar any automatic access to their sites, with no exception for feeds.
 
 "Today's AI news", at the top of the page, is built in `src/lib/today.ts` from
 the lab and newsletter lists plus the past day's Hacker News stories (20 points
@@ -112,7 +116,9 @@ tokens.css           every colour, font and size the design uses
 ```
 
 There is no database. The site is a static page rebuilt whenever the data
-files change. `.github/workflows/collect.yml` refreshes the data daily once
+files change. GitHub allows its hosted runners only for work on the repository's
+own project, so the workflow should stay a short daily job that produces this
+site's data and nothing else. `.github/workflows/collect.yml` refreshes the data daily once
 the project is on GitHub.
 
 ## How a trend is decided
@@ -185,8 +191,10 @@ was last collected.
 Once an event is over and its recordings have captions, it is watched and read against
 the trends:
 
-1. Save the captions as text, for example with
-   `yt-dlp --write-auto-subs --sub-langs en --skip-download <video url>`.
+1. Save the captions as text. Open the video on YouTube, choose "Show transcript" under
+   the description, and copy the text into a file; or ask the organiser for a transcript.
+   Do not fetch captions with a download tool such as `yt-dlp`: YouTube's terms allow
+   neither automated access nor downloading without permission.
    Transcripts are not kept in the repository.
 2. Run `npm run conference -- <conference id> <transcript.txt>`. This counts how often
    each topic in `src/lib/topics.ts` was mentioned and stores the counts under `stage`.
@@ -218,8 +226,13 @@ Read it as one marketplace, not the whole market:
   nine, and its change is shown only if it stayed there for the whole comparison.
 
 The data is OpenRouter's, used under CC BY 4.0 with the credit shown beside the figures. The
-collector reads the same address the rankings page itself loads, which needs no account but is not
-a documented service and could change; if it does, the dashboard keeps the last good data and marks
-the source as failed. OpenRouter also offers a documented data service that needs a free account
-key, which would be the sturdier choice. `modelMarketShare` in `scripts/collect.ts` is the place to
-switch.
+collector reads OpenRouter's documented
+[Data API](https://openrouter.ai/docs/cookbook/administration/data-api), which lists each day's 50
+most-used models; `scripts/marketShare.ts` sums them by maker and week. A maker's total therefore
+leaves out any of its models below the daily 50.
+
+The API needs an account key, though the request costs nothing. Create a key at openrouter.ai, then
+set `OPENROUTER_API_KEY` when running `npm run collect`, and add it as a repository secret of the
+same name for the daily workflow. Without it the section keeps its last data and the source shows as
+failed. OpenRouter's terms do not allow reading the address its rankings page loads, so do not
+switch back to that.

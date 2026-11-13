@@ -25,6 +25,7 @@ import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
+import { weeklyMakerTokens, type RankingRow } from "./marketShare.ts";
 import { implausible, type Kind } from "./sanity.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
@@ -422,57 +423,69 @@ function feed(source: string, url: string, aiOnly = false, categories?: string[]
   };
 }
 
-const metaTag = (html: string, property: string) =>
-  html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] ?? "";
-
-/** Publication day of an article page; sites state it in one of three ways. */
-function pageDate(html: string): string | null {
-  const raw =
-    metaTag(html, "article:published_time") ||
-    (html.match(/dateTime=["'](\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z)?)/)?.[1] ?? "") ||
-    (html.match(
-      /\b((?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, 20\d\d)\b/,
-    )?.[1] ?? "");
-  const when = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T00:00:00Z` : raw.includes(",") ? `${raw} UTC` : raw);
-  return Number.isNaN(when) ? null : new Date(when).toISOString();
-}
+/** How far back a lab's posts are looked for on Hacker News; the reading list shows 30 days. */
+const HN_POST_DAYS = 30;
 
 /**
- * Anthropic publishes no feed. Its sitemap lists every article with the date
- * it last changed, so this opens the most recently changed ones and reads the
- * title and publication date from each page. Model launches sit at the top
- * level of the site (/claude-…), not under /news.
+ * For a lab that publishes no feed. A script reading its pages is what site terms most often
+ * bar, so its posts are found through Hacker News instead: every story from the past 30 days
+ * that links to an article on the lab's site. Nothing is requested from the lab.
+ *
+ * A post nobody submitted is missed. The headline is the one on the most-upvoted
+ * submission, which is nearly always the article's own, and the date is the first submission.
+ * `domain` is searched for in story links, `post` says which of those links are articles, and
+ * `prefix` is a label submitters put before the headline.
  */
-const ANTHROPIC_PAGES_TO_CHECK = 14;
-
-const anthropicNews: FeedSource = {
-  source: "Anthropic",
-  collect: async () => {
-    const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
-    const pages = [
-      ...sitemap.matchAll(
-        /<loc>(https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9-]+|claude-[a-z0-9-]+))<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
-      ),
-    ]
-      .map(([, url, changed]) => ({ url, changed }))
-      .sort((x, y) => y.changed.localeCompare(x.changed))
-      .slice(0, ANTHROPIC_PAGES_TO_CHECK);
-    if (pages.length === 0) throw new Error("no articles in the sitemap");
-
-    const items: FeedItem[] = [];
-    for (const { url } of pages) {
-      const html = await getText(url);
-      const title = plain(metaTag(html, "og:title"));
-      const publishedAt = pageDate(html);
-      if (title && publishedAt) items.push({ source: "Anthropic", title, url, publishedAt });
-      await sleep(300);
+async function hnPosts(source: string, domain: string, post: RegExp, prefix: RegExp): Promise<FeedItem[]> {
+  const since = Math.floor((Date.now() - HN_POST_DAYS * DAY) / 1000);
+  const data = await getJson<HnResponse>(
+    "https://hn.algolia.com/api/v1/search_by_date?" +
+      new URLSearchParams({
+        tags: "story",
+        query: domain,
+        restrictSearchableAttributes: "url",
+        numericFilters: `created_at_i>${since}`,
+        hitsPerPage: "100",
+      }),
+  );
+  const posts = new Map<string, { title: string; points: number; first: string }>();
+  for (const hit of data.hits) {
+    const url = (hit.url ?? "").replace(/[?#].*$/, "").replace(/\/$/, "");
+    const title = (hit.title ?? "").replace(prefix, "").replace(/\s*\[pdf\]$/i, "").trim();
+    if (!post.test(url) || !title) continue;
+    const held = posts.get(url);
+    if (!held) posts.set(url, { title, points: hit.points ?? 0, first: hit.created_at });
+    else {
+      if ((hit.points ?? 0) > held.points) Object.assign(held, { title, points: hit.points });
+      if (hit.created_at < held.first) held.first = hit.created_at;
     }
-    if (items.length === 0) throw new Error("article pages had no title or date (their layout may have changed)");
-    return items;
-  },
-};
+  }
+  return [...posts].map(([url, held]) => ({
+    source,
+    title: held.title,
+    url,
+    publishedAt: new Date(held.first).toISOString(),
+  }));
+}
 
-/** Writers and institutions that explain what AI is doing to work, firms and society. */
+/** An article or model page on Anthropic's site. Section pages such as /news/policy have one-word names. */
+const ANTHROPIC_POST = /^https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9]+-[a-z0-9-]+|claude-[a-z0-9-]+)$/;
+
+const anthropicPosts = () => hnPosts("Anthropic", "anthropic.com", ANTHROPIC_POST, /^Anthropic:\s*/i);
+
+/** A lab with no feed, read through Hacker News. An empty result is not a failure: a quiet month has no stories. */
+const viaHackerNews = (source: string, domain: string, post: RegExp): FeedSource => ({
+  source,
+  collect: () => hnPosts(source, domain, post, new RegExp(`^${source}:\\s*`, "i")),
+});
+
+const anthropicNews: FeedSource = { source: "Anthropic", collect: anthropicPosts };
+
+/**
+ * Writers and institutions that explain what AI is doing to work, firms and society.
+ * Before adding a feed, read the publisher's terms: NBER and PIIE were removed because
+ * theirs bar any automatic access to their sites, feeds included.
+ */
 const ANALYST_SOURCES: FeedSource[] = [
   feed("One Useful Thing", "https://www.oneusefulthing.org/feed"),
   feed("Epoch AI", "https://epoch.ai/atom.xml"),
@@ -481,98 +494,28 @@ const ANALYST_SOURCES: FeedSource[] = [
   feed("The Pragmatic Engineer", "https://newsletter.pragmaticengineer.com/feed", true),
   feed("a16z News", "https://www.a16z.news/feed", true),
   feed("Benedict Evans", "https://www.ben-evans.com/benedictevans?format=rss", true),
-  feed("NBER", "https://www.nber.org/rss/new.xml", true),
-  feed("PIIE", "https://www.piie.com/rss/update.xml", true),
   feed("Pew Research Center", "https://www.pewresearch.org/topic/internet-technology/feed/", true),
 ];
-
-/**
- * DeepSeek publishes no feed either. Its announcements are pages of its API documentation named
- * for the day they went up (/news/news261113 is 13 November 2026), all listed in the sitemap,
- * so the date comes from the address and only the title needs the page opened.
- */
-const DEEPSEEK_PAGES_TO_CHECK = 4;
-
-const deepseekNews: FeedSource = {
-  source: "DeepSeek",
-  collect: async () => {
-    const sitemap = await getText("https://api-docs.deepseek.com/sitemap.xml");
-    const pages = [...sitemap.matchAll(/<loc>(https:\/\/api-docs\.deepseek\.com\/news\/news(\d{2})(\d{2})(\d{2}))<\/loc>/g)]
-      .map(([, url, yy, mm, dd]) => ({ url, publishedAt: `20${yy}-${mm}-${dd}T00:00:00.000Z` }))
-      .filter((page) => !Number.isNaN(Date.parse(page.publishedAt)))
-      .sort((x, y) => y.publishedAt.localeCompare(x.publishedAt))
-      .slice(0, DEEPSEEK_PAGES_TO_CHECK);
-    if (pages.length === 0) throw new Error("no news pages in the sitemap");
-
-    const items: FeedItem[] = [];
-    for (const { url, publishedAt } of pages) {
-      const html = await getText(url);
-      const title = plain(metaTag(html, "og:title")).replace(/\s*\|\s*DeepSeek API Docs$/, "");
-      if (title) items.push({ source: "DeepSeek", title, url, publishedAt });
-      await sleep(300);
-    }
-    if (items.length === 0) throw new Error("news pages had no title (their layout may have changed)");
-    return items;
-  },
-};
-
-/**
- * Runway publishes no feed. Its sitemap lists each news article with the date it last changed,
- * so this opens the most recently changed ones, as for Anthropic. Customer stories are left out.
- */
-const RUNWAY_PAGES_TO_CHECK = 4;
-
-const runwayNews: FeedSource = {
-  source: "Runway",
-  collect: async () => {
-    const sitemap = await getText("https://runwayml.com/sitemap.xml");
-    const pages = [
-      ...sitemap.matchAll(
-        /<loc>(https:\/\/runway\.com\/news\/(?:company-news|research)\/[a-z0-9-]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
-      ),
-    ]
-      .map(([, url, changed]) => ({ url, changed }))
-      .sort((x, y) => y.changed.localeCompare(x.changed))
-      .slice(0, RUNWAY_PAGES_TO_CHECK);
-    if (pages.length === 0) throw new Error("no articles in the sitemap");
-
-    const items: FeedItem[] = [];
-    for (const { url } of pages) {
-      const html = await getText(url);
-      const title = plain(metaTag(html, "og:title")).replace(/^Runway News\s*\|\s*/, "");
-      const publishedAt = pageDate(html);
-      if (title && publishedAt) items.push({ source: "Runway", title, url, publishedAt });
-      await sleep(300);
-    }
-    if (items.length === 0) throw new Error("article pages had no title or date (their layout may have changed)");
-    return items;
-  },
-};
 
 /** A specialist lab posts about one kind of model, so it gets fewer places than a frontier lab. */
 const specialist = (source: FeedSource): FeedSource => ({ ...source, limit: 2 });
 
 /**
  * The labs whose own announcements are listed: the frontier labs, then smaller ones known for
- * one kind of model. xAI is left out: its site turns away automated readers, feed or no feed.
+ * one kind of model. Labs without a feed are found through Hacker News, like Anthropic.
  */
 const LAB_SOURCES: FeedSource[] = [
   anthropicNews,
   feed("OpenAI", "https://openai.com/news/rss.xml"),
   feed("Google DeepMind", "https://deepmind.google/blog/rss.xml"),
-  feed("Meta", "https://about.fb.com/news/tag/ai/feed/"), // the newsroom's posts tagged AI
-  feed("Mistral AI", "https://mistral.ai/rss.xml"),
-  feed("Microsoft", "https://blogs.microsoft.com/feed/", true), // the company blog covers other subjects too
-  deepseekNews,
-  specialist(runwayNews), // video
-  specialist(feed("ElevenLabs", "https://elevenlabs.io/blog/rss.xml", false, ["Product", "Company", "Research"])), // voice
-  specialist(feed("Suno", "https://suno.com/blog/rss.xml")), // music
-  specialist(feed("Stability AI", "https://stability.ai/news-updates?format=rss")), // image and audio
+  viaHackerNews("xAI", "x.ai", /^https:\/\/x\.ai\/news\/[a-z0-9-]+$/),
+  viaHackerNews("DeepSeek", "deepseek.com", /^https:\/\/api-docs\.deepseek\.com\/news\/news\d{6}$/),
+  specialist(viaHackerNews("Runway", "runway.com", /^https:\/\/runway(?:ml)?\.com\/news\/(?:company-news|research)\/[a-z0-9-]+$/)), // video
 ];
 
 const FEED_WINDOW_DAYS = 30;
 const FEED_KEEP = 12;
-/** The lab list is longer: eleven labs share it, and a busy week should not push a quiet lab's launch off the end. */
+/** The lab list is longer: many labs share it, and a busy week should not push a quiet lab's launch off the end. */
 const LAB_KEEP = 18;
 
 /**
@@ -843,30 +786,37 @@ async function businessAdoption(previous: Indicators["business"]): Promise<Busin
 /** Weeks of model share kept: the one-year view's 52 with a few to spare. */
 const MARKET_SHARE_WEEKS_KEPT = 60;
 
+/** The longest span of days the rankings dataset gives in one request. */
+const MARKET_SHARE_DAYS = 366;
+
 /**
- * Tokens processed on OpenRouter each week, by model maker. This is the figure behind the
- * "Market Share" chart on openrouter.ai/rankings, read from the address that chart loads.
- * OpenRouter also publishes it through a documented API, but that needs an account key.
- * The data is licensed CC BY 4.0 and must be credited to OpenRouter wherever it is shown.
+ * Tokens processed on OpenRouter each week, by model maker, from OpenRouter's documented
+ * Data API (openrouter.ai/docs/cookbook/administration/data-api). It needs an account key in
+ * OPENROUTER_API_KEY; any key works and the request costs nothing. One request a day covers
+ * the past year, so restated figures are picked up.
+ * The data is licensed CC BY 4.0 and must be credited to OpenRouter, with the time in
+ * `asOf`, wherever it is shown.
  */
 async function modelMarketShare(previous: Indicators["marketShare"]): Promise<NonNullable<Indicators["marketShare"]>> {
-  const body = await getJson<{ data?: { data?: { x?: unknown; ys?: unknown }[] } }>(
-    "https://openrouter.ai/api/frontend/v1/rankings/author-market-share",
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new Error("OPENROUTER_API_KEY is not set");
+  const end = Date.now() - DAY; // the newest complete UTC day
+  const params = new URLSearchParams({ start_date: isoDay(new Date(end - (MARKET_SHARE_DAYS - 1) * DAY)), end_date: isoDay(new Date(end)) });
+  const body = await getJson<{ data?: RankingRow[]; meta?: { as_of?: string } }>(
+    `https://openrouter.ai/api/v1/datasets/rankings-daily?${params}`,
+    { Authorization: `Bearer ${key}` },
   );
-  const byWeek = new Map(previous?.weeks.map((w) => [w.week, w]));
-  for (const row of body.data?.data ?? []) {
-    if (typeof row.x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(row.x) || !row.ys || typeof row.ys !== "object") continue;
-    // The newest row is the week in progress; only weeks that have ended are kept.
-    if (Date.parse(`${row.x}T00:00:00Z`) + 7 * DAY > Date.now()) continue;
-    const tokens = Object.fromEntries(
-      Object.entries(row.ys).filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] >= 0),
-    );
-    if (Object.keys(tokens).length >= 2) byWeek.set(row.x, { week: row.x, tokens });
+  const asOf = body.meta?.as_of;
+  if (!asOf || Number.isNaN(Date.parse(asOf))) throw new Error("response did not say when it was made");
+  // Weeks stored without `asOf` were read another way and group makers differently, so they are not kept.
+  const byWeek = new Map(previous?.asOf ? previous.weeks.map((w) => [w.week, w]) : []);
+  for (const week of weeklyMakerTokens(body.data ?? [])) {
+    if (Object.keys(week.tokens).length >= 2) byWeek.set(week.week, week);
   }
   const weeks = [...byWeek.values()].sort((a, b) => a.week.localeCompare(b.week)).slice(-MARKET_SHARE_WEEKS_KEPT);
   const newest = weeks.at(-1);
   if (!newest || Date.now() - Date.parse(`${newest.week}T00:00:00Z`) > 21 * DAY) throw new Error("no recent complete week returned");
-  return { weeks };
+  return { asOf, weeks };
 }
 
 /** A release is only logged when first seen within this many days, so a feed's short memory cannot misdate old models. */
@@ -891,21 +841,15 @@ async function versionedReleases(source: FeedSource, pattern: RegExp, name: (ver
   return [...first.values()];
 }
 
-/** Anthropic model launches: sitemap pages named claude-…, opened once each and remembered. */
+/**
+ * Anthropic model launches: posts on pages named claude-… with a version number, found through
+ * Hacker News like the rest of its news. Each page is logged once, when first seen.
+ */
 async function anthropicReleases(checked: Record<string, Release | null>): Promise<void> {
-  const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
-  const urls = [...sitemap.matchAll(/<loc>(https:\/\/www\.anthropic\.com\/(?:news\/)?claude-[a-z0-9-]*\d[a-z0-9-]*)<\/loc>/g)].map(
-    (m) => m[1],
-  );
-  if (urls.length === 0) throw new Error("no model pages in the sitemap");
-  for (const url of urls) {
-    if (url in checked) continue;
-    const html = await getText(url);
-    const title = plain(metaTag(html, "og:title"));
-    const date = pageDate(html);
-    const model = title.match(/^(?:Introducing )?(Claude\b.*\d.*)$/)?.[1];
-    checked[url] = model && date ? { lab: "Anthropic", model, url, date } : null;
-    await sleep(300);
+  for (const post of await anthropicPosts()) {
+    if (post.url in checked || !/\/claude-[a-z0-9-]*\d[a-z0-9-]*$/.test(post.url)) continue;
+    const model = post.title.match(/^(?:Introducing )?(Claude\b.*\d.*)$/)?.[1];
+    if (model) checked[post.url] = { lab: "Anthropic", model, url: post.url, date: post.publishedAt };
   }
 }
 

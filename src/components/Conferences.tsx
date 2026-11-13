@@ -3,8 +3,6 @@ import { Logo } from "@/components/Logo";
 import { NEW_TAB } from "@/lib/links";
 import {
   READING_LABEL,
-  STAGE_LOUD,
-  STAGE_QUIET,
   conferences,
   daysUntil,
   fmtMonthOf,
@@ -14,7 +12,7 @@ import {
   today,
   type Phase,
 } from "@/lib/conferences";
-import { HEADLINE_MIN_PAPERS, HORIZONS, MAP_MIN_STORIES, directionOf, fmtChange, fmtDate, fmtDay, type Direction } from "@/lib/trends";
+import { HORIZONS, directionOf, fmtChange, fmtDate, type Direction } from "@/lib/trends";
 import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
@@ -224,7 +222,6 @@ export function Conferences() {
                 {read.length > 0 && <li><a href="#readings">Readings</a></li>}
                 <li><a href="#calendar">Calendar</a></li>
                 {past.length > 0 && <li><a href="#held">Held</a></li>}
-                <li><a href="#method">Method</a></li>
               </ul>
             </nav>
           </div>
@@ -315,10 +312,6 @@ export function Conferences() {
         <section id="calendar" className="band" aria-labelledby="calendar-h">
           <div className="band__head">
             <h2 id="calendar-h">Calendar</h2>
-            <p>
-              Upcoming events, soonest first. Research meetings are where papers are presented; industry events are
-              where labs and companies announce and demonstrate.
-            </p>
           </div>
           {[...underway.map((c) => c.start.slice(0, 7)), ...months]
             .filter((m, i, all) => all.indexOf(m) === i)
@@ -329,7 +322,7 @@ export function Conferences() {
                   {[...underway, ...upcoming]
                     .filter((c) => c.start.slice(0, 7) === month)
                     .map((c) => (
-                      <Entry key={c.id} c={c} />
+                      <Entry key={c.id} c={c} year={false} />
                     ))}
                 </ol>
               </div>
@@ -341,10 +334,6 @@ export function Conferences() {
           <section id="held" className="band" aria-labelledby="held-h">
             <div className="band__head">
               <h2 id="held-h">Already held</h2>
-              <p>
-                Most recent first. An event is marked watched once its talks have been read against the trends, and
-                partly watched while some of them are still to come.
-              </p>
             </div>
             <div className="cal__month">
               <ol>
@@ -355,46 +344,6 @@ export function Conferences() {
             </div>
           </section>
         )}
-
-        <section id="method" className="band method" aria-labelledby="method-h">
-          <div className="band__head">
-            <h2 id="method-h">How conferences are read</h2>
-          </div>
-          <div className="prose">
-            <p>
-              <strong>The calendar</strong> is kept by hand, with dates taken from each event’s own site. An event
-              moves from upcoming to held on its own: the page compares each date with the day the tracker’s data
-              was last collected ({fmtDay(today)}), and that happens daily.
-            </p>
-            <p>
-              <strong>Watching</strong> means reading the captions of an event’s published recordings from start to
-              finish, after it has ended. Until captions exist, the published programme is counted instead and the
-              page says so. Nothing is summarised from titles alone: a written summary appears only for talks that
-              were watched, and it says how much was covered. When some talks are read before an event ends, or
-              before every recording has captions, the event stays under way or partly watched until the rest is
-              read.
-            </p>
-            <p>
-              <strong>Share of topic mentions</strong> counts each time a tracked topic’s phrases are spoken (or,
-              before the talks, written in a title or abstract), as a part of all such mentions at that event. The
-              phrases are the ones the tracker searches papers and stories for, plus the way speakers say them
-              aloud. A conference picks its own subject, so a coding event will always be mostly about coding; read
-              the shares as what that room cared about, not as the whole field.
-            </p>
-            <p>
-              <strong>The reading</strong> is a rule, not a judgement. A topic with {Math.round(STAGE_LOUD * 100)}% or
-              more of the mentions is loud; one under {Math.round(STAGE_QUIET * 100)}% is quiet. A change in research
-              counts only for a topic averaging at least {HEADLINE_MIN_PAPERS} papers a week, and a change in
-              discussion only at {MAP_MIN_STORIES} stories a week, the same minimums the front page uses; a
-              smaller count is shown with a hollow mark and “small numbers”, and never decides the reading. Loud
-              and rising on a count that is large enough, with none cooling: the event and the numbers agree. Loud
-              while one is cooling and none rising: louder here than in the numbers. Loud while one rises and the
-              other cools: mixed. Loud while both are flat: loud here, flat in the numbers. Loud while neither
-              count is large enough: too few to call. Quiet while rising: rising, but little heard here. The trend
-              side uses the three-month view, so it changes as new weeks are counted.
-            </p>
-          </div>
-        </section>
       </main>
 
       <footer className="colophon">
@@ -408,19 +357,20 @@ export function Conferences() {
   );
 }
 
-function Entry({ c }: { c: Conference }) {
+/** One calendar row. Under a month heading the year is left off the dates, since the heading gives it. */
+function Entry({ c, year = true }: { c: Conference; year?: boolean }) {
   const phase = phaseOf(c);
   const hasReading = Boolean(c.stage || c.recap);
   return (
     <li className="cal__event">
-      <p className="cal__dates">{fmtSpan(c.start, c.end)}</p>
+      <p className="cal__dates">{fmtSpan(c.start, c.end, { year })}</p>
       <div className="cal__body">
         <h4>
           <a href={c.url} {...NEW_TAB}>{c.name}</a>
-        </h4>
-        <p className="cal__where">
-          {c.place} · {c.host} · {c.kind === "research" ? "Research meeting" : "Industry event"}
-        </p>
+        </h4>{" "}
+        <span className="cal__where">
+          · {c.place} · {c.kind === "research" ? "Research" : "Industry"}
+        </span>
         {c.note && <p className="cal__note">{c.note}</p>}
       </div>
       <p className={`cal__phase cal__phase--${phase}`}>

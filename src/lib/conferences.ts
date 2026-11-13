@@ -48,14 +48,18 @@ export const daysUntil = (c: Conference) => Math.round((utc(c.start) - utc(today
 
 const monthName = (d: Date, month: "short" | "long" = "long") => d.toLocaleString("en-GB", { month, timeZone: "UTC" });
 
-/** "11–13 November 2026", "30 November – 6 December 2026" or "4 May 2027". */
-export function fmtSpan(start: string, end: string): string {
+/**
+ * "11–13 Nov 2026", "30 Nov – 6 Dec 2026" or "4 May 2027". Without the year ("11–13 Nov") where a
+ * heading above already gives it.
+ */
+export function fmtSpan(start: string, end: string, { year = true }: { year?: boolean } = {}): string {
   const a = new Date(start + "T00:00:00Z");
   const b = new Date(end + "T00:00:00Z");
-  if (start === end) return `${a.getUTCDate()} ${monthName(a)} ${a.getUTCFullYear()}`;
+  const tail = `${monthName(b, "short")}${year ? ` ${b.getUTCFullYear()}` : ""}`;
+  if (start === end) return `${b.getUTCDate()} ${tail}`;
   return a.getUTCMonth() === b.getUTCMonth()
-    ? `${a.getUTCDate()}–${b.getUTCDate()} ${monthName(b)} ${b.getUTCFullYear()}`
-    : `${a.getUTCDate()} ${monthName(a)} – ${b.getUTCDate()} ${monthName(b)} ${b.getUTCFullYear()}`;
+    ? `${a.getUTCDate()}–${b.getUTCDate()} ${tail}`
+    : `${a.getUTCDate()} ${monthName(a, "short")} – ${b.getUTCDate()} ${tail}`;
 }
 
 /** "November 2026", the heading a calendar month is listed under. */
