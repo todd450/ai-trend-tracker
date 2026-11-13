@@ -3,10 +3,21 @@
  * from the collected data, so the same data always produces the same briefing.
  */
 import { federal, fmtMonth, jobs, releases } from "./indicators";
-import { HORIZONS, type Trends } from "./trends";
+import { HORIZONS, type Direction, type Signal, type Trends } from "./trends";
 
 /** One line of the briefing: the figure it leads with, then the sentence that says what the figure is. */
 export type BriefingLine = { label: string; href: string; figure: string; text: string };
+
+/** One of the movers the headline names, with the weekly series behind the claim, for the chart under it. */
+export type LeadSeries = {
+  /** What is measured: "Research" or "Hacker News discussion". */
+  measure: string;
+  name: string;
+  /** Completes "0.9% …": "of AI papers". */
+  unit: string;
+  signal: Signal;
+  direction: Direction;
+};
 
 const pct = (change: number | null) => `${Math.round(Math.abs(change ?? 0) * 100)}%`;
 
@@ -23,10 +34,10 @@ function movers(
   if (top?.rising) {
     return {
       figure: `+${pct(top.change)}`,
-      text: `${top.name}: rise in ${measure}.${bottom?.cooling ? ` ${bottom.name} fell ${pct(bottom.change)}.` : ""}`,
+      text: `${top.name} rose as a ${measure}.${bottom?.cooling ? ` ${bottom.name} fell ${pct(bottom.change)}.` : ""}`,
     };
   }
-  if (bottom?.cooling) return { figure: `−${pct(bottom.change)}`, text: `${bottom.name}: fall in ${measure}.` };
+  if (bottom?.cooling) return { figure: `−${pct(bottom.change)}`, text: `${bottom.name} fell as a ${measure}.` };
   return { figure: "Steady", text: nothing };
 }
 
@@ -67,6 +78,20 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
     : discussion
       ? { lead: discussion }
       : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
+
+  /** The series behind each sentence of the headline, in the same order. */
+  const researchMover =
+    topTopic?.direction === "rising" ? topTopic : bottomTopic?.direction === "cooling" ? bottomTopic : undefined;
+  const discussionMover =
+    topTheme?.direction === "rising" ? topTheme : bottomTheme?.direction === "cooling" ? bottomTheme : undefined;
+  const lead: LeadSeries[] = [
+    ...(researchMover
+      ? [{ measure: "Research", name: researchMover.name, unit: "of AI papers", signal: researchMover.papers, direction: researchMover.direction }]
+      : []),
+    ...(discussionMover
+      ? [{ measure: "Hacker News discussion", name: discussionMover.name, unit: "of AI stories", signal: discussionMover.share, direction: discussionMover.direction }]
+      : []),
+  ];
 
   const lines: (BriefingLine | null)[] = [
     hasHistory
@@ -137,5 +162,5 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
       : null,
   ];
 
-  return { headline, briefing: lines.filter((line): line is BriefingLine => line !== null) };
+  return { headline, lead, briefing: lines.filter((line): line is BriefingLine => line !== null) };
 }

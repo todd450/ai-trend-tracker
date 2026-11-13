@@ -57,7 +57,7 @@ export function Bar({
   const held = heldBack(signal, band);
   const width = `${(Math.min(Math.abs(change), extent) / extent) * 50}%`;
   return (
-    <div className={`mom__signal${firm ? "" : " mom__signal--soft"}`} title={held ? `${tip} (within its usual swing, so not called)` : tip}>
+    <div className={`mom__signal${firm ? "" : " mom__signal--soft"}${held ? " mom__signal--held" : ""}`} title={held ? `${tip} (within its usual swing, so not called)` : tip}>
       <span className="mom__label">{label}</span>
       <span className={`mom__track${signal.change === null && note ? " mom__track--note" : ""}`} aria-hidden={signal.change === null && note ? undefined : true}>
         {signal.change === null && note}

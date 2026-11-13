@@ -18,6 +18,10 @@ type Props = {
   kind?: "read" | "paper" | "thing";
   /** A link to the full list at its source, set beside the show-more control. */
   more?: React.ReactNode;
+  /** Shows three items on every screen until asked for more: for reference lists, which should not crowd the page. */
+  brief?: boolean;
+  /** The rank of the first item, when the list carries on from a story set above it. */
+  start?: number;
   children: React.ReactNode;
 };
 
@@ -26,14 +30,15 @@ type Props = {
  * figures in columns under shared headings. Narrow lists stack the figures under the title.
  * The first five items show, or three on a phone; the rest are in the page, hidden until asked for.
  */
-export function Ledger({ first, cells, labelledBy, count, kind = "read", more, children }: Props) {
+export function Ledger({ first, cells, labelledBy, count, kind = "read", more, brief = false, start = 1, children }: Props) {
   const [open, setOpen] = useState(false);
   const extra = Math.max(0, count - FIRST_PHONE);
   return (
     <div
       className={`ledger ledger--${kind}`}
       data-open={open}
-      data-short={count <= FIRST}
+      data-short={count <= (brief ? FIRST_PHONE : FIRST)}
+      data-brief={brief}
       style={{ "--cells": cells.map((c) => c.width).join(" ") } as React.CSSProperties}
     >
       <div className="ledger__head" aria-hidden="true">
@@ -44,7 +49,9 @@ export function Ledger({ first, cells, labelledBy, count, kind = "read", more, c
           ))}
         </span>
       </div>
-      <ol aria-labelledby={labelledBy}>{children}</ol>
+      <ol aria-labelledby={labelledBy} start={start} style={start > 1 ? { counterReset: `rank ${start - 1}` } : undefined}>
+        {children}
+      </ol>
       {(extra > 0 || more) && (
         <p className="ledger__foot">
           {extra > 0 && (

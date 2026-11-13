@@ -1,7 +1,7 @@
 /** Run with `npm test`. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { finish, sameEvent, visible, type Editorial, type Pin } from "../src/lib/editorial.ts";
+import { finish, isBigStory, lineFor, sameEvent, visible, type Editorial, type Pin } from "../src/lib/editorial.ts";
 
 type Item = { title: string; url: string; points?: number };
 const none: Editorial = { pin: [], hide: [] };
@@ -80,4 +80,19 @@ test("the first pin in the file ends up on top", () => {
   ];
   const out = finish([launch, other], { pin: pins, hide: [] }, TODAY, fromPin);
   assert.deepEqual(out.map((i) => i.url), [other.url, launch.url]);
+});
+
+test("a day's story is big once it matches the middle of the week's top ten", () => {
+  const week = [1033, 998, 972, 903, 822, 737, 675, 641, 626, 573];
+  assert.equal(isBigStory(551, week), false);
+  assert.equal(isBigStory(780, week), true);
+  assert.equal(isBigStory(undefined, week), false);
+  assert.equal(isBigStory(5000, [900, 800]), false);
+});
+
+test("the editor's line shows through its last day and not after", () => {
+  const editorial: Editorial = { pin: [], hide: [], line: { text: "A note.", until: TODAY } };
+  assert.equal(lineFor(editorial, TODAY), "A note.");
+  assert.equal(lineFor(editorial, "2026-11-14"), undefined);
+  assert.equal(lineFor(none, TODAY), undefined);
 });
