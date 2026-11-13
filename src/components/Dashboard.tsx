@@ -27,7 +27,6 @@ import {
   fmtDayTime,
   fmtWeek,
   history,
-  isoWeek,
   latest,
   type Direction,
   type Horizon,
@@ -266,7 +265,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="mast__top">
           <PageTabs current="trends" />
           <p className="mast__line">
-            {latestWeek ? `No. ${isoWeek(latestWeek)} · Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
+            {latestWeek ? `Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
           </p>
         </div>
         <h1 className="mast__name">

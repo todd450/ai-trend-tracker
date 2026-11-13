@@ -324,11 +324,3 @@ export function fmtWeek(weekStart: string): string {
     ? `${start.getUTCDate()}–${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`
     : `${start.getUTCDate()} ${month(start)} – ${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`;
 }
-
-/** ISO 8601 week number, used as the edition number. */
-export function isoWeek(weekStart: string): number {
-  const d = new Date(weekStart + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 3); // the week's Thursday decides which year it belongs to
-  const yearStart = Date.UTC(d.getUTCFullYear(), 0, 1);
-  return Math.ceil(((d.getTime() - yearStart) / 86_400_000 + 1) / 7);
-}
