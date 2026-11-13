@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "collect": "node scripts/collect.ts",
-    "conference": "node scripts/conference.ts"
+    "conference": "node scripts/conference.ts",
+    "test": "node --test scripts/*.test.ts"
   },
   "dependencies": {
     "next": "16.4.6",

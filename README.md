@@ -47,6 +47,29 @@ The collector writes to `data/`:
   monthly toolkit downloads and the two-weekly business survey answers.
 - `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
 
+### Checks before a count is stored
+
+A source can answer successfully with a wrong number: arXiv's search sometimes
+returns zero results. Before a weekly count replaces what is stored, the
+collector checks it against the eight weeks before (`scripts/sanity.ts`):
+
+- A total (all AI papers, all AI stories) is rejected at zero, below 0.4× its
+  usual level, or above 3×.
+- A topic or theme count is rejected at zero once its usual level is 20 or
+  more, below 0.15× once it is 40 or more, or above 6×. Smaller counts are
+  not judged, because they really do swing that much.
+- A recount of a week already stored is rejected if it falls by half.
+- A topic with more papers than all AI papers that week is rejected.
+
+A rejected count leaves the stored figure as it was, and the source shows as
+failing on the site with the reason. If any count for the newest week is
+missing, that week is held back and the site stays on the week before; the
+next run tries again. The limits sit well outside every real move in the first
+year of history, and `npm test` replays that history through them.
+
+If a rejected figure turns out to be real, run
+`npm run collect -- --fast --accept` once to store it without the checks.
+
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
 `scripts/collect.ts`. Anthropic has no feed, so its newest articles are found
 through its sitemap and read one page at a time.
@@ -58,6 +81,7 @@ as stale in the "Source status" list.
 
 ```
 scripts/collect.ts   fetches from the sources and feeds → data/*.json
+scripts/sanity.ts    decides whether a weekly count is believable before it is stored
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a sub-theme)
 src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a toolkit)
