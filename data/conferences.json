@@ -544,6 +544,17 @@
    "end": "2027-08-22",
    "place": "Kyoto, Japan",
    "url": "https://2027.aclweb.org/"
+  },
+  {
+   "id": "agentic-ai-summit-2027",
+   "name": "Agentic AI Summit 2027",
+   "host": "Berkeley RDI",
+   "kind": "industry",
+   "start": "2027-08-20",
+   "end": "2027-08-21",
+   "place": "San Francisco, USA",
+   "url": "https://rdi.berkeley.edu/events/agentic-ai-summit-2027",
+   "note": "Two days on agents alone, from models and frameworks to evaluation, security and deployment, with a free livestream. The 2026 summit drew about 4,000 people in person. Speakers have not been announced."
   }
  ]
 }
