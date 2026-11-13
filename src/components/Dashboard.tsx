@@ -288,8 +288,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           </div>
           {briefing.length > 0 && (
             <div className="brief">
-              <h3 className="brief__title">The week in {briefing.length === 5 ? "five" : briefing.length} numbers</h3>
-              <ol>
+              <ol aria-label="The week in numbers">
                 {briefing.map((line) => (
                   <li key={line.label}>
                     <a className="brief__label" href={line.href}>{line.label}</a>
@@ -304,9 +303,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section id="today" className="band band--today" aria-labelledby="today-h">
           <div className="band__head">
-            <p className="band__source">
-              Lab blogs, newsletters and Hacker News · 24 hours to {fmtDayTime(today.until)} UTC
-            </p>
             <h2 id="today-h">Today’s AI news</h2>
             <p>
               What the labs announced, what the analysts published and which AI stories Hacker News picked up in the
@@ -1310,7 +1306,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>The map</strong> places a topic by two changes over the same windows: its share
                 of AI papers (across) and its Hacker News stories (up). The map’s scale stretches near the middle, so small changes stay apart and one large change does not flatten the rest; the gridlines carry the real figures. A topic is drawn solid only when it averages at
                 least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week. Smaller topics swing too
-                easily, so they are drawn hollow and should be read with care. <strong>The week in five numbers</strong> is written by fixed rules from the same numbers, not by an editor or a model. Its research and discussion lines follow the view chosen; its economy, releases and policy lines are the same in every view.
+                easily, so they are drawn hollow and should be read with care. <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
