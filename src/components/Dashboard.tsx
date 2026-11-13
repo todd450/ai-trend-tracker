@@ -616,7 +616,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </div>
                 <p className="trend__context">
                   {jobs.signal.prior.toFixed(1)}% a year earlier ·{" "}
-                  <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>
+                  Source: <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>, each
+                  month’s last reading, licensed{" "}
+                  <a href="https://creativecommons.org/licenses/by/4.0/" {...NEW_TAB}>CC BY 4.0</a>
                 </p>
               </li>
             )}
@@ -941,7 +943,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               Other makers together: {marketShare.otherShare.toFixed(1)}% in the latest week ·{" "}
               {WINDOW === 1 ? "latest week compared with the week before" : `last ${WINDOW} weeks compared with the ${WINDOW} before`} ·
               Source: <a href="https://openrouter.ai/rankings" {...NEW_TAB}>OpenRouter (openrouter.ai/rankings)</a>, as of{" "}
-              {fmtDate(indicators.updatedAt)}, licensed{" "}
+              {fmtDate(marketShare.asOf)}. Licensed under{" "}
               <a href="https://creativecommons.org/licenses/by/4.0/" {...NEW_TAB}>CC BY 4.0</a>.
             </p>
 
@@ -1364,9 +1366,10 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 marketplace developers use to reach many models through one account, so it shows the choices of
                 developers who shop around; companies that buy from OpenAI, Anthropic or Google directly, and
                 everyone using a chat app, are not in it. Free and low-priced models draw heavy automated use there,
-                which lifts their makers. Each maker counts tokens its own way, so shares are approximate. A week
-                names only its nine largest makers, so a maker’s line starts from when it last entered the nine, and
-                its change is shown only if it stayed there for the whole comparison.
+                which lifts their makers. Each maker counts tokens its own way, so shares are approximate. OpenRouter
+                publishes each day’s 50 most-used models, so a maker’s total leaves out any of its models below
+                that line. A week names only its nine largest makers, so a maker’s line starts from when it last
+                entered the nine, and its change is shown only if it stayed there for the whole comparison.
               </p>
               <p>
                 <strong>Developer usage</strong> counts downloads of each toolkit’s Python packages from PyPI and
@@ -1381,10 +1384,15 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 counted.
               </p>
               <p>
-                <strong>From the analysts</strong> lists the newest pieces from a fixed set of ten newsletters and
+                <strong>From the analysts</strong> lists the newest pieces from a fixed set of eight newsletters and
                 research institutions, at most two from each, from the past 30 days. It is a reading list chosen
                 by the editor, not a ranking. Publishers that cover other subjects are filtered to pieces that
                 mention AI.
+              </p>
+              <p>
+                <strong>Lab announcements</strong> come from OpenAI’s and Google DeepMind’s own feeds. Anthropic
+                publishes no feed, so its posts are the ones submitted to Hacker News, under the headline given
+                there; a post nobody submitted is missing.
               </p>
               <p>
                 <strong>The reading lists</strong> show their first few items; the rest open on request. Where a

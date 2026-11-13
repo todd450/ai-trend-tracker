@@ -85,7 +85,7 @@ export type Indicators = {
   federal: { months: { month: string; count: number }[] } | null;
   releases: {
     log: Release[];
-    /** Anthropic model pages already opened, so each is fetched only once. */
+    /** Anthropic model pages already logged, by address. Older entries may be null: pages once read and found not to be a release. */
     anthropicChecked: Record<string, Release | null>;
   } | null;
   /**
@@ -101,8 +101,10 @@ export type Indicators = {
   /**
    * Tokens processed on OpenRouter each complete week (starting on a Monday, UTC), by the maker of
    * the model. Each week names only its nine largest makers; the rest are summed under "Others".
+   * `asOf` is when OpenRouter's Data API produced the figures, which its licence asks to be shown
+   * with them; it is absent on data stored before the collector used that API.
    */
-  marketShare?: { weeks: { week: string; tokens: Record<string, number> }[] } | null;
+  marketShare?: { asOf?: string; weeks: { week: string; tokens: Record<string, number> }[] } | null;
   business?: { periods: { period: string; end: string; using: number; planning: number | null }[] } | null;
 };
 
