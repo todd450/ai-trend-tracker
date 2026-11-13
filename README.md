@@ -147,6 +147,44 @@ Neither list changes the trend figures.
 If a source is down, the previous data for it is kept and the site marks it
 as stale in the "Source status" list.
 
+## Ask it from an AI assistant (MCP)
+
+The site is also an MCP server, so an AI assistant such as Claude can read the
+trends and quote the figures instead of guessing from a web search. Add this
+address to the assistant as a remote MCP server (Streamable HTTP, no sign-in):
+
+```
+https://ai-trend-tracker-pearl.vercel.app/mcp
+```
+
+In Claude Code:
+
+```bash
+claude mcp add --transport http ai-trend-tracker https://ai-trend-tracker-pearl.vercel.app/mcp
+```
+
+On claude.ai, add it as a custom connector with the same address. While
+`npm run dev` is running, the local server is at http://localhost:3000/mcp.
+
+It offers five read-only tools:
+
+| Tool | What it returns |
+| --- | --- |
+| `get_briefing` | The headline and five-line briefing for a time horizon, and any failing sources |
+| `get_trends` | Rising, steady or cooling for every research topic, discussion theme (with its sub-themes) or product; with an `id`, that item's weekly figures |
+| `get_indicators` | Hiring, policy, business adoption, model releases, developer toolkits and model share |
+| `get_latest` | The reading lists: today's news, papers, models, repositories, stories, launches, analysis and lab news |
+| `get_conferences` | The calendar; with an `id`, the event's recap and how its talks compare with the trends |
+
+Every figure comes from the same functions that build the pages, and each
+move is labelled by the page's own rules, so the server and the site always
+agree. A tool takes the same horizons as the site (`one-week` to `one-year`,
+with `three-months` as the front page). The server keeps no sessions and
+stores nothing; each request is answered from the data built into the
+current deploy. The protocol layer is written by hand in `src/lib/mcp/protocol.ts`
+rather than with the official SDK, which would bring two web frameworks into a
+project that has three dependencies. `npm test` checks it.
+
 ## How it fits together
 
 ```
@@ -164,6 +202,9 @@ data/editorial.json  the editor's pins and hides, kept by hand
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
 src/components/Conferences.tsx  the conference tracker, at /conferences
 scripts/conference.ts  counts topic mentions in a conference's programme or transcript
+src/app/mcp/route.ts   the MCP server, at /mcp
+src/lib/mcp/tools.ts   the server's five tools, built on the same functions as the pages
+src/lib/mcp/protocol.ts  the protocol: answers each MCP message with JSON
 src/app/one-week/    the 1-week view, at /one-week
 src/app/one-month/   the 1-month view, at /one-month
 src/app/page.tsx     the 3-month view, at /

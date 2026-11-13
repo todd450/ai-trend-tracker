@@ -5,24 +5,28 @@
 :root {
   color-scheme: light dark;
 
-  /* Paper and ink, tinted toward a warm newsprint hue (85) */
-  --color-paper: oklch(97% 0.012 85);
-  --color-paper-2: oklch(94.5% 0.014 85);
+  /* Paper and ink, tinted toward a warm newsprint hue (85). The paper is kept close to
+   * white so the data colours read at full strength against it. */
+  --color-paper: oklch(98.6% 0.006 85);
+  --color-paper-2: oklch(95.5% 0.008 85);
   --color-rule: oklch(84% 0.012 85);
   --color-rule-strong: oklch(30% 0.012 85);
   --color-muted: oklch(50% 0.012 85);
   --color-ink-2: oklch(36% 0.012 85);
-  --color-ink: oklch(21% 0.012 85);
+  --color-ink: oklch(18% 0.012 85);
 
   /* One accent: ink blue, used for links, focus and the rising signal */
-  --color-accent: oklch(45% 0.14 255);
+  --color-accent: oklch(48% 0.2 258);
   --color-focus: oklch(50% 0.17 255);
 
   /* Data marks. Blue for a rise and amber for a fall: a pair that stays apart for
    * colour-blind readers and carries no alarm, since cooling is not bad news.
-   * Both hold at least 3.7:1 against the paper and the tinted paper. */
-  --data-rising: #2a78d6;
-  --data-cooling: #b86200;
+   * Both hold at least 3.7:1 against the paper and the tinted paper. The -ink pair is for
+   * figures set in the data colours: at least 4.5:1 on both papers, so the orange is deeper. */
+  --data-rising: oklch(54% 0.22 258);
+  --data-cooling: oklch(60% 0.175 48);
+  --data-rising-ink: oklch(54% 0.22 258);
+  --data-cooling-ink: oklch(52% 0.16 48);
   --data-steady: oklch(55% 0.012 85);
   --color-ok: oklch(48% 0.13 150);
   --color-fail: oklch(50% 0.17 27);
@@ -71,12 +75,14 @@
     --color-ink-2: oklch(80% 0.01 85);
     --color-ink: oklch(93% 0.008 85);
 
-    --color-accent: oklch(76% 0.11 255);
+    --color-accent: oklch(78% 0.13 255);
     --color-focus: oklch(74% 0.14 255);
 
     /* Same two hues, re-stepped and validated for the dark surface. */
-    --data-rising: #3987e5;
-    --data-cooling: #e8943a;
+    --data-rising: oklch(70% 0.17 255);
+    --data-cooling: oklch(76% 0.165 58);
+    --data-rising-ink: oklch(70% 0.17 255);
+    --data-cooling-ink: oklch(76% 0.165 58);
     --data-steady: oklch(62% 0.012 85);
     --color-ok: oklch(72% 0.15 150);
     --color-fail: oklch(70% 0.16 27);

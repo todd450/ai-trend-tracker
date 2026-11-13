@@ -5,29 +5,23 @@ import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
+import { PHASE_LABEL, PHASE_MARK, dayParts, type AgendaMonth } from "@/lib/agenda";
 import {
   READING_LABEL,
+  calendarMonths,
   conferences,
   daysUntil,
   fmtMonthOf,
+  fmtMonthShort,
   fmtSpan,
   phaseOf,
   stageAgainstTrends,
   today,
-  type Phase,
 } from "@/lib/conferences";
 import { HORIZONS, STEADY_BAND, fmtChange, fmtDate, fmtDay, heldBack, latest, signalDirection, type Direction, type Signal } from "@/lib/trends";
 import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
-
-const PHASE_LABEL: Record<Phase, string> = {
-  upcoming: "Upcoming",
-  underway: "Under way",
-  awaiting: "Held · recordings not yet watched",
-  partly: "Held · partly watched",
-  watched: "Watched",
-};
 
 /** The comparison uses the tracker's default view, so its arrows match the front page. */
 const HORIZON = "threeMonths" as const;
@@ -36,6 +30,10 @@ const HORIZON = "threeMonths" as const;
 const inSentence = (name: string) => (/^[A-Z]{2,}\b/.test(name) ? name : name[0].toLowerCase() + name.slice(1));
 
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
+
+/** An event has a reading once anything has been counted or written from it. */
+export const hasReading = (c: Conference) => Boolean(c.stage || c.recap);
+
 
 /** A topic at or under this share of mentions, with nothing quoted from the stage, is listed in one line, not given a row. */
 const THIN_SHARE = 0.01;
@@ -62,7 +60,8 @@ function Move({ signal, label, firm }: { signal: Signal; label: string; firm: bo
   );
 }
 
-function when(c: Conference): string {
+/** "in 4 days", "in 3 months": how soon an upcoming event starts. */
+export function when(c: Conference): string {
   const days = daysUntil(c);
   if (days === 0) return "starts today";
   if (days === 1) return "starts tomorrow";
@@ -71,7 +70,7 @@ function when(c: Conference): string {
 }
 
 /** One event's comparison: how much of the stage each topic took, beside how its counts are moving. */
-function Stage({ c }: { c: Conference }) {
+export function Stage({ c }: { c: Conference }) {
   const rows = stageAgainstTrends(c, HORIZON);
   const stage = c.stage;
   if (!stage) return null;
@@ -202,7 +201,7 @@ function Stage({ c }: { c: Conference }) {
   );
 }
 
-function Programme({ c }: { c: Conference }) {
+export function Programme({ c }: { c: Conference }) {
   if (!c.programme?.length) return null;
   const days = [...new Set(c.programme.map((t) => t.day))].sort();
   return (
@@ -230,20 +229,61 @@ function Programme({ c }: { c: Conference }) {
   );
 }
 
-/** The conference tracker: the calendar, and each event read against the trends once there is something to count. */
+/** The masthead shared by the calendar and each event's page. */
+export function ConfMast() {
+  return (
+    <header className="mast">
+      <div className="mast__top">
+        <PageTabs current="conferences" />
+        <p className="mast__line">As of {fmtDate(today)}</p>
+      </div>
+      <p className="mast__name">
+        <Logo className="mast__mark" />
+        <Link href="/">AI Trend Tracker</Link>
+      </p>
+    </header>
+  );
+}
+
+export function ConfColophon() {
+  return (
+    <footer className="colophon">
+      <p>
+        Conference dates come from each organiser’s site and can change; check the event’s own page before
+        travelling. Talk titles and speaker names are the organisers’. Counts are keyword matches and should be
+        read as indicators, not measurements. Data last collected {fmtDate(today)}.
+      </p>
+      <p>
+        Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>.
+      </p>
+    </footer>
+  );
+}
+
+/** "3 held · 1 under way · 2 upcoming", leaving out what is zero. */
+function monthCount({ count }: AgendaMonth): string {
+  return [
+    count.held && `${count.held} held`,
+    count.underway && `${count.underway} under way`,
+    count.upcoming && `${count.upcoming} upcoming`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/** The conference calendar: one agenda of months, a line at today, and each event's phase in words. */
 export function Conferences() {
+  const months = calendarMonths();
+  const phases = conferences.map(phaseOf);
   const upcoming = conferences.filter((c) => phaseOf(c) === "upcoming");
   const underway = conferences.filter((c) => phaseOf(c) === "underway");
-  const past = conferences.filter((c) => ["awaiting", "partly", "watched"].includes(phaseOf(c))).reverse();
-  /** Events with something to compare, newest first: these get a full reading. */
-  const read = conferences.filter((c) => c.stage || c.recap).reverse();
+  const held = phases.filter((p) => p === "awaiting" || p === "partly" || p === "watched").length;
+  const watched = phases.filter((p) => p === "watched").length;
+  const partly = phases.filter((p) => p === "partly").length;
   const next = upcoming[0];
-  const months = [...new Set(upcoming.map((c) => c.start.slice(0, 7)))];
-  const watched = conferences.filter((c) => phaseOf(c) === "watched").length;
-  const partly = conferences.filter((c) => phaseOf(c) === "partly").length;
 
   /** The newest event whose talks have been read: its loudest topic is the page's finding. */
-  const reported = read.find((c) => c.recap && c.stage?.source === "talks");
+  const reported = [...conferences].reverse().find((c) => c.recap && c.stage?.source === "talks");
   const loudest = reported ? stageAgainstTrends(reported, HORIZON)[0] : undefined;
 
   const finding =
@@ -259,39 +299,37 @@ export function Conferences() {
   const lead = finding || calendar;
   const turn = finding ? calendar : underway.length && next ? `Next: ${next.name}, ${when(next)}.` : "";
 
+  const first = conferences[0];
+  const last = conferences.at(-1);
+  /** The year is given on the first month and on each January, so the line never leaves it in doubt. */
+  const sections = [
+    { href: "#now", label: "Today", long: "Today" } as const,
+    ...months.map((m, i) => ({
+      href: `#m-${m.month}` as const,
+      label: fmtMonthShort(m.month, { year: i === 0 || m.month.endsWith("-01") }),
+      long: fmtMonthOf(m.month + "-01"),
+      quiet: !m.items.some((x) => x.type === "event"),
+    })),
+  ];
+
   return (
     <>
-      <a className="skip" href="#calendar">
-        Skip to the calendar
+      <a className="skip" href="#now">
+        Skip to today
       </a>
 
-      <header className="mast">
-        <div className="mast__top">
-          <PageTabs current="conferences" />
-          <p className="mast__line">As of {fmtDate(today)}</p>
-        </div>
-        <p className="mast__name">
-          <Logo className="mast__mark" />
-          <Link href="/">AI Trend Tracker</Link>
-        </p>
-      </header>
+      <ConfMast />
 
       <div className="bar">
         <div className="bar__inner">
           <div className="bar__row">
-            <SectionNav
-              sections={[
-                ...(read.length > 0 ? [{ href: "#readings", label: "Readings" } as const] : []),
-                { href: "#calendar", label: "Calendar" },
-                ...(past.length > 0 ? [{ href: "#held", label: "Held" } as const] : []),
-              ]}
-            />
+            <SectionNav sections={sections} label="Months" menu="Jump to a month" />
           </div>
         </div>
       </div>
 
       <main className="page">
-        <section className="lede">
+        <section className="lede lede--cal">
           <div className="lede__main">
             <h1 className="lede__head">
               {lead}
@@ -304,156 +342,142 @@ export function Conferences() {
             </h1>
             <div className="lede__dek">
               <p>
-                The major AI conferences, and what each one adds to the picture. Once an event is over and its
-                recordings are out, the talks are watched and set against the tracker’s numbers: where the stage
-                agrees with the trends, and where it runs ahead of them or behind.
+                Every event on the calendar, month by month. Once an event is over and its talks are watched, its
+                card says what the stage was about and how that compares with the tracker’s numbers. Until then it
+                makes no claim.
               </p>
               <p className="lede__meta">
-                {conferences.length} events on the calendar · {upcoming.length} upcoming · {watched} watched in full
-                {partly > 0 && `, ${partly} in part`}
+                {conferences.length} events
+                {first && last && ` from ${fmtMonthOf(first.start)} to ${fmtMonthOf(last.start)}`} · {held} held
+                {underway.length > 0 && ` · ${underway.length} under way`} · {upcoming.length} upcoming · {watched}{" "}
+                watched in full{partly > 0 && `, ${partly} in part`}
               </p>
             </div>
           </div>
         </section>
 
-        {read.length > 0 && (
-          <div id="readings">
-            {read.map((c) => {
-              const phase = phaseOf(c);
-              return (
-                <section key={c.id} id={c.id} className="band" aria-labelledby={`${c.id}-h`}>
-                  <div className="band__head">
-                    <p className="band__source">
-                      {PHASE_LABEL[phase]} · {fmtSpan(c.start, c.end)} · {c.place}
-                    </p>
-                    <h2 id={`${c.id}-h`}>
-                      {c.name}: {c.stage?.source === "talks" ? "the stage against the numbers" : "the programme against the numbers"}
-                    </h2>
-                    {c.note && <p>{c.note}</p>}
-                  </div>
-
-                  {c.recap ? (
-                    <div className="conf__recap prose">
-                      <p>{c.recap.summary}</p>
-                      <p className="conf__coverage">
-                        Watched {fmtDate(c.recap.watchedOn)}: {c.recap.coverage}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="conf__pending">
-                      <span className="status status--fail"><span aria-hidden="true">▲</span> Not watched yet.</span>{" "}
-                      {phase === "underway"
-                        ? "The event is still running. The talks will be watched and summarised here once it is over and the recordings have captions."
-                        : "The talks will be watched and summarised here once the recordings have captions."}
-                    </p>
-                  )}
-
-                  <Stage c={c} />
-
-                  {(c.videos?.length || c.programme?.length) && (
-                    <div className="conf__more">
-                      {c.videos?.length ? (
-                        <p className="conf__videos">
-                          <strong>Recordings:</strong>{" "}
-                          {c.videos.map((v, i) => (
-                            <span key={v.url}>
-                              {i > 0 && " · "}
-                              <a href={v.url} {...NEW_TAB}>{v.title}</a>
-                            </span>
-                          ))}
-                        </p>
-                      ) : null}
-                      <Programme c={c} />
-                    </div>
-                  )}
-                </section>
-              );
-            })}
-          </div>
-        )}
-
-        <section id="calendar" className="band" aria-labelledby="calendar-h">
-          <div className="band__head">
-            <h2 id="calendar-h">Calendar</h2>
-          </div>
-          {[...underway.map((c) => c.start.slice(0, 7)), ...months]
-            .filter((m, i, all) => all.indexOf(m) === i)
-            .map((month) => (
-              <div key={month} className="cal__month">
-                <h3>{fmtMonthOf(month + "-01")}</h3>
-                <ol>
-                  {[...underway, ...upcoming]
-                    .filter((c) => c.start.slice(0, 7) === month)
-                    .map((c) => (
-                      <Entry key={c.id} c={c} year={false} />
-                    ))}
-                </ol>
-              </div>
-            ))}
-          {upcoming.length + underway.length === 0 && <p className="empty">Nothing upcoming has been added.</p>}
-        </section>
-
-        {past.length > 0 && (
-          <section id="held" className="band" aria-labelledby="held-h">
-            <div className="band__head">
-              <h2 id="held-h">Already held</h2>
-            </div>
-            <div className="cal__month">
-              <ol>
-                {past.map((c) => (
-                  <Entry key={c.id} c={c} />
-                ))}
-              </ol>
-            </div>
-          </section>
-        )}
+        <div className="agenda" id="calendar">
+          {months.map((m) => {
+            const events = m.items.filter((x) => x.type === "event").length;
+            const y = m.month.slice(0, 4);
+            return (
+              <section
+                key={m.month}
+                id={`m-${m.month}`}
+                className={events ? "month" : "month month--quiet"}
+                aria-labelledby={`h-${m.month}`}
+              >
+                <div className="month__head">
+                  <h2 id={`h-${m.month}`}>
+                    {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
+                  </h2>
+                  {events > 0 && <p className="month__count">{monthCount(m)}</p>}
+                </div>
+                {m.items.length > 0 && (
+                  <ol className="month__list">
+                    {m.items.map((x) =>
+                      x.type === "today" ? <TodayLine key="now" hasUnderway={underway.length > 0} /> : <Row key={x.c.id} c={x.c} />,
+                    )}
+                  </ol>
+                )}
+                {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
+              </section>
+            );
+          })}
+        </div>
       </main>
 
-      <footer className="colophon">
-        <p>
-          Conference dates come from each organiser’s site and can change; check the event’s own page before
-          travelling. Talk titles and speaker names are the organisers’. Counts are keyword matches and should be
-          read as indicators, not measurements. Data last collected {fmtDate(today)}.
-        </p>
-        <p>
-          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>.
-        </p>
-      </footer>
+      <ConfColophon />
     </>
   );
 }
 
-/** One calendar row. Under a month heading the year is left off the dates, since the heading gives it. */
-function Entry({ c, year = true }: { c: Conference; year?: boolean }) {
-  const phase = phaseOf(c);
-  const hasReading = Boolean(c.stage || c.recap);
+function TodayLine({ hasUnderway }: { hasUnderway: boolean }) {
   return (
-    <li className="cal__event">
-      <p className="cal__dates">{fmtSpan(c.start, c.end, { year })}</p>
-      <div className="cal__body">
-        <h4>
-          <a href={c.url} {...NEW_TAB}>{c.name}</a>
-        </h4>{" "}
-        <span className="cal__where">
-          · {c.place} · {c.kind === "research" ? "Research" : "Industry"}
-        </span>
-        {c.note && <p className="cal__note">{c.note}</p>}
-      </div>
-      <p className={`cal__phase cal__phase--${phase}`}>
-        {phase === "upcoming" ? when(c) : PHASE_LABEL[phase]}
-        {hasReading && (
-          <>
-            {" · "}
-            <a href={`#${c.id}`}>{c.recap ? "Read the recap" : "See the programme reading"}</a>
-          </>
-        )}
-        {!hasReading && phase !== "upcoming" && c.recordings && (
-          <>
-            {" · "}
-            <a href={c.recordings} {...NEW_TAB}>Recordings</a>
-          </>
-        )}
-      </p>
+    <li className="today" id="now">
+      <b>Today, {fmtSpan(today, today, { year: false })}</b>
+      <span>{hasUnderway ? "started above" : "held above"} · upcoming below</span>
     </li>
+  );
+}
+
+/** One event: its dates, name, place, kind and phase in words. An event with a reading grows into a card. */
+function Row({ c }: { c: Conference }) {
+  const phase = phaseOf(c);
+  const { days, week } = dayParts(c.start, c.end);
+  const href = `/conferences/${c.id}`;
+  const read = hasReading(c);
+  return (
+    // The row keeps the event's id, so links to the old /conferences#<id> still land on it.
+    <li className={read ? "ev ev--read" : "ev"} id={c.id}>
+      <p className="ev__date">
+        <span className="vh">{fmtSpan(c.start, c.end)}</span>
+        <span aria-hidden="true">
+          <span className="ev__days">{days}</span>
+          <span className="ev__wk">{week}</span>
+        </span>
+      </p>
+      <h3 className="ev__name">
+        <Link href={href}>{c.name}</Link>
+      </h3>
+      <p className="ev__meta">
+        {c.place} · <span className="ev__kind">{c.kind === "research" ? "Research" : "Industry"}</span>
+      </p>
+      <p className={`ev__phase ph--${phase}`}>
+        <i aria-hidden="true">{PHASE_MARK[phase]}</i> {PHASE_LABEL[phase]}
+        {phase === "upcoming" && <small>· {when(c)}</small>}
+      </p>
+      {read && <Card c={c} href={href} />}
+    </li>
+  );
+}
+
+/** What a reading found, in one sentence and the three loudest topics, with a link to the whole of it. */
+function Card({ c, href }: { c: Conference; href: string }) {
+  const rows = c.stage ? stageAgainstTrends(c, HORIZON).filter((r) => r.mentions > 0) : [];
+  const top = rows[0];
+  const fromTalks = c.stage?.source === "talks";
+  const where = fromTalks ? "on stage" : "in the programme";
+  const max = Math.max(1, ...rows.map((r) => r.mentions));
+  const said = c.recap?.points.length ?? 0;
+  return (
+    <>
+      {top && (
+        <>
+          <p className="ev__finding">
+            {top.topic.name} took <strong>{pct(top.share)}</strong> of topic mentions {where}.
+            {READING_LABEL[top.reading] && <em> {READING_LABEL[top.reading]}.</em>}
+          </p>
+          <ol className="loud" aria-label={`Loudest topics ${where}`}>
+            {rows.slice(0, 3).map((r) => (
+              <li key={r.topic.id}>
+                <span>{r.topic.name}</span>
+                <span className="stage__bar" aria-hidden="true">
+                  <span style={{ width: `${(r.mentions / max) * 100}%` }} />
+                </span>
+                <span className="loud__n">{pct(r.share)}</span>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+      <p className="ev__honest">
+        {c.stage && !fromTalks
+          ? "Counted from the published programme, not the talks: what speakers said they would talk about."
+          : c.recap?.partial
+            ? `Watched in part on ${fmtSpan(c.recap.watchedOn, c.recap.watchedOn)}: some of the event is not in this reading yet. Its page says which parts.`
+            : c.recap
+              ? `Watched ${fmtSpan(c.recap.watchedOn, c.recap.watchedOn)}.`
+              : "Counted from the talks’ captions; what was said is not written up yet."}
+      </p>
+      <p className="ev__go">
+        <Link href={href}>
+          {c.stage
+            ? `The ${fromTalks ? "stage" : "programme"} against the numbers${said > 0 ? `, and ${said} ${said === 1 ? "thing" : "things"} speakers said` : ""}`
+            : "Read the recap"}{" "}
+          <span aria-hidden="true">→</span>
+        </Link>
+      </p>
+    </>
   );
 }

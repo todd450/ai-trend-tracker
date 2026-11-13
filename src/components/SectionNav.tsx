@@ -2,13 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export type Section = { href: `#${string}`; label: string };
+/**
+ * One link in the line. `long` is the name the folded phone button shows while the section is
+ * being read ("November 2026" for "Nov"); `quiet` greys a link to a section with nothing in it.
+ */
+export type Section = { href: `#${string}`; label: string; long?: string; quiet?: boolean };
 
 /**
  * The page's sections, in one line under the masthead. The section being read is
  * marked as the page scrolls, and kept in view when the line scrolls sideways.
  */
-export function SectionNav({ sections }: { sections: Section[] }) {
+export function SectionNav({
+  sections,
+  label = "On this page",
+  menu = "Sections",
+}: {
+  sections: Section[];
+  /** What the line is, for screen readers. */
+  label?: string;
+  /** What the folded phone button says before any section has been reached. */
+  menu?: string;
+}) {
   const [active, setActive] = useState<string | null>(null);
   /** On a phone the sections fold into one button; this is whether its list is showing. */
   const [open, setOpen] = useState(false);
@@ -17,7 +31,9 @@ export function SectionNav({ sections }: { sections: Section[] }) {
   useEffect(() => {
     const targets = sections
       .map((s) => document.getElementById(s.href.slice(1)))
-      .filter((el): el is HTMLElement => el !== null);
+      .filter((el): el is HTMLElement => el !== null)
+      // In the order they come on the page, whatever order the links are in.
+      .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
     // A handful of measurements per scroll event: cheap enough to need no throttling.
     const update = () => {
       const bar = list.current?.closest(".bar")?.getBoundingClientRect().bottom ?? 0;
@@ -60,8 +76,10 @@ export function SectionNav({ sections }: { sections: Section[] }) {
     }
   }, [active]);
 
+  const current = sections.find((s) => s.href.slice(1) === active);
+
   return (
-    <nav className="bar__nav" aria-label="On this page" data-open={open}>
+    <nav className="bar__nav" aria-label={label} data-open={open}>
       {/* Shown only on a narrow screen, where eleven links in a row would scroll off the side. */}
       <button
         type="button"
@@ -70,13 +88,24 @@ export function SectionNav({ sections }: { sections: Section[] }) {
         aria-controls="section-list"
         onClick={() => setOpen(!open)}
       >
-        <span className="vh">Sections, now reading: </span>
-        {sections.find((s) => s.href.slice(1) === active)?.label ?? "Sections"}
+        {current ? (
+          <>
+            <span className="vh">{label}, now reading: </span>
+            {current.long ?? current.label}
+          </>
+        ) : (
+          menu
+        )}
       </button>
       <ul ref={list} id="section-list">
         {sections.map((s) => (
           <li key={s.href}>
-            <a href={s.href} onClick={() => setOpen(false)} aria-current={active === s.href.slice(1) ? "location" : undefined}>
+            <a
+              href={s.href}
+              className={s.quiet ? "is-quiet" : undefined}
+              onClick={() => setOpen(false)}
+              aria-current={active === s.href.slice(1) ? "location" : undefined}
+            >
               {s.label}
             </a>
           </li>

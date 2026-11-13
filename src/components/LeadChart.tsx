@@ -130,9 +130,11 @@ function Panel({ s, window, weeks, marks }: { s: LeadSeries; window: number; wee
             <line key={m.number} className="leadchart__event" x1={x(m.at)} x2={x(m.at)} y1={0} y2={H} />
           ))}
           <line className="leadchart__zero" x1={0} x2={W} y1={y(0)} y2={y(0)} />
+          <polygon className="leadchart__area" points={`${x(0)},${y(0)} ${values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} ${x(n - 1)},${y(0)}`} />
           <polyline className="leadchart__line" points={values.map((v, i) => `${x(i)},${y(v)}`).join(" ")} />
           <line className="leadchart__mean" x1={priorFrom} x2={recentFrom} y1={y(s.signal.prior)} y2={y(s.signal.prior)} />
           <line className="leadchart__mean leadchart__mean--recent" x1={recentFrom} x2={W} y1={y(s.signal.recent)} y2={y(s.signal.recent)} />
+          <path className="leadchart__end" d={`M${x(n - 1)},${y(values[n - 1])}h0`} />
         </svg>
         {/* The labels repeat what the text alternative above says, so they are hidden from screen readers. */}
         <div className="leadchart__labels" aria-hidden="true">
