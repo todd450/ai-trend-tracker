@@ -990,7 +990,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="pair">
           <section id="news" className="band" aria-labelledby="news-h">
             <div className="band__head">
-              <p className="band__source">Hacker News · past 7 days</p>
               <h2 id="news-h">In the news</h2>
               <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
             </div>
@@ -1031,7 +1030,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="papers" className="band" aria-labelledby="papers-h">
             <div className="band__head">
-              <p className="band__source">Hugging Face Papers · by upvotes</p>
               <h2 id="papers-h">Papers getting attention</h2>
               <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
             </div>
@@ -1069,7 +1067,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="pair">
           <section id="analysis" className="band" aria-labelledby="analysis-h">
             <div className="band__head">
-              <p className="band__source">Newsletters and research institutions</p>
               <h2 id="analysis-h">From the analysts</h2>
               <p>
                 New writing on what AI is doing to work, companies and society, from newsletters and research
@@ -1134,7 +1131,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section id="code" className="band" aria-labelledby="code-h">
           <div className="band__head">
-            <p className="band__source">GitHub · created in the past 30 days</p>
             <h2 id="code-h">Repositories gaining stars</h2>
             <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
           </div>
@@ -1181,7 +1177,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="pair">
           <section id="models" className="band" aria-labelledby="models-h">
             <div className="band__head">
-              <p className="band__source">Hugging Face · trending now</p>
               <h2 id="models-h">Models trending</h2>
               <p>What builders are picking up on Hugging Face right now.</p>
             </div>
@@ -1220,7 +1215,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           <section id="labs" className="band" aria-labelledby="labs-h">
             <div className="band__head">
-              <p className="band__source">Hugging Face · past 45 days</p>
               <h2 id="labs-h">New from the labs</h2>
               <p>Open models published by major AI labs in the past 45 days, by likes.</p>
             </div>
