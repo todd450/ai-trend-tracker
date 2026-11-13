@@ -146,9 +146,11 @@ export function MomentumBars({ topics, minPapers, minStories }: { topics: BarTop
                 const stories = Math.round(t.stories.recent);
                 return (
                   <li key={t.id} id={`topic-${t.id}`} className="mom__row">
-                    <div className="mom__topic" title={t.blurb}>
+                    <div className="mom__topic">
                       <span className="mom__rank">{rank}</span>
                       <h4>{t.name}</h4>
+                      {/* Real text, not a tooltip: shown under the name on a phone, on hover where there is one line a row. */}
+                      <p className="mom__blurb">{t.blurb}</p>
                     </div>
                     {t.hasPapers ? (
                       <Bar

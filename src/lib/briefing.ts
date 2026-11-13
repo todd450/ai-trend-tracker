@@ -4,62 +4,21 @@
  */
 import { topicsHref } from "./datasets";
 import { federal, fmtMonth, jobs, releases } from "./indicators";
-import { HORIZONS, type Direction, type Signal, type Trends } from "./trends";
+import { ends, headlineOf, moverOf, movers, type LeadSeries } from "./sentences";
+import { HORIZONS, type Trends } from "./trends";
 
 /** One line of the briefing: the figure it leads with, then the sentence that says what the figure is. */
 export type BriefingLine = { label: string; href: string; figure: string; text: string };
 
-/** One of the movers the headline names, with the weekly series behind the claim, for the chart under it. */
-export type LeadSeries = {
-  /** What is measured: "Research" or "Hacker News discussion". */
-  measure: string;
-  name: string;
-  /** Completes "0.9% …": "of AI papers". */
-  unit: string;
-  signal: Signal;
-  direction: Direction;
-};
-
-const pct = (change: number | null) => `${Math.round(Math.abs(change ?? 0) * 100)}%`;
-
-/** "Jobs & labor" reads as "jobs & labor" mid-sentence; names that open with an acronym keep their capitals. */
-const inSentence = (name: string) => (/^[A-Z]{2,}\b/.test(name) ? name : name[0].toLowerCase() + name.slice(1));
-
-/** Leads with the biggest riser's change, or the biggest faller's when nothing rose. */
-function movers(
-  top: { name: string; change: number | null; rising: boolean } | undefined,
-  bottom: { name: string; change: number | null; cooling: boolean } | undefined,
-  measure: string,
-  nothing: string,
-): { figure: string; text: string } {
-  if (top?.rising) {
-    return {
-      figure: `+${pct(top.change)}`,
-      text: `${top.name} rose as a ${measure}.${bottom?.cooling ? ` ${bottom.name} fell ${pct(bottom.change)}.` : ""}`,
-    };
-  }
-  if (bottom?.cooling) return { figure: `−${pct(bottom.change)}`, text: `${bottom.name} fell as a ${measure}.` };
-  return { figure: "Steady", text: nothing };
-}
-
 /** The headline and the five lines for one time horizon. */
 export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, themeTrends }: Trends) {
-  // Both lists run biggest rise first. A big change that is only the series' usual wobble is called
-  // steady, so the mover named is the largest one that is called, not simply the first in the list.
-  const topTopic = hasHistory ? (rankedTopics.find((t) => t.direction === "rising") ?? rankedTopics[0]) : undefined;
-  const bottomTopic = hasHistory
-    ? (rankedTopics.findLast((t) => t.direction === "cooling") ?? rankedTopics.at(-1))
-    : undefined;
-  const topTheme = hasThemes ? (themeTrends.find((t) => t.direction === "rising") ?? themeTrends[0]) : undefined;
-  const bottomTheme = hasThemes
-    ? (themeTrends.findLast((t) => t.direction === "cooling") ?? themeTrends.at(-1))
-    : undefined;
+  // Both lists run biggest rise first; the mover named is the largest one that is actually called.
+  const [topTopic, bottomTopic] = hasHistory ? ends(rankedTopics) : [undefined, undefined];
+  const [topTheme, bottomTheme] = hasThemes ? ends(themeTrends) : [undefined, undefined];
 
   /** The series behind each sentence of the headline, in the same order. */
-  const researchMover =
-    topTopic?.direction === "rising" ? topTopic : bottomTopic?.direction === "cooling" ? bottomTopic : undefined;
-  const discussionMover =
-    topTheme?.direction === "rising" ? topTheme : bottomTheme?.direction === "cooling" ? bottomTheme : undefined;
+  const researchMover = moverOf(topTopic, bottomTopic);
+  const discussionMover = moverOf(topTheme, bottomTheme);
   const lead: LeadSeries[] = [
     ...(researchMover
       ? [{ measure: "Research", name: researchMover.name, unit: "of AI papers", signal: researchMover.papers, direction: researchMover.direction }]
@@ -69,24 +28,7 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
       : []),
   ];
 
-  /**
-   * The page headline states the finding, figures included: what each named mover's share was
-   * and what it is now, so the sentence says what the chart under it shows. A measure with no clear
-   * mover gets no sentence, and with none at all the headline only names the page. Discussion is
-   * named for its one source, so the sentence does not claim more than Hacker News can show.
-   */
-  const finding = (mover: LeadSeries, opening: string) => {
-    const { recent, prior } = mover.signal;
-    // One decimal place, unless that would print the same figure twice.
-    const places = recent.toFixed(1) === prior.toFixed(1) ? 2 : 1;
-    const name = opening ? `${opening} ${inSentence(mover.name)}` : mover.name;
-    return `${name} ${recent >= prior ? "rose" : "fell"} to ${recent.toFixed(places)}% ${mover.unit}, from ${prior.toFixed(places)}%.`;
-  };
-  const sentences = lead.map((mover) => finding(mover, mover.measure === "Research" ? "" : "On Hacker News,"));
-  const headline: { lead: string; turn?: string } =
-    sentences.length > 0
-      ? { lead: sentences[0], turn: sentences[1] }
-      : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
+  const headline = headlineOf(lead, `Where attention in AI is moving ${HORIZONS[horizon].when}.`);
 
   const lines: (BriefingLine | null)[] = [
     hasHistory
@@ -160,3 +102,5 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
 
   return { headline, lead, briefing: lines.filter((line): line is BriefingLine => line !== null) };
 }
+
+export type { LeadSeries } from "./sentences";
