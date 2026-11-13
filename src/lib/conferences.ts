@@ -1,4 +1,5 @@
 import conferencesJson from "../../data/conferences.json";
+import { agenda, phaseAt, type Phase } from "./agenda";
 import { TOPICS } from "./topics";
 import {
   HEADLINE_MIN_PAPERS,
@@ -26,20 +27,16 @@ export const conferences: Conference[] = [...(conferencesJson as unknown as Conf
  */
 export const today = latest.generatedAt.slice(0, 10);
 
-/** Where an event is in its life: not yet held, being held, held but not watched, watched in part, or watched. */
-export type Phase = "upcoming" | "underway" | "awaiting" | "partly" | "watched";
+export type { Phase } from "./agenda";
 
-/**
- * The dates decide first: a recap written while an event is still running (after its
- * first day, say) does not make the event over. Once it has ended, a recap marked
- * `partial` keeps it from being called watched until the rest has been read.
- */
-export function phaseOf(c: Conference): Phase {
-  if (today < c.start) return "upcoming";
-  if (today <= c.end) return "underway";
-  if (!c.recap) return "awaiting";
-  return c.recap.partial ? "partly" : "watched";
-}
+/** Where an event is in its life on the day the data was collected; the rule is `phaseAt`'s. */
+export const phaseOf = (c: Conference): Phase => phaseAt(c, today);
+
+/** Every month of the calendar, with the "Today" line in the month it falls in. */
+export const calendarMonths = () => agenda(conferences, today);
+
+/** The conference with this id, or undefined. */
+export const conferenceById = (id: string) => conferences.find((c) => c.id === id);
 
 const DAY = 86_400_000;
 const utc = (iso: string) => new Date(iso + "T00:00:00Z").getTime();
@@ -62,6 +59,12 @@ export function fmtSpan(start: string, end: string, { year = true }: { year?: bo
     ? `${a.getUTCDate()}–${b.getUTCDate()} ${tail}`
     : `${a.getUTCDate()} ${monthName(a, "short")} – ${b.getUTCDate()} ${tail}`;
 }
+
+/** "Nov", or "Nov 2026" with the year. */
+export const fmtMonthShort = (ym: string, { year = false }: { year?: boolean } = {}) => {
+  const d = new Date(ym.slice(0, 7) + "-01T00:00:00Z");
+  return `${monthName(d, "short")}${year ? ` ${d.getUTCFullYear()}` : ""}`;
+};
 
 /** "November 2026", the heading a calendar month is listed under. */
 export const fmtMonthOf = (iso: string) => {
