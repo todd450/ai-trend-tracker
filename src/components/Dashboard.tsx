@@ -1102,7 +1102,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <h2 id="announcements-h">Lab announcements</h2>
               <p>
                 The latest posts from the labs themselves, including closed-model releases: Anthropic, OpenAI,
-                Google DeepMind, xAI and DeepSeek, and Runway, a smaller lab known for video models.
+                Google DeepMind, Meta, Microsoft, Mistral AI, xAI and DeepSeek, and four smaller labs known for one
+                kind of model: Runway (video), ElevenLabs (voice), Suno (music) and Stability AI (images and audio).
               </p>
             </div>
             <Ledger
@@ -1393,9 +1394,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 mention AI.
               </p>
               <p>
-                <strong>Lab announcements</strong> come from OpenAI’s and Google DeepMind’s own feeds. Anthropic,
-                xAI, DeepSeek and Runway publish no feed, so their posts are the ones submitted to Hacker News,
-                under the headline given there; a post nobody submitted is missing.
+                <strong>Lab announcements</strong> come from the feeds of OpenAI, Google DeepMind, Microsoft,
+                Mistral AI and ElevenLabs. The other seven labs publish no feed, or have terms that do not allow a
+                script to read it, so their posts are the ones submitted to Hacker News, under the headline given
+                there; a post nobody submitted is missing, which leaves the smaller labs thinly covered. A lab
+                takes at most three places in the list, and a smaller lab two.
               </p>
               <p>
                 <strong>The reading lists</strong> show their first few items; the rest open on request. Where a

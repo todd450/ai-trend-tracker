@@ -502,15 +502,28 @@ const specialist = (source: FeedSource): FeedSource => ({ ...source, limit: 2 })
 
 /**
  * The labs whose own announcements are listed: the frontier labs, then smaller ones known for
- * one kind of model. Labs without a feed are found through Hacker News, like Anthropic.
+ * one kind of model.
+ *
+ * A lab's feed is read only where its terms were read first and do not bar it (November 2026):
+ * ElevenLabs' defer to its robots.txt, which allows the feed; Microsoft's and Mistral's have no
+ * bar on automated reading and both sites advertise the feed. The rest go through Hacker News,
+ * so nothing is requested from them: xAI, DeepSeek and Runway publish no feed and their terms
+ * bar scripted reading of pages, and Meta's, Suno's and Stability AI's terms bar automated
+ * access with no exception for the feeds they publish.
  */
 const LAB_SOURCES: FeedSource[] = [
   anthropicNews,
   feed("OpenAI", "https://openai.com/news/rss.xml"),
   feed("Google DeepMind", "https://deepmind.google/blog/rss.xml"),
+  feed("Microsoft", "https://blogs.microsoft.com/feed/", true), // the company blog covers other subjects too
+  feed("Mistral AI", "https://mistral.ai/news/rss"),
+  viaHackerNews("Meta", "about.fb.com", /^https:\/\/about\.fb\.com\/news\/\d{4}\/\d{2}\/[a-z0-9-]+$/),
   viaHackerNews("xAI", "x.ai", /^https:\/\/x\.ai\/news\/[a-z0-9-]+$/),
   viaHackerNews("DeepSeek", "deepseek.com", /^https:\/\/api-docs\.deepseek\.com\/news\/news\d{6}$/),
+  specialist(feed("ElevenLabs", "https://elevenlabs.io/blog/rss.xml", false, ["Product", "Company", "Research"])), // voice
   specialist(viaHackerNews("Runway", "runway.com", /^https:\/\/runway(?:ml)?\.com\/news\/(?:company-news|research)\/[a-z0-9-]+$/)), // video
+  specialist(viaHackerNews("Suno", "suno.com", /^https:\/\/suno\.com\/blog\/[A-Za-z0-9-]+$/)), // music
+  specialist(viaHackerNews("Stability AI", "stability.ai", /^https:\/\/stability\.ai\/news-updates\/[a-z0-9-]+$/)), // images and audio
 ];
 
 const FEED_WINDOW_DAYS = 30;
