@@ -310,7 +310,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <h2 id="today-h">Today’s AI news</h2>
             <p>
               What the labs announced, what the analysts published and which AI stories Hacker News picked up in the
-              24 hours before this page was last updated, newest first.
+              24 hours before this page was last updated. The biggest stories come first, by points on Hacker News;
+              posts not discussed there follow, newest first.
             </p>
           </div>
           {today.items.length > 0 ? (
@@ -1333,7 +1334,10 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was
                 collected, which happens once a day: posts from the three labs, pieces from the newsletters and
                 institutions, and up to twelve Hacker News stories with an AI term in the title and at least 20
-                points. The times are in UTC. The list is in order of time, not importance, and none of it feeds
+                points. The biggest stories come first, and size is measured by points on Hacker News, the one
+                figure the sources share. A lab or newsletter post takes the points of the story that links to it
+                or carries its headline; posts with no such story come after the rest, newest first, because
+                nothing says how big they are. The times are in UTC, and none of this feeds
                 the trends.
               </p>
               <p>

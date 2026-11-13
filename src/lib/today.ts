@@ -1,7 +1,8 @@
 /**
  * "Today's AI news": everything the reading-list sources published in the 24 hours before the
  * data was collected. The site is a static page rebuilt once a day, so "today" is that day,
- * not the reader's; the section says which 24 hours it covers.
+ * not the reader's; the section says which 24 hours it covers. The list runs biggest story first,
+ * by points on Hacker News.
  */
 import { latest } from "./trends";
 
@@ -35,6 +36,18 @@ function sameArticle(url: string) {
   }
 }
 
+/** A headline reduced to its words, so "Introducing Gemini 4 Hydrogen" can be matched with "Gemini 4 Hydrogen". */
+const words = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+/**
+ * True when one headline holds the whole of the other, as whole words. The shorter must run to
+ * three words, so that a story titled only "Claude" is not taken for every post about Claude.
+ */
+function sameHeadline(a: string, b: string) {
+  const [short, long] = [words(a), words(b)].sort((x, y) => x.length - y.length);
+  return short.split(" ").length >= 3 && ` ${long} `.includes(` ${short} `);
+}
+
 export function buildToday(): { since: string; until: string; items: TodayItem[] } {
   const until = Date.parse(latest.generatedAt);
   const since = until - DAY;
@@ -48,11 +61,14 @@ export function buildToday(): { since: string; until: string; items: TodayItem[]
     .map((a) => ({ title: a.title, url: a.url, from: a.source, publishedAt: a.publishedAt }));
 
   // A lab post that also reached Hacker News is listed once, under the lab, with its discussion attached.
+  // Hacker News often links a second copy of the announcement, so the headline is matched as well as the address.
+  const posts = [...items];
   const byArticle = new Map(items.map((item) => [sameArticle(item.url), item]));
   // Data collected before the past-day list existed falls back to the week's top stories.
   for (const s of (latest.today ?? latest.stories).filter((s) => inWindow(s.createdAt))) {
     const discussion = { url: s.discussionUrl, points: s.points };
-    const known = byArticle.get(sameArticle(s.url));
+    const known = byArticle.get(sameArticle(s.url)) ?? posts.find((post) => sameHeadline(post.title, s.title));
+    // The stories arrive most upvoted first, so a post keeps the largest of its discussions.
     if (known) known.discussion ??= discussion;
     else {
       const item = { title: s.title, url: s.url, from: host(s.url), publishedAt: s.createdAt, discussion };
@@ -61,6 +77,12 @@ export function buildToday(): { since: string; until: string; items: TodayItem[]
     }
   }
 
-  items.sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+  // Biggest first. Points on Hacker News are the only measure of size the sources share, so a post
+  // nobody has discussed there cannot be weighed against one that has: those follow, newest first.
+  items.sort(
+    (a, b) =>
+      (b.discussion?.points ?? -1) - (a.discussion?.points ?? -1) ||
+      Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
+  );
   return { since: new Date(since).toISOString(), until: latest.generatedAt, items };
 }
