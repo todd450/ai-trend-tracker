@@ -11,9 +11,9 @@ export const latest = latestJson as unknown as Latest;
 const STEADY_BAND = 0.1;
 /** Theme counts are small, so a theme needs a bigger move than a topic to be called rising or cooling. */
 export const THEME_STEADY_BAND = 0.15;
-/** Average papers a week a topic needs before the headline or the map will use it. */
+/** Average papers a week a topic needs before the headline names it or its research bar is drawn solid. */
 export const HEADLINE_MIN_PAPERS = 25;
-/** Average Hacker News stories a week a topic needs before the map will place it. */
+/** Average Hacker News stories a week a topic needs before its discussion change is treated as firm. */
 export const MAP_MIN_STORIES = 5;
 /** Average stories a week a sub-theme needs, in both halves of the comparison, before it is called rising or cooling. */
 export const SUBTHEME_MIN_STORIES = 3;
@@ -151,14 +151,6 @@ export function buildTrends(horizon: Horizon) {
     (t) => t.hasPapers && mean(t.paperCounts.slice(-window)) >= HEADLINE_MIN_PAPERS,
   );
 
-  /** Topics with enough papers and stories for both of their changes to mean something. */
-  const mapTopics = rankedTopics.filter(
-    (t) =>
-      t.papers.change !== null &&
-      t.stories.change !== null &&
-      mean(t.stories.values.slice(-2 * window)) >= MAP_MIN_STORIES,
-  );
-
   /** True once every week has both a theme count and an AI story total. */
   const hasThemes =
     hasHistory &&
@@ -203,7 +195,7 @@ export function buildTrends(horizon: Horizon) {
     };
   }).sort((a, b) => (b.share.change ?? 0) - (a.share.change ?? 0));
 
-  return { horizon, window, weeks, topicTrends, rankedTopics, mapTopics, themeTrends, hasHistory, hasThemes };
+  return { horizon, window, weeks, topicTrends, rankedTopics, themeTrends, hasHistory, hasThemes };
 }
 
 export type Trends = ReturnType<typeof buildTrends>;

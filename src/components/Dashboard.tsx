@@ -2,7 +2,7 @@ import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
-import { MomentumMap } from "@/components/MomentumMap";
+import { MomentumBars } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { Sparkline } from "@/components/Sparkline";
@@ -171,7 +171,7 @@ const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
-  const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, hasHistory, hasThemes } = trends;
+  const { window: WINDOW, weeks, topicTrends, rankedTopics, themeTrends, hasHistory, hasThemes } = trends;
   const { headline, briefing } = buildBriefing(trends);
   const compared =
     WINDOW === 1
@@ -179,12 +179,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       : `last ${WINDOW} weeks compared with the ${WINDOW} weeks before`;
   const latestWeek = weeks.at(-1);
   const weekLabels = weeks.map((w) => `Week of ${fmtDay(w)}`);
-  /** Topics whose counts are large enough for their place on the map to be trusted. */
-  const firm = new Set(mapTopics.map((t) => t.id));
-  /** Every topic with both changes to place, numbered as in the table. */
-  const mapPoints = topicTrends
-    .map((t, i) => ({ t, rank: i + 1 }))
-    .filter(({ t }) => t.hasPapers && t.papers.change !== null && t.stories.change !== null);
+  /** Topics with enough papers a week for a change in their share to be trusted. */
+  const papersFirm = new Set(rankedTopics.map((t) => t.id));
+  const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
   const papersLastWeek = latestWeek ? history.arxivTotal[latestWeek] : 0;
   const adoption = adoptionSummary; // local constants, so the null checks below hold inside the row callbacks
   const adoptionRows = adoption
@@ -372,66 +369,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
           {hasHistory ? (
             <>
-              <MomentumMap
-                points={mapPoints.map(({ t, rank }) => ({
+              <MomentumBars
+                minPapers={HEADLINE_MIN_PAPERS}
+                minStories={MAP_MIN_STORIES}
+                topics={topicTrends.map((t, i) => ({
                   id: t.id,
                   name: t.name,
-                  rank,
-                  research: t.papers.change ?? 0,
-                  discussion: t.stories.change ?? 0,
+                  blurb: t.blurb,
+                  rank: i + 1,
                   direction: t.direction,
-                  firm: firm.has(t.id),
+                  papers: t.papers,
+                  stories: t.stories,
+                  hasPapers: t.hasPapers,
+                  papersFirm: papersFirm.has(t.id),
+                  storiesFirm: avg(t.stories.values.slice(-2 * WINDOW)) >= MAP_MIN_STORIES,
                 }))}
-                unplaced={topicTrends.filter((t) => !mapPoints.some((p) => p.t.id === t.id)).map((t) => t.name)}
               />
-              <div className="trend-cols" aria-hidden="true">
-                <span>Topic</span>
-                <span>Research <i>share of AI papers</i></span>
-                <span>Discussion <i>Hacker News stories</i></span>
-              </div>
-              <ol className="trends">
-                {topicTrends.map((t, i) => (
-                  <li key={t.id} id={`topic-${t.id}`} className="trend">
-                    <div className="trend__topic">
-                      <span className="trend__rank">{i + 1}</span>
-                      <h3>{t.name}</h3>
-                      <p>{t.blurb}</p>
-                    </div>
-                    <div className="trend__signal">
-                      <span className="trend__label">Research</span>
-                      {t.hasPapers ? (
-                        <>
-                          <Sparkline
-                            values={t.papers.values}
-                            labels={weekLabels}
-                            unit="share"
-                            tone={toneOf(t.papers)}
-                            summary={`${t.name}: share of AI papers over ${weeks.length} weeks, now ${t.papers.recent.toFixed(1)}%, ${fmtChange(t.papers.change)}`}
-                          />
-                          <Change signal={t.papers} />
-                          <span className="trend__level">
-                            {t.papers.recent.toFixed(1)}%<span className="vh"> of papers</span>
-                          </span>
-                        </>
-                      ) : (
-                        <p className="trend__pending">Paper counts not collected yet</p>
-                      )}
-                    </div>
-                    <div className="trend__signal">
-                      <span className="trend__label">Discussion</span>
-                      <Sparkline
-                        values={t.stories.values}
-                        labels={weekLabels}
-                        unit="stories"
-                        tone={toneOf(t.stories)}
-                        summary={`${t.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(t.stories.recent)}, ${fmtChange(t.stories.change)}`}
-                      />
-                      <Change signal={t.stories} />
-                      <PerWeek value={t.stories.recent} />
-                    </div>
-                  </li>
-                ))}
-              </ol>
 
               <details className="table-view">
                 <summary>Show the weekly numbers as a table</summary>
@@ -1306,10 +1259,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
               </p>
               <p>
-                <strong>The map</strong> places a topic by two changes over the same windows: its share
-                of AI papers (across) and its Hacker News stories (up). The map’s scale stretches near the middle, so small changes stay apart and one large change does not flatten the rest; the gridlines carry the real figures. A topic is drawn solid only when it averages at
-                least {HEADLINE_MIN_PAPERS} papers and {MAP_MIN_STORIES} stories a week. Smaller topics swing too
-                easily, so they are drawn hollow and should be read with care. <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
+                <strong>Topic momentum</strong> sets two changes over the same windows side by side: a topic’s share
+                of AI papers and its Hacker News stories. Each column of bars has its own scale, given under the
+                list. A bar is drawn solid only when the topic averages at least {HEADLINE_MIN_PAPERS} papers, or
+                for discussion {MAP_MIN_STORIES} stories, a week. Smaller counts swing too easily, so their bars
+                are outlined and should be read with care. <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
