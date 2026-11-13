@@ -500,14 +500,19 @@ code {
   color: var(--color-muted);
 }
 
-/* The evidence for the headline: the one large chart on the page, so the finding leads. */
+/* The evidence for the headline: the one large chart on the page, labelled on the drawing itself. */
 .leadchart {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.leadchart__panels {
   display: grid;
   gap: var(--space-lg);
 }
 
 @media (min-width: 40rem) {
-  .leadchart[data-count="2"] {
+  .leadchart__panels[data-count="2"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--space-2xl);
   }
@@ -553,15 +558,30 @@ code {
   color: var(--color-ink);
 }
 
+.leadchart__plot {
+  position: relative;
+}
+
 .leadchart svg {
   display: block;
   width: 100%;
-  height: clamp(7rem, 16vw, 11rem);
-  overflow: visible;
+  height: clamp(9rem, 18vw, 12rem);
 }
 
 .leadchart__prior { fill: var(--color-paper-2); }
 .leadchart__recent { fill: color-mix(in oklch, var(--tone) 14%, var(--color-paper)); }
+
+.leadchart__grid,
+.leadchart__event {
+  stroke: var(--color-rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.leadchart__event {
+  stroke: var(--color-muted);
+  stroke-dasharray: 1 3;
+}
 
 .leadchart__zero {
   stroke: var(--color-rule-strong);
@@ -590,18 +610,98 @@ code {
   stroke-width: 3;
 }
 
+/* Labels laid over the drawing. Each has a paper-coloured halo, so a line passing behind stays readable. */
+.leadchart__labels {
+  position: absolute;
+  inset: 0;
+  font-size: var(--text-xs);
+  line-height: 1;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.leadchart__labels span {
+  position: absolute;
+  white-space: nowrap;
+  text-shadow:
+    0 0 2px var(--color-paper),
+    0 0 2px var(--color-paper),
+    0 0 3px var(--color-paper);
+}
+
+/* Scale values sit on their gridline at the left, as on a printed chart. */
+.leadchart__tick {
+  left: 0;
+  transform: translateY(-115%);
+}
+
+.leadchart__band {
+  bottom: 0.4rem;
+  padding-inline-start: var(--space-2xs);
+  font-weight: 500;
+}
+
+.leadchart__band--recent {
+  color: var(--color-ink-2);
+}
+
+.leadchart__avg {
+  padding-inline-start: var(--space-2xs);
+  transform: translateY(-125%);
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+
+.leadchart__avg--recent {
+  color: var(--color-ink);
+}
+
+/* The numbered release marks along the foot of the drawing. */
+.leadchart__foot {
+  position: relative;
+  height: 1.125rem;
+  margin-top: var(--space-3xs);
+}
+
+.leadchart__badge {
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  border: var(--rule-hair) solid var(--color-muted);
+  border-radius: 50%;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.leadchart__foot .leadchart__badge {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  background: var(--color-paper);
+}
+
 .leadchart__axis {
   display: flex;
   justify-content: space-between;
   gap: var(--space-sm);
-  margin-top: var(--space-2xs);
   font-size: var(--text-xs);
   color: var(--color-muted);
 }
 
-.leadchart__axis i {
-  font-style: normal;
-  color: var(--color-rule);
+.leadchart__key {
+  font-size: var(--text-xs);
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+.leadchart__key b {
+  font-weight: 600;
+  color: var(--color-ink-2);
 }
 
 .brief ol {
@@ -848,6 +948,17 @@ code {
   text-align: end;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+/* Where a chart's or a list's figures come from, directly under it. */
+.source {
+  margin-top: var(--space-xs);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.source b {
+  font-weight: 600;
 }
 
 .trend__context {
