@@ -157,6 +157,10 @@ src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a to
 src/lib/products.ts  the product watchlist: searches and Wikipedia titles (edit to add a product)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/LeadChart.tsx  the chart under the headline: the movers it names, with the two periods compared
+src/lib/calls.ts     the rules that turn a weekly series into "rising / steady / cooling"
+src/lib/sentences.ts the rules that write the headline and briefing sentences
+src/lib/editions.ts  each past week's headline, worked out again from the stored counts
+src/app/feed.xml/    the weekly feed (Atom), one entry per edition
 src/lib/noise.ts     decides whether a change is bigger than a series' usual wobble
 src/lib/editorial.ts gathers posts about one event and applies the pins and hides
 data/editorial.json  the editor's pins and hides, kept by hand
@@ -176,6 +180,24 @@ files change. GitHub allows its hosted runners only for work on the repository's
 own project, so the workflow should stay a short daily job that produces this
 site's data and nothing else. `.github/workflows/collect.yml` refreshes the data daily once
 the project is on GitHub.
+
+## The weekly feed
+
+`/feed.xml` is an Atom feed with one entry for each of the last eight weeks, carrying
+that week's headline from the three-month view. The site keeps no archive of past
+pages, so an earlier week's headline is worked out again by reading the stored counts
+as of that week (`buildTrends(horizon, asOf)`): it is what today's rules and today's
+counts give, which can differ in detail from what the page said at the time. Every
+page announces the feed, and the footer links to it.
+
+## Tests
+
+`npm test` covers the rules that decide what the page says: whether a count is
+believable (`sanity`), whether a change clears a series' noise (`noise`), how a
+series becomes a call and how a change is printed (`calls`), how the headline and
+briefing sentences are written (`sentences`), and the editor's step (`editorial`).
+These modules read no data files, which is what lets them be tested alone; keep new
+rules in modules like them.
 
 ## How a trend is decided
 

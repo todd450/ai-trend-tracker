@@ -1,6 +1,6 @@
 import historyJson from "../../data/history.json";
 import latestJson from "../../data/latest.json";
-import { standsClear, weeklyNoise } from "./noise";
+import { compare, signalDirection, type Direction, type Signal } from "./calls";
 import { PRODUCTS, type Product } from "./products";
 import { THEMES, subthemeKey } from "./themes";
 import { TOPICS } from "./topics";
@@ -47,23 +47,6 @@ export const HORIZONS: Record<
   threeMonths: { label: "3 months", href: "/", window: 4, shown: 12, when: "over three months" },
   sixMonths: { label: "6 months", href: "/six-months", window: 13, shown: 26, when: "over six months" },
   oneYear: { label: "1 year", href: "/one-year", window: 26, shown: 52, when: "over one year" },
-};
-
-export type Direction = "rising" | "steady" | "cooling";
-
-export type Signal = {
-  /** One value per week, oldest first. */
-  values: number[];
-  recent: number;
-  prior: number;
-  /** Relative change of `recent` against `prior`; null when there is no base to compare with. */
-  change: number | null;
-  /**
-   * False when the change is no bigger than the series' own week-to-week wobble would produce
-   * (see noise.ts), so it is not called a rise or a fall however large it looks. Absent on
-   * series that are not weekly, which are judged by the fixed rule alone.
-   */
-  clear?: boolean;
 };
 
 export type TopicTrend = {
@@ -125,50 +108,26 @@ export type ProductTrend = {
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 
-/**
- * Judged on the whole percentage the page prints, so a figure shown as −10%
- * is never labelled steady when the rule says "at least 10%".
- */
-export function directionOf(change: number | null, band: number): Direction {
-  if (change === null || Math.round(Math.abs(change) * 100) < Math.round(band * 100)) return "steady";
-  return change > 0 ? "rising" : "cooling";
-}
-
-/** The direction a signal is called: its change must pass the fixed rule and stand clear of its own wobble. */
-export function signalDirection(signal: Signal, band: number): Direction {
-  return signal.clear === false ? "steady" : directionOf(signal.change, band);
-}
-
-/** True for a change big enough to print as a rise or fall that is held back as wobble. */
-export function heldBack(signal: Signal, band: number): boolean {
-  return signal.clear === false && directionOf(signal.change, band) !== "steady";
-}
-
 /** Every completed week that has a paper total, oldest first. */
-const allWeeks = Object.keys(history.arxivTotal).sort();
+export const everyWeek = Object.keys(history.arxivTotal).sort();
 const themeTotals = history.hnAiTotal ?? {};
 
-/** Everything the page shows that depends on how far back the comparison looks. */
-export function buildTrends(horizon: Horizon) {
+/**
+ * Everything the page shows that depends on how far back the comparison looks. With `asOf` (a
+ * week's Monday), the reading is made as if that week were the latest.
+ */
+export function buildTrends(horizon: Horizon, asOf?: string) {
   const { window, shown } = HORIZONS[horizon];
+  // The page reads every week on record. The feed asks what an earlier week's edition said,
+  // which is the same reading with the later weeks left out.
+  const allWeeks = asOf ? everyWeek.filter((w) => w <= asOf) : everyWeek;
   const weeks = allWeeks.slice(-shown);
 
   /**
    * `all` holds one value for each of `over`, the weeks the series was collected for, oldest first.
    * The page charts the last `shown`; the wobble is measured over all of them.
    */
-  const signal = (all: number[]): Signal => {
-    const values = all.slice(-shown);
-    const recent = mean(values.slice(-window));
-    const prior = mean(values.slice(-2 * window, -window));
-    return {
-      values,
-      recent,
-      prior,
-      change: prior > 0 ? (recent - prior) / prior : null,
-      clear: standsClear(recent - prior, weeklyNoise(all), window),
-    };
-  };
+  const signal = (all: number[]): Signal => compare(all, shown, window);
   /** The weeks a count was stored for: a series added this month has no earlier weeks to measure. */
   const collected = (counts: Record<string, number> | undefined) => {
     const first = allWeeks.findIndex((w) => counts?.[w] !== undefined);
@@ -306,28 +265,7 @@ export const fmtDay = (iso: string) => dayMonth.format(new Date(iso));
 export const fmtDate = (iso: string) => fullDate.format(new Date(iso));
 export const fmtCompact = (n: number) => (n < 10_000 ? n.toLocaleString("en") : compact.format(n));
 
-export function fmtChange(change: number | null): string {
-  if (change === null) return "new";
-  const pct = Math.round(Math.abs(change) * 100);
-  if (pct === 0) return "flat";
-  return `${change > 0 ? "+" : "−"}${pct}%`;
-}
-
-/** "2–8 November 2026" for the week starting on the given Monday. */
-export function fmtWeek(weekStart: string): string {
-  const start = new Date(weekStart + "T00:00:00Z");
-  const end = new Date(start.getTime() + 6 * 86_400_000);
-  const sameMonth = start.getUTCMonth() === end.getUTCMonth();
-  const month = (d: Date) => d.toLocaleString("en-GB", { month: "long", timeZone: "UTC" });
-  return sameMonth
-    ? `${start.getUTCDate()}–${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`
-    : `${start.getUTCDate()} ${month(start)} – ${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`;
-}
-
-/** ISO 8601 week number, used as the edition number. */
-export function isoWeek(weekStart: string): number {
-  const d = new Date(weekStart + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 3); // the week's Thursday decides which year it belongs to
-  const yearStart = Date.UTC(d.getUTCFullYear(), 0, 1);
-  return Math.ceil(((d.getTime() - yearStart) / 86_400_000 + 1) / 7);
-}
+// The rules and the pure formatters live in calls.ts; they are passed on from here so the rest of
+// the site has one place to import from.
+export { directionOf, fmtChange, fmtWeek, heldBack, isoWeek, signalDirection } from "./calls";
+export type { Direction, Signal } from "./calls";

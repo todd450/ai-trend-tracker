@@ -1212,6 +1212,11 @@ code {
   color: var(--color-muted);
 }
 
+/* Under a numbered name, the description lines up with the name, not the number. */
+.mom__rank ~ .mom__blurb {
+  grid-column: 2;
+}
+
 /* With no change to draw, a short note takes the bar's place. */
 .mom__track--note {
   display: flex;
@@ -1268,7 +1273,7 @@ code {
   }
 
   /* With room for one line per row, the description waits behind the name. */
-  .mom__row--plain .mom__topic {
+  .mom__topic {
     position: relative;
   }
 
