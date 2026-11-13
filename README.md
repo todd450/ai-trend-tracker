@@ -39,8 +39,9 @@ Then open http://localhost:3000.
 npm run collect
 ```
 
-The first run backfills 52 weeks of history and takes about 45 minutes,
-because arXiv allows one request every three seconds. Later runs only
+The first run backfills 104 weeks (two years) of history and takes about two and a half
+hours, mostly Hacker News searches for every theme and product and arXiv's limit of one
+request every three seconds. Later runs only
 re-count the two newest weeks. `npm run collect -- --fast` skips the backfill.
 
 The collector writes to `data/`:
@@ -209,6 +210,7 @@ src/app/one-month/   the 1-month view, at /one-month
 src/app/page.tsx     the 3-month view, at /
 src/app/six-months/  the 6-month view, at /six-months
 src/app/one-year/    the 1-year view, at /one-year
+src/app/two-years/   the 2-year view, at /two-years
 tokens.css           every colour, font and size the design uses
 ```
 
@@ -220,7 +222,7 @@ the project is on GitHub.
 
 ## How a trend is decided
 
-The page has five views, switched from the masthead:
+The page has six views, switched from the masthead:
 
 | View | Compares | Needs |
 | --- | --- | --- |
@@ -229,6 +231,7 @@ The page has five views, switched from the masthead:
 | 3 months (`/`) | the latest 4 weeks with the 4 before | 8 weeks |
 | 6 months (`/six-months`) | the latest 13 weeks with the 13 before | 26 weeks |
 | 1 year (`/one-year`) | the latest 26 weeks with the 26 before | 52 weeks |
+| 2 years (`/two-years`) | the latest 52 weeks with the 52 before | 104 weeks |
 
 The 1-week and 1-month views react fastest and are the noisiest.
 
@@ -258,7 +261,7 @@ Each theme is the set of distinct stories matched by any of its sub-themes'
 searches, so adding a search to a sub-theme also changes its theme's count.
 A story can sit in more than one sub-theme. A sub-theme averaging fewer than
 3 stories a week in either half of the comparison is shown as "too few to call".
-Adding a sub-theme makes the next `npm run collect` backfill its 52 weeks
+Adding a sub-theme makes the next `npm run collect` backfill its 104 weeks
 from Hacker News (a few minutes). The page's "How this is measured" section
 explains the limits to readers.
 
@@ -273,7 +276,7 @@ The "Product momentum" section follows the products listed in
   comparison is shown as "too few to call".
 - **Public interest** is views of the product's English Wikipedia article, from
   Wikimedia's page-view API (`user` agent, so crawlers are left out). The data
-  is CC0. One request per article title returns the whole year.
+  is CC0. One request per article title returns the whole two years.
 
 Wikimedia allows a script that sends no contact address ten requests a minute,
 so the collector sends one every seven seconds and waits when told to
@@ -283,7 +286,7 @@ minute.
 
 Wikipedia articles are renamed often, and views are recorded under the title of
 the day. Each product therefore lists every title its article has carried in the
-past year. When an article is renamed its views collapse; `scripts/sanity.ts`
+past two years. When an article is renamed its views collapse; `scripts/sanity.ts`
 turns the figure away (below 0.15× the usual level), "Wikipedia page views"
 shows as stale in the source list with the product named, and the fix is to add
 the new title to the product's `wiki` list. Views are never rejected for being
@@ -301,7 +304,7 @@ made Python-heavy toolkits look like they were cooling.
 
 A toolkit is "rising" or "cooling" when its average share over the latest
 three months moved by 10% or more against the three before. This comparison
-is the same in all five views. PyPI Stats keeps about 180 days, so the first
+is the same in all six views. PyPI Stats keeps about 180 days, so the first
 run has six months; the collector keeps every month it has seen (up to 25),
 so the record grows from there. Downloads include build servers and packages
 pulled in by other packages, so they show direction, not a number of users.
@@ -317,7 +320,7 @@ period, so the collector reads the Bureau's national spreadsheet
 two questions by their wording.
 
 The trend compares the average of the latest six surveys with the six before,
-in all five views. The series starts in November 2025, when the Bureau
+in all six views. The series starts in November 2025, when the Bureau
 broadened the question's wording; earlier answers were lower and are not
 joined on. If the Bureau rewords the question so that it no longer begins
 "In the last two weeks, did this business use", the source will show as stale

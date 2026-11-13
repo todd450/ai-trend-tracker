@@ -15,7 +15,7 @@ export const SITE_DESCRIPTION =
   "A weekly reading of where attention in artificial intelligence is moving, measured from research papers, open-source code, model releases and news discussion.";
 
 /** The site's fixed pages, in the order the sitemap lists them; each conference adds a page after them. */
-export const PAGES = ["/", "/one-week", "/one-month", "/six-months", "/one-year", "/conferences"] as const;
+export const PAGES = ["/", "/one-week", "/one-month", "/six-months", "/one-year", "/two-years", "/conferences"] as const;
 
 /** The share card drawn by app/opengraph-image.tsx. */
 const SHARE_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "AI Trend Tracker: what is rising in AI" };

@@ -23,12 +23,12 @@ export const SUBTHEME_MIN_STORIES = 3;
 export const PRODUCT_MIN_STORIES = 3;
 
 /**
- * The five readings of the same weekly counts. Each compares the latest `window`
+ * The six readings of the same weekly counts. Each compares the latest `window`
  * weeks with the `window` weeks before and charts `shown` weeks, which is never
  * less than both sides of the comparison. The counts are weekly, so the shortest
  * comparison possible is one week against the week before.
  */
-export type Horizon = "oneWeek" | "oneMonth" | "threeMonths" | "sixMonths" | "oneYear";
+export type Horizon = "oneWeek" | "oneMonth" | "threeMonths" | "sixMonths" | "oneYear" | "twoYears";
 
 export const HORIZONS: Record<
   Horizon,
@@ -47,6 +47,7 @@ export const HORIZONS: Record<
   threeMonths: { label: "3 months", href: "/", window: 4, shown: 12, when: "over three months" },
   sixMonths: { label: "6 months", href: "/six-months", window: 13, shown: 26, when: "over six months" },
   oneYear: { label: "1 year", href: "/one-year", window: 26, shown: 52, when: "over one year" },
+  twoYears: { label: "2 years", href: "/two-years", window: 52, shown: 104, when: "over two years" },
 };
 
 export type Direction = "rising" | "steady" | "cooling";
