@@ -178,7 +178,8 @@ code {
 .tabs a[aria-current="page"],
 .tabs a[aria-current="page"]:hover {
   color: var(--color-ink);
-  text-decoration-color: var(--color-ink);
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 3px;
 }
 
 .mast__name {
@@ -339,7 +340,8 @@ code {
 .horizon a[aria-current],
 .horizon a[aria-current]:hover {
   color: var(--color-ink);
-  text-decoration-color: var(--color-ink);
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 3px;
 }
 
 /* The time-span switch: on a phone, its own row of five; with room, a labelled line. */
@@ -522,12 +524,13 @@ code {
 
 .leadchart__panel {
   --tone: var(--data-steady);
+  --tone-ink: var(--color-ink);
   min-width: 0;
   margin: 0;
 }
 
-.leadchart__panel--rising { --tone: var(--data-rising); }
-.leadchart__panel--cooling { --tone: var(--data-cooling); }
+.leadchart__panel--rising { --tone: var(--data-rising); --tone-ink: var(--data-rising-ink); }
+.leadchart__panel--cooling { --tone: var(--data-cooling); --tone-ink: var(--data-cooling-ink); }
 
 .leadchart figcaption {
   display: grid;
@@ -556,8 +559,8 @@ code {
 
 .leadchart__figure b {
   margin-inline-end: var(--space-2xs);
-  font-weight: 600;
-  color: var(--color-ink);
+  font-weight: 700;
+  color: var(--tone-ink);
 }
 
 .leadchart__plot {
@@ -571,7 +574,10 @@ code {
 }
 
 .leadchart__prior { fill: var(--color-paper-2); }
-.leadchart__recent { fill: color-mix(in oklch, var(--tone) 14%, var(--color-paper)); }
+.leadchart__recent { fill: color-mix(in oklch, var(--tone) 20%, var(--color-paper)); }
+
+/* The area under the line, in the panel's colour: see-through, so the period bands show behind it. */
+.leadchart__area { fill: color-mix(in oklch, var(--tone) 16%, transparent); }
 
 .leadchart__grid,
 .leadchart__event {
@@ -594,7 +600,7 @@ code {
 .leadchart__line {
   fill: none;
   stroke: var(--color-ink);
-  stroke-width: 1.75;
+  stroke-width: 2.25;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
@@ -609,7 +615,16 @@ code {
 .leadchart__mean--recent {
   stroke: var(--tone);
   stroke-dasharray: none;
-  stroke-width: 3;
+  stroke-width: 4;
+}
+
+/* The latest week, as a dot: a zero-length stroke with round ends, so it stays round however the drawing is stretched. */
+.leadchart__end {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 10;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 /* Labels laid over the drawing. Each has a paper-coloured halo, so a line passing behind stays readable. */
@@ -1109,7 +1124,7 @@ code {
 .mom__spark polyline {
   fill: none;
   stroke: var(--data-steady);
-  stroke-width: 1.5;
+  stroke-width: 1.75;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
@@ -1153,6 +1168,10 @@ code {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+
+/* A called rise or fall prints its figure in the data colour; held and small-number figures stay grey, below. */
+.mom__signal--rising .mom__change { color: var(--data-rising-ink); font-weight: 700; }
+.mom__signal--cooling .mom__change { color: var(--data-cooling-ink); font-weight: 700; }
 
 .mom__signal--held .mom__change,
 .mom__signal--soft .mom__change {
