@@ -1076,7 +1076,7 @@ code {
 
 .mom__signal {
   display: grid;
-  grid-template-columns: 4.25rem minmax(3.75rem, 1fr) 3.25rem 3.5rem;
+  grid-template-columns: 4.25rem 3rem minmax(2.75rem, 1fr) 3.25rem 3.25rem;
   column-gap: var(--space-xs);
   align-items: center;
   min-width: 0;
@@ -1090,6 +1090,35 @@ code {
 }
 
 /* The zero line runs down the middle of every track, so the bars share one baseline. */
+/* The series week by week: a thin line from zero, in the colour of the call. */
+.mom__spark {
+  display: block;
+  width: 100%;
+  height: 1.125rem;
+  overflow: visible;
+}
+
+.mom__spark line {
+  stroke: var(--color-rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.mom__spark polyline {
+  fill: none;
+  stroke: var(--data-steady);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.mom__spark--rising polyline { stroke: var(--data-rising); }
+.mom__spark--cooling polyline { stroke: var(--data-cooling); }
+
+.mom__signal--soft .mom__spark polyline {
+  stroke-dasharray: 2 2;
+}
+
 .mom__track {
   position: relative;
   height: 1.25rem;
@@ -1275,7 +1304,7 @@ code {
   }
 
   .mom__signal {
-    grid-template-columns: minmax(5.5rem, 1fr) 3.25rem 3.5rem;
+    grid-template-columns: 4.5rem minmax(4rem, 1fr) 3.25rem 3.5rem;
     column-gap: var(--space-sm);
     padding-inline-start: 0;
   }
