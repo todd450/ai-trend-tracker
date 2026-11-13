@@ -2014,9 +2014,9 @@ code {
   }
 }
 
-/* The calendar: a month heading, then one event per line with its dates in the margin. */
+/* The calendar: a month heading, then one event per line: dates, name and place, and how soon. */
 .cal__month + .cal__month {
-  margin-top: var(--space-lg);
+  margin-top: var(--space-md);
 }
 
 .cal__month h3 {
@@ -2030,8 +2030,8 @@ code {
 
 .cal__event {
   display: grid;
-  gap: var(--space-2xs);
-  padding-block: var(--space-sm);
+  gap: var(--space-3xs);
+  padding-block: var(--space-xs);
   border-top: var(--rule-hair) solid var(--color-rule);
 }
 
@@ -2042,11 +2042,12 @@ code {
 }
 
 .cal__body h4 {
+  display: inline;
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .cal__where,
@@ -2057,6 +2058,7 @@ code {
 }
 
 .cal__note {
+  font-size: var(--text-xs);
   color: var(--color-ink-2);
 }
 
@@ -2076,8 +2078,8 @@ code {
 
 @media (min-width: 60rem) {
   .cal__event {
-    grid-template-columns: 13rem minmax(0, 1fr) 16rem;
-    column-gap: var(--space-xl);
+    grid-template-columns: 9rem minmax(0, 1fr) auto;
+    column-gap: var(--space-md);
     align-items: baseline;
   }
 

@@ -322,7 +322,7 @@ export function Conferences() {
                   {[...underway, ...upcoming]
                     .filter((c) => c.start.slice(0, 7) === month)
                     .map((c) => (
-                      <Entry key={c.id} c={c} />
+                      <Entry key={c.id} c={c} year={false} />
                     ))}
                 </ol>
               </div>
@@ -357,19 +357,20 @@ export function Conferences() {
   );
 }
 
-function Entry({ c }: { c: Conference }) {
+/** One calendar row. Under a month heading the year is left off the dates, since the heading gives it. */
+function Entry({ c, year = true }: { c: Conference; year?: boolean }) {
   const phase = phaseOf(c);
   const hasReading = Boolean(c.stage || c.recap);
   return (
     <li className="cal__event">
-      <p className="cal__dates">{fmtSpan(c.start, c.end)}</p>
+      <p className="cal__dates">{fmtSpan(c.start, c.end, { year })}</p>
       <div className="cal__body">
         <h4>
           <a href={c.url} {...NEW_TAB}>{c.name}</a>
-        </h4>
-        <p className="cal__where">
-          {c.place} · {c.host} · {c.kind === "research" ? "Research meeting" : "Industry event"}
-        </p>
+        </h4>{" "}
+        <span className="cal__where">
+          · {c.place} · {c.kind === "research" ? "Research" : "Industry"}
+        </span>
         {c.note && <p className="cal__note">{c.note}</p>}
       </div>
       <p className={`cal__phase cal__phase--${phase}`}>
