@@ -165,7 +165,7 @@ const MAKER_NAMES: Record<string, string> = {
   "z-ai": "Z.ai",
 };
 
-/** The name OpenRouter gives the sum of every maker outside a week's nine largest. */
+/** The key the collector gives the sum of every maker outside a week's nine largest. */
 const OTHER_MAKERS = "Others";
 
 /**
@@ -204,6 +204,8 @@ export function buildMarketShare(horizon: Horizon) {
     .sort((a, b) => b.share.recent - a.share.recent);
   return {
     latestWeek: newest.week,
+    /** When OpenRouter produced the figures, for the credit line. */
+    asOf: indicators.marketShare?.asOf ?? indicators.updatedAt,
     window,
     totalTokens: total(newest),
     /** The newest week's share held by makers outside the nine named. */

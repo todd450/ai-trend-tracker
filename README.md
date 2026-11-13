@@ -1,8 +1,9 @@
 # AI Trend Tracker
 
 A public dashboard that shows where attention in AI is moving, week by week.
-It measures free public sources, adds a reading list from newsletter
-and lab news feeds, and needs no API keys.
+It measures free public sources and adds a reading list from newsletter
+and lab news feeds. One section, model share, needs a free OpenRouter account
+key; everything else needs no keys.
 
 | Signal | Source | What is measured |
 | --- | --- | --- |
@@ -180,8 +181,10 @@ was last collected.
 Once an event is over and its recordings have captions, it is watched and read against
 the trends:
 
-1. Save the captions as text, for example with
-   `yt-dlp --write-auto-subs --sub-langs en --skip-download <video url>`.
+1. Save the captions as text. Open the video on YouTube, choose "Show transcript" under
+   the description, and copy the text into a file; or ask the organiser for a transcript.
+   Do not fetch captions with a download tool such as `yt-dlp`: YouTube's terms allow
+   neither automated access nor downloading without permission.
    Transcripts are not kept in the repository.
 2. Run `npm run conference -- <conference id> <transcript.txt>`. This counts how often
    each topic in `src/lib/topics.ts` was mentioned and stores the counts under `stage`.
@@ -213,8 +216,13 @@ Read it as one marketplace, not the whole market:
   nine, and its change is shown only if it stayed there for the whole comparison.
 
 The data is OpenRouter's, used under CC BY 4.0 with the credit shown beside the figures. The
-collector reads the same address the rankings page itself loads, which needs no account but is not
-a documented service and could change; if it does, the dashboard keeps the last good data and marks
-the source as failed. OpenRouter also offers a documented data service that needs a free account
-key, which would be the sturdier choice. `modelMarketShare` in `scripts/collect.ts` is the place to
-switch.
+collector reads OpenRouter's documented
+[Data API](https://openrouter.ai/docs/cookbook/administration/data-api), which lists each day's 50
+most-used models; `scripts/marketShare.ts` sums them by maker and week. A maker's total therefore
+leaves out any of its models below the daily 50.
+
+The API needs an account key, though the request costs nothing. Create a key at openrouter.ai, then
+set `OPENROUTER_API_KEY` when running `npm run collect`, and add it as a repository secret of the
+same name for the daily workflow. Without it the section keeps its last data and the source shows as
+failed. OpenRouter's terms do not allow reading the address its rankings page loads, so do not
+switch back to that.

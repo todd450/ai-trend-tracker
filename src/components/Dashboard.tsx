@@ -616,7 +616,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </div>
                 <p className="trend__context">
                   {jobs.signal.prior.toFixed(1)}% a year earlier ·{" "}
-                  <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>
+                  Source: <a href="https://github.com/hiring-lab/ai-tracker" {...NEW_TAB}>Indeed Hiring Lab</a>, each
+                  month’s last reading, licensed{" "}
+                  <a href="https://creativecommons.org/licenses/by/4.0/" {...NEW_TAB}>CC BY 4.0</a>
                 </p>
               </li>
             )}
@@ -941,7 +943,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               Other makers together: {marketShare.otherShare.toFixed(1)}% in the latest week ·{" "}
               {WINDOW === 1 ? "latest week compared with the week before" : `last ${WINDOW} weeks compared with the ${WINDOW} before`} ·
               Source: <a href="https://openrouter.ai/rankings" {...NEW_TAB}>OpenRouter (openrouter.ai/rankings)</a>, as of{" "}
-              {fmtDate(indicators.updatedAt)}, licensed{" "}
+              {fmtDate(marketShare.asOf)}. Licensed under{" "}
               <a href="https://creativecommons.org/licenses/by/4.0/" {...NEW_TAB}>CC BY 4.0</a>.
             </p>
 
@@ -1364,9 +1366,10 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 marketplace developers use to reach many models through one account, so it shows the choices of
                 developers who shop around; companies that buy from OpenAI, Anthropic or Google directly, and
                 everyone using a chat app, are not in it. Free and low-priced models draw heavy automated use there,
-                which lifts their makers. Each maker counts tokens its own way, so shares are approximate. A week
-                names only its nine largest makers, so a maker’s line starts from when it last entered the nine, and
-                its change is shown only if it stayed there for the whole comparison.
+                which lifts their makers. Each maker counts tokens its own way, so shares are approximate. OpenRouter
+                publishes each day’s 50 most-used models, so a maker’s total leaves out any of its models below
+                that line. A week names only its nine largest makers, so a maker’s line starts from when it last
+                entered the nine, and its change is shown only if it stayed there for the whole comparison.
               </p>
               <p>
                 <strong>Developer usage</strong> counts downloads of each toolkit’s Python packages from PyPI and

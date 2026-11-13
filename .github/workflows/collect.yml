@@ -27,6 +27,8 @@ jobs:
         run: node scripts/collect.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Any OpenRouter account key; the model share figures are skipped without it.
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       - name: Commit new data
         run: |
           git config user.name "github-actions[bot]"

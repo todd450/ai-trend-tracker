@@ -25,6 +25,7 @@ import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
+import { weeklyMakerTokens, type RankingRow } from "./marketShare.ts";
 import { implausible, type Kind } from "./sanity.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
@@ -752,30 +753,37 @@ async function businessAdoption(previous: Indicators["business"]): Promise<Busin
 /** Weeks of model share kept: the one-year view's 52 with a few to spare. */
 const MARKET_SHARE_WEEKS_KEPT = 60;
 
+/** The longest span of days the rankings dataset gives in one request. */
+const MARKET_SHARE_DAYS = 366;
+
 /**
- * Tokens processed on OpenRouter each week, by model maker. This is the figure behind the
- * "Market Share" chart on openrouter.ai/rankings, read from the address that chart loads.
- * OpenRouter also publishes it through a documented API, but that needs an account key.
- * The data is licensed CC BY 4.0 and must be credited to OpenRouter wherever it is shown.
+ * Tokens processed on OpenRouter each week, by model maker, from OpenRouter's documented
+ * Data API (openrouter.ai/docs/cookbook/administration/data-api). It needs an account key in
+ * OPENROUTER_API_KEY; any key works and the request costs nothing. One request a day covers
+ * the past year, so restated figures are picked up.
+ * The data is licensed CC BY 4.0 and must be credited to OpenRouter, with the time in
+ * `asOf`, wherever it is shown.
  */
 async function modelMarketShare(previous: Indicators["marketShare"]): Promise<NonNullable<Indicators["marketShare"]>> {
-  const body = await getJson<{ data?: { data?: { x?: unknown; ys?: unknown }[] } }>(
-    "https://openrouter.ai/api/frontend/v1/rankings/author-market-share",
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new Error("OPENROUTER_API_KEY is not set");
+  const end = Date.now() - DAY; // the newest complete UTC day
+  const params = new URLSearchParams({ start_date: isoDay(new Date(end - (MARKET_SHARE_DAYS - 1) * DAY)), end_date: isoDay(new Date(end)) });
+  const body = await getJson<{ data?: RankingRow[]; meta?: { as_of?: string } }>(
+    `https://openrouter.ai/api/v1/datasets/rankings-daily?${params}`,
+    { Authorization: `Bearer ${key}` },
   );
-  const byWeek = new Map(previous?.weeks.map((w) => [w.week, w]));
-  for (const row of body.data?.data ?? []) {
-    if (typeof row.x !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(row.x) || !row.ys || typeof row.ys !== "object") continue;
-    // The newest row is the week in progress; only weeks that have ended are kept.
-    if (Date.parse(`${row.x}T00:00:00Z`) + 7 * DAY > Date.now()) continue;
-    const tokens = Object.fromEntries(
-      Object.entries(row.ys).filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] >= 0),
-    );
-    if (Object.keys(tokens).length >= 2) byWeek.set(row.x, { week: row.x, tokens });
+  const asOf = body.meta?.as_of;
+  if (!asOf || Number.isNaN(Date.parse(asOf))) throw new Error("response did not say when it was made");
+  // Weeks stored without `asOf` were read another way and group makers differently, so they are not kept.
+  const byWeek = new Map(previous?.asOf ? previous.weeks.map((w) => [w.week, w]) : []);
+  for (const week of weeklyMakerTokens(body.data ?? [])) {
+    if (Object.keys(week.tokens).length >= 2) byWeek.set(week.week, week);
   }
   const weeks = [...byWeek.values()].sort((a, b) => a.week.localeCompare(b.week)).slice(-MARKET_SHARE_WEEKS_KEPT);
   const newest = weeks.at(-1);
   if (!newest || Date.now() - Date.parse(`${newest.week}T00:00:00Z`) > 21 * DAY) throw new Error("no recent complete week returned");
-  return { weeks };
+  return { asOf, weeks };
 }
 
 /** A release is only logged when first seen within this many days, so a feed's short memory cannot misdate old models. */
