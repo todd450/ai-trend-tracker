@@ -379,14 +379,6 @@ code {
   }
 }
 
-.brief__title {
-  padding-bottom: var(--space-xs);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-muted);
-}
-
 .brief ol {
   list-style: none;
 }
