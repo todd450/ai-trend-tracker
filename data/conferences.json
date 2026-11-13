@@ -1,6 +1,220 @@
 {
  "conferences": [
   {
+   "id": "agentic-ai-summit-2026",
+   "name": "Agentic AI Summit 2026",
+   "host": "Berkeley RDI",
+   "kind": "industry",
+   "start": "2026-08-01",
+   "end": "2026-08-02",
+   "place": "Berkeley, USA",
+   "url": "https://rdi.berkeley.edu/events/agentic-ai-summit-2026",
+   "recordings": "https://rdi.berkeley.edu/events/agentic-ai-summit-2026",
+   "note": "Two days on agents alone at UC Berkeley, across four stages: keynotes, panels, workshops and startup spotlights. The organiser's page links each stage's morning and afternoon stream and a video for most talks. The figures below count the titles of the talks, panels and workshops on all four stages; no abstracts are published.",
+   "programme": [
+    {
+     "day": "2026-08-01",
+     "title": "Constraint-Driven Innovation: A Look at the AI Systems Problem",
+     "speaker": "Peter DeSantis",
+     "org": "Amazon"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "From Models to Agents to Discovery: Building the Full Stack of Agentic AI",
+     "speaker": "Saurabh Tiwary",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Accelerated Computing for Agentic AI",
+     "speaker": "Jonathan Cohen",
+     "org": "Nvidia"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "A Lab Notebook for Agents",
+     "speaker": "Chuan Li",
+     "org": "Lambda"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Fireside chat. RSI: Demystifying the \"Foom\"",
+     "speaker": "Dawn Song and Jasjeet Sekhon",
+     "org": "UC Berkeley and Google DeepMind"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "No Doors for Agents",
+     "speaker": "Peter Steinberger",
+     "org": "OpenAI"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Harness Engineering: How to Build Software When Humans Steer and Agents Execute",
+     "speaker": "Ryan Lopopolo",
+     "org": "Google Cloud"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Continual Learning for Agents",
+     "speaker": "Michele Catasta",
+     "org": "Replit"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Omniscient Agents",
+     "speaker": "Alex Graveley",
+     "org": "FlyingObject.ai"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Towards Building Safe and Secure Agentic AI",
+     "speaker": "Dawn Song",
+     "org": "UC Berkeley"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Building Resilience for the Intelligence Age",
+     "speaker": "Wojciech Zaremba",
+     "org": "OpenAI"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Opportunities and Challenges for Long-Horizon Agents",
+     "speaker": "Jerry Tworek",
+     "org": "Core Automation"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Recursive Self Improvement... of What?",
+     "speaker": "Oriol Vinyals",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "AI for Data and Data for AI",
+     "speaker": "Dan Roth",
+     "org": "Oracle"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Continuous Model Improvement",
+     "speaker": "Weizhu Chen",
+     "org": "Microsoft AI"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Robot Foundation Models",
+     "speaker": "Sergey Levine",
+     "org": "Physical Intelligence"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Robotics: Endgame",
+     "speaker": "Jim Fan",
+     "org": "Nvidia"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "From Games to the Real World: How Reinforcement Learning Is Powering Performance and Fun",
+     "speaker": "Michael Spranger",
+     "org": "Sony AI"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "Real-World Superintelligence",
+     "speaker": "Anastasis Germanidis",
+     "org": "Runway"
+    },
+    {
+     "day": "2026-08-01",
+     "title": "E2E Autonomy Without Imitation",
+     "speaker": "Wei Zhan",
+     "org": "Applied Intuition"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Enterprise AI - Agent Governance",
+     "speaker": "Rao Surapaneni",
+     "org": "Google Cloud"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Enterprise AI",
+     "speaker": "Adarsh Hiremath",
+     "org": "Mercor"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Off-the-Shelf AI Hit a Wall. Here's What HubSpot Did to Solve It.",
+     "speaker": "Duncan Lennox",
+     "org": "HubSpot"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "The Eureka Machine: Recursive Superintelligence for Science",
+     "speaker": "Richard Socher",
+     "org": "Recursive Superintelligence"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "The Future of Personalized Universal Agents",
+     "speaker": "Ed Chi",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Combining Experiments, Large Language Models, and Theory to Discover Quantum Materials",
+     "speaker": "Ekin Dogus Cubuk",
+     "org": "Periodic Labs"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Personal AI and Continual Learning: New Frontiers in Agentic AI",
+     "speaker": "Igor Babuschkin",
+     "org": "River AI"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Advancing the State of the Art: The Frontier of Enterprise Agentic AI",
+     "speaker": "Milind Naphade",
+     "org": "Capital One"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Building Infrastructure for the Agentic Economy",
+     "speaker": "Nikhil Chandhok",
+     "org": "Circle"
+    },
+    {
+     "day": "2026-08-02",
+     "title": "Reimagining Banking in the AI Era",
+     "speaker": "Faraz Shafiq",
+     "org": "Wells Fargo"
+    }
+   ],
+   "stage": {
+    "source": "programme",
+    "words": 1346,
+    "mentions": {
+     "agents": 108,
+     "coding": 3,
+     "reasoning": 5,
+     "rag": 1,
+     "tools": 1,
+     "memory": 1,
+     "multimodal": 1,
+     "generative-media": 0,
+     "voice": 0,
+     "robotics": 7,
+     "world-models": 5,
+     "efficient": 0,
+     "safety": 6,
+     "science": 9
+    }
+   }
+  },
+  {
    "id": "aie-nyc-2026",
    "name": "AI Engineer New York",
    "host": "AI Engineer",
@@ -9,7 +223,317 @@
    "end": "2026-10-14",
    "place": "New York, USA",
    "url": "https://www.ai.engineer/nyc/2026",
-   "recordings": "https://www.youtube.com/@aiDotEngineer"
+   "recordings": "https://www.youtube.com/@aiDotEngineer",
+   "note": "Three days on AI in financial services: a workshop day, then two days of talks from banks, funds, trading firms and the companies selling to them.",
+   "videos": [
+    {
+     "title": "Session day 1 stream (13 October)",
+     "url": "https://www.youtube.com/live/akEqiXFo3GM"
+    },
+    {
+     "title": "Session day 2 stream (14 October)",
+     "url": "https://www.youtube.com/live/jiUC6IUMdvc"
+    }
+   ],
+   "programme": [
+    {
+     "day": "2026-10-13",
+     "title": "Vault: Making Unstructured Data Work for Investing",
+     "speaker": "Aaron Linsky and Sam Green",
+     "org": "Bridgewater"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Balancing Acceleration and Safety for AI Agents",
+     "speaker": "John Feminella",
+     "org": "Two Sigma"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Does Code Quality Even Matter?",
+     "speaker": "Max Kanat-Alexander",
+     "org": "Capital One"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "What does an AI engineer do?",
+     "speaker": "Aparna Dhinakaran",
+     "org": "Arize AI"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Wells Fargo Foundation Model: Application to Fraud Detection at Scale",
+     "speaker": "Freddy Lecue",
+     "org": "Wells Fargo"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Inside Arca’s long-horizon agents that run the business",
+     "speaker": "Aman Singh",
+     "org": "Arca"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Intent Based Auth",
+     "speaker": "Allie Howe, Ian Livingstone, Michael Davis and Dick Hardt",
+     "org": "Keycard, JPMC and AAuth"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Great Agents Start with Great Infrastructure",
+     "speaker": "Akshat Bubna",
+     "org": "Modal"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Beyond the Model Card: The Jagged Frontier of AI in Finance",
+     "speaker": "Rayan Krishnan",
+     "org": "Vals AI"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "AI and the Future of Fundamental Investing",
+     "speaker": "Jack Woodruff and Vinoo Ganesh",
+     "org": "Kepler"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Shipping like a startup, regulated like a bank",
+     "speaker": "David Abitbol",
+     "org": "Revolut"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Everyone Has AI. Who Has the Advantage?",
+     "speaker": "Sid Pednekar"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "A Hedge Fund as a Function",
+     "speaker": "Frank Long",
+     "org": "Coatue"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Frontier Models for Acting in Space and Time",
+     "speaker": "Pim de Witte",
+     "org": "General Intuition"
+    },
+    {
+     "day": "2026-10-13",
+     "title": "Hermes gives you wings: Build on open foundations.",
+     "speaker": "Dillon Rolnick",
+     "org": "Nous Research"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Chasing capabilities while waiting for the frontier",
+     "speaker": "Alexander Shevchenko",
+     "org": "Ramp"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "The Machine that Changed the World, vAI",
+     "speaker": "Tariq Shaukat",
+     "org": "Sonar"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Trusting Agents in Policy-Driven Workflows",
+     "speaker": "Evan Kormos",
+     "org": "Coinbase"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Building the Next Chapter of AI in Finance",
+     "speaker": "Joseph Kim",
+     "org": "OpenAI"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Security in the Age of AI: Recent Attacks, Incidents & Defenses",
+     "speaker": "Andrey Rybka",
+     "org": "Bloomberg"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Towards Autonomous Analysts in Finance",
+     "speaker": "Yijia Liang",
+     "org": "Compound AI"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Not All GPU's Are Deployed The Same",
+     "speaker": "Oliver Kennon",
+     "org": "SemiAnalysis"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "How Compute Markets Work",
+     "speaker": "Evan Conrad",
+     "org": "San Francisco Compute Company"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "The Dark Pools of Compute",
+     "speaker": "Affaan Mustafa and Alejandro Soumah Fernandez",
+     "org": "Jump Trading"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Compute Exchange",
+     "speaker": "Carmen Li",
+     "org": "Compute Exchange / Silicon Data"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Built to Scale: Future-Proofing Your Technology Roadmap",
+     "speaker": "John Stecher and Scott Worland",
+     "org": "Blackstone and Norm.ai"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Why Wall Street Still Doesn’t Trust AI",
+     "speaker": "Vinoo Ganesh",
+     "org": "Kepler"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Coding an Autonomous Wall Street Coworker: Custom Skills, Connectors, and Event Hooks",
+     "speaker": "Philipp Schmid",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Your Company Has No Model of Itself: Bootstrapping a World Model from Slack, Decks and Meetings",
+     "speaker": "Joao Wenzel",
+     "org": "Citadel Securities"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Self-Improving Organizations",
+     "speaker": "Will Brown",
+     "org": "Prime Intellect"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "AI in Practice: An Inside Look at Apollo's Approach",
+     "speaker": "Michael Manapat and Jack McDonald",
+     "org": "Rowspace and Apollo Global Management"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Process Supervision for Agents That Do Long-Horizon Work",
+     "speaker": "Mitchell Troyanovsky",
+     "org": "Basis"
+    },
+    {
+     "day": "2026-10-14",
+     "title": "Everything will be Simulated",
+     "speaker": "Cristóbal Valenzuela",
+     "org": "Runway"
+    }
+   ],
+   "stage": {
+    "source": "talks",
+    "words": 132610,
+    "mentions": {
+     "agents": 1048,
+     "coding": 76,
+     "reasoning": 20,
+     "rag": 12,
+     "tools": 235,
+     "memory": 52,
+     "multimodal": 4,
+     "generative-media": 8,
+     "voice": 1,
+     "robotics": 27,
+     "world-models": 15,
+     "efficient": 11,
+     "safety": 26,
+     "science": 9
+    }
+   },
+   "recap": {
+    "watchedOn": "2026-11-13",
+    "partial": true,
+    "coverage": "Read, not watched. The organiser publishes a transcript and a written edition of each session on its own site. The topic counts are from those transcripts: 51 of the 52 sessions on the two session days (13 and 14 October), about 133,000 words. The recap was written from the organiser's summary of every session and its longer written edition for nine of them. The recordings were not played, so slides and demos were not seen, and the points below are checked against the transcript only where they quote a figure. Three online-track sessions are published as excerpts. No recording or transcript of the workshop day (12 October) was found.",
+    "summary": "The two days were about putting AI agents to work inside regulated finance, and most speakers spent their time on the controls rather than the agents: who owns an agent, what it may reach, which approvals a person must still give, and how its numbers are checked. Security talks made the same case from the attacker's side. A run of four talks treated computing power as a market, with prices, forward contracts and brokers. Cost came up repeatedly, from one firm serving its own coding model to a study of what a merged code change costs once salaries are counted. On the tracker's topics, agents took 68% of mentions and tool use 15%; nothing else passed 5%.",
+    "points": [
+     {
+      "topic": "agents",
+      "said": "Proposed five controls for agents in a firm, starting with a registry that records each agent's owner, purpose, tools and the systems it reaches, and ending with routing approval requests so that people are not trained to click yes. He opened with the 2020 Citibank error that sent about $900 million instead of $8 million.",
+      "who": "John Feminella, Two Sigma",
+      "at": {
+       "label": "0:29:38",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=1778s"
+      }
+     },
+     {
+      "topic": "rag",
+      "said": "Said the firm's research store holds more than 100 million documents from 135 outside sources. On about 200 hand-checked questions, the share of the top ten search results that were right for the question rose from about 60% to 90–95%.",
+      "who": "Sam Green and Aaron Linsky, Bridgewater",
+      "at": {
+       "label": "0:14:10",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=850s"
+      }
+     },
+     {
+      "topic": "efficient",
+      "said": "Said Revolut serves a coding model on its own hardware to about 2,000 engineers, using 56 GPUs, at about $0.30 per million tokens and about a tenth of its previous bill from model providers.",
+      "who": "David Abitbol, Revolut",
+      "at": {
+       "label": "5:40:47",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=20447s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Described a team of ten to twelve people that used $1.5 million of tokens in a month, about ten times its salaries; the access was free, so this is the tokens' value and not a bill. He reported spending cut by about 90% with output held, after choosing models with tests built from the team's own past code changes.",
+      "who": "Rayan Krishnan, Vals AI",
+      "at": {
+       "label": "5:12:29",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=18749s"
+      }
+     },
+     {
+      "topic": "world-models",
+      "said": "Described training models on recordings of people playing games, with the controller inputs kept, so that the model keeps watching while it acts. He argued that recorded actions are a better basis than inferring actions from video alone.",
+      "who": "Pim de Witte, General Intuition",
+      "at": {
+       "label": "7:02:19",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=25339s"
+      }
+     },
+     {
+      "topic": "safety",
+      "said": "Showed an email carrying instructions in text a person would not notice; when an assistant later retrieved the email, the instructions told it to leak internal information. He argued that retrieved text must be treated as data, with short-lived credentials and checks that sit outside the model.",
+      "who": "Andrey Rybka, Bloomberg",
+      "at": {
+       "label": "1:34:11",
+       "url": "https://www.youtube.com/watch?v=jiUC6IUMdvc&t=5651s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Reported from a study of engineering teams that spending on AI rose 60-fold in a year while merged code changes per engineer rose 43%. Once salaries are counted, the cost of a merged change fell 26%, and 83% of the companies studied saw a fall.",
+      "who": "Steve Jamison, Jellyfish",
+      "at": {
+       "label": "4:47:18",
+       "url": "https://www.youtube.com/watch?v=jiUC6IUMdvc&t=17238s"
+      }
+     },
+     {
+      "topic": "generative-media",
+      "said": "Showed a video model that responds to a click: starting from a picture of a car, the demonstration switched on its lights, turned the view and opened the bonnet. He said no 3D engine sits underneath.",
+      "who": "Cristóbal Valenzuela, Runway",
+      "at": {
+       "label": "8:35:53",
+       "url": "https://www.youtube.com/watch?v=jiUC6IUMdvc&t=30953s"
+      }
+     }
+    ]
+   }
   },
   {
    "id": "emnlp-2026",
@@ -19,7 +543,65 @@
    "start": "2026-10-24",
    "end": "2026-10-29",
    "place": "Budapest, Hungary",
-   "url": "https://2026.emnlp.org/"
+   "url": "https://2026.emnlp.org/",
+   "note": "The figures below count the titles of the 2,710 accepted main-conference papers and the abstracts of the five keynotes and the panel. Findings, demo and industry-track papers are not counted.",
+   "programme": [
+    {
+     "day": "2026-10-25",
+     "title": "A Tale of Two Objectives: Past, Present and Future of NLP",
+     "speaker": "Pascale Fung",
+     "org": "AMI Labs"
+    },
+    {
+     "day": "2026-10-25",
+     "title": "Panel: New Missions in NLP Research",
+     "speaker": "Dirk Hovy, Lillian Lee, Mor Geva and Raymond J. Mooney"
+    },
+    {
+     "day": "2026-10-25",
+     "title": "Agentic Challenges (Trustworthy Collaboration, World Discovery, and Long-Horizon Memory) and Industry-Academia Collaborations",
+     "speaker": "Mohit Bansal",
+     "org": "UNC Chapel Hill"
+    },
+    {
+     "day": "2026-10-26",
+     "title": "Toward a Science of Constitutional Alignment: Positive Alignment for Value-Based Agents",
+     "speaker": "Verena Rieser",
+     "org": "Google DeepMind"
+    },
+    {
+     "day": "2026-10-26",
+     "title": "On the Value of Open Research in Language Modeling - An Adversarial Dialog",
+     "speaker": "Graham Neubig",
+     "org": "Carnegie Mellon University and OpenHands"
+    },
+    {
+     "day": "2026-10-27",
+     "title": "AI for the Many: Starting from the World, Not the Model",
+     "speaker": "Anna Korhonen",
+     "org": "University of Cambridge"
+    }
+   ],
+   "stage": {
+    "source": "programme",
+    "words": 28700,
+    "mentions": {
+     "agents": 430,
+     "coding": 26,
+     "reasoning": 363,
+     "rag": 201,
+     "tools": 28,
+     "memory": 94,
+     "multimodal": 141,
+     "generative-media": 17,
+     "voice": 69,
+     "robotics": 13,
+     "world-models": 15,
+     "efficient": 41,
+     "safety": 216,
+     "science": 43
+    }
+   }
   },
   {
    "id": "github-universe-2026",
@@ -29,7 +611,107 @@
    "start": "2026-10-28",
    "end": "2026-10-29",
    "place": "San Francisco, USA",
-   "url": "https://githubuniverse.com/"
+   "url": "https://githubuniverse.com/",
+   "recordings": "https://reg.githubuniverse.com/flow/github/universe26/attendee-portal/page/sessioncatalog",
+   "note": "The figures below count the titles and abstracts of the 126 talks, demos and workshops in the public session catalogue, leaving out socials and parties. \"Copilot\", the name of GitHub's own product, is one of the phrases counted under AI coding tools.",
+   "programme": [
+    {
+     "day": "2026-10-28",
+     "title": "Opening Keynote",
+     "speaker": "Jay Parikh, April Leonard, Cassidy Williams, Damian Brady and Burke Holland",
+     "org": "Microsoft and GitHub"
+    },
+    {
+     "day": "2026-10-28",
+     "title": "Humans set direction. Agents close the loop.",
+     "speaker": "Mario Rodriguez and Evan Boyle",
+     "org": "GitHub"
+    },
+    {
+     "day": "2026-10-28",
+     "title": "The factory mindset: Agentic workflows in production",
+     "speaker": "Peli de Halleux, Paul Snider and Tim Mason",
+     "org": "GitHub Next, Provation and Marks and Spencer"
+    },
+    {
+     "day": "2026-10-28",
+     "title": "Work together, your way, with GitHub Copilot",
+     "speaker": "Burke Holland, James Montemagno, Pierce Boggan, Julia Kasper and Katie Savage",
+     "org": "Microsoft and GitHub"
+    },
+    {
+     "day": "2026-10-28",
+     "title": "Disrupting supply chain attacks: A threat framework for GitHub Actions",
+     "speaker": "Steve Glass and Greg Ose",
+     "org": "GitHub"
+    },
+    {
+     "day": "2026-10-28",
+     "title": "Beyond the prompt: Building an AI that takes initiative",
+     "speaker": "Cameron Hamilton",
+     "org": "Alliance AI"
+    },
+    {
+     "day": "2026-10-28",
+     "title": "Build without breaking trust (Sponsored)",
+     "speaker": "Aaron Reich",
+     "org": "Avanade"
+    },
+    {
+     "day": "2026-10-29",
+     "title": "The view from the labs: What's next for AI-assisted development",
+     "speaker": "Rohan Varma, April Leonard, Richard Seroter and Angela Jiang"
+    },
+    {
+     "day": "2026-10-29",
+     "title": "What's worth building when AI can build anything?",
+     "speaker": "Kent C. Dodds and Sue Black",
+     "org": "kody.codes and Durham University"
+    },
+    {
+     "day": "2026-10-29",
+     "title": "How GitHub secures open source",
+     "speaker": "Bas Alberts and Xavier René-Corail",
+     "org": "GitHub"
+    },
+    {
+     "day": "2026-10-29",
+     "title": "17 agents, one SDLC: How Levi Strauss reimagined development on GitHub",
+     "speaker": "Jenny Patchen",
+     "org": "Levi Strauss & Co."
+    },
+    {
+     "day": "2026-10-29",
+     "title": "Sketching with code in the age of AI",
+     "speaker": "Qianqian Ye and John Maeda"
+    },
+    {
+     "day": "2026-10-29",
+     "title": "Closing Keynote",
+     "speaker": "Martin Woodward, Maggie Appleton and Jocelyn Velarde",
+     "org": "GitHub"
+    }
+   ],
+   "stage": {
+    "source": "programme",
+    "words": 14595,
+    "mentions": {
+     "agents": 210,
+     "coding": 194,
+     "reasoning": 0,
+     "rag": 3,
+     "tools": 68,
+     "memory": 2,
+     "multimodal": 0,
+     "generative-media": 0,
+     "voice": 0,
+     "robotics": 0,
+     "world-models": 0,
+     "efficient": 9,
+     "safety": 6,
+     "science": 0
+    }
+   }
   },
   {
    "id": "aie-code-2026",
@@ -46,6 +728,10 @@
     {
      "title": "Session day 1 stream (11 November)",
      "url": "https://www.youtube.com/live/ZZ19zhYnDKY"
+    },
+    {
+     "title": "Session day 2 stream (12 November)",
+     "url": "https://www.youtube.com/live/y9JtCCZP2MQ"
     }
    ],
    "programme": [
@@ -244,29 +930,29 @@
    ],
    "stage": {
     "source": "talks",
-    "words": 76905,
+    "words": 152936,
     "mentions": {
-     "agents": 618,
-     "coding": 100,
-     "reasoning": 6,
-     "rag": 4,
-     "tools": 118,
-     "memory": 40,
-     "multimodal": 1,
+     "agents": 1096,
+     "coding": 198,
+     "reasoning": 15,
+     "rag": 8,
+     "tools": 181,
+     "memory": 128,
+     "multimodal": 2,
      "generative-media": 0,
-     "voice": 10,
-     "robotics": 14,
+     "voice": 18,
+     "robotics": 18,
      "world-models": 0,
-     "efficient": 1,
-     "safety": 11,
-     "science": 1
+     "efficient": 3,
+     "safety": 17,
+     "science": 3
     }
    },
    "recap": {
-    "watchedOn": "2026-11-12",
+    "watchedOn": "2026-11-13",
     "partial": true,
-    "coverage": "Automatic captions of the day-one stream (11 November), read in full, about nine hours: the morning and closing keynotes and the session and online talks shown between them. Lydia Hallie's talk was cut short by a laptop failure, and the captions pick up part-way through Philipp Schmid's. Day two (12 November) was still streaming and has no captions yet, so it is not included; no recording of the workshop day was found.",
-    "summary": "Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Against the tracker, agents took two thirds of topic mentions while their research and discussion counts are roughly flat; tool use and coding tools were loud and are rising. Safety was rarely named, though much of the day was about verifying what agents do. Day two is not yet included.",
+    "coverage": "Day one: automatic captions of the day-one stream (11 November), read in full, about nine hours: the morning and closing keynotes and the session and online talks shown between them. Lydia Hallie's talk was cut short by a laptop failure, and the captions pick up part-way through Philipp Schmid's. Day two (12 November) was read, not watched: the organiser's summary of each of its 23 sessions and its longer written edition for eight of them, both published on the organiser's site; the recording was not played. The topic counts are from the organiser's transcripts of all 50 sessions across both days, about 153,000 words. No recording of the workshop day was found.",
+    "summary": "Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Day two turned to what an organisation has to change to absorb that much code: disposable test environments, tests that exist before the code does, review that keeps pace, and people who still decide what is worth building. Against the tracker, agents took about two thirds of topic mentions across both days while their research and discussion counts are roughly flat; tool use was loud and is rising in discussion; coding tools were loud here and flat in the numbers. Safety was rarely named, though much of both days was about verifying what agents do.",
     "points": [
      {
       "topic": "coding",
@@ -374,6 +1060,51 @@
       "at": {
        "label": "8:42:30",
        "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=31350s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Showed a graph of 141 projects he had started with a coding agent, against far fewer that he worked on for five days or more, and argued that starting projects now scales faster than looking after them.",
+      "who": "Armin Ronacher, Earendil",
+      "at": {
+       "label": "0:46:45",
+       "url": "https://www.youtube.com/watch?v=y9JtCCZP2MQ&t=2805s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Said Cognition's merged code changes grew much faster than its headcount, and described what made that possible: the whole application in one virtual machine, snapshots built every hour, and agents that maintain their own testing instructions.",
+      "who": "Walden Yan, Cognition",
+      "at": {
+       "label": "2:37:56",
+       "url": "https://www.youtube.com/watch?v=y9JtCCZP2MQ&t=9476s"
+      }
+     },
+     {
+      "topic": "rag",
+      "said": "Reported results on a research benchmark: a model answering without search scored about 9%, with keyword search about 28%, and with search by meaning 45%. The figures are for that benchmark's setup only.",
+      "who": "Jeffrey Pinner, Exa",
+      "at": {
+       "label": "3:02:21",
+       "url": "https://www.youtube.com/watch?v=y9JtCCZP2MQ&t=10941s"
+      }
+     },
+     {
+      "topic": "agents",
+      "said": "Reported that a group of agents, given shared state but no prescribed way of organising themselves, finished writing out the proof of Fermat's Last Theorem in a form a proof checker accepts, in a run of about 30 hours. The proof already existed; the agents did not discover it.",
+      "who": "Lance Martin, Anthropic",
+      "at": {
+       "label": "3:51:11",
+       "url": "https://www.youtube.com/watch?v=y9JtCCZP2MQ&t=13871s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Explained why he did not rewrite Claude Code in another language to make it faster: its tests would have had to be rewritten too, leaving nothing independent to check the result. He built a compiler instead, because the existing tests could check any version of it.",
+      "who": "Jarred Sumner, Anthropic",
+      "at": {
+       "label": "5:25:51",
+       "url": "https://www.youtube.com/watch?v=y9JtCCZP2MQ&t=19551s"
       }
      }
     ]
@@ -544,6 +1275,17 @@
    "end": "2027-08-22",
    "place": "Kyoto, Japan",
    "url": "https://2027.aclweb.org/"
+  },
+  {
+   "id": "agentic-ai-summit-2027",
+   "name": "Agentic AI Summit 2027",
+   "host": "Berkeley RDI",
+   "kind": "industry",
+   "start": "2027-08-20",
+   "end": "2027-08-21",
+   "place": "San Francisco, USA",
+   "url": "https://rdi.berkeley.edu/events/agentic-ai-summit-2027",
+   "note": "Two days on agents alone, from models and frameworks to evaluation, security and deployment, with a free livestream. The 2026 summit drew about 4,000 people in person. Speakers have not been announced."
   }
  ]
 }
