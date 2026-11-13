@@ -22,13 +22,7 @@ html {
 
 /* The height of the sticky bar, so a link to a section lands below it. */
 :root {
-  --bar-h: 6rem;
-}
-
-@media (min-width: 75rem) {
-  :root {
-    --bar-h: 3.25rem;
-  }
+  --bar-h: 3.25rem;
 }
 
 body {
@@ -423,6 +417,12 @@ code {
     border-inline-start: var(--rule-hair) solid var(--color-rule);
     padding-inline-start: var(--space-md);
   }
+}
+
+/* Where the switch has the bar to itself (the trends page), it needs no rule to part it from the sections. */
+.bar__row > .horizon:only-child {
+  border: 0;
+  padding-inline-start: 0;
 }
 
 /* -------------------------------------------------------------- page */
