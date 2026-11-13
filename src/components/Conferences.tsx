@@ -312,10 +312,6 @@ export function Conferences() {
         <section id="calendar" className="band" aria-labelledby="calendar-h">
           <div className="band__head">
             <h2 id="calendar-h">Calendar</h2>
-            <p>
-              Upcoming events, soonest first. Research meetings are where papers are presented; industry events are
-              where labs and companies announce and demonstrate.
-            </p>
           </div>
           {[...underway.map((c) => c.start.slice(0, 7)), ...months]
             .filter((m, i, all) => all.indexOf(m) === i)
@@ -338,10 +334,6 @@ export function Conferences() {
           <section id="held" className="band" aria-labelledby="held-h">
             <div className="band__head">
               <h2 id="held-h">Already held</h2>
-              <p>
-                Most recent first. An event is marked watched once its talks have been read against the trends, and
-                partly watched while some of them are still to come.
-              </p>
             </div>
             <div className="cal__month">
               <ol>
