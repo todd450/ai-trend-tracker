@@ -556,9 +556,10 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                           >
                             {t.parts.map((part) => (
                               <li key={part.id} className="mom__row mom__row--theme mom__row--sub">
-                                <div className="mom__topic" title={`Stories whose title matches: ${part.searches.join(", ")}`}>
+                                <div className="mom__topic">
                                   <span className="mom__rank" aria-hidden="true" />
                                   <h5>{part.name}</h5>
+                                  <p className="mom__blurb">Titles matching: {part.searches.join(", ")}</p>
                                 </div>
                                 <ThemeCells
                                   name={`${t.name}, ${part.name}`}
@@ -669,9 +670,19 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                         const views = p.views;
                         return (
                           <li key={p.id} className="mom__row">
-                            <div className="mom__topic" title={`${p.blurb}. Stories whose title contains: ${p.searches.join(", ")}${p.except.length ? `, but not ${p.except.join(", ")}` : ""}`}>
+                            <div className="mom__topic">
                               <span className="mom__rank">{rank}</span>
                               <h4>{p.name}</h4>
+                              <p className="mom__blurb">
+                                {p.blurb}
+                                {/* How it is counted is said only where the name alone does not say it. */}
+                                {(p.searches.join() !== p.name || p.except.length > 0) && (
+                                  <>
+                                    . Counted: titles containing {p.searches.join(", ")}
+                                    {p.except.length > 0 && `, but not ${p.except.join(", ")}`}
+                                  </>
+                                )}
+                              </p>
                             </div>
                             <Bar
                               signal={p.enough ? p.stories : { ...p.stories, change: null }}
@@ -1502,7 +1513,7 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
               </p>
               <p>
                 <strong>Sub-themes</strong> split each theme into four narrower groups of the same title searches;
-                point at a sub-theme’s name, or read it on a phone, to see its searches. A story counts once per
+                point at a sub-theme’s name, or read under it on a phone, to see its searches. A story counts once per
                 sub-theme but can sit in more than one, so the sub-themes add up to more than their theme. Their
                 counts are smaller still: a sub-theme averaging fewer than {SUBTHEME_MIN_STORIES} stories a week
                 in either half of the comparison is marked “too few to call” instead of rising or cooling.
@@ -1643,7 +1654,8 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
           {fmtDate(latest.generatedAt)}.
         </p>
         <p>
-          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>.
+          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>. To
+          follow along, subscribe to the <a href="/feed.xml">weekly feed</a>: one entry a week, with that week’s headline.
         </p>
       </footer>
     </>

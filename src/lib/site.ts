@@ -32,7 +32,8 @@ export function pageMetadata(page: { path: PagePath; title: string; description:
   return {
     title,
     description,
-    alternates: { canonical: path },
+    // The feed is announced on every page, so a feed reader finds it from any of them.
+    alternates: { canonical: path, types: { "application/atom+xml": [{ url: "/feed.xml", title: `${SITE_NAME}: weekly editions` }] } },
     openGraph: { type: "website", siteName: SITE_NAME, locale: "en_US", url: path, title, description, images: [SHARE_IMAGE] },
     twitter: { card: "summary_large_image", title, description, images: [SHARE_IMAGE] },
   };

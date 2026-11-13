@@ -23,7 +23,7 @@ export function ThemeRow({ rank, name, blurb, cells, count, children }: Props) {
   const id = useId();
   return (
     <li className="mom__row mom__row--theme">
-      <div className="mom__topic" title={blurb}>
+      <div className="mom__topic">
         <span className="mom__rank">{rank}</span>
         <h4>
           {count > 0 ? (
@@ -38,6 +38,7 @@ export function ThemeRow({ rank, name, blurb, cells, count, children }: Props) {
             name
           )}
         </h4>
+        <p className="mom__blurb">{blurb}</p>
       </div>
       {cells}
       {count > 0 && (
