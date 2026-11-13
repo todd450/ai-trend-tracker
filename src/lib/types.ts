@@ -85,7 +85,7 @@ export type Indicators = {
   federal: { months: { month: string; count: number }[] } | null;
   releases: {
     log: Release[];
-    /** Anthropic model pages already opened, so each is fetched only once. */
+    /** Anthropic model pages already logged, by address. Older entries may be null: pages once read and found not to be a release. */
     anthropicChecked: Record<string, Release | null>;
   } | null;
   /**

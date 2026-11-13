@@ -1384,10 +1384,15 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 counted.
               </p>
               <p>
-                <strong>From the analysts</strong> lists the newest pieces from a fixed set of ten newsletters and
+                <strong>From the analysts</strong> lists the newest pieces from a fixed set of eight newsletters and
                 research institutions, at most two from each, from the past 30 days. It is a reading list chosen
                 by the editor, not a ranking. Publishers that cover other subjects are filtered to pieces that
                 mention AI.
+              </p>
+              <p>
+                <strong>Lab announcements</strong> come from OpenAI’s and Google DeepMind’s own feeds. Anthropic
+                publishes no feed, so its posts are the ones submitted to Hacker News, under the headline given
+                there; a post nobody submitted is missing.
               </p>
               <p>
                 <strong>The reading lists</strong> show their first few items; the rest open on request. Where a

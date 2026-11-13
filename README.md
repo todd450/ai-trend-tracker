@@ -12,8 +12,8 @@ key; everything else needs no keys.
 | Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, biggest first by Hacker News points |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
-| Analysis | Ten newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
-| Labs | Anthropic, OpenAI, Google DeepMind news | Newest announcements, including closed-model releases |
+| Analysis | Eight newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
+| Labs | OpenAI and Google DeepMind news feeds; Anthropic posts via Hacker News | Newest announcements, including closed-model releases |
 | Themes | Hacker News search | Stories on seven economy and society themes, each split into four sub-themes, as a share of all AI stories, weekly |
 | Hiring | Indeed Hiring Lab | Share of US job postings asking for AI skills, monthly |
 | Policy | Federal Register | Documents mentioning "artificial intelligence", monthly |
@@ -73,8 +73,13 @@ If a rejected figure turns out to be real, run
 `npm run collect -- --fast --accept` once to store it without the checks.
 
 The reading-list feeds are set in `ANALYST_SOURCES` and `LAB_SOURCES` in
-`scripts/collect.ts`. Anthropic has no feed, so its newest articles are found
-through its sitemap and read one page at a time.
+`scripts/collect.ts`. Anthropic has no feed, and its terms may not allow a script
+to read its pages, so its posts are found through Hacker News: stories from the
+past 30 days that link to an article on anthropic.com. A post nobody submitted
+there is missed, and the headline is the one on the most-upvoted submission.
+
+Read a publisher's terms before adding a feed. NBER and PIIE were removed because
+theirs bar any automatic access to their sites, with no exception for feeds.
 
 "Today's AI news", at the top of the page, is built in `src/lib/today.ts` from
 the lab and newsletter lists plus the past day's Hacker News stories (20 points
@@ -108,7 +113,9 @@ tokens.css           every colour, font and size the design uses
 ```
 
 There is no database. The site is a static page rebuilt whenever the data
-files change. `.github/workflows/collect.yml` refreshes the data daily once
+files change. GitHub allows its hosted runners only for work on the repository's
+own project, so the workflow should stay a short daily job that produces this
+site's data and nothing else. `.github/workflows/collect.yml` refreshes the data daily once
 the project is on GitHub.
 
 ## How a trend is decided

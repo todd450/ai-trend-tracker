@@ -413,57 +413,58 @@ function feed(source: string, url: string, aiOnly = false): FeedSource {
   };
 }
 
-const metaTag = (html: string, property: string) =>
-  html.match(new RegExp(`<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] ?? "";
-
-/** Publication day of an Anthropic page; the site states it in one of three ways. */
-function anthropicPageDate(html: string): string | null {
-  const raw =
-    metaTag(html, "article:published_time") ||
-    (html.match(/dateTime=["'](\d{4}-\d{2}-\d{2})/)?.[1] ?? "") ||
-    (html.match(
-      /\b((?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, 20\d\d)\b/,
-    )?.[1] ?? "");
-  const when = Date.parse(/^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T00:00:00Z` : raw.includes(",") ? `${raw} UTC` : raw);
-  return Number.isNaN(when) ? null : new Date(when).toISOString();
-}
+/** How far back Anthropic posts are looked for; the reading list shows 30 days. */
+const ANTHROPIC_DAYS = 30;
+/** An article or model page on Anthropic's site. Section pages such as /news/policy have one-word names. */
+const ANTHROPIC_POST = /^https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9]+-[a-z0-9-]+|claude-[a-z0-9-]+)$/;
 
 /**
- * Anthropic publishes no feed. Its sitemap lists every article with the date
- * it last changed, so this opens the most recently changed ones and reads the
- * title and publication date from each page. Model launches sit at the top
- * level of the site (/claude-…), not under /news.
+ * Anthropic publishes no feed, and its terms may not allow a script to read its pages, so
+ * its posts are found through Hacker News instead: every story from the past 30 days that
+ * links to an article on anthropic.com. Nothing is requested from Anthropic.
+ *
+ * A post nobody submitted is missed. The headline is the one on the most-upvoted
+ * submission, which is nearly always the article's own, and the date is the first submission.
  */
-const ANTHROPIC_PAGES_TO_CHECK = 14;
-
-const anthropicNews: FeedSource = {
-  source: "Anthropic",
-  collect: async () => {
-    const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
-    const pages = [
-      ...sitemap.matchAll(
-        /<loc>(https:\/\/www\.anthropic\.com\/(?:(?:news|research)\/[a-z0-9-]+|claude-[a-z0-9-]+))<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g,
-      ),
-    ]
-      .map(([, url, changed]) => ({ url, changed }))
-      .sort((x, y) => y.changed.localeCompare(x.changed))
-      .slice(0, ANTHROPIC_PAGES_TO_CHECK);
-    if (pages.length === 0) throw new Error("no articles in the sitemap");
-
-    const items: FeedItem[] = [];
-    for (const { url } of pages) {
-      const html = await getText(url);
-      const title = plain(metaTag(html, "og:title"));
-      const publishedAt = anthropicPageDate(html);
-      if (title && publishedAt) items.push({ source: "Anthropic", title, url, publishedAt });
-      await sleep(300);
+async function anthropicPosts(): Promise<FeedItem[]> {
+  const since = Math.floor((Date.now() - ANTHROPIC_DAYS * DAY) / 1000);
+  const data = await getJson<HnResponse>(
+    "https://hn.algolia.com/api/v1/search_by_date?" +
+      new URLSearchParams({
+        tags: "story",
+        query: "anthropic.com",
+        restrictSearchableAttributes: "url",
+        numericFilters: `created_at_i>${since}`,
+        hitsPerPage: "100",
+      }),
+  );
+  const posts = new Map<string, { title: string; points: number; first: string }>();
+  for (const hit of data.hits) {
+    const url = (hit.url ?? "").replace(/[?#].*$/, "").replace(/\/$/, "");
+    const title = (hit.title ?? "").replace(/^Anthropic:\s*/i, "").replace(/\s*\[pdf\]$/i, "").trim();
+    if (!ANTHROPIC_POST.test(url) || !title) continue;
+    const held = posts.get(url);
+    if (!held) posts.set(url, { title, points: hit.points ?? 0, first: hit.created_at });
+    else {
+      if ((hit.points ?? 0) > held.points) Object.assign(held, { title, points: hit.points });
+      if (hit.created_at < held.first) held.first = hit.created_at;
     }
-    if (items.length === 0) throw new Error("article pages had no title or date (their layout may have changed)");
-    return items;
-  },
-};
+  }
+  return [...posts].map(([url, post]) => ({
+    source: "Anthropic",
+    title: post.title,
+    url,
+    publishedAt: new Date(post.first).toISOString(),
+  }));
+}
 
-/** Writers and institutions that explain what AI is doing to work, firms and society. */
+const anthropicNews: FeedSource = { source: "Anthropic", collect: anthropicPosts };
+
+/**
+ * Writers and institutions that explain what AI is doing to work, firms and society.
+ * Before adding a feed, read the publisher's terms: NBER and PIIE were removed because
+ * theirs bar any automatic access to their sites, feeds included.
+ */
 const ANALYST_SOURCES: FeedSource[] = [
   feed("One Useful Thing", "https://www.oneusefulthing.org/feed"),
   feed("Epoch AI", "https://epoch.ai/atom.xml"),
@@ -472,8 +473,6 @@ const ANALYST_SOURCES: FeedSource[] = [
   feed("The Pragmatic Engineer", "https://newsletter.pragmaticengineer.com/feed", true),
   feed("a16z News", "https://www.a16z.news/feed", true),
   feed("Benedict Evans", "https://www.ben-evans.com/benedictevans?format=rss", true),
-  feed("NBER", "https://www.nber.org/rss/new.xml", true),
-  feed("PIIE", "https://www.piie.com/rss/update.xml", true),
   feed("Pew Research Center", "https://www.pewresearch.org/topic/internet-technology/feed/", true),
 ];
 
@@ -808,21 +807,15 @@ async function versionedReleases(source: FeedSource, pattern: RegExp, name: (ver
   return [...first.values()];
 }
 
-/** Anthropic model launches: sitemap pages named claude-…, opened once each and remembered. */
+/**
+ * Anthropic model launches: posts on pages named claude-… with a version number, found through
+ * Hacker News like the rest of its news. Each page is logged once, when first seen.
+ */
 async function anthropicReleases(checked: Record<string, Release | null>): Promise<void> {
-  const sitemap = await getText("https://www.anthropic.com/sitemap.xml");
-  const urls = [...sitemap.matchAll(/<loc>(https:\/\/www\.anthropic\.com\/(?:news\/)?claude-[a-z0-9-]*\d[a-z0-9-]*)<\/loc>/g)].map(
-    (m) => m[1],
-  );
-  if (urls.length === 0) throw new Error("no model pages in the sitemap");
-  for (const url of urls) {
-    if (url in checked) continue;
-    const html = await getText(url);
-    const title = plain(metaTag(html, "og:title"));
-    const date = anthropicPageDate(html);
-    const model = title.match(/^(?:Introducing )?(Claude\b.*\d.*)$/)?.[1];
-    checked[url] = model && date ? { lab: "Anthropic", model, url, date } : null;
-    await sleep(300);
+  for (const post of await anthropicPosts()) {
+    if (post.url in checked || !/\/claude-[a-z0-9-]*\d[a-z0-9-]*$/.test(post.url)) continue;
+    const model = post.title.match(/^(?:Introducing )?(Claude\b.*\d.*)$/)?.[1];
+    if (model) checked[post.url] = { lab: "Anthropic", model, url: post.url, date: post.publishedAt };
   }
 }
 
