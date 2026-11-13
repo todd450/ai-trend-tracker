@@ -1,10 +1,19 @@
 /**
  * "Today's AI news": everything the reading-list sources published in the 24 hours before the
  * data was collected. The site is a static page rebuilt once a day, so "today" is that day,
- * not the reader's; the section says which 24 hours it covers. The list runs biggest story first,
- * by points on Hacker News.
+ * not the reader's; the section says which 24 hours it covers.
+ *
+ * The list is made in three steps. Pool: the lab and newsletter posts and the day's Hacker News
+ * stories. Rank: biggest first, by points on Hacker News. Finish: the editor's rules in
+ * editorial.ts, which gather posts about one event and apply the pins and hides kept by hand in
+ * data/editorial.json.
  */
+import editorialJson from "../../data/editorial.json";
+import { finish, sameArticle, sameHeadline, type Editorial, type Finished } from "./editorial";
 import { latest } from "./trends";
+
+/** The editor's pins and hides, kept by hand. */
+export const editorial = editorialJson as Editorial;
 
 const DAY = 86_400_000;
 
@@ -26,29 +35,7 @@ function host(url: string) {
   }
 }
 
-/** The same article reached by two routes: ignores the protocol, "www.", the query and a closing slash. */
-function sameArticle(url: string) {
-  try {
-    const u = new URL(url);
-    return u.hostname.replace(/^www\./, "") + u.pathname.replace(/\/$/, "");
-  } catch {
-    return url;
-  }
-}
-
-/** A headline reduced to its words, so "Introducing Gemini 4 Hydrogen" can be matched with "Gemini 4 Hydrogen". */
-const words = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-
-/**
- * True when one headline holds the whole of the other, as whole words. The shorter must run to
- * three words, so that a story titled only "Claude" is not taken for every post about Claude.
- */
-function sameHeadline(a: string, b: string) {
-  const [short, long] = [words(a), words(b)].sort((x, y) => x.length - y.length);
-  return short.split(" ").length >= 3 && ` ${long} `.includes(` ${short} `);
-}
-
-export function buildToday(): { since: string; until: string; items: TodayItem[] } {
+export function buildToday(): { since: string; until: string; items: Finished<TodayItem>[] } {
   const until = Date.parse(latest.generatedAt);
   const since = until - DAY;
   const inWindow = (iso: string) => {
@@ -84,5 +71,11 @@ export function buildToday(): { since: string; until: string; items: TodayItem[]
       (b.discussion?.points ?? -1) - (a.discussion?.points ?? -1) ||
       Date.parse(b.publishedAt) - Date.parse(a.publishedAt),
   );
-  return { since: new Date(since).toISOString(), until: latest.generatedAt, items };
+  const finished = finish(items, editorial, latest.generatedAt.slice(0, 10), (pin) => ({
+    title: pin.title,
+    url: pin.url,
+    from: pin.from,
+    publishedAt: latest.generatedAt,
+  }));
+  return { since: new Date(since).toISOString(), until: latest.generatedAt, items: finished };
 }

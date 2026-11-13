@@ -1035,6 +1035,12 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+/* A change no bigger than the series' usual swing: the figure stays, in grey, under the steady mark. */
+.change--held {
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
 .change__mark {
   font-size: 0.7em;
 }
@@ -1541,6 +1547,29 @@ code {
   color: var(--color-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* The editor's step: a pinned post's label, and the other posts about the same event under their lead. */
+.ledger__pick {
+  flex: none;
+  margin-inline-end: var(--space-xs);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.ledger__also {
+  grid-column: 2 / -1;
+  display: grid;
+  row-gap: var(--space-3xs);
+  min-width: 0;
+  padding-bottom: var(--space-2xs);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
 }
 
 .ledger__data {

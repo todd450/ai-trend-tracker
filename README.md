@@ -97,6 +97,35 @@ The list is ranked by Hacker News points. A lab or newsletter post takes the
 points of the story that links to it or shares its headline; posts with no
 such story come last, newest first.
 
+### The editor's step
+
+Points say what one community upvoted, so a ranked list is finished by rules
+before it is shown (`src/lib/editorial.ts`):
+
+1. Links under `hide` in `data/editorial.json` are left out of every ranked
+   list on the page. Each needs a `reason`, which the page prints.
+2. In "Today's AI news", posts about one event are gathered under the
+   highest-ranked of them and stay on the page beneath it. Two headlines are one
+   event when one holds the other, or when they share three or more words in a
+   row that include a version number.
+3. Posts under `pin` are held at the top of "Today's AI news" through their
+   `until` day. A pin with no `until` still to come is ignored, so a forgotten
+   pin cannot sit on a page that rebuilds itself daily.
+
+`data/editorial.json` is kept by hand; the collector never writes to it:
+
+```json
+{
+  "pin": [
+    { "url": "https://example.org/post", "title": "Headline as shown", "from": "Example Lab",
+      "until": "2026-11-20", "note": "Optional line shown under the headline." }
+  ],
+  "hide": [{ "url": "https://example.org/spam", "reason": "Why it is left out." }]
+}
+```
+
+Neither list changes the trend figures.
+
 If a source is down, the previous data for it is kept and the site marks it
 as stale in the "Source status" list.
 
@@ -109,6 +138,9 @@ src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a sub-theme)
 src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a toolkit)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
+src/lib/noise.ts     decides whether a change is bigger than a series' usual wobble
+src/lib/editorial.ts gathers posts about one event and applies the pins and hides
+data/editorial.json  the editor's pins and hides, kept by hand
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
 src/components/Conferences.tsx  the conference tracker, at /conferences
 scripts/conference.ts  counts topic mentions in a conference's programme or transcript
@@ -141,8 +173,24 @@ The page has five views, switched from the masthead:
 The 1-week and 1-month views react fastest and are the noisiest.
 
 In every view a topic is "rising" or "cooling" when its share of AI papers
-moved by 10% or more. The windows are set in `HORIZONS` in `src/lib/trends.ts`. Topics are keyword lists, so counts are indicators
+moved by 10% or more and the move stands clear of the topic's own noise. The windows are set in `HORIZONS` in `src/lib/trends.ts`. Topics are keyword lists, so counts are indicators
 rather than exact measurements.
+
+The noise test is in `src/lib/noise.ts`. A topic with twenty papers a week
+swings by more than 10% on its own, so a fixed threshold alone calls noise a
+trend. The test estimates each series' week-to-week noise from the median
+difference between neighbouring weeks, over every week on record, and works out
+how large a difference between the two windows that noise alone would produce.
+A move counts only if it is at least twice that (`NOISE_MULTIPLE`). It applies
+to topics, discussion counts, themes and sub-themes; a move that fails keeps
+its figure, set in grey with the steady mark, and is never named in the
+headline. With fewer than nine weeks of history only the fixed threshold
+applies. The monthly and two-weekly indicators are not tested this way.
+
+Discussion is measured on Hacker News alone, so the headline and the labels
+name it: "Hacker News discussion is moving toward…". Its readers are mostly
+technologists; the figures show that community's conversation, not public
+opinion.
 
 Each theme is the set of distinct stories matched by any of its sub-themes'
 searches, so adding a search to a sub-theme also changes its theme's count.

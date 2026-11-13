@@ -32,21 +32,41 @@ function movers(
 
 /** The headline and the five lines for one time horizon. */
 export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, themeTrends }: Trends) {
-  const topTopic = hasHistory ? rankedTopics[0] : undefined;
-  const bottomTopic = hasHistory ? rankedTopics.at(-1) : undefined;
-  const topTheme = hasThemes ? themeTrends[0] : undefined;
-  const bottomTheme = hasThemes ? themeTrends.at(-1) : undefined;
+  // Both lists run biggest rise first. A big change that is only the series' usual wobble is called
+  // steady, so the mover named is the largest one that is called, not simply the first in the list.
+  const topTopic = hasHistory ? (rankedTopics.find((t) => t.direction === "rising") ?? rankedTopics[0]) : undefined;
+  const bottomTopic = hasHistory
+    ? (rankedTopics.findLast((t) => t.direction === "cooling") ?? rankedTopics.at(-1))
+    : undefined;
+  const topTheme = hasThemes ? (themeTrends.find((t) => t.direction === "rising") ?? themeTrends[0]) : undefined;
+  const bottomTheme = hasThemes
+    ? (themeTrends.findLast((t) => t.direction === "cooling") ?? themeTrends.at(-1))
+    : undefined;
 
-  /** The page headline: where research and where discussion are heading, when both have a clear riser. */
-  const headline: { lead: string; turn?: string } =
-    topTopic?.direction === "rising" && topTheme?.direction === "rising"
-      ? {
-          lead: `Research is moving toward ${inSentence(topTopic.name)}.`,
-          turn: `Discussion is moving toward ${inSentence(topTheme.name)}.`,
-        }
-      : topTopic?.direction === "rising" && bottomTopic?.direction === "cooling"
-        ? { lead: `On the rise: ${topTopic.name}.`, turn: `Losing ground: ${bottomTopic.name}.` }
-        : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
+  /** One sentence on where a measure is heading: toward its clearest riser, or away from its clearest faller. */
+  const heading = (
+    subject: string,
+    top: { name: string; direction: string } | undefined,
+    bottom: { name: string; direction: string } | undefined,
+  ) =>
+    top?.direction === "rising"
+      ? `${subject} is moving toward ${inSentence(top.name)}.`
+      : bottom?.direction === "cooling"
+        ? `${subject} is moving away from ${inSentence(bottom.name)}.`
+        : undefined;
+
+  /**
+   * The page headline: where research and where discussion are heading. A measure with no clear
+   * mover gets no sentence, and with none at all the headline only names the page. Discussion is
+   * named for its one source, so the sentence does not claim more than Hacker News can show.
+   */
+  const research = heading("Research", topTopic, bottomTopic);
+  const discussion = heading("Hacker News discussion", topTheme, bottomTheme);
+  const headline: { lead: string; turn?: string } = research
+    ? { lead: research, turn: discussion }
+    : discussion
+      ? { lead: discussion }
+      : { lead: `Where attention in AI is moving ${HORIZONS[horizon].when}.` };
 
   const lines: (BriefingLine | null)[] = [
     hasHistory
@@ -61,13 +81,13 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
               cooling: bottomTopic.direction === "cooling",
             },
             "share of AI papers",
-            "No large topic’s share of AI papers moved by 10% or more.",
+            "No large topic’s share of AI papers made a clear move.",
           ),
         }
       : null,
     hasThemes
       ? {
-          label: "Discussion",
+          label: "Hacker News",
           href: "#themes",
           ...movers(
             topTheme && { name: topTheme.name, change: topTheme.share.change, rising: topTheme.direction === "rising" },
@@ -76,8 +96,8 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
               change: bottomTheme.share.change,
               cooling: bottomTheme.direction === "cooling",
             },
-            "share of AI stories",
-            "No theme’s share of AI stories moved by 15% or more.",
+            "share of AI stories on Hacker News",
+            "No theme’s share of AI stories on Hacker News made a clear move.",
           ),
         }
       : null,
