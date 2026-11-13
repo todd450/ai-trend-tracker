@@ -812,17 +812,13 @@ code {
   padding-bottom: var(--space-md);
 }
 
-/* Wide screens: part number, title and one-line summary share a baseline. */
+/* Wide screens: title and one-line summary share a baseline. */
 @media (min-width: 60rem) {
   .chapter__head {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     column-gap: var(--space-md);
-  }
-
-  .chapter__kicker {
-    flex-basis: 100%;
   }
 
   /* Beside the title the summary takes the rest of the row, so it only wraps
@@ -832,13 +828,6 @@ code {
     min-width: 20ch;
     text-wrap: pretty;
   }
-}
-
-.chapter__kicker {
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
 }
 
 .chapter__title {

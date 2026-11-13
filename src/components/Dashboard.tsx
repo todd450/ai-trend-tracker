@@ -356,7 +356,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section className="chapter" aria-labelledby="trends-h">
           <header className="chapter__head">
-            <p className="chapter__kicker">Part 1 of 3</p>
             <p className="chapter__title" id="trends-h">The trends</p>
             <p className="chapter__dek">What is rising and what is cooling, in research and in discussion.</p>
           </header>
@@ -577,7 +576,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section className="chapter" aria-labelledby="evidence-h">
           <header className="chapter__head">
-            <p className="chapter__kicker">Part 2 of 3</p>
             <p className="chapter__title" id="evidence-h">The evidence</p>
             <p className="chapter__dek">Slower numbers from outside the conversation: hiring, policy, releases and what developers install.</p>
           </header>
@@ -982,7 +980,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         <section className="chapter chapter--reading" aria-labelledby="reading-h">
           <header className="chapter__head">
-            <p className="chapter__kicker">Part 3 of 3</p>
             <p className="chapter__title" id="reading-h">The reading list</p>
             <p className="chapter__dek">The stories, papers, essays, code and models behind this week’s numbers.</p>
           </header>
