@@ -1,5 +1,6 @@
 import historyJson from "../../data/history.json";
 import latestJson from "../../data/latest.json";
+import { standsClear, weeklyNoise } from "./noise";
 import { THEMES, subthemeKey } from "./themes";
 import { TOPICS } from "./topics";
 import type { History, Latest } from "./types";
@@ -8,12 +9,12 @@ export const history = historyJson as unknown as History;
 export const latest = latestJson as unknown as Latest;
 
 /** A change in paper share smaller than this (either way) is called steady. */
-const STEADY_BAND = 0.1;
+export const STEADY_BAND = 0.1;
 /** Theme counts are small, so a theme needs a bigger move than a topic to be called rising or cooling. */
 export const THEME_STEADY_BAND = 0.15;
-/** Average papers a week a topic needs before the headline or the map will use it. */
+/** Average papers a week a topic needs before the headline names it or its research bar is drawn solid. */
 export const HEADLINE_MIN_PAPERS = 25;
-/** Average Hacker News stories a week a topic needs before the map will place it. */
+/** Average Hacker News stories a week a topic needs before its discussion change is treated as firm. */
 export const MAP_MIN_STORIES = 5;
 /** Average stories a week a sub-theme needs, in both halves of the comparison, before it is called rising or cooling. */
 export const SUBTHEME_MIN_STORIES = 3;
@@ -54,6 +55,12 @@ export type Signal = {
   prior: number;
   /** Relative change of `recent` against `prior`; null when there is no base to compare with. */
   change: number | null;
+  /**
+   * False when the change is no bigger than the series' own week-to-week wobble would produce
+   * (see noise.ts), so it is not called a rise or a fall however large it looks. Absent on
+   * series that are not weekly, which are judged by the fixed rule alone.
+   */
+  clear?: boolean;
 };
 
 export type TopicTrend = {
@@ -107,6 +114,16 @@ export function directionOf(change: number | null, band: number): Direction {
   return change > 0 ? "rising" : "cooling";
 }
 
+/** The direction a signal is called: its change must pass the fixed rule and stand clear of its own wobble. */
+export function signalDirection(signal: Signal, band: number): Direction {
+  return signal.clear === false ? "steady" : directionOf(signal.change, band);
+}
+
+/** True for a change big enough to print as a rise or fall that is held back as wobble. */
+export function heldBack(signal: Signal, band: number): boolean {
+  return signal.clear === false && directionOf(signal.change, band) !== "steady";
+}
+
 /** Every completed week that has a paper total, oldest first. */
 const allWeeks = Object.keys(history.arxivTotal).sort();
 const themeTotals = history.hnAiTotal ?? {};
@@ -116,20 +133,38 @@ export function buildTrends(horizon: Horizon) {
   const { window, shown } = HORIZONS[horizon];
   const weeks = allWeeks.slice(-shown);
 
-  const signal = (values: number[]): Signal => {
+  /**
+   * `all` holds one value for each of `over`, the weeks the series was collected for, oldest first.
+   * The page charts the last `shown`; the wobble is measured over all of them.
+   */
+  const signal = (all: number[]): Signal => {
+    const values = all.slice(-shown);
     const recent = mean(values.slice(-window));
     const prior = mean(values.slice(-2 * window, -window));
-    return { values, recent, prior, change: prior > 0 ? (recent - prior) / prior : null };
+    return {
+      values,
+      recent,
+      prior,
+      change: prior > 0 ? (recent - prior) / prior : null,
+      clear: standsClear(recent - prior, weeklyNoise(all), window),
+    };
+  };
+  /** The weeks a count was stored for: a series added this month has no earlier weeks to measure. */
+  const collected = (counts: Record<string, number> | undefined) => {
+    const first = allWeeks.findIndex((w) => counts?.[w] !== undefined);
+    const have = first < 0 ? [] : allWeeks.slice(first);
+    return have.length >= shown ? have : allWeeks.slice(-shown);
   };
 
   const topicTrends: TopicTrend[] = TOPICS.map((topic) => {
     const series = history.topics[topic.id] ?? { arxiv: {}, hn: {} };
     const paperCounts = weeks.map((w) => series.arxiv?.[w] ?? 0);
-    const share = weeks.map((w, i) => {
-      const total = history.arxivTotal[w];
-      return total > 0 ? (paperCounts[i] / total) * 100 : 0;
-    });
-    const papers = signal(share);
+    const papers = signal(
+      collected(series.arxiv).map((w) => {
+        const total = history.arxivTotal[w];
+        return total > 0 ? ((series.arxiv?.[w] ?? 0) / total) * 100 : 0;
+      }),
+    );
     const hasPapers = weeks.every((w) => series.arxiv?.[w] !== undefined);
     return {
       id: topic.id,
@@ -137,8 +172,8 @@ export function buildTrends(horizon: Horizon) {
       blurb: topic.blurb,
       papers,
       paperCounts,
-      stories: signal(weeks.map((w) => series.hn?.[w] ?? 0)),
-      direction: hasPapers ? directionOf(papers.change, STEADY_BAND) : "steady",
+      stories: signal(collected(series.hn).map((w) => series.hn?.[w] ?? 0)),
+      direction: hasPapers ? signalDirection(papers, STEADY_BAND) : "steady",
       hasPapers,
     };
   }).sort((a, b) => Number(b.hasPapers) - Number(a.hasPapers) || (b.papers.change ?? 0) - (a.papers.change ?? 0));
@@ -151,32 +186,25 @@ export function buildTrends(horizon: Horizon) {
     (t) => t.hasPapers && mean(t.paperCounts.slice(-window)) >= HEADLINE_MIN_PAPERS,
   );
 
-  /** Topics with enough papers and stories for both of their changes to mean something. */
-  const mapTopics = rankedTopics.filter(
-    (t) =>
-      t.papers.change !== null &&
-      t.stories.change !== null &&
-      mean(t.stories.values.slice(-2 * window)) >= MAP_MIN_STORIES,
-  );
-
   /** True once every week has both a theme count and an AI story total. */
   const hasThemes =
     hasHistory &&
     weeks.every((w) => themeTotals[w] !== undefined && THEMES.every((t) => history.themes?.[t.id]?.[w] !== undefined));
 
-  const shareOf = (counts: number[]) =>
-    signal(weeks.map((w, i) => (themeTotals[w] > 0 ? (counts[i] / themeTotals[w]) * 100 : 0)));
+  const countsOf = (counts: Record<string, number> | undefined) =>
+    signal(collected(counts).map((w) => counts?.[w] ?? 0));
+  const shareOf = (counts: Record<string, number> | undefined) =>
+    signal(collected(counts).map((w) => (themeTotals[w] > 0 ? ((counts?.[w] ?? 0) / themeTotals[w]) * 100 : 0)));
 
   const themeTrends: ThemeTrend[] = THEMES.map((theme) => {
-    const counts = weeks.map((w) => history.themes?.[theme.id]?.[w] ?? 0);
-    const share = shareOf(counts);
+    const share = shareOf(history.themes?.[theme.id]);
     const series = theme.parts.map((part) => history.subthemes?.[subthemeKey(theme.id, part.id)]);
     const collected = series.every((s) => s !== undefined && weeks.every((w) => s[w] !== undefined));
     const parts: SubthemeTrend[] = collected
       ? theme.parts
           .map((part, n) => {
             const partCounts = weeks.map((w) => series[n]?.[w] ?? 0);
-            const partShare = shareOf(partCounts);
+            const partShare = shareOf(series[n]);
             const enough =
               mean(partCounts.slice(-window)) >= SUBTHEME_MIN_STORIES &&
               mean(partCounts.slice(-2 * window, -window)) >= SUBTHEME_MIN_STORIES;
@@ -185,8 +213,8 @@ export function buildTrends(horizon: Horizon) {
               name: part.name,
               searches: part.hn,
               share: partShare,
-              stories: signal(partCounts),
-              direction: enough ? directionOf(partShare.change, THEME_STEADY_BAND) : ("steady" as const),
+              stories: countsOf(series[n]),
+              direction: enough ? signalDirection(partShare, THEME_STEADY_BAND) : ("steady" as const),
               enough,
             };
           })
@@ -197,13 +225,13 @@ export function buildTrends(horizon: Horizon) {
       name: theme.name,
       blurb: theme.blurb,
       share,
-      stories: signal(counts),
-      direction: directionOf(share.change, THEME_STEADY_BAND),
+      stories: countsOf(history.themes?.[theme.id]),
+      direction: signalDirection(share, THEME_STEADY_BAND),
       parts,
     };
   }).sort((a, b) => (b.share.change ?? 0) - (a.share.change ?? 0));
 
-  return { horizon, window, weeks, topicTrends, rankedTopics, mapTopics, themeTrends, hasHistory, hasThemes };
+  return { horizon, window, weeks, topicTrends, rankedTopics, themeTrends, hasHistory, hasThemes };
 }
 
 export type Trends = ReturnType<typeof buildTrends>;
