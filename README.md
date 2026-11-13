@@ -10,6 +10,7 @@ key; everything else needs no keys.
 | Research | arXiv | Weekly share of AI papers mentioning each topic |
 | Discussion | Hacker News | Weekly stories with each topic in the title, and the week's top AI stories |
 | Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, biggest first by Hacker News points |
+| Products | Hacker News and Wikipedia page views | For 24 products: weekly stories naming the product, and weekly views of its Wikipedia article |
 | Launches | Hacker News | The past week's "Show HN" and "Launch HN" posts with an AI term in the title, ranked by points |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
@@ -116,6 +117,7 @@ scripts/sanity.ts    decides whether a weekly count is believable before it is s
 src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a sub-theme)
 src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a toolkit)
+src/lib/products.ts  the product watchlist: searches and Wikipedia titles (edit to add a product)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
 src/components/Conferences.tsx  the conference tracker, at /conferences
@@ -159,6 +161,33 @@ A story can sit in more than one sub-theme. A sub-theme averaging fewer than
 Adding a sub-theme makes the next `npm run collect` backfill its 52 weeks
 from Hacker News (a few minutes). The page's "How this is measured" section
 explains the limits to readers.
+
+## How product momentum is measured
+
+The "Product momentum" section follows the products listed in
+`src/lib/products.ts`. Each has two weekly figures, stored under `products` in
+`history.json`, and both follow the view chosen in the masthead:
+
+- **Discussion** is Hacker News stories with the product's name in the title.
+  A product averaging fewer than 3 stories a week in either half of the
+  comparison is shown as "too few to call".
+- **Public interest** is views of the product's English Wikipedia article, from
+  Wikimedia's page-view API (`user` agent, so crawlers are left out). The data
+  is CC0. One request per article title returns the whole year.
+
+Wikimedia allows a script that sends no contact address ten requests a minute,
+so the collector sends one every seven seconds and waits when told to
+(`WIKI_PAUSE` in `scripts/collect.ts`). Its policy asks for a contact address or
+URL in the `User-Agent`; adding one to `USER_AGENT` raises the limit to 200 a
+minute.
+
+Wikipedia articles are renamed often, and views are recorded under the title of
+the day. Each product therefore lists every title its article has carried in the
+past year. When an article is renamed its views collapse; `scripts/sanity.ts`
+turns the figure away (below 0.15× the usual level), "Wikipedia page views"
+shows as stale in the source list with the product named, and the fix is to add
+the new title to the product's `wiki` list. Views are never rejected for being
+too high, because a launch really can lift them fifty-fold.
 
 ## How developer usage is measured
 

@@ -1,5 +1,6 @@
 import historyJson from "../../data/history.json";
 import latestJson from "../../data/latest.json";
+import { PRODUCTS, type Product } from "./products";
 import { THEMES, subthemeKey } from "./themes";
 import { TOPICS } from "./topics";
 import type { History, Latest } from "./types";
@@ -17,6 +18,8 @@ export const HEADLINE_MIN_PAPERS = 25;
 export const MAP_MIN_STORIES = 5;
 /** Average stories a week a sub-theme needs, in both halves of the comparison, before it is called rising or cooling. */
 export const SUBTHEME_MIN_STORIES = 3;
+/** Average stories a week a product needs, in both halves of the comparison, before its discussion is called rising or cooling. */
+export const PRODUCT_MIN_STORIES = 3;
 
 /**
  * The five readings of the same weekly counts. Each compares the latest `window`
@@ -94,6 +97,21 @@ export type ThemeTrend = {
   direction: Direction;
   /** The theme's sub-themes, largest first; empty until their history has been collected. */
   parts: SubthemeTrend[];
+};
+
+export type ProductTrend = {
+  id: string;
+  name: string;
+  kind: Product["kind"];
+  blurb: string;
+  /** The title searches behind the story count. */
+  searches: string[];
+  /** Hacker News stories per week naming the product in the title. */
+  stories: Signal;
+  /** False when the story counts are too small for a change to mean anything. */
+  enough: boolean;
+  /** Views a day of the product's Wikipedia article; null when it has no article or a week is missing. */
+  views: Signal | null;
 };
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -203,7 +221,41 @@ export function buildTrends(horizon: Horizon) {
     };
   }).sort((a, b) => (b.share.change ?? 0) - (a.share.change ?? 0));
 
-  return { horizon, window, weeks, topicTrends, rankedTopics, mapTopics, themeTrends, hasHistory, hasThemes };
+  /** True once every product has a story count for every week shown. */
+  const hasProducts =
+    hasHistory && PRODUCTS.every((p) => weeks.every((w) => history.products?.[p.id]?.hn?.[w] !== undefined));
+
+  const productTrends: ProductTrend[] = PRODUCTS.map((product) => {
+    const series = history.products?.[product.id];
+    const counts = weeks.map((w) => series?.hn?.[w] ?? 0);
+    const hasViews = product.wiki.length > 0 && weeks.every((w) => series?.wiki?.[w] !== undefined);
+    return {
+      id: product.id,
+      name: product.name,
+      kind: product.kind,
+      blurb: product.blurb,
+      searches: product.hn,
+      stories: signal(counts),
+      enough:
+        mean(counts.slice(-window)) >= PRODUCT_MIN_STORIES &&
+        mean(counts.slice(-2 * window, -window)) >= PRODUCT_MIN_STORIES,
+      views: hasViews ? signal(weeks.map((w) => Math.round((series?.wiki?.[w] ?? 0) / 7))) : null,
+    };
+  }).sort((a, b) => b.stories.recent - a.stories.recent || (b.views?.recent ?? 0) - (a.views?.recent ?? 0));
+
+  return {
+    horizon,
+    window,
+    weeks,
+    topicTrends,
+    rankedTopics,
+    mapTopics,
+    themeTrends,
+    productTrends,
+    hasHistory,
+    hasThemes,
+    hasProducts,
+  };
 }
 
 export type Trends = ReturnType<typeof buildTrends>;

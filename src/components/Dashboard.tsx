@@ -2,6 +2,7 @@ import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
+import { PRODUCT_KINDS } from "@/lib/products";
 import { MomentumMap } from "@/components/MomentumMap";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
@@ -15,6 +16,7 @@ import {
   HORIZONS,
   MAP_MIN_STORIES,
   SUBTHEME_MIN_STORIES,
+  PRODUCT_MIN_STORIES,
   THEME_STEADY_BAND,
   buildTrends,
   directionOf,
@@ -48,6 +50,8 @@ const SOURCE_LABELS: Record<string, string> = {
   stories: "Hacker News top stories",
   today: "Hacker News past-day stories",
   launches: "Hacker News product launches",
+  hnProducts: "Hacker News product mentions",
+  wikiProducts: "Wikipedia page views",
   repos: "GitHub repository search",
   analysis: "Newsletter and institution feeds",
   labNews: "Lab news pages",
@@ -172,7 +176,7 @@ const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
-  const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, hasHistory, hasThemes } = trends;
+  const { window: WINDOW, weeks, topicTrends, mapTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = trends;
   const { headline, briefing } = buildBriefing(trends);
   const compared =
     WINDOW === 1
@@ -253,6 +257,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 { href: "#today", label: "Today" },
                 { href: "#momentum", label: "Topics" },
                 { href: "#themes", label: "Themes" },
+                ...(hasProducts ? [{ href: "#products" as const, label: "Products" }] : []),
                 { href: "#indicators", label: "Indicators" },
                 { href: adoption ? "#adoption" : "#usage", label: "Usage" },
                 { href: "#news", label: "News" },
@@ -577,6 +582,72 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         </section>
 
         </section>
+
+        {hasProducts && (
+          <section id="products" className="band" aria-labelledby="products-h">
+            <div className="band__head">
+              <h2 id="products-h">Product momentum</h2>
+              <p>
+                {productTrends.length} AI products people use, measured two ways: stories naming the product on
+                Hacker News, which shows what developers are talking about, and views of its Wikipedia article,
+                which shows how many people are looking it up. Each is the {compared}.
+              </p>
+            </div>
+
+            <div className="trend-cols" aria-hidden="true">
+              <span>Product</span>
+              <span>Discussion <i>Hacker News stories</i></span>
+              <span>Public interest <i>Wikipedia views</i></span>
+            </div>
+            <MoreRows count={productTrends.length} noun="products">
+              {productTrends.map((p, i) => (
+                <li key={p.id} className="trend">
+                  <div className="trend__topic">
+                    <span className="trend__rank">{i + 1}</span>
+                    <h3>{p.name}</h3>
+                    <p>
+                      {p.blurb} · {PRODUCT_KINDS[p.kind]}
+                    </p>
+                  </div>
+                  <div className="trend__signal">
+                    <span className="trend__label">Discussion</span>
+                    <Sparkline
+                      values={p.stories.values}
+                      labels={weekLabels}
+                      unit="stories"
+                      tone={p.enough ? toneOf(p.stories, THEME_STEADY_BAND) : "steady"}
+                      summary={`${p.name}: Hacker News stories per week over ${weeks.length} weeks, now ${Math.round(p.stories.recent)}${p.enough ? `, ${fmtChange(p.stories.change)}` : ""}`}
+                    />
+                    {p.enough ? <Change signal={p.stories} band={THEME_STEADY_BAND} /> : <span className="trend__few">too few to call</span>}
+                    <PerWeek value={p.stories.recent} />
+                  </div>
+                  <div className="trend__signal">
+                    <span className="trend__label">Public interest</span>
+                    {p.views ? (
+                      <>
+                        <Sparkline
+                          values={p.views.values}
+                          labels={weekLabels}
+                          unit="views"
+                          tone={toneOf(p.views)}
+                          summary={`${p.name}: Wikipedia article views a day, weekly over ${weeks.length} weeks, now ${fmtCompact(Math.round(p.views.recent))}, ${fmtChange(p.views.change)}`}
+                        />
+                        <Change signal={p.views} />
+                        <span className="trend__level">
+                          {fmtCompact(Math.round(p.views.recent))}
+                          <span aria-hidden="true">/day</span>
+                          <span className="vh"> views a day</span>
+                        </span>
+                      </>
+                    ) : (
+                      <span className="trend__few">no article to measure</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </MoreRows>
+          </section>
+        )}
 
         <section className="chapter" aria-labelledby="evidence-h">
           <header className="chapter__head">
@@ -1387,6 +1458,21 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 in either half of the comparison is marked “too few to call” instead of rising or cooling.
               </p>
               <p>
+                <strong>Product momentum</strong> follows a fixed list of products chosen by the editor, so a
+                product not on the list cannot appear however fast it grows. Discussion counts Hacker News
+                stories with the product’s name in the title. A name inside a longer name counts for both, so a
+                story about Claude Code also counts for Claude, and a few names (Cursor, Gemini, Sora) are
+                ordinary words that sometimes mean something else. A product averaging fewer than{" "}
+                {PRODUCT_MIN_STORIES} stories a week in either half of the comparison is marked “too few to
+                call”, and discussion is called rising or cooling only on a move of at least{" "}
+                {THEME_STEADY_BAND * 100}%. Image, video and music products are rarely discussed there, so read
+                them by the second measure. Public interest is the daily views of the product’s English
+                Wikipedia article by people, not crawlers, averaged over each week. It shows how many people
+                looked the product up, which rises with news of any kind, good or bad, and is not a count of
+                users. It covers English readers only. A product whose article is part of a larger one has no
+                figure. Neither measure is use or revenue.
+              </p>
+              <p>
                 <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was
                 collected, which happens once a day: posts from the labs named under “Lab announcements”, pieces from the newsletters and
                 institutions, and up to twelve Hacker News stories with an AI term in the title and at least 20
@@ -1476,7 +1562,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
       <footer className="colophon">
         <p>
-          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub and Hugging Face, with headlines from publishers’ own feeds. Thank you to
+          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub, Hugging Face and Wikipedia page views, with headlines from publishers’ own feeds. Thank you to
           arXiv for use of its open access interoperability. Counts are keyword matches and should be read as
           indicators, not measurements. Set in Newsreader and Geist. Data last collected{" "}
           {fmtDate(latest.generatedAt)}.

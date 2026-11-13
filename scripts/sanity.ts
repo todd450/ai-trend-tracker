@@ -11,8 +11,12 @@
 
 export type WeeklyCounts = Record<string, number>;
 
-/** A total is a denominator (all AI papers, all AI stories); a part is one topic's or theme's count. */
-export type Kind = "total" | "part";
+/**
+ * A total is a denominator (all AI papers, all AI stories); a part is one topic's or theme's count.
+ * Views are a product's Wikipedia page views: checked for a collapse, which is what a renamed
+ * article looks like, but never for a surge, because a launch really can lift them fifty-fold.
+ */
+export type Kind = "total" | "part" | "views";
 
 /** Weeks before the one being checked that the usual level is taken from, and the fewest that will do. */
 const LOOKBACK = 8;
@@ -25,6 +29,7 @@ const PART_DROP_FROM = 40;
 const LIMITS = {
   total: { low: 0.4, high: 3 },
   part: { low: 0.15, high: 6 },
+  views: { low: 0.15, high: Infinity },
 } as const;
 
 /** A recount of a week already stored should not fall by half: sources index late, so counts grow. */
@@ -59,7 +64,7 @@ export function implausible(kind: Kind, series: WeeklyCounts, week: string, valu
   const usual = median(prior);
   const { low, high } = LIMITS[kind];
 
-  if (kind === "part") {
+  if (kind !== "total") {
     if (usual < PART_ZERO_FROM) return null;
     if (value === 0) return `zero against a usual ${Math.round(usual)}`;
     if (usual >= PART_DROP_FROM && value < usual * low) return `${value} against a usual ${Math.round(usual)}`;

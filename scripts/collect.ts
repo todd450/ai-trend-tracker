@@ -21,6 +21,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { inflateRawSync } from "node:zlib";
+import { PRODUCTS } from "../src/lib/products.ts";
 import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
@@ -280,6 +281,58 @@ async function hnLaunches(): Promise<NonNullable<Latest["launches"]>> {
         createdAt: h.created_at,
       };
     });
+}
+
+// ------------------------------------------------------------- Wikipedia
+
+/**
+ * Wikimedia allows a script that sends no contact address ten requests a minute, so the
+ * collector sends one every seven seconds. A whole run is about thirty requests.
+ */
+const WIKI_PAUSE = 7000;
+
+type Pageviews = { items?: { timestamp: string; views: number }[] };
+
+/**
+ * Views of a product's English Wikipedia article in each of `weeks`, summed over every title
+ * the article has carried. Counts people only: the API's "user" agent leaves out crawlers.
+ * One request per title covers the whole span. A week is left out when its last day has not
+ * been published yet, so a short week is never stored as a fall.
+ */
+async function wikiWeeklyViews(titles: string[], weeks: string[]): Promise<Record<string, number>> {
+  const day = (iso: string) => iso.replaceAll("-", "");
+  const lastDay = isoDay(new Date(Date.parse(weeks.at(-1)! + "T00:00:00Z") + 6 * DAY));
+  const daily = new Map<string, number>();
+  for (const title of titles) {
+    const url =
+      "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/" +
+      `${encodeURIComponent(title.replaceAll(" ", "_"))}/daily/${day(weeks[0])}/${day(lastDay)}`;
+    let res: Response;
+    for (let attempt = 0; ; attempt++) {
+      res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(30_000) });
+      await sleep(WIKI_PAUSE);
+      if (res.status !== 429 || attempt === 2) break;
+      // Told to slow down: wait as long as asked (five seconds if not said), at most two minutes.
+      await sleep(Math.min(Number(res.headers.get("retry-after")) || 5, 120) * 1000);
+    }
+    if (res.status === 404) {
+      console.log(`  wiki   no views under "${title}"`); // a title not in use for any of the span
+      continue;
+    }
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} for wikimedia.org`);
+    for (const item of ((await res.json()) as Pageviews).items ?? []) {
+      const key = item.timestamp.slice(0, 8);
+      daily.set(key, (daily.get(key) ?? 0) + item.views);
+    }
+  }
+  const out: Record<string, number> = {};
+  for (const week of weeks) {
+    const days = Array.from({ length: 7 }, (_, i) => daily.get(day(isoDay(new Date(Date.parse(week + "T00:00:00Z") + i * DAY)))) ?? 0);
+    const total = days.reduce((a, b) => a + b, 0);
+    if (week === weeks.at(-1) && days[6] === 0 && total >= 6 * 20) continue;
+    out[week] = total;
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- GitHub
@@ -1029,6 +1082,38 @@ async function collectHistory(history: History, weeks: string[], status: Record<
     settle("hnThemes");
   } catch (err) {
     fail("hnThemes", "Hacker News themes", err);
+  }
+
+  // The product watchlist: one Hacker News count per product and week, and one Wikipedia
+  // request per article title, which returns the whole year.
+  const products = (history.products ??= {});
+  try {
+    for (const product of PRODUCTS) {
+      const series = ((products[product.id] ??= { hn: {}, wiki: {} }).hn ??= {});
+      for (const week of weeks) {
+        if (needs(series, week)) put(`stories ${product.id}`, "part", series, week, await hnCount(week, product.hn));
+      }
+      await writeJson("history.json", history); // save progress; the first backfill takes several minutes
+      console.log(`  hn     ${product.id}`);
+    }
+    settle("hnProducts");
+  } catch (err) {
+    fail("hnProducts", "Hacker News products", err);
+  }
+
+  try {
+    for (const product of PRODUCTS) {
+      if (product.wiki.length === 0) continue;
+      const series = ((products[product.id] ??= { hn: {}, wiki: {} }).wiki ??= {});
+      const views = await wikiWeeklyViews(product.wiki, weeks);
+      for (const week of weeks) {
+        if (views[week] !== undefined && needs(series, week)) put(`views ${product.id}`, "views", series, week, views[week]);
+      }
+      console.log(`  wiki   ${product.id}`);
+    }
+    settle("wikiProducts");
+  } catch (err) {
+    fail("wikiProducts", "Wikipedia page views", err);
   }
 
   // arXiv is rate-limited to one request per three seconds; in --fast mode

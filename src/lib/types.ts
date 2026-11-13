@@ -14,6 +14,11 @@ export type History = {
   themes?: Record<string, WeeklyCounts>;
   /** Distinct Hacker News stories each week matching a sub-theme, keyed by "theme.subtheme". */
   subthemes?: Record<string, WeeklyCounts>;
+  /**
+   * Per product on the watchlist: Hacker News stories each week naming it in the title (`hn`),
+   * and views of its English Wikipedia article each week, people only (`wiki`).
+   */
+  products?: Record<string, { hn: WeeklyCounts; wiki: WeeklyCounts }>;
 };
 
 export type SourceStatus = { ok: boolean; at: string; error?: string };
