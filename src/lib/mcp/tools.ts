@@ -563,7 +563,7 @@ const conferencesTool: Tool = {
       videos: c.videos ?? [],
       recap: c.recap ?? null,
       stage: stage ?? null,
-      page: `${SITE_URL}/conferences`,
+      page: `${SITE_URL}/conferences/${c.id}`,
     };
   },
 };
