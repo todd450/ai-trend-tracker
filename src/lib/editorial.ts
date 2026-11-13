@@ -15,7 +15,27 @@
 export type Pin = { url: string; title: string; from: string; until: string; note?: string };
 /** A link left out of every list, with the reason, which the page prints. */
 export type Hide = { url: string; reason: string };
-export type Editorial = { pin: Pin[]; hide: Hide[] };
+/** One sentence in the editor's own words, shown under the headline through `until` (YYYY-MM-DD). */
+export type Line = { text: string; until: string };
+export type Editorial = { pin: Pin[]; hide: Hide[]; line?: Line };
+
+/** The editor's line, while its last day has not passed. */
+export function lineFor(editorial: Editorial, today: string): string | undefined {
+  return editorial.line && editorial.line.until >= today ? editorial.line.text : undefined;
+}
+
+/**
+ * True when a day's top story deserves more room than a row in a list: its points already match
+ * the middle of the week's ten most upvoted stories, which have had up to seven days to gather
+ * theirs. With fewer than five stories to compare with, nothing is called big.
+ */
+export function isBigStory(points: number | undefined, weekPoints: number[]): boolean {
+  const topTen = [...weekPoints].sort((a, b) => b - a).slice(0, 10);
+  if (points === undefined || topTen.length < 5) return false;
+  const mid = topTen.length >> 1;
+  const median = topTen.length % 2 ? topTen[mid] : (topTen[mid - 1] + topTen[mid]) / 2;
+  return points >= median;
+}
 
 /** The same article reached by two routes: ignores the protocol, "www.", the query and a closing slash. */
 export function sameArticle(url: string): string {

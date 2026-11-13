@@ -10,6 +10,8 @@ export type Section = { href: `#${string}`; label: string };
  */
 export function SectionNav({ sections }: { sections: Section[] }) {
   const [active, setActive] = useState<string | null>(null);
+  /** On a phone the sections fold into one button; this is whether its list is showing. */
+  const [open, setOpen] = useState(false);
   const list = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -59,11 +61,22 @@ export function SectionNav({ sections }: { sections: Section[] }) {
   }, [active]);
 
   return (
-    <nav className="bar__nav" aria-label="On this page">
-      <ul ref={list}>
+    <nav className="bar__nav" aria-label="On this page" data-open={open}>
+      {/* Shown only on a narrow screen, where eleven links in a row would scroll off the side. */}
+      <button
+        type="button"
+        className="bar__menu"
+        aria-expanded={open}
+        aria-controls="section-list"
+        onClick={() => setOpen(!open)}
+      >
+        <span className="vh">Sections, now reading: </span>
+        {sections.find((s) => s.href.slice(1) === active)?.label ?? "Sections"}
+      </button>
+      <ul ref={list} id="section-list">
         {sections.map((s) => (
           <li key={s.href}>
-            <a href={s.href} aria-current={active === s.href.slice(1) ? "location" : undefined}>
+            <a href={s.href} onClick={() => setOpen(false)} aria-current={active === s.href.slice(1) ? "location" : undefined}>
               {s.label}
             </a>
           </li>

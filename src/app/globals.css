@@ -245,6 +245,66 @@ code {
   display: none;
 }
 
+/* The button that stands in for the row of sections on a phone; hidden wherever the row fits. */
+.bar__menu {
+  display: none;
+}
+
+@media (max-width: 40rem) {
+  .bar__nav {
+    position: relative;
+    mask-image: none;
+  }
+
+  .bar__menu {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .bar__menu::after {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-inline-start: auto;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-0.15rem) rotate(45deg);
+  }
+
+  .bar__menu[aria-expanded="true"]::after {
+    transform: translateY(0.1rem) rotate(-135deg);
+  }
+
+  .bar__nav ul {
+    display: none;
+    padding-inline-end: 0;
+  }
+
+  .bar__nav[data-open="true"] ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-lg);
+    padding-bottom: var(--space-xs);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .bar__nav ul li:first-child,
+  .bar__nav ul li:last-child {
+    margin-inline: 0;
+  }
+}
+
 /* Centred while everything fits, and still scrollable from the first link when it does not. */
 .bar__nav li:first-child {
   margin-inline-start: auto;
@@ -419,6 +479,129 @@ code {
     column-gap: var(--space-2xl);
     align-items: end;
   }
+}
+
+/* The editor's own sentence, when there is one: set apart from the rule-written headline above it. */
+.lede__note {
+  max-width: 44rem;
+  padding-inline-start: var(--space-md);
+  border-inline-start: var(--rule-heavy) solid var(--color-rule-strong);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.35;
+}
+
+.lede__note > span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+}
+
+/* The evidence for the headline: the one large chart on the page, so the finding leads. */
+.leadchart {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 40rem) {
+  .leadchart[data-count="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-2xl);
+  }
+}
+
+.leadchart__panel {
+  --tone: var(--data-steady);
+  min-width: 0;
+  margin: 0;
+}
+
+.leadchart__panel--rising { --tone: var(--data-rising); }
+.leadchart__panel--cooling { --tone: var(--data-cooling); }
+
+.leadchart figcaption {
+  display: grid;
+  row-gap: var(--space-3xs);
+  margin-bottom: var(--space-xs);
+}
+
+.leadchart__measure {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.leadchart__name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.leadchart__figure {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.leadchart__figure b {
+  margin-inline-end: var(--space-2xs);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.leadchart svg {
+  display: block;
+  width: 100%;
+  height: clamp(7rem, 16vw, 11rem);
+  overflow: visible;
+}
+
+.leadchart__prior { fill: var(--color-paper-2); }
+.leadchart__recent { fill: color-mix(in oklch, var(--tone) 14%, var(--color-paper)); }
+
+.leadchart__zero {
+  stroke: var(--color-rule-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.leadchart__line {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.leadchart__mean {
+  stroke: var(--color-muted);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.leadchart__mean--recent {
+  stroke: var(--tone);
+  stroke-dasharray: none;
+  stroke-width: 3;
+}
+
+.leadchart__axis {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: var(--space-2xs);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.leadchart__axis i {
+  font-style: normal;
+  color: var(--color-rule);
 }
 
 .brief ol {
@@ -829,6 +1012,7 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+.mom__signal--held .mom__change,
 .mom__signal--soft .mom__change {
   font-weight: 400;
   color: var(--color-muted);
@@ -1153,6 +1337,54 @@ code {
 .ledger[data-open="false"] li:nth-child(n + 6),
 .mom__list[data-open="false"] > li:nth-child(n + 6) {
   display: none;
+}
+
+/* Reference lists show three on every screen, so the reading list does not outweigh the findings. */
+.ledger[data-brief="true"][data-open="false"] li:nth-child(n + 4) {
+  display: none;
+}
+
+/* The day's first story, when it is pinned or unusually big: set as a headline, not a row. */
+.top-story {
+  display: grid;
+  row-gap: var(--space-2xs);
+  max-width: 52rem;
+  padding-block: var(--space-sm) var(--space-md);
+}
+
+.top-story__kicker {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.top-story h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.top-story h3 a {
+  text-decoration-color: transparent;
+}
+
+.top-story__meta,
+.top-story__also {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.top-story__note {
+  font-size: var(--text-base);
+  color: var(--color-ink-2);
+}
+
+.top-story__also {
+  list-style: none;
 }
 
 /* A phone shows three, so each list fits on one screen. */

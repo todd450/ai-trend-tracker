@@ -112,6 +112,14 @@ before it is shown (`src/lib/editorial.ts`):
    `until` day. A pin with no `until` still to come is ignored, so a forgotten
    pin cannot sit on a page that rebuilds itself daily.
 
+The first story of the day is set as a headline above the list, not as a row,
+when it is pinned or when its points already match the middle of the week's
+ten most upvoted stories (`isBigStory`). On an ordinary day every story is a row.
+
+An optional `line` is one sentence in the editor's own words, shown under the
+page headline through its `until` day:
+`"line": { "text": "…", "until": "2026-11-20" }`.
+
 `data/editorial.json` is kept by hand; the collector never writes to it:
 
 ```json
@@ -138,6 +146,7 @@ src/lib/topics.ts    the topics and their search phrases (edit to add a topic)
 src/lib/themes.ts    the themes, their sub-themes and searches (edit to add a sub-theme)
 src/lib/toolkits.ts  the developer toolkits and their packages (edit to add a toolkit)
 src/lib/trends.ts    turns weekly counts into "rising / steady / cooling"
+src/components/LeadChart.tsx  the chart under the headline: the movers it names, with the two periods compared
 src/lib/noise.ts     decides whether a change is bigger than a series' usual wobble
 src/lib/editorial.ts gathers posts about one event and applies the pins and hides
 data/editorial.json  the editor's pins and hides, kept by hand
