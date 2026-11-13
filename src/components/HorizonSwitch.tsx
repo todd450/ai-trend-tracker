@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HORIZONS, type Horizon } from "@/lib/trends";
 
 /**
- * Switches every trend on the page between the five views, from 1 week to 1 year.
+ * Switches every trend on the page between the six views, from 1 week to 2 years.
  * What each view compares is said once, in a sentence under the headline, and again
  * in each link's tooltip. Each view is its own prebuilt page; `scroll={false}` keeps
  * the reader's place.

@@ -30,8 +30,8 @@ import { weeklyMakerTokens, type RankingRow } from "./marketShare.ts";
 import { implausible, type Kind } from "./sanity.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
-/** Enough for the one-year view: 26 weeks compared with the 26 before. */
-const WEEKS_OF_HISTORY = 52;
+/** Enough for the two-year view: 52 weeks compared with the 52 before. */
+const WEEKS_OF_HISTORY = 104;
 /** The newest weeks are re-counted each run because sources index late. */
 const WEEKS_TO_REFRESH = 2;
 const USER_AGENT = "ai-trend-tracker (public dashboard; collector script)";
@@ -897,8 +897,8 @@ async function businessAdoption(previous: Indicators["business"]): Promise<Busin
   return { periods };
 }
 
-/** Weeks of model share kept: the one-year view's 52 with a few to spare. */
-const MARKET_SHARE_WEEKS_KEPT = 60;
+/** Weeks of model share kept: the two-year view's 104 with a few to spare. It grows a week at a time. */
+const MARKET_SHARE_WEEKS_KEPT = 110;
 
 /** The longest span of days the rankings dataset gives in one request. */
 const MARKET_SHARE_DAYS = 366;
@@ -1085,7 +1085,7 @@ async function collectHistory(history: History, weeks: string[], status: Record<
   }
 
   // The product watchlist: one Hacker News count per product and week, and one Wikipedia
-  // request per article title, which returns the whole year.
+  // request per article title, which returns every week collected.
   const products = (history.products ??= {});
   try {
     for (const product of PRODUCTS) {

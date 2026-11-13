@@ -1478,7 +1478,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>6 months</strong> compares the last {HORIZONS.sixMonths.window} weeks with the{" "}
                 {HORIZONS.sixMonths.window} before, one quarter against the previous one.{" "}
                 <strong>1 year</strong> compares the last {HORIZONS.oneYear.window} weeks with the{" "}
-                {HORIZONS.oneYear.window} before, one half-year against the other. The longer views react slowly,
+                {HORIZONS.oneYear.window} before, one half-year against the other.{" "}
+                <strong>2 years</strong> compares the last {HORIZONS.twoYears.window} weeks with the{" "}
+                {HORIZONS.twoYears.window} before, this year against last year. The longer views react slowly,
                 and a topic can be rising in one view and cooling in another. Topics are defined by keyword lists, so a paper can count toward several topics,
                 and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
