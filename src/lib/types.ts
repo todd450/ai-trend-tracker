@@ -58,6 +58,21 @@ export type Latest = {
    * Missing from files written before the "Today's AI news" section existed.
    */
   today?: Latest["stories"];
+  /**
+   * Product launches on Hacker News ("Show HN" and "Launch HN") from the 7 days before
+   * `generatedAt` whose title names AI, most upvoted first. `title` has the prefix removed.
+   * Missing from files written before the "Product launches" section existed.
+   */
+  launches?: {
+    id: string;
+    title: string;
+    kind: "Show HN" | "Launch HN";
+    url: string;
+    discussionUrl: string;
+    points: number;
+    comments: number;
+    createdAt: string;
+  }[];
   repos: {
     name: string;
     url: string;

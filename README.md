@@ -10,6 +10,7 @@ key; everything else needs no keys.
 | Research | arXiv | Weekly share of AI papers mentioning each topic |
 | Discussion | Hacker News | Weekly stories with each topic in the title, and the week's top AI stories |
 | Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, biggest first by Hacker News points |
+| Launches | Hacker News | The past week's "Show HN" and "Launch HN" posts with an AI term in the title, ranked by points |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
 | Analysis | Eight newsletters and institutions (RSS) | Newest AI pieces, at most two per source, past 30 days |
@@ -96,6 +97,13 @@ or more, at most twelve). The site is rebuilt once a day, so "today" means the
 The list is ranked by Hacker News points. A lab or newsletter post takes the
 points of the story that links to it or shares its headline; posts with no
 such story come last, newest first.
+
+"Product launches" is built by `hnLaunches` in `scripts/collect.ts` from the
+same Hacker News search: posts tagged "Show HN", and stories titled "Launch HN"
+(Y Combinator companies), from the past seven days with 10 points or more. A
+post is kept when its title matches `LAUNCH_MENTIONS_AI`; widen that pattern if
+AI launches are being missed. The list leans to developer tools, and a product
+nobody posted there does not appear.
 
 If a source is down, the previous data for it is kept and the site marks it
 as stale in the "Source status" list.

@@ -47,6 +47,7 @@ const SOURCE_LABELS: Record<string, string> = {
   releases: "Hugging Face lab uploads",
   stories: "Hacker News top stories",
   today: "Hacker News past-day stories",
+  launches: "Hacker News product launches",
   repos: "GitHub repository search",
   analysis: "Newsletter and institution feeds",
   labNews: "Lab news pages",
@@ -216,6 +217,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const stories = latest.stories.slice(0, SHOWN);
   const papers = latest.papers.slice(0, SHOWN);
   const repos = latest.repos.slice(0, SHOWN);
+  const launches = (latest.launches ?? []).slice(0, SHOWN);
   const models = latest.models.slice(0, SHOWN);
   const labModels = latest.releases.slice(0, SHOWN);
   const analysis = (latest.analysis ?? []).slice(0, SHOWN);
@@ -256,6 +258,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 { href: "#news", label: "News" },
                 { href: "#papers", label: "Papers" },
                 { href: "#analysis", label: "Analysis" },
+                ...(launches.length ? [{ href: "#launches" as const, label: "Launches" }] : []),
                 { href: "#code", label: "Code" },
                 { href: "#models", label: "Models" },
                 { href: "#method", label: "Method" },
@@ -984,7 +987,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <section className="chapter chapter--reading" aria-labelledby="reading-h">
           <header className="chapter__head">
             <p className="chapter__title" id="reading-h">The reading list</p>
-            <p className="chapter__dek">The stories, papers, essays, code and models behind this week’s numbers.</p>
+            <p className="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
           </header>
 
         <div className="pair">
@@ -1132,6 +1135,56 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </Ledger>
           </section>
         </div>
+
+        {launches.length > 0 && (
+        <section id="launches" className="band" aria-labelledby="launches-h">
+          <div className="band__head">
+            <p className="band__source">Hacker News · past 7 days</p>
+            <h2 id="launches-h">Product launches</h2>
+            <p>AI products their makers posted to Hacker News in the past seven days, ranked by points.</p>
+          </div>
+          <Ledger
+            first="Product"
+            labelledBy="launches-h"
+            count={launches.length}
+            kind="thing"
+            more={
+              <a className="more" href="https://news.ycombinator.com/show" {...NEW_TAB}>
+                More on Show HN →
+              </a>
+            }
+            cells={[
+              { head: "Points", width: "7.5rem" },
+              { head: "Comments", width: "4.25rem" },
+              { head: "Posted as", width: "5.5rem", start: true },
+              { head: "Posted", width: "3.25rem" },
+            ]}
+          >
+            {launches.map((l) => (
+              <li key={l.id}>
+                <span className="ledger__main">
+                  <a href={l.url} title={l.title} {...NEW_TAB}>{l.title}</a>
+                  <span className="ledger__note">{host(l.url)}</span>
+                </span>
+                <span className="ledger__data">
+                  <Mag value={l.points} max={top(launches.map((x) => x.points))} unit="points" />
+                  <span>
+                    <a href={l.discussionUrl} {...NEW_TAB}>
+                      {fmtCompact(l.comments)}
+                      <span className="ledger__unit"> comments</span>
+                    </a>
+                  </span>
+                  <span className="ledger__cell--start">{l.kind}</span>
+                  <span>
+                    <span className="ledger__unit">posted </span>
+                    {fmtDay(l.createdAt)}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </Ledger>
+        </section>
+        )}
 
         <section id="code" className="band" aria-labelledby="code-h">
           <div className="band__head">
@@ -1402,6 +1455,14 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 script to read it, so their posts are the ones submitted to Hacker News, under the headline given
                 there; a post nobody submitted is missing, which leaves the smaller labs thinly covered. A lab
                 takes at most three places in the list, and a smaller lab two.
+              </p>
+              <p>
+                <strong>Product launches</strong> are the past seven days’ “Show HN” and “Launch HN” posts on
+                Hacker News, where makers present their own work, with an AI term in the title and at least 10
+                points. Launch HN posts come from Y Combinator companies. The list shows what technologists
+                launched and noticed: it leans to developer tools and open-source projects, and a consumer
+                product nobody posted there is missing. A launch that describes an AI product without an AI term
+                in its title is missed too. Points measure the attention of Hacker News readers, not use or sales.
               </p>
               <p>
                 <strong>The reading lists</strong> show their first few items; the rest open on request. Where a

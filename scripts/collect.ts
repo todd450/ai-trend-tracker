@@ -234,6 +234,54 @@ const hnTopStories = () => hnStories(Date.now() - 7 * DAY, 100, 20);
  */
 const hnTodayStories = () => hnStories(Date.now() - DAY, 20, 12);
 
+/**
+ * Title words that mark a launch as an AI product. Wider than the news searches, because a
+ * launch names what the thing does ("for agents", "an MCP for…") more often than it says "AI".
+ */
+const LAUNCH_MENTIONS_AI =
+  /\b(A\.?I|artificial intelligence|LLMs?|chatbots?|ChatGPT|GPT|generative|machine learning|agentic|agents?|MCP|Claude|Codex|Copilot|Gemini|Gemma|Llama|OpenAI|Anthropic|Mistral|DeepSeek|diffusion|neural|transformers?|fine-tun\w+|RAG)\b/;
+const LAUNCH_PREFIX = /^(Show|Launch) HN\s*[:–-]\s*/i;
+const LAUNCH_MIN_POINTS = 10;
+
+/**
+ * The past week's product launches on Hacker News that name AI in the title, most upvoted first.
+ * "Show HN" posts carry their own tag; "Launch HN" posts (Y Combinator companies) are ordinary
+ * stories found by title. Both come from the same search API as the news, so no new site is read.
+ */
+async function hnLaunches(): Promise<NonNullable<Latest["launches"]>> {
+  const window = `created_at_i>=${Math.floor((Date.now() - 7 * DAY) / 1000)},points>=${LAUNCH_MIN_POINTS}`;
+  const show = await getJson<HnResponse>(hnUrl({ tags: "show_hn", numericFilters: window, hitsPerPage: "500" }));
+  await sleep(120);
+  const launch = await getJson<HnResponse>(
+    hnUrl({
+      query: '"Launch HN"',
+      restrictSearchableAttributes: "title",
+      typoTolerance: "false",
+      numericFilters: window,
+      hitsPerPage: "100",
+    }),
+  );
+  const seen = new Map<string, HnHit>();
+  for (const hit of [...show.hits, ...launch.hits]) seen.set(hit.objectID, hit);
+  return [...seen.values()]
+    .filter((h) => LAUNCH_PREFIX.test(h.title) && LAUNCH_MENTIONS_AI.test(h.title.replace(LAUNCH_PREFIX, "")))
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 20)
+    .map((h) => {
+      const discussionUrl = `https://news.ycombinator.com/item?id=${h.objectID}`;
+      return {
+        id: h.objectID,
+        title: h.title.replace(LAUNCH_PREFIX, "").trim(),
+        kind: /^Launch/i.test(h.title) ? ("Launch HN" as const) : ("Show HN" as const),
+        url: h.url ?? discussionUrl, // a Launch HN post has no link of its own; the post is the launch
+        discussionUrl,
+        points: h.points,
+        comments: h.num_comments ?? 0,
+        createdAt: h.created_at,
+      };
+    });
+}
+
 // ---------------------------------------------------------------- GitHub
 
 type GhRepo = {
@@ -1042,7 +1090,7 @@ async function main() {
   const status: Record<string, SourceStatus> = { ...(previous?.sources ?? {}) };
 
   /** Runs one list collector; on failure keeps the previously saved list. */
-  async function list<K extends "papers" | "repos" | "models" | "releases" | "stories" | "today">(
+  async function list<K extends "papers" | "repos" | "models" | "releases" | "stories" | "today" | "launches">(
     key: K,
     collect: () => Promise<NonNullable<Latest[K]>>,
   ): Promise<NonNullable<Latest[K]>> {
@@ -1078,6 +1126,7 @@ async function main() {
     releases: await list("releases", hfLabReleases),
     stories: await list("stories", hnTopStories),
     today: await list("today", hnTodayStories),
+    launches: await list("launches", hnLaunches),
     repos: await list("repos", githubRisingRepos),
     analysis: await feedList("analysis", ANALYST_SOURCES, 2),
     labNews: await feedList("labNews", LAB_SOURCES, 3, LAB_KEEP), // many labs share the list, so each gets fewer places
