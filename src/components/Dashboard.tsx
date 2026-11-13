@@ -115,12 +115,15 @@ function ThemeCells({
   stories,
   extent,
   enough = true,
+  weight,
 }: {
   name: string;
   share: Signal;
   stories: Signal;
   extent: number;
   enough?: boolean;
+  /** The share beside the largest theme's, 0 to 1; sets the bar's thickness. */
+  weight: number;
 }) {
   return (
     <>
@@ -128,6 +131,7 @@ function ThemeCells({
         signal={share}
         extent={extent}
         firm={enough}
+        weight={weight}
         band={THEME_STEADY_BAND}
         label="Share"
         tip={`${name}: ${share.recent.toFixed(1)}% of AI stories, was ${share.prior.toFixed(1)}%${enough ? "" : " (too few stories to call)"}`}
@@ -176,7 +180,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const papersFirm = new Set(rankedTopics.map((t) => t.id));
   const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
   /** Themes numbered in the order shown, biggest rise in share first. */
-  const themeRows = themeTrends.map((t, i) => ({ t, rank: i + 1 }));
+  /** Largest share of AI stories first; a theme's bar is as thick as its share beside the largest. */
+  const themeRows = THEME_GROUPS.flatMap((group) =>
+    themeTrends.filter((t) => t.direction === group.direction).sort((a, b) => b.share.recent - a.share.recent),
+  ).map((t, i) => ({ t, rank: i + 1 }));
+  const topThemeShare = Math.max(...themeTrends.map((t) => t.share.recent), 0) || 1;
   /** One scale for every theme bar; sub-themes with too few stories do not stretch it. */
   const themeExtent = extentOf(
     themeTrends.flatMap((t) => [t.share.change, ...t.parts.filter((part) => part.enough).map((part) => part.share.change)]),
@@ -470,11 +478,13 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <MomentumBars
                 minPapers={HEADLINE_MIN_PAPERS}
                 minStories={MAP_MIN_STORIES}
-                topics={topicTrends.map((t, i) => ({
+                topics={[...topicTrends]
+                  // Largest share of papers first, so the eye meets the big topics before the small ones.
+                  .sort((a, b) => Number(b.hasPapers) - Number(a.hasPapers) || b.papers.recent - a.papers.recent)
+                  .map((t) => ({
                   id: t.id,
                   name: t.name,
                   blurb: t.blurb,
-                  rank: i + 1,
                   direction: t.direction,
                   papers: t.papers,
                   stories: t.stories,
@@ -543,7 +553,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <div className="mom mom--themes">
                 <div className="trend-cols" aria-hidden="true">
                   <span>Theme</span>
-                  <span>Share of AI stories <i>change, now</i></span>
+                  <span>Share of AI stories <i>by week, change, now</i></span>
                   <span>Stories</span>
                 </div>
                 {THEME_GROUPS.map((group) => {
@@ -562,7 +572,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                             name={t.name}
                             blurb={t.blurb}
                             count={t.parts.length}
-                            cells={<ThemeCells name={t.name} share={t.share} stories={t.stories} extent={themeExtent} />}
+                            cells={<ThemeCells name={t.name} share={t.share} stories={t.stories} extent={themeExtent} weight={t.share.recent / topThemeShare} />}
                           >
                             {t.parts.map((part) => (
                               <li key={part.id} className="mom__row mom__row--theme mom__row--sub">
@@ -576,6 +586,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                                   stories={part.stories}
                                   extent={themeExtent}
                                   enough={part.enough}
+                                  weight={part.share.recent / topThemeShare}
                                 />
                               </li>
                             ))}
@@ -586,6 +597,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                   );
                 })}
                 <p className="mom__note">
+                  The largest themes come first in each group. Each line shows the weeks charted, from zero on its
+                  own scale; a bar’s length is the change and its thickness is the theme’s share beside the largest.
                   Bars run to ±{Math.round(themeExtent * 100)}%. Steady means a change under {THEME_STEADY_BAND * 100}%,
                   or one no bigger than the theme’s usual swing from week to week.
                   {themeTrends.some((t) => t.parts.some((part) => !part.enough)) && (
