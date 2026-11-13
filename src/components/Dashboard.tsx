@@ -76,6 +76,23 @@ function host(url: string) {
   }
 }
 
+/**
+ * The line under a chart or list that says where its figures come from and when they were last
+ * collected, so no reader has to go to the foot of the page to find out. When the latest update
+ * of a source failed, the line says so and gives the day of the data being shown.
+ */
+function SourceLine({ names, keys }: { names: string; keys: string[] }) {
+  const status = keys.map((key) => latest.sources[key]).filter((src) => src !== undefined);
+  const failed = status.some((src) => !src.ok);
+  const oldest = status.map((src) => src.at).filter(Boolean).sort()[0];
+  return (
+    <p className="source">
+      <b>{names.includes(";") ? "Sources" : "Source"}:</b> {names}.
+      {oldest && (failed ? ` The latest update failed; this is the data of ${fmtDay(oldest)}.` : ` Collected ${fmtDay(oldest)}.`)}
+    </p>
+  );
+}
+
 /** A weekly story count, shown short and read out in full. */
 function PerWeek({ value }: { value: number }) {
   const n = Math.round(value);
@@ -302,7 +319,15 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               <span>Editor’s note</span> {editorLine}
             </p>
           )}
-          <LeadChart series={lead} window={WINDOW} from={weeks[0] ? fmtDay(weeks[0]) : ""} />
+          <LeadChart
+            series={lead}
+            window={WINDOW}
+            weeks={weeks}
+            events={(indicators.releases?.log ?? []).map((r) => ({ date: r.date, label: r.model, url: r.url }))}
+          />
+          {lead.length > 0 && (
+            <SourceLine names="arXiv (research); Hacker News story titles (discussion)" keys={["arxivHistory", "hnThemes"]} />
+          )}
           {briefing.length > 0 && (
             <div className="brief">
               <ol aria-label="The week in numbers">
@@ -420,6 +445,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               in <a href="#news">the reading list</a>.
             </p>
           )}
+        <SourceLine names="the labs’ and newsletters’ own feeds; Hacker News" keys={["labNews", "analysis", "today"]} />
         </section>
 
         <section className="chapter" aria-labelledby="trends-h">
@@ -458,6 +484,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 }))}
               />
 
+              <SourceLine names="arXiv (papers); Hacker News story titles (discussion)" keys={["arxivHistory", "hnHistory"]} />
               <details className="table-view">
                 <summary>Show the weekly numbers as a table</summary>
                 <div className="table-view__scroll">
@@ -571,6 +598,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </p>
               </div>
 
+              <SourceLine names="Hacker News story titles" keys={["hnThemes"]} />
               <details className="table-view">
                 <summary>Show the weekly theme numbers as a table</summary>
                 <div className="table-view__scroll">
@@ -800,6 +828,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             )}
           </ol>
 
+          <SourceLine names="Indeed Hiring Lab; Federal Register; the labs’ own release announcements" keys={["jobs", "federal", "modelReleases"]} />
           <details className="table-view">
             <summary>Show the indicator numbers as tables</summary>
             <div className="table-view__scroll table-view__scroll--set">
@@ -895,6 +924,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               ))}
             </ol>
 
+            <SourceLine names="US Census Bureau, Business Trends and Outlook Survey" keys={["business"]} />
             <details className="table-view">
               <summary>Show the survey numbers as a table</summary>
               <div className="table-view__scroll">
@@ -964,6 +994,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               ))}
             </MoreRows>
 
+            <SourceLine names="npm and PyPI Stats download counts" keys={["downloads"]} />
             <details className="table-view">
               <summary>Show the usage numbers as a table</summary>
               <div className="table-view__scroll">
@@ -1117,6 +1148,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
+          <SourceLine names="Hacker News" keys={["stories"]} />
           </section>
 
           <section id="papers" className="band" aria-labelledby="papers-h">
@@ -1152,6 +1184,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
+          <SourceLine names="Hugging Face Daily Papers" keys={["papers"]} />
           </section>
         </div>
 
@@ -1185,6 +1218,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
+          <SourceLine names="each publisher’s own feed, named beside its piece" keys={["analysis"]} />
           </section>
 
           <section id="announcements" className="band" aria-labelledby="announcements-h">
@@ -1217,6 +1251,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
+          <SourceLine names="the labs’ own news feeds, and Hacker News for labs without one" keys={["labNews"]} />
           </section>
         </div>
 
@@ -1312,6 +1347,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </li>
             ))}
           </Ledger>
+        <SourceLine names="GitHub repository search" keys={["repos"]} />
         </section>
 
         <div className="pair">
@@ -1351,6 +1387,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
+          <SourceLine names="Hugging Face, trending models" keys={["models"]} />
           </section>
 
           <section id="labs" className="band" aria-labelledby="labs-h">
@@ -1384,6 +1421,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 </li>
               ))}
             </Ledger>
+          <SourceLine names="Hugging Face, models published by the labs’ own accounts" keys={["releases"]} />
           </section>
         </div>
 
