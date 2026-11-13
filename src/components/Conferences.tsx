@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { PageTabs } from "@/components/PageTabs";
+import { SectionNav } from "@/components/SectionNav";
 import { NEW_TAB } from "@/lib/links";
 import {
   READING_LABEL,
@@ -206,7 +208,10 @@ export function Conferences() {
       </a>
 
       <header className="mast">
-        <p className="mast__line">Conference tracker · as of {fmtDate(today)}</p>
+        <div className="mast__top">
+          <PageTabs current="conferences" />
+          <p className="mast__line">As of {fmtDate(today)}</p>
+        </div>
         <p className="mast__name">
           <Logo className="mast__mark" />
           <Link href="/">AI Trend Tracker</Link>
@@ -216,14 +221,13 @@ export function Conferences() {
       <div className="bar">
         <div className="bar__inner">
           <div className="bar__row">
-            <nav className="bar__nav" aria-label="Sections">
-              <ul>
-                <li><Link href="/">← The trends</Link></li>
-                {read.length > 0 && <li><a href="#readings">Readings</a></li>}
-                <li><a href="#calendar">Calendar</a></li>
-                {past.length > 0 && <li><a href="#held">Held</a></li>}
-              </ul>
-            </nav>
+            <SectionNav
+              sections={[
+                ...(read.length > 0 ? [{ href: "#readings", label: "Readings" } as const] : []),
+                { href: "#calendar", label: "Calendar" },
+                ...(past.length > 0 ? [{ href: "#held", label: "Held" } as const] : []),
+              ]}
+            />
           </div>
         </div>
       </div>

@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
 import { MomentumMap } from "@/components/MomentumMap";
+import { PageTabs } from "@/components/PageTabs";
+import { SectionNav } from "@/components/SectionNav";
 import { Sparkline } from "@/components/Sparkline";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
@@ -230,9 +231,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       </a>
 
       <header className="mast">
-        <p className="mast__line">
-          {latestWeek ? `No. ${isoWeek(latestWeek)} · Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
-        </p>
+        <div className="mast__top">
+          <PageTabs current="trends" />
+          <p className="mast__line">
+            {latestWeek ? `No. ${isoWeek(latestWeek)} · Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
+          </p>
+        </div>
         <h1 className="mast__name">
           <Logo className="mast__mark" />
           AI Trend Tracker
@@ -242,22 +246,21 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       <div className="bar">
         <div className="bar__inner">
           <div className="bar__row">
-            <nav className="bar__nav" aria-label="Sections">
-              <ul>
-                <li><a href="#today">Today</a></li>
-                <li><a href="#momentum">Topics</a></li>
-                <li><a href="#themes">Themes</a></li>
-                <li><a href="#indicators">Indicators</a></li>
-                <li><a href={adoption ? "#adoption" : "#usage"}>Usage</a></li>
-                <li><a href="#news">News</a></li>
-                <li><a href="#papers">Papers</a></li>
-                <li><a href="#analysis">Analysis</a></li>
-                <li><a href="#code">Code</a></li>
-                <li><a href="#models">Models</a></li>
-                <li><a href="#method">Method</a></li>
-                <li><Link href="/conferences">Conferences →</Link></li>
-              </ul>
-            </nav>
+            <SectionNav
+              sections={[
+                { href: "#today", label: "Today" },
+                { href: "#momentum", label: "Topics" },
+                { href: "#themes", label: "Themes" },
+                { href: "#indicators", label: "Indicators" },
+                { href: adoption ? "#adoption" : "#usage", label: "Usage" },
+                { href: "#news", label: "News" },
+                { href: "#papers", label: "Papers" },
+                { href: "#analysis", label: "Analysis" },
+                { href: "#code", label: "Code" },
+                { href: "#models", label: "Models" },
+                { href: "#method", label: "Method" },
+              ]}
+            />
             <HorizonSwitch current={horizon} label="Time span" />
           </div>
         </div>
