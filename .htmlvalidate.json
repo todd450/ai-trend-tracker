@@ -1,0 +1,14 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "attr-case": "off",
+    "attribute-boolean-style": "off",
+    "attribute-empty-style": "off",
+    "valid-id": "off",
+    "aria-label-misuse": "off",
+    "no-inline-style": "off",
+    "void-style": "off",
+    "no-trailing-whitespace": "off",
+    "long-title": "off"
+  }
+}

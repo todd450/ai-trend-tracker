@@ -1,22 +1,25 @@
+import Link from "next/link";
+import { DataIndex } from "@/components/DataIndex";
 import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { LeadChart } from "@/components/LeadChart";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
-import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
+import { Bar, extentOf } from "@/components/MomentumBars";
 import { type Product } from "@/lib/products";
 import { PageTabs } from "@/components/PageTabs";
+import { Colophon } from "@/components/SiteFrame";
+import { SourceLine } from "@/components/SourceLine";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
-import { isBigStory, lineFor, visible } from "@/lib/editorial";
+import { topicsHref } from "@/lib/datasets";
+import { isBigStory, lineFor } from "@/lib/editorial";
 import { buildToday, editorial } from "@/lib/today";
-import { NEW_TAB } from "@/lib/links";
-import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
+import { NEW_TAB, host } from "@/lib/links";
 import { NOISE_MULTIPLE } from "@/lib/noise";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
-  MAP_MIN_STORIES,
   SUBTHEME_MIN_STORIES,
   PRODUCT_MIN_STORIES,
   THEME_STEADY_BAND,
@@ -34,8 +37,6 @@ import {
 } from "@/lib/trends";
 
 import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, buildMarketShare, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
-
-const SHOWN = 10;
 
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -61,36 +62,14 @@ const SOURCE_LABELS: Record<string, string> = {
   marketShare: "OpenRouter model rankings",
 };
 
-const THEME_GROUPS: { direction: Direction; title: string }[] = [
+/** The reading list's sections, which were on this page before it had its own; old links to them still land. */
+const READING_ANCHORS = ["reading", "news", "papers", "analysis", "announcements", "launches", "code", "models", "labs"];
+
+const THEME_GROUPS:{ direction: Direction; title: string }[] = [
   { direction: "rising", title: "Rising" },
   { direction: "steady", title: "Steady" },
   { direction: "cooling", title: "Cooling" },
 ];
-
-function host(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
-}
-
-/**
- * The line under a chart or list that says where its figures come from and when they were last
- * collected, so no reader has to go to the foot of the page to find out. When the latest update
- * of a source failed, the line says so and gives the day of the data being shown.
- */
-function SourceLine({ names, keys }: { names: string; keys: string[] }) {
-  const status = keys.map((key) => latest.sources[key]).filter((src) => src !== undefined);
-  const failed = status.some((src) => !src.ok);
-  const oldest = status.map((src) => src.at).filter(Boolean).sort()[0];
-  return (
-    <p className="source">
-      <b>{names.includes(";") ? "Sources" : "Source"}:</b> {names}.
-      {oldest && (failed ? ` The latest update failed; this is the data of ${fmtDay(oldest)}.` : ` Collected ${fmtDay(oldest)}.`)}
-    </p>
-  );
-}
 
 /** A weekly story count, shown short and read out in full. */
 function PerWeek({ value }: { value: number }) {
@@ -141,24 +120,6 @@ function ThemeCells({
   );
 }
 
-/** The figure a list is ranked by, with a bar showing it against the largest in the list. */
-function Mag({ value, max, unit }: { value: number; max: number; unit: string }) {
-  return (
-    <span className="ledger__mag">
-      <span className="ledger__bar" aria-hidden="true">
-        <span style={{ width: `${max > 0 ? (value / max) * 100 : 0}%` }} />
-      </span>
-      <span className="ledger__num">
-        {fmtCompact(value)}
-        <span className="ledger__unit"> {unit}</span>
-      </span>
-    </span>
-  );
-}
-
-const top = (xs: number[]) => Math.max(1, ...xs);
-const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
-
 const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
   { kind: "assistant", title: "Assistants" },
   { kind: "coding", title: "Coding tools and agents" },
@@ -170,16 +131,13 @@ const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
-  const { window: WINDOW, weeks, topicTrends, rankedTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = trends;
+  const { window: WINDOW, weeks, themeTrends, productTrends, hasThemes, hasProducts } = trends;
   const { headline, lead, briefing } = buildBriefing(trends);
   const compared =
     WINDOW === 1
       ? "latest week compared with the week before"
       : `last ${WINDOW} weeks compared with the ${WINDOW} weeks before`;
   const latestWeek = weeks.at(-1);
-  /** Topics with enough papers a week for a change in their share to be trusted. */
-  const papersFirm = new Set(rankedTopics.map((t) => t.id));
-  const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
   /** Themes numbered in the order shown, biggest rise in share first. */
   /** Largest share of AI stories first; a theme's bar is as thick as its share beside the largest. */
   const themeRows = THEME_GROUPS.flatMap((group) =>
@@ -242,23 +200,14 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
     (first.pinned !== undefined || isBigStory(first.discussion?.points, latest.stories.map((s) => s.points)));
   const todayRows = bigDay ? rest : today.items;
   const editorLine = lineFor(editorial, latest.generatedAt.slice(0, 10));
-  // The editor's hides apply to every ranked list, before it is cut to length.
-  const stories = visible(latest.stories, editorial).slice(0, SHOWN);
-  const papers = visible(latest.papers, editorial).slice(0, SHOWN);
-  const repos = visible(latest.repos, editorial).slice(0, SHOWN);
-  const launches = visible(latest.launches ?? [], editorial).slice(0, SHOWN);
-  const models = visible(latest.models, editorial).slice(0, SHOWN);
-  const labModels = visible(latest.releases, editorial).slice(0, SHOWN);
-  const analysis = (latest.analysis ?? []).slice(0, SHOWN);
-  const labNews = latest.labNews ?? []; // all of it: the collector already keeps this list short
   const sources = Object.entries(latest.sources);
   const stale = sources.filter(([, src]) => !src.ok).length;
   const oldest = sources.map(([, src]) => src.at).filter(Boolean).sort()[0];
 
   return (
     <>
-      <a className="skip" href="#momentum">
-        Skip to the trends
+      <a className="skip" href="#data">
+        Skip to the data
       </a>
 
       <header className="mast">
@@ -378,7 +327,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               labelledBy="today-h"
               count={todayRows.length}
               start={bigDay ? 2 : 1}
-              more={<a className="more" href="#news">The week’s top stories ↓</a>}
               cells={[
                 { head: "From", width: "9.5rem", start: true },
                 { head: "Hacker News", width: "5.5rem" },
@@ -429,94 +377,27 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </Ledger>
           ) : bigDay ? null : (
             <p className="band__empty">
-              None of the sources published anything in the 24 hours before the last update. The week’s stories are
-              in <a href="#news">the reading list</a>.
+              None of the sources published anything in the 24 hours before the last update.
             </p>
           )}
         <SourceLine names="the labs’ and newsletters’ own feeds; Hacker News" keys={["labNews", "analysis", "today"]} />
+          <p className="moved">
+            {/* The reading list's sections were on this page; links to them land here, beside the way to it. */}
+            {READING_ANCHORS.map((id) => (
+              <span key={id} id={id} />
+            ))}
+            The week’s top stories, papers, essays, launches, code and models are in{" "}
+            <Link href="/reading">the reading list →</Link>
+          </p>
         </section>
+
+        <DataIndex horizon={horizon} />
 
         <section className="chapter" aria-labelledby="trends-h">
           <header className="chapter__head">
             <p className="chapter__title" id="trends-h">The trends</p>
-            <p className="chapter__dek">What is rising and what is cooling, in research and in discussion on Hacker News.</p>
+            <p className="chapter__dek">What is rising and what is cooling in discussion on Hacker News.</p>
           </header>
-
-        <section id="momentum" className="band" aria-labelledby="momentum-h">
-          <div className="band__head">
-            <h2 id="momentum-h">Topic momentum</h2>
-            <p>
-              Each topic’s {compared}. Research is the topic’s share
-              of all AI papers on arXiv; discussion is Hacker News stories with the topic in the title. A grey
-              bar beside a large figure moved, but no further than that topic usually swings from week to week, so
-              it is not called a rise or a fall.
-            </p>
-          </div>
-
-          {hasHistory ? (
-            <>
-              <MomentumBars
-                minPapers={HEADLINE_MIN_PAPERS}
-                minStories={MAP_MIN_STORIES}
-                topics={[...topicTrends]
-                  // Largest share of papers first, so the eye meets the big topics before the small ones.
-                  .sort((a, b) => Number(b.hasPapers) - Number(a.hasPapers) || b.papers.recent - a.papers.recent)
-                  .map((t) => ({
-                  id: t.id,
-                  name: t.name,
-                  blurb: t.blurb,
-                  direction: t.direction,
-                  papers: t.papers,
-                  stories: t.stories,
-                  hasPapers: t.hasPapers,
-                  papersFirm: papersFirm.has(t.id),
-                  storiesFirm: avg(t.stories.values.slice(-2 * WINDOW)) >= MAP_MIN_STORIES,
-                }))}
-              />
-
-              <SourceLine names="arXiv (papers); Hacker News story titles (discussion)" keys={["arxivHistory", "hnHistory"]} />
-              <details className="table-view">
-                <summary>Show the weekly numbers as a table</summary>
-                <div className="table-view__scroll">
-                  <table>
-                    <caption>Papers mentioning each topic, per week (and Hacker News stories)</caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">Topic</th>
-                        {weeks.map((w) => (
-                          <th scope="col" key={w}>{fmtDay(w)}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {topicTrends.map((t) => (
-                        <tr key={t.id}>
-                          <th scope="row">{t.name}</th>
-                          {weeks.map((w, i) => (
-                            <td key={w}>
-                              {t.paperCounts[i]} <span>({t.stories.values[i]})</span>
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                      <tr>
-                        <th scope="row">All AI papers</th>
-                        {weeks.map((w) => (
-                          <td key={w}>{history.arxivTotal[w].toLocaleString("en")}</td>
-                        ))}
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </details>
-            </>
-          ) : (
-            <p className="empty">
-              This view needs {2 * WINDOW} weeks of history and {weeks.length} have been collected. Run{" "}
-              <code>npm run collect</code> to backfill the rest.
-            </p>
-          )}
-        </section>
 
         <section id="themes" className="band" aria-labelledby="themes-h">
           <div className="band__head">
@@ -1106,330 +987,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         </section>
 
-        <section id="reading" className="chapter chapter--reading" aria-labelledby="reading-h">
-          <header className="chapter__head">
-            <p className="chapter__title" id="reading-h">The reading list</p>
-            <p className="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
-          </header>
-
-        <div className="pair">
-          <section id="news" className="band" aria-labelledby="news-h">
-            <div className="band__head">
-              <h2 id="news-h">In the news</h2>
-              <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
-            </div>
-            <Ledger brief
-              first="Story"
-              labelledBy="news-h"
-              count={stories.length}
-              more={
-                <a className="more" href="https://hn.algolia.com/?dateRange=pastWeek&query=AI&sort=byPopularity&type=story" {...NEW_TAB}>
-                  More on Hacker News →
-                </a>
-              }
-              cells={[
-                { head: "Points", width: "5.5rem" },
-                { head: "Comments", width: "4.25rem" },
-              ]}
-            >
-              {stories.map((s) => (
-                <li key={s.id}>
-                  <span className="ledger__main">
-                    <a href={s.url} title={s.title} {...NEW_TAB}>{s.title}</a>
-                    <span className="ledger__note">{host(s.url)}</span>
-                  </span>
-                  <span className="ledger__data">
-                    <Mag value={s.points} max={top(stories.map((x) => x.points))} unit="points" />
-                    <span>
-                      <a href={s.discussionUrl} {...NEW_TAB}>
-                        {fmtCompact(s.comments)}
-                        <span className="ledger__unit"> comments</span>
-                      </a>
-                    </span>
-                    <span className="ledger__extra">{fmtDay(s.createdAt)}</span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-          <SourceLine names="Hacker News" keys={["stories"]} />
-          </section>
-
-          <section id="papers" className="band" aria-labelledby="papers-h">
-            <div className="band__head">
-              <h2 id="papers-h">Papers getting attention</h2>
-              <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
-            </div>
-            <Ledger brief
-              first="Paper"
-              labelledBy="papers-h"
-              count={papers.length}
-              kind="paper"
-              more={
-                <a className="more" href="https://huggingface.co/papers" {...NEW_TAB}>
-                  More papers →
-                </a>
-              }
-              cells={[
-                { head: "Upvotes", width: "5.5rem" },
-                { head: "Code", width: "2.25rem" },
-              ]}
-            >
-              {papers.map((p) => (
-                <li key={p.id}>
-                  <span className="ledger__main">
-                    <a href={p.url} title={p.title} {...NEW_TAB}>{p.title}</a>
-                  </span>
-                  <span className="ledger__data">
-                    <Mag value={p.upvotes} max={top(papers.map((x) => x.upvotes))} unit="upvotes" />
-                    <span className="ledger__extra">{fmtDay(p.publishedAt)}</span>
-                    <span>{p.codeUrl && <a href={p.codeUrl} {...NEW_TAB}>code</a>}</span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-          <SourceLine names="Hugging Face Daily Papers" keys={["papers"]} />
-          </section>
-        </div>
-
-        <div className="pair">
-          <section id="analysis" className="band" aria-labelledby="analysis-h">
-            <div className="band__head">
-              <h2 id="analysis-h">From the analysts</h2>
-              <p>
-                New writing on what AI is doing to work, companies and society, from newsletters and research
-                institutions. Some pieces need a subscription to read in full.
-              </p>
-            </div>
-            <Ledger brief
-              first="Piece"
-              labelledBy="analysis-h"
-              count={analysis.length}
-              cells={[
-                { head: "Source", width: "8.5rem", start: true },
-                { head: "Published", width: "3.75rem" },
-              ]}
-            >
-              {analysis.map((a) => (
-                <li key={a.url}>
-                  <span className="ledger__main">
-                    <a href={a.url} title={a.title} {...NEW_TAB}>{a.title}</a>
-                  </span>
-                  <span className="ledger__data">
-                    <span className="ledger__cell--start">{a.source}</span>
-                    <span>{fmtDay(a.publishedAt)}</span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-          <SourceLine names="each publisher’s own feed, named beside its piece" keys={["analysis"]} />
-          </section>
-
-          <section id="announcements" className="band" aria-labelledby="announcements-h">
-            <div className="band__head">
-              <h2 id="announcements-h">Lab announcements</h2>
-              <p>
-                The latest posts from the labs themselves, including closed-model releases: Anthropic, OpenAI,
-                Google DeepMind, Meta, Microsoft, Mistral AI, xAI and DeepSeek, and four smaller labs known for one
-                kind of model: Runway (video), ElevenLabs (voice), Suno (music) and Stability AI (images and audio).
-              </p>
-            </div>
-            <Ledger brief
-              first="Post"
-              labelledBy="announcements-h"
-              count={labNews.length}
-              cells={[
-                { head: "Lab", width: "7.5rem", start: true },
-                { head: "Published", width: "3.75rem" },
-              ]}
-            >
-              {labNews.map((a) => (
-                <li key={a.url}>
-                  <span className="ledger__main">
-                    <a href={a.url} title={a.title} {...NEW_TAB}>{a.title}</a>
-                  </span>
-                  <span className="ledger__data">
-                    <span className="ledger__cell--start">{a.source}</span>
-                    <span>{fmtDay(a.publishedAt)}</span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-          <SourceLine names="the labs’ own news feeds, and Hacker News for labs without one" keys={["labNews"]} />
-          </section>
-        </div>
-
-        {launches.length > 0 && (
-        <section id="launches" className="band" aria-labelledby="launches-h">
-          <div className="band__head">
-            <h2 id="launches-h">Product launches</h2>
-            <p>AI products their makers posted to Hacker News in the past seven days, ranked by points.</p>
-          </div>
-          <Ledger
-            first="Product"
-            labelledBy="launches-h"
-            count={launches.length}
-            kind="thing"
-            more={
-              <a className="more" href="https://news.ycombinator.com/show" {...NEW_TAB}>
-                More on Show HN →
-              </a>
-            }
-            cells={[
-              { head: "Points", width: "7.5rem" },
-              { head: "Comments", width: "4.25rem" },
-              { head: "Posted as", width: "5.5rem", start: true },
-              { head: "Posted", width: "3.25rem" },
-            ]}
-          >
-            {launches.map((l) => (
-              <li key={l.id}>
-                <span className="ledger__main">
-                  <a href={l.url} title={l.title} {...NEW_TAB}>{l.title}</a>
-                  <span className="ledger__note">{host(l.url)}</span>
-                </span>
-                <span className="ledger__data">
-                  <Mag value={l.points} max={top(launches.map((x) => x.points))} unit="points" />
-                  <span>
-                    <a href={l.discussionUrl} {...NEW_TAB}>
-                      {fmtCompact(l.comments)}
-                      <span className="ledger__unit"> comments</span>
-                    </a>
-                  </span>
-                  <span className="ledger__cell--start">{l.kind}</span>
-                  <span>
-                    <span className="ledger__unit">posted </span>
-                    {fmtDay(l.createdAt)}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </Ledger>
-          <SourceLine names="Hacker News, Show HN and Launch HN posts" keys={["launches"]} />
-        </section>
-        )}
-
-        <section id="code" className="band" aria-labelledby="code-h">
-          <div className="band__head">
-            <h2 id="code-h">Repositories gaining stars</h2>
-            <p>AI projects created on GitHub in the past 30 days, ranked by stars gained per day.</p>
-          </div>
-          <Ledger brief
-            first="Repository"
-            labelledBy="code-h"
-            count={repos.length}
-            kind="thing"
-            more={
-              <a className="more" href="https://github.com/trending" {...NEW_TAB}>
-                More on GitHub →
-              </a>
-            }
-            cells={[
-              { head: "Stars a day", width: "7.5rem" },
-              { head: "Total", width: "3.25rem" },
-              { head: "Language", width: "5.5rem", start: true },
-              { head: "Created", width: "3.25rem" },
-            ]}
-          >
-            {repos.map((r) => (
-              <li key={r.name}>
-                <span className="ledger__main">
-                  <a href={r.url} title={r.name} {...NEW_TAB}>{r.name}</a>
-                  {r.description && <span className="ledger__note" title={r.description}>{r.description}</span>}
-                </span>
-                <span className="ledger__data">
-                  <Mag value={r.starsPerDay} max={top(repos.map((x) => x.starsPerDay))} unit="stars a day" />
-                  <span>
-                    {fmtCompact(r.stars)}
-                    <span className="ledger__unit"> total</span>
-                  </span>
-                  <span className="ledger__cell--start">{r.language}</span>
-                  <span>
-                    <span className="ledger__unit">created </span>
-                    {fmtDay(r.createdAt)}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </Ledger>
-        <SourceLine names="GitHub repository search" keys={["repos"]} />
-        </section>
-
-        <div className="pair">
-          <section id="models" className="band" aria-labelledby="models-h">
-            <div className="band__head">
-              <h2 id="models-h">Models trending</h2>
-              <p>What builders are picking up on Hugging Face right now.</p>
-            </div>
-            <Ledger brief
-              first="Model"
-              labelledBy="models-h"
-              count={models.length}
-              kind="thing"
-              more={
-                <a className="more" href="https://huggingface.co/models?sort=trending" {...NEW_TAB}>
-                  More models →
-                </a>
-              }
-              cells={[
-                { head: "Likes", width: "5.5rem" },
-                { head: "Downloads", width: "4.5rem" },
-              ]}
-            >
-              {models.map((m) => (
-                <li key={m.id}>
-                  <span className="ledger__main">
-                    <a href={m.url} title={m.id} {...NEW_TAB}>{m.id}</a>
-                    {m.task && <span className="ledger__note">{task(m.task)}</span>}
-                  </span>
-                  <span className="ledger__data">
-                    <Mag value={m.likes} max={top(models.map((x) => x.likes))} unit="likes" />
-                    <span>
-                      {fmtCompact(m.downloads)}
-                      <span className="ledger__unit"> downloads</span>
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-          <SourceLine names="Hugging Face, trending models" keys={["models"]} />
-          </section>
-
-          <section id="labs" className="band" aria-labelledby="labs-h">
-            <div className="band__head">
-              <h2 id="labs-h">New from the labs</h2>
-              <p>Open models published by major AI labs in the past 45 days, by likes.</p>
-            </div>
-            <Ledger brief
-              first="Model"
-              labelledBy="labs-h"
-              count={labModels.length}
-              kind="thing"
-              cells={[
-                { head: "Likes", width: "5.5rem" },
-                { head: "Released", width: "3.75rem" },
-              ]}
-            >
-              {labModels.map((m) => (
-                <li key={m.id}>
-                  <span className="ledger__main">
-                    <a href={m.url} title={m.id} {...NEW_TAB}>{m.id}</a>
-                    {m.task && <span className="ledger__note">{task(m.task)}</span>}
-                  </span>
-                  <span className="ledger__data">
-                    <Mag value={m.likes} max={top(labModels.map((x) => x.likes))} unit="likes" />
-                    <span>
-                      <span className="ledger__unit">released </span>
-                      {fmtDay(m.createdAt)}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </Ledger>
-          <SourceLine names="Hugging Face, models published by the labs’ own accounts" keys={["releases"]} />
-          </section>
-        </div>
-
-        </section>
 
         <section id="method" className="band method" aria-labelledby="method-h">
           <div className="band__head">
@@ -1462,14 +1019,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <summary>Read how each number is counted</summary>
             <div className="prose">
               <p>
-                <strong>Research momentum</strong> counts the papers submitted to arXiv’s AI-related categories each
-                week whose title or abstract mentions a topic, as a share of all AI papers that week. Using share
-                rather than raw counts keeps conference deadlines, which lift every topic at once, from looking like
-                a trend.
-              </p>
-              <p>
-                <strong>Discussion momentum</strong> counts Hacker News stories with the topic in the title. These
-                numbers are small and jumpy, so read them as a second opinion, not a verdict.
+                <strong>Topic momentum</strong>, a topic’s share of AI papers on arXiv and its stories on Hacker
+                News, is explained beside its figures on <Link href={`${topicsHref(horizon)}#counted`}>its own page</Link>,
+                with a file of every week’s counts.
               </p>
               <p>
                 A topic is called rising or cooling when its paper share moved by at least 10%, rounded to a whole percent as shown, between the two
@@ -1496,11 +1048,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
               </p>
               <p>
-                <strong>Topic momentum</strong> sets two changes over the same windows side by side: a topic’s share
-                of AI papers and its Hacker News stories. Each column of bars has its own scale, given under the
-                list. A bar is drawn solid only when the topic averages at least {HEADLINE_MIN_PAPERS} papers, or
-                for discussion {MAP_MIN_STORIES} stories, a week. Smaller counts swing too easily, so their bars
-                are outlined and should be read with care. <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
+                <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
+                The moves named in <a href="#data">the data</a> are picked by rule too: each is the largest change in
+                its dataset that clears these tests, among series big enough to trust.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
@@ -1569,10 +1119,6 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 </ul>
               )}
               <p>
-                Closed models released only through an API do not appear in the model lists, which cover open models
-                on Hugging Face. They show up in the news and in the lab announcements instead.
-              </p>
-              <p>
                 <strong>The indicators</strong> each rest on one source and one rule. Job postings are Indeed’s own
                 count of US postings asking for AI skills. Federal documents are those whose text includes the phrase
                 “artificial intelligence”. A model release is the first post announcing a new version number in a
@@ -1615,49 +1161,12 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 before. Apps that call a model without one of these toolkits, and everyone using a chat app, are not
                 counted.
               </p>
-              <p>
-                <strong>From the analysts</strong> lists the newest pieces from a fixed set of eight newsletters and
-                research institutions, at most two from each, from the past 30 days. It is a reading list chosen
-                by the editor, not a ranking. Publishers that cover other subjects are filtered to pieces that
-                mention AI.
-              </p>
-              <p>
-                <strong>Lab announcements</strong> come from the feeds of OpenAI, Google DeepMind, Microsoft,
-                Mistral AI and ElevenLabs. The other seven labs publish no feed, or have terms that do not allow a
-                script to read it, so their posts are the ones submitted to Hacker News, under the headline given
-                there; a post nobody submitted is missing, which leaves the smaller labs thinly covered. A lab
-                takes at most three places in the list, and a smaller lab two.
-              </p>
-              <p>
-                <strong>Product launches</strong> are the past seven days’ “Show HN” and “Launch HN” posts on
-                Hacker News, where makers present their own work, with an AI term in the title and at least 10
-                points. Launch HN posts come from Y Combinator companies. The list shows what technologists
-                launched and noticed: it leans to developer tools and open-source projects, and a consumer
-                product nobody posted there is missing. A launch that describes an AI product without an AI term
-                in its title is missed too. Points measure the attention of Hacker News readers, not use or sales.
-              </p>
-              <p>
-                <strong>The reading lists</strong> show their first few items; the rest open on request. Where a
-                list is set in columns, the bar beside the figure it is ranked by shows it against the largest in
-                that list.
-              </p>
             </div>
           </details>
         </section>
       </main>
 
-      <footer className="colophon">
-        <p>
-          AI Trend Tracker is rebuilt from public data: arXiv, Hacker News, GitHub, Hugging Face and Wikipedia page views, with headlines from publishers’ own feeds. Thank you to
-          arXiv for use of its open access interoperability. Counts are keyword matches and should be read as
-          indicators, not measurements. Set in Newsreader and Geist. Data last collected{" "}
-          {fmtDate(latest.generatedAt)}.
-        </p>
-        <p>
-          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>. To
-          follow along, subscribe to the <a href="/feed.xml">weekly feed</a>: one entry a week, with that week’s headline.
-        </p>
-      </footer>
+      <Colophon />
     </>
   );
 }
