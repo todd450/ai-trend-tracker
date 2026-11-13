@@ -1,6 +1,18 @@
 {
  "conferences": [
   {
+   "id": "agentic-ai-summit-2026",
+   "name": "Agentic AI Summit 2026",
+   "host": "Berkeley RDI",
+   "kind": "industry",
+   "start": "2026-08-01",
+   "end": "2026-08-02",
+   "place": "Berkeley, USA",
+   "url": "https://rdi.berkeley.edu/events/agentic-ai-summit-2026",
+   "recordings": "https://rdi.berkeley.edu/events/agentic-ai-summit-2026",
+   "note": "Two days on agents alone at UC Berkeley, across four stages: keynotes, panels, workshops and startup spotlights. The organiser's page links each stage's morning and afternoon stream and a video for most talks."
+  },
+  {
    "id": "aie-nyc-2026",
    "name": "AI Engineer New York",
    "host": "AI Engineer",
