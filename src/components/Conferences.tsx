@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { Spark } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { NEW_TAB } from "@/lib/links";
@@ -14,7 +15,7 @@ import {
   today,
   type Phase,
 } from "@/lib/conferences";
-import { HORIZONS, STEADY_BAND, fmtChange, fmtDate, heldBack, signalDirection, type Direction, type Signal } from "@/lib/trends";
+import { HORIZONS, STEADY_BAND, fmtChange, fmtDate, fmtDay, heldBack, latest, signalDirection, type Direction, type Signal } from "@/lib/trends";
 import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
@@ -30,15 +31,25 @@ const PHASE_LABEL: Record<Phase, string> = {
 /** The comparison uses the tracker's default view, so its arrows match the front page. */
 const HORIZON = "threeMonths" as const;
 
+/** "Tool use & MCP" reads as "tool use & MCP" mid-sentence; names that open with an acronym keep their capitals. */
+const inSentence = (name: string) => (/^[A-Z]{2,}\b/.test(name) ? name : name[0].toLowerCase() + name.slice(1));
+
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
 
-/** A change with its arrow. A change resting on too few papers or stories is shown grey and says so. */
+/** A topic at or under this share of mentions, with nothing quoted from the stage, is listed in one line, not given a row. */
+const THIN_SHARE = 0.01;
+
+/**
+ * A change as the trends page shows it: the series week by week as a small line, then the figure
+ * with its mark. A change resting on too few papers or stories is shown grey and says so.
+ */
 function Move({ signal, label, firm }: { signal: Signal; label: string; firm: boolean }) {
   const change = signal.change;
   const tone = firm ? signalDirection(signal, STEADY_BAND) : "steady";
   const held = firm && heldBack(signal, STEADY_BAND);
   return (
     <span className={firm ? (held ? "change change--held" : "change") : "change change--thin"}>
+      <Spark values={signal.values} tone={tone} />
       <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
         {firm ? ARROW[tone] : "○"}
       </span>
@@ -66,7 +77,9 @@ function Stage({ c }: { c: Conference }) {
   const total = rows.reduce((sum, r) => sum + r.mentions, 0);
   const max = Math.max(1, ...rows.map((r) => r.mentions));
   const fromTalks = stage.source === "talks";
-  const heard = rows.filter((r) => r.mentions > 0);
+  /** A row needs either a real share of the stage or something quoted from it; the rest are named in one line. */
+  const heard = rows.filter((r) => r.mentions > 0 && (r.share > THIN_SHARE || r.points.length > 0));
+  const barely = rows.filter((r) => r.mentions > 0 && !heard.includes(r));
   const unheard = rows.filter((r) => r.mentions === 0);
   const window = HORIZONS[HORIZON].window;
 
@@ -85,7 +98,20 @@ function Stage({ c }: { c: Conference }) {
             and abstracts, {total.toLocaleString("en")} mentions of a tracked topic.
           </>
         )}{" "}
-        Trend arrows compare the last {window} weeks with the {window} before.
+        The research and discussion figures are the tracker’s own, for the last {window} weeks against the{" "}
+        {window} before, as on the <Link href="/">trends page</Link>.
+      </p>
+      <p className="conf__caveat">
+        <strong>How to read this.</strong> A conference’s subject decides most of what is said on its stage, so a
+        topic being loud here shows what the event was about, not that the field has moved. The comparison says
+        most about topics the event was not built around.
+        {fromTalks && (
+          <>
+            {" "}
+            What speakers said is paraphrased from automatic captions, which can mishear names and numbers; each
+            claim links to its moment in the recording so it can be checked there.
+          </>
+        )}
       </p>
 
       <div className="stage-cols" aria-hidden="true">
@@ -109,7 +135,7 @@ function Stage({ c }: { c: Conference }) {
               <span className="stage__num">
                 {pct(r.share)}
                 <span className="vh"> of topic mentions,</span> <span className="stage__count">{r.mentions}</span>
-                <span className="vh"> mentions</span>
+                <span className="vh"> {r.mentions === 1 ? "mention" : "mentions"}</span>
               </span>
             </div>
             <div className="stage__move">
@@ -141,6 +167,18 @@ function Stage({ c }: { c: Conference }) {
           </li>
         ))}
       </ol>
+      {barely.length > 0 && (
+        <p className="conf__unheard">
+          <strong>Barely mentioned ({pct(THIN_SHARE)} of mentions or less):</strong>{" "}
+          {barely.map((r, i) => (
+            <span key={r.topic.id}>
+              {i > 0 && ", "}
+              {r.topic.name} ({r.mentions})
+            </span>
+          ))}
+          .
+        </p>
+      )}
       {unheard.length > 0 && (
         <p className="conf__unheard">
           <strong>Not mentioned at all:</strong>{" "}
@@ -154,6 +192,11 @@ function Stage({ c }: { c: Conference }) {
           .
         </p>
       )}
+      <p className="source">
+        <b>Sources:</b> {fromTalks ? "the event’s recordings, from their automatic captions" : "the organiser’s published programme"}{" "}
+        (stage); arXiv and Hacker News story titles (research and discussion). Trend data collected{" "}
+        {fmtDay(latest.generatedAt)}.
+      </p>
     </>
   );
 }
@@ -196,13 +239,24 @@ export function Conferences() {
   const next = upcoming[0];
   const months = [...new Set(upcoming.map((c) => c.start.slice(0, 7)))];
   const watched = conferences.filter((c) => phaseOf(c) === "watched").length;
+  const partly = conferences.filter((c) => phaseOf(c) === "partly").length;
 
-  const lead = underway.length
+  /** The newest event whose talks have been read: its loudest topic is the page's finding. */
+  const reported = read.find((c) => c.recap && c.stage?.source === "talks");
+  const loudest = reported ? stageAgainstTrends(reported, HORIZON)[0] : undefined;
+
+  const finding =
+    reported && loudest && loudest.mentions > 0
+      ? `At ${reported.name}, ${inSentence(loudest.topic.name)} took ${pct(loudest.share)} of topic mentions on stage.`
+      : "";
+  const calendar = underway.length
     ? `${underway.map((c) => c.name).join(" and ")} ${underway.length > 1 ? "are" : "is"} under way in ${underway[0].place.split(",")[0]}.`
     : next
       ? `Next on the calendar: ${next.name}, ${when(next)}.`
       : "No conferences on the calendar yet.";
-  const turn = underway.length && next ? `Next: ${next.name}, ${when(next)}.` : "";
+  // What was said leads when there is something to report; the calendar follows it.
+  const lead = finding || calendar;
+  const turn = finding ? calendar : underway.length && next ? `Next: ${next.name}, ${when(next)}.` : "";
 
   return (
     <>
@@ -254,7 +308,8 @@ export function Conferences() {
                 agrees with the trends, and where it runs ahead of them or behind.
               </p>
               <p className="lede__meta">
-                {conferences.length} events on the calendar · {upcoming.length} upcoming · {watched} watched so far
+                {conferences.length} events on the calendar · {upcoming.length} upcoming · {watched} watched in full
+                {partly > 0 && `, ${partly} in part`}
               </p>
             </div>
           </div>

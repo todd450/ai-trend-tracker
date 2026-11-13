@@ -188,6 +188,8 @@ code {
 }
 
 .mast__name {
+  /* Set here, not left to the heading rule: the name is a heading on one page and a link home on the other. */
+  font-family: var(--font-display);
   font-size: var(--text-mast);
   font-weight: 700;
   line-height: 0.95;
@@ -2068,6 +2070,27 @@ code {
   min-width: 5.5rem;
 }
 
+/* The same small line the trends page draws beside each figure. */
+.stage__move .mom__spark {
+  flex: none;
+  width: 3rem;
+  align-self: center;
+}
+
+/* On a narrow screen each trend figure takes its own line, so the line and figure have room. */
+@media (max-width: 59.99rem) {
+  .stage__move {
+    grid-column: 1 / -1;
+  }
+}
+
+.conf__caveat {
+  max-width: 60rem;
+  margin-block: var(--space-xs) var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+
 .stage__none {
   font-size: var(--text-xs);
   color: var(--color-muted);
@@ -2135,7 +2158,7 @@ code {
 @media (min-width: 60rem) {
   .stage-cols,
   .stage__row {
-    grid-template-columns: minmax(10rem, 1.1fr) minmax(0, 1.6fr) 6.5rem 6.5rem minmax(0, 1.4fr);
+    grid-template-columns: minmax(10rem, 1.1fr) minmax(0, 1.4fr) 9rem 9rem minmax(0, 1.3fr);
     column-gap: var(--space-lg);
   }
 

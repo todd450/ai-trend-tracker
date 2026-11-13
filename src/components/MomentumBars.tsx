@@ -32,7 +32,7 @@ export const extentOf = (changes: (number | null)[]) => {
  * scale, so it shows the shape of the series (a spike, a climb, a slide) and not its size; size is
  * carried by the thickness of the bar beside it and by the order of the rows.
  */
-function Spark({ values, tone }: { values: number[]; tone: Direction }) {
+export function Spark({ values, tone }: { values: number[]; tone: Direction }) {
   if (values.length < 2) return <span className="mom__spark" />;
   const W = 60;
   const H = 20;
