@@ -284,12 +284,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 ...(hasProducts ? [{ href: "#products" as const, label: "Products" }] : []),
                 { href: "#indicators", label: "Indicators" },
                 { href: adoption ? "#adoption" : "#usage", label: "Usage" },
-                { href: "#news", label: "News" },
-                { href: "#papers", label: "Papers" },
-                { href: "#analysis", label: "Analysis" },
-                ...(launches.length ? [{ href: "#launches" as const, label: "Launches" }] : []),
-                { href: "#code", label: "Code" },
-                { href: "#models", label: "Models" },
+                // The eight reference lists share one link, so the row fits without scrolling sideways.
+                { href: "#reading", label: "Reading list" },
                 { href: "#method", label: "Method" },
               ]}
             />
@@ -597,10 +593,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                   );
                 })}
                 <p className="mom__note">
-                  The largest themes come first in each group. Each line shows the weeks charted, from zero on its
-                  own scale; a bar’s length is the change and its thickness is the theme’s share beside the largest.
-                  Bars run to ±{Math.round(themeExtent * 100)}%. Steady means a change under {THEME_STEADY_BAND * 100}%,
-                  or one no bigger than the theme’s usual swing from week to week.
+                  Largest themes first. Line: the weeks charted, from zero. Bar: length is the change (to ±
+                  {Math.round(themeExtent * 100)}%), thickness is the theme’s size. Grey: under{" "}
+                  {THEME_STEADY_BAND * 100}%, or within the theme’s usual weekly swing.
                   {themeTrends.some((t) => t.parts.some((part) => !part.enough)) && (
                     <>
                       {" "}
@@ -685,7 +680,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                     <h3>
                       {group.title} <span>{members.length}</span>
                     </h3>
-                    <ol start={members[0].rank}>
+                    <MoreRows count={members.length} noun="products">
                       {members.map(({ p, rank }) => {
                         const views = p.views;
                         return (
@@ -732,16 +727,16 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                           </li>
                         );
                       })}
-                    </ol>
+                    </MoreRows>
                   </section>
                 );
               })}
               <p className="mom__note">
-                Bars run to ±{Math.round(productStoryExtent * 100)}% for discussion and ±{Math.round(productViewExtent * 100)}%
-                for public interest. A grey bar is a change too small to call, or no bigger than the product’s usual
-                swing from week to week. Discussion is not called for a product with fewer than{" "}
-                {PRODUCT_MIN_STORIES} stories a week.
+                Each group shows its five most discussed products first. Bars run to ±{Math.round(productStoryExtent * 100)}%
+                (discussion) and ±{Math.round(productViewExtent * 100)}% (interest). Grey: too small to call, or within
+                the product’s usual weekly swing. Under {PRODUCT_MIN_STORIES} stories a week, discussion is not called.
               </p>
+              <SourceLine names="Hacker News story titles (discussion); Wikipedia page views (public interest)" keys={["hnProducts", "wikiProducts"]} />
             </div>
           </section>
         )}
@@ -1116,7 +1111,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
 
         </section>
 
-        <section className="chapter chapter--reading" aria-labelledby="reading-h">
+        <section id="reading" className="chapter chapter--reading" aria-labelledby="reading-h">
           <header className="chapter__head">
             <p className="chapter__title" id="reading-h">The reading list</p>
             <p className="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
@@ -1314,6 +1309,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </li>
             ))}
           </Ledger>
+          <SourceLine names="Hacker News, Show HN and Launch HN posts" keys={["launches"]} />
         </section>
         )}
 

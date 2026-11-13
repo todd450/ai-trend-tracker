@@ -186,16 +186,13 @@ export function MomentumBars({ topics, minPapers, minStories }: { topics: BarTop
         );
       })}
       <p className="mom__note">
-        Within each group the largest topics come first. Each line shows the weeks charted, from zero on its own
-        scale, so read it for shape. A bar’s length is the change and its thickness is the topic’s size beside the
-        largest in its column. Bars run to ±{pct(researchExtent)} for research and ±{pct(discussionExtent)} for discussion. Steady means a
-        change under 10%, or one no bigger than the topic’s usual swing from week to week: those keep their
-        figure and a grey bar.
+        Largest topics first. Line: the weeks charted, from zero, each on its own scale. Bar: length is the change
+        (to ±{pct(researchExtent)} research, ±{pct(discussionExtent)} discussion), thickness is the topic’s size. Grey:
+        under 10%, or within the topic’s usual weekly swing.
         {anySoft && (
           <>
             {" "}
-            <span className="mom__swatch" aria-hidden="true" /> Outlined bars rest on fewer than {minPapers} papers or{" "}
-            {minStories} stories a week; read them with care.
+            <span className="mom__swatch" aria-hidden="true" /> Outlined: fewer than {minPapers} papers or {minStories} stories a week.
           </>
         )}
       </p>
