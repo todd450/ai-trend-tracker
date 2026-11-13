@@ -143,6 +143,8 @@ const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
   { kind: "assistant", title: "Assistants" },
   { kind: "coding", title: "Coding tools and agents" },
   { kind: "media", title: "Image, video and voice" },
+  { kind: "device", title: "Devices" },
+  { kind: "robot", title: "Robots and driverless cars" },
 ];
 
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
@@ -624,7 +626,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             <div className="band__head">
               <h2 id="products-h">Product momentum</h2>
               <p>
-                {productTrends.length} AI products people use, measured two ways: stories naming the product on
+                {productTrends.length} AI products people use, from chat assistants to glasses and robots, measured two ways: stories naming the product on
                 Hacker News, which shows what developers are talking about, and views of its Wikipedia article,
                 which shows how many people are looking it up. Each is the {compared}.
               </p>
@@ -1487,7 +1489,9 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 Wikipedia article by people, not crawlers, averaged over each week. It shows how many people
                 looked the product up, which rises with news of any kind, good or bad, and is not a count of
                 users. It covers English readers only. A product whose article is part of a larger one has no
-                figure. Neither measure is use or revenue.
+                figure. Neither measure is use or revenue. Devices, robots and driverless cars are discussed too little on Hacker News to call, so
+                they are read by public interest alone; where a robot has no article of its own, its maker’s
+                article stands in, and its views include interest in the company.
               </p>
               <p>
                 <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was

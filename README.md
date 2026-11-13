@@ -10,7 +10,7 @@ key; everything else needs no keys.
 | Research | arXiv | Weekly share of AI papers mentioning each topic |
 | Discussion | Hacker News | Weekly stories with each topic in the title, and the week's top AI stories |
 | Today | Lab news, the newsletters and Hacker News | Everything published in the 24 hours before the data was collected, biggest first by Hacker News points |
-| Products | Hacker News and Wikipedia page views | For 24 products: weekly stories naming the product, and weekly views of its Wikipedia article |
+| Products | Hacker News and Wikipedia page views | For 37 products, software and hardware: weekly stories naming the product, and weekly views of its Wikipedia article |
 | Launches | Hacker News | The past week's "Show HN" and "Launch HN" posts with an AI term in the title, ranked by points |
 | Code | GitHub | New AI repositories ranked by stars gained per day |
 | Models | Hugging Face | Trending models, new uploads from major labs, and most-upvoted papers |
