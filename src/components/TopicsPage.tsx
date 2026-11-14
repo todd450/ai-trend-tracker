@@ -82,7 +82,7 @@ export function TopicsPage({ horizon }: { horizon: Horizon }) {
         Skip to the figures
       </a>
 
-      <SiteMast current="trends" line={latestWeek ? `Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"} />
+      <SiteMast current="trends" line={latestWeek ? `Updated ${fmtDate(latest.generatedAt)}` : "First edition in preparation"} />
 
       <div className="bar">
         <div className="bar__inner">
