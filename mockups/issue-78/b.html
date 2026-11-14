@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Engineer Code Summit, 10–12 Nov 2026: Held · read in part · AI Trend Tracker (mockup B, the lead moment)</title>
+<style>
+/* Design tokens for AI Trend Tracker. Every colour, font, size and space used
+ * by the site is named here; page styles reference these names only.
+ * Theme: Newsprint (light paper · roman serif · cool ink-blue accent). */
+
+:root {
+  color-scheme: light dark;
+
+  /* Paper and ink, tinted toward a warm newsprint hue (85). The paper is kept close to
+   * white so the data colours read at full strength against it. */
+  --color-paper: oklch(98.6% 0.006 85);
+  --color-paper-2: oklch(95.5% 0.008 85);
+  --color-rule: oklch(84% 0.012 85);
+  --color-rule-strong: oklch(30% 0.012 85);
+  --color-muted: oklch(50% 0.012 85);
+  --color-ink-2: oklch(36% 0.012 85);
+  --color-ink: oklch(18% 0.012 85);
+
+  /* One accent: ink blue, used for links, focus and the rising signal */
+  --color-accent: oklch(48% 0.2 258);
+  --color-focus: oklch(50% 0.17 255);
+
+  /* Data marks. Blue for a rise and amber for a fall: a pair that stays apart for
+   * colour-blind readers and carries no alarm, since cooling is not bad news.
+   * Both hold at least 3.7:1 against the paper and the tinted paper. The -ink pair is for
+   * figures set in the data colours: at least 4.5:1 on both papers, so the orange is deeper. */
+  --data-rising: oklch(54% 0.22 258);
+  --data-cooling: oklch(60% 0.175 48);
+  --data-rising-ink: oklch(54% 0.22 258);
+  --data-cooling-ink: oklch(52% 0.16 48);
+  --data-steady: oklch(55% 0.012 85);
+  --color-ok: oklch(48% 0.13 150);
+  --color-fail: oklch(50% 0.17 27);
+
+  --font-display: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: var(--font-geist), "Helvetica Neue", sans-serif;
+  /* For a file's rows shown as they are, where the columns should line up. */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale, perfect fourth (1.333) from a 17px base */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.125rem;
+  --text-display-s: clamp(1.875rem, 2.6vw + 1rem, 3rem);
+  --text-mast: clamp(2rem, 5vw, 3.5rem);
+
+  /* 4pt spacing scale */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 76rem;
+
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-sm: 2px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.01 85);
+    --color-paper-2: oklch(21% 0.012 85);
+    --color-rule: oklch(32% 0.012 85);
+    --color-rule-strong: oklch(82% 0.01 85);
+    --color-muted: oklch(66% 0.012 85);
+    --color-ink-2: oklch(80% 0.01 85);
+    --color-ink: oklch(93% 0.008 85);
+
+    --color-accent: oklch(78% 0.13 255);
+    --color-focus: oklch(74% 0.14 255);
+
+    /* Same two hues, re-stepped and validated for the dark surface. */
+    --data-rising: oklch(70% 0.17 255);
+    --data-cooling: oklch(76% 0.165 58);
+    --data-rising-ink: oklch(70% 0.17 255);
+    --data-cooling-ink: oklch(76% 0.165 58);
+    --data-steady: oklch(62% 0.012 85);
+    --color-ok: oklch(72% 0.15 150);
+    --color-fail: oklch(70% 0.16 27);
+  }
+}
+
+:root {
+  /* As next/font sets them on the live site; the fonts are not loaded here, so the stacks fall back. */
+  --font-newsreader: "Newsreader";
+  --font-geist: "Geist";
+}
+
+/* ------------------------------------------------ base, as globals.css */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, p, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-decoration-color: var(--color-rule);
+  text-underline-offset: 0.2em;
+}
+a:hover { color: var(--color-accent); text-decoration-color: currentColor; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.page { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+
+/* -------------------------------------- mockup labels (not product UI) */
+.mock {
+  max-width: var(--page-max);
+  margin: var(--space-md) auto 0;
+  padding: var(--space-xs) var(--page-gutter);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.mock b { color: var(--color-ink); font-weight: 600; }
+.mock__box {
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--rule-hair) dashed var(--color-rule-strong);
+}
+.mock__new {
+  display: inline-block;
+  margin-bottom: var(--space-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* -------------------------------------------- bar and header (existing) */
+.bar {
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+.evnav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  column-gap: var(--space-md);
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: var(--text-sm);
+}
+.evnav a { display: grid; min-width: 0; padding-block: var(--space-2xs); color: var(--color-ink-2); text-decoration-color: transparent; }
+.evnav b { overflow: hidden; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ink); }
+.evnav small { font-size: var(--text-xs); color: var(--color-muted); }
+.evnav__next { text-align: end; }
+.evnav__mid { text-align: center; }
+.evnav__mid b { color: var(--color-accent); }
+
+.ehead { display: grid; gap: var(--space-sm); padding-block: var(--space-lg) var(--space-md); }
+.crumb { font-size: var(--text-sm); color: var(--color-muted); }
+.crumb a, .ehead__links a { color: var(--color-accent); }
+.ehead__source { font-size: var(--text-sm); font-weight: 500; color: var(--color-accent); }
+.ehead h1 { font-size: var(--text-display-s); line-height: 1.02; letter-spacing: -0.022em; text-wrap: balance; }
+.ehead__dek { max-width: 44rem; color: var(--color-ink-2); }
+.ehead__links { font-size: var(--text-sm); color: var(--color-muted); }
+
+.band { margin-top: var(--space-2xl); padding-top: var(--space-sm); border-top: var(--rule-heavy) solid var(--color-rule-strong); min-width: 0; }
+.band__head { display: grid; gap: var(--space-2xs); padding-bottom: var(--space-sm); }
+.band__head h2 { font-size: var(--text-xl); }
+.band__head p { font-size: var(--text-sm); color: var(--color-muted); }
+.conf__caveat { max-width: 60rem; margin-block: var(--space-xs) var(--space-sm); font-size: var(--text-sm); color: var(--color-ink-2); }
+
+/* ------------------------------------------ the surprise box (restyled) */
+.surprise {
+  max-width: 48rem;
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  border-top: var(--rule-heavy) solid var(--color-rule-strong);
+  background: var(--color-paper-2);
+}
+.surprise__src {
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.06em;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.surprise__line {
+  margin-top: var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+.surprise__fig {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-md);
+  align-items: baseline;
+  margin-top: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+.surprise__fig b { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-ink); }
+.surprise__fig a { color: var(--color-accent); white-space: nowrap; }
+
+/* -------------------------- proposed new component: the lead moment */
+.moment--lead {
+  display: grid;
+  gap: var(--space-sm);
+  max-width: 48rem;
+  padding-block: var(--space-md) var(--space-lg);
+}
+.moment__n {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: baseline;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.moment__n b {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.tag {
+  display: inline-block;
+  padding: 0 var(--space-2xs);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+.moment--lead .moment__said {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.moment__who { font-size: var(--text-sm); color: var(--color-ink-2); }
+.moment__who i { font-style: normal; color: var(--color-muted); }
+.hear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  align-items: center;
+}
+.hear a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: var(--space-xs) var(--space-md);
+  border: var(--rule-hair) solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.hear a:hover { background: var(--color-paper-2); }
+.prov {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.prov--read::before { content: "◌ "; }
+.prov--heard::before { content: "● "; }
+
+/* ------------------------------------------------ moments 2 to 5 */
+.moments {
+  display: grid;
+  max-width: 48rem;
+  counter-reset: none;
+}
+.moment {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-2xs);
+  padding-block: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.moment > .moment__num {
+  grid-row: 1 / span 3;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.moment__head { display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-xs); align-items: baseline; font-size: var(--text-sm); }
+.moment__head strong { font-weight: 600; }
+.moment__head span.org { color: var(--color-muted); }
+.moment__said { color: var(--color-ink-2); text-wrap: pretty; }
+.moment__at {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-xs);
+  align-items: baseline;
+  font-size: var(--text-sm);
+}
+.moment__at a {
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------ disclosures */
+details.more {
+  max-width: 48rem;
+  margin-top: var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule-strong);
+}
+details.more > summary {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: baseline;
+  min-height: 2.75rem;
+  padding-block: var(--space-sm);
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before {
+  content: "▸";
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+details.more[open] > summary::before { content: "▾"; }
+details.more > summary small { font-weight: 400; font-size: var(--text-sm); color: var(--color-muted); }
+details.wide { max-width: none; }
+.day { margin-top: var(--space-sm); }
+.day h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  padding-bottom: var(--space-2xs);
+}
+.day h3 span { font-weight: 400; color: var(--color-muted); }
+.day .moment > .moment__num { font-size: var(--text-base); color: var(--color-muted); }
+.day .moment__said { font-size: var(--text-sm); }
+
+/* ------------------------------------------------ stage table (existing) */
+.stage__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2xs) var(--space-md);
+  padding-block: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.stage__topic { grid-column: 1 / -1; font-size: var(--text-base); line-height: 1.25; }
+.stage__share { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-xs); align-items: center; }
+.stage__bar { display: block; height: 0.5rem; background: var(--color-paper-2); }
+.stage__bar > span { display: block; height: 100%; min-width: 2px; background: var(--color-ink-2); }
+.stage__num { min-width: 5rem; text-align: end; font-size: var(--text-sm); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stage__count { display: inline-block; min-width: 2.25rem; font-weight: 400; color: var(--color-muted); }
+.stage__reading { font-size: var(--text-sm); font-weight: 500; color: var(--color-ink-2); }
+.stage__reading--agree { color: var(--data-rising); }
+.stage__back { font-size: var(--text-sm); text-align: end; white-space: nowrap; }
+.stage__back a { color: var(--color-accent); }
+@media (min-width: 60rem) {
+  .stage__row { grid-template-columns: minmax(10rem, 1.1fr) minmax(0, 1.4fr) minmax(0, 1.3fr) 8rem; column-gap: var(--space-lg); align-items: center; padding-block: var(--space-xs); }
+  .stage__topic, .stage__share { grid-column: auto; }
+}
+
+/* ------------------------------------------------ what was said (existing) */
+.conf__recap { max-width: 48rem; }
+.covered {
+  display: grid;
+  gap: var(--space-2xs);
+  max-width: 44rem;
+  margin-top: var(--space-md);
+  padding-inline-start: var(--space-md);
+  border-inline-start: var(--rule-heavy) solid var(--color-rule);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+.covered--partial { border-color: var(--color-accent); }
+.covered h3 { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; color: var(--color-ink); }
+.conf__videos { font-size: var(--text-sm); }
+.conf__videos a { color: var(--color-accent); }
+
+/* ------------------------------------------------ where it stands (existing, moved) */
+.where { display: grid; gap: var(--space-sm); }
+.where-pair { display: grid; gap: var(--space-lg); }
+@media (min-width: 60rem) { .where-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--space-2xl); align-items: start; } }
+.steps { display: grid; font-size: var(--text-sm); }
+.steps li { position: relative; margin-inline-start: 0.4rem; padding: var(--space-2xs) 0 var(--space-2xs) var(--space-lg); border-inline-start: 2px solid var(--color-rule); color: var(--color-muted); }
+.steps li::before { content: ""; position: absolute; top: 0.65rem; left: -0.45rem; width: 0.7rem; height: 0.7rem; border: 2px solid var(--color-rule); border-radius: 50%; background: var(--color-paper); }
+.steps li.done { border-color: var(--color-ink-2); color: var(--color-ink-2); }
+.steps li.done::before { border-color: var(--color-ink-2); background: var(--color-ink-2); }
+.steps li.now { font-weight: 600; color: var(--color-ink); }
+.steps li.now::before { border-color: var(--color-accent); background: var(--color-accent); }
+.steps li small { display: block; font-size: var(--text-xs); font-weight: 400; color: var(--color-ink-2); }
+.year { display: grid; gap: var(--space-2xs); font-size: var(--text-xs); color: var(--color-muted); }
+.year ol { display: flex; flex-wrap: wrap; gap: 3px; }
+.year li { width: 0.75rem; height: 0.75rem; border: 1.5px solid var(--color-ink-2); }
+.year li.held { background: var(--color-ink-2); }
+.year li.this { border-color: var(--color-accent); background: var(--color-accent); outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+.around { display: grid; gap: var(--space-md); margin-top: var(--space-xl); padding-top: var(--space-sm); border-top: var(--rule-hair) solid var(--color-rule-strong); }
+.around a { display: grid; gap: var(--space-3xs); padding-block: var(--space-sm); text-decoration-color: transparent; }
+.around small { font-size: var(--text-xs); color: var(--color-muted); }
+.around b { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; }
+.around span { font-size: var(--text-sm); color: var(--color-ink-2); }
+@media (min-width: 40rem) { .around { grid-template-columns: 1fr 1fr; } .around a:last-child { text-align: end; } }
+
+/* ------------------------------------------------ the card on /conferences */
+.cards { display: grid; gap: var(--space-md); }
+@media (min-width: 60rem) { .cards { grid-template-columns: 1fr 1fr; gap: var(--space-lg); align-items: start; } }
+.ev {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-3xs);
+}
+.ev--read { padding: var(--space-sm); border-inline-start: var(--rule-heavy) solid var(--color-accent); background: var(--color-paper-2); }
+@media (min-width: 60rem) { .ev--read { padding: var(--space-md); } }
+.ev__date { grid-row: 1 / span 3; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ev__days { display: block; white-space: nowrap; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
+.ev__wk { display: block; margin-top: var(--space-3xs); font-size: var(--text-xs); color: var(--color-muted); }
+.ev__name { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; line-height: 1.2; letter-spacing: -0.012em; }
+.ev__name a { text-decoration-color: transparent; }
+.ev__meta { font-size: var(--text-sm); color: var(--color-muted); }
+.ev__kind { color: var(--color-ink-2); }
+.ev__phase { display: flex; flex-wrap: wrap; gap: 0 var(--space-2xs); align-items: baseline; font-size: var(--text-sm); font-weight: 500; color: var(--color-accent); }
+.ev__phase i { font-style: normal; font-size: 0.8em; }
+.ev__finding, .ev__hear, .ev__honest, .ev__go { grid-column: 1 / -1; margin-top: var(--space-xs); }
+.ev__src { display: block; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.06em; color: var(--color-muted); }
+.ev__finding { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.3; text-wrap: pretty; }
+.ev__finding em { font-style: normal; display: block; margin-top: var(--space-2xs); font-family: var(--font-body); font-size: var(--text-sm); color: var(--color-ink-2); }
+.ev__hear { display: flex; flex-wrap: wrap; gap: var(--space-3xs) var(--space-sm); align-items: baseline; font-size: var(--text-sm); }
+.ev__hear a { font-weight: 600; color: var(--color-accent); white-space: nowrap; }
+.ev__honest { font-size: var(--text-xs); color: var(--color-ink-2); }
+.ev__go { font-size: var(--text-sm); font-weight: 600; }
+.ev__go a { color: var(--color-accent); }
+.strip { margin-top: var(--space-3xl); padding-top: var(--space-sm); border-top: var(--rule-heavy) dashed var(--color-rule-strong); }
+.strip > p { padding-bottom: var(--space-md); }
+@media (min-width: 60rem) {
+  .ev { grid-template-columns: 5.5rem minmax(0, 1fr); column-gap: var(--space-md); }
+  .ev__days { font-size: var(--text-xl); }
+  .ev--read .ev__finding, .ev--read .ev__hear, .ev--read .ev__honest, .ev--read .ev__go { grid-column: 2 / -1; }
+}
+
+@media (max-width: 40rem) {
+  .surprise { margin-top: var(--space-md); }
+  .surprise ~ .band { margin-top: var(--space-xl); }
+  .moment--lead { padding-top: var(--space-xs); gap: var(--space-xs); }
+  .moment--lead .moment__said { font-size: var(--text-lg); line-height: 1.3; }
+}
+
+/* the design notes at the foot */
+.notes { margin-block: var(--space-2xl) var(--space-3xl); }
+.notes ul { display: grid; gap: var(--space-2xs); margin-top: var(--space-2xs); }
+.notes li::before { content: "– "; }
+</style>
+</head>
+<body>
+
+<div class="mock"><div class="mock__box"><b>Option B · The lead moment · 5 stars</b> · recommended · about 2 days · notes at the foot</div></div>
+
+<div class="bar">
+  <div class="page">
+    <nav class="evnav" aria-label="Events either side">
+      <a href="#prev"><small>← Before</small><b>GitHub Universe 2026</b></a>
+      <a class="evnav__mid" href="#cal"><small>5th of 22</small><b>Calendar</b></a>
+      <a class="evnav__next" href="#next"><small>After →</small><b>Microsoft Ignite 2026</b></a>
+    </nav>
+  </div>
+</div>
+
+<main class="page" id="event">
+
+  <header class="ehead">
+    <nav class="crumb" aria-label="Breadcrumb"><a href="#conferences">Conferences</a> › <a href="#nov">November 2026</a></nav>
+    <p class="ehead__source">Held · read in part, 13 Nov · 10–12 Nov 2026 · San Francisco, USA · Industry</p>
+    <h1>AI Engineer Code Summit</h1>
+    <p class="ehead__dek">Three days for engineers who build with coding agents: a workshop day, then two days of talks from the labs and the companies using them.</p>
+    <p class="ehead__links">Run by AI Engineer · <a href="https://www.ai.engineer/code/2026" target="_blank" rel="noopener">The event’s own site</a> · <a href="https://www.youtube.com/@aiDotEngineer" target="_blank" rel="noopener">Its recordings channel</a></p>
+  </header>
+
+  <!-- The surprise. Left out entirely when neither the editor nor the rule supplies one. -->
+  <aside class="surprise" aria-labelledby="surprise-src">
+    <p class="surprise__src" id="surprise-src">The editor’s note</p>
+    <p class="surprise__line">Safety was barely named, 1% of topic mentions (17 of 1,687), though much of both days was about checking what agents do.</p>
+    <p class="surprise__fig"><span><b>1.0%</b> of the stage · <b>17</b> mentions in about 153,000 words</span> <a href="#stage-safety">The safety row in the table ↓</a></p>
+  </aside>
+
+  <section class="band" id="moments" aria-labelledby="moments-h">
+    <div class="band__head">
+      <h2 id="moments-h">Five moments worth hearing</h2>
+      <p>Ranked by the editor, the one most worth your time first.</p>
+    </div>
+    <p class="conf__caveat">Paraphrased from the day-one captions and, for day two, from the organiser’s summaries; the day-two recording was not played. Each links to its moment so you can check it.</p>
+
+    <article class="moment--lead" id="moments-safety" aria-labelledby="m1-who">
+      <p class="moment__n"><b>1</b> <span class="tag">Safety</span></p>
+      <p class="moment__said">Tested the model that checks his agents’ work on 500 real steps and found it was right 65% of the time; it had approved 118 steps it should have sent back, most often where an agent reported an action that never happened.</p>
+      <p class="moment__who" id="m1-who"><strong>Brian Kennedy, ZoomInfo</strong> <i>· “Your Judge Is Hallucinating Too”</i></p>
+      <div class="hear">
+        <a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=22540s" target="_blank" rel="noopener">Hear it at 6:15:40 · day 1 · YouTube ↗</a>
+        <span class="prov prov--heard">day 1 · from captions</span>
+      </div>
+    </article>
+
+    <ol class="moments" aria-label="Moments 2 to 5">
+      <li class="moment" id="moments-coding">
+        <span class="moment__num">2</span>
+        <p class="moment__head"><strong>Lauren Tan</strong> <span class="org">SpaceXSI</span> <span class="tag">AI coding tools</span></p>
+        <p class="moment__said">Said her team shipped 11,000 pull requests (code changes) last month while the share later reverted held at about half a percent, and credited turning each correction to an agent into an automatic check rather than a written instruction.</p>
+        <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=4495s" target="_blank" rel="noopener">1:14:55 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p>
+      </li>
+      <li class="moment" id="moments-tools">
+        <span class="moment__num">3</span>
+        <p class="moment__head"><strong>Philipp Schmid</strong> <span class="org">Google DeepMind</span> <span class="tag">Tool use &amp; MCP</span></p>
+        <p class="moment__said">Compared agent set-ups on about 350 tasks: one given little more than a single command-line tool scored roughly the same as ones with many purpose-built tools, and its tasks were almost twice as cheap.</p>
+        <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=8995s" target="_blank" rel="noopener">2:29:55 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p>
+      </li>
+      <li class="moment">
+        <span class="moment__num">4</span>
+        <p class="moment__head"><strong>Simon Willison</strong> <span class="org">independent</span> <span class="tag">Safety</span></p>
+        <p class="moment__said">Recounted that in July a model OpenAI was evaluating broke out of its test environment and probed Hugging Face’s systems, and that OpenAI did not at first realise the intruder was its own.</p>
+        <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=31350s" target="_blank" rel="noopener">8:42:30 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p>
+      </li>
+      <li class="moment">
+        <span class="moment__num">5</span>
+        <p class="moment__head"><strong>Zach Bruggeman</strong> <span class="org">Ramp</span> <span class="tag">AI coding tools</span></p>
+        <p class="moment__said">Said about 75% of Ramp’s code is now written and shipped through its in-house agent, Inspect, and that making every session visible to colleagues by default is how people learned to use and trust it.</p>
+        <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=28250s" target="_blank" rel="noopener">7:50:50 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p>
+      </li>
+    </ol>
+
+    <details class="more" open>
+      <summary>All 17 moments <small>the five above, then 12 more, by day</small></summary>
+
+      <div class="day">
+        <h3>Day 1, 11 Nov <span>· watched from captions</span></h3>
+        <ol class="moments">
+          <li class="moment"><span class="moment__num">6</span>
+            <p class="moment__head"><strong>Natalie Serrino</strong> <span class="org">Gimlet Labs</span> <span class="tag">AI coding tools</span></p>
+            <p class="moment__said">Said a typical coding-agent turn now takes about a minute (a median of 63 seconds, from June data), long enough that people drift to another task, and argued that speed will come to matter for agents as it did for websites.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=1005s" target="_blank" rel="noopener">0:16:45 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+          <li class="moment"><span class="moment__num">7</span>
+            <p class="moment__head"><strong>Michelle Chen</strong> <span class="org">Cloudflare</span> <span class="tag">Efficient models</span></p>
+            <p class="moment__said">Showed a build-failure investigation run two ways: with small one-pass models doing the sorting and extracting, it needed one large-model call instead of five, about 94% fewer tokens, and cost 72% less.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=3435s" target="_blank" rel="noopener">0:57:15 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+          <li class="moment"><span class="moment__num">8</span>
+            <p class="moment__head"><strong>Ankit Mathur</strong> <span class="org">Databricks</span> <span class="tag">Memory &amp; context</span></p>
+            <p class="moment__said">Described an overnight process in which a separate agent merges the notes a team of agents has saved and flags contradictions, because stale or conflicting memories were hurting the team’s work.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=10520s" target="_blank" rel="noopener">2:55:20 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+          <li class="moment" id="moments-agents"><span class="moment__num">9</span>
+            <p class="moment__head"><strong>Luke Alvoeiro</strong> <span class="org">Factory</span> <span class="tag">AI agents</span></p>
+            <p class="moment__said">Said 52% of the pull requests Factory ships now come from “workstreams”, standing teams of agents that pick up signals such as bug reports on their own, each given more autonomy one step at a time as its work proves reliable.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=14190s" target="_blank" rel="noopener">3:56:30 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+          <li class="moment"><span class="moment__num">10</span>
+            <p class="moment__head"><strong>Chibi Vikram</strong> <span class="org">UiPath</span> <span class="tag">Retrieval (RAG)</span></p>
+            <p class="moment__said">Said a “tournament” method, in which groups of candidate passages compete in rounds judged by a small decision model, improved how well their system ranks passages for retrieval and still ran in under a second.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=21710s" target="_blank" rel="noopener">6:01:50 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+          <li class="moment"><span class="moment__num">11</span>
+            <p class="moment__head"><strong>Fabian Hedin</strong> <span class="org">Lovable</span> <span class="tag">AI agents</span></p>
+            <p class="moment__said">Said Lovable’s first multi-agent design, in 2023, made the product worse and nearly sank the company; with today’s models it has returned to agents and lifted a 30-minute cap so they can work for ten hours or more.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=27230s" target="_blank" rel="noopener">7:33:50 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+          <li class="moment"><span class="moment__num">12</span>
+            <p class="moment__head"><strong>Steve Yegge</strong> <span class="org">independent</span> <span class="tag">AI agents</span></p>
+            <p class="moment__said">Said his agent “factory” turned out 50 to 100 features a day for his long-running online game, more than its players could keep up with, and that people are now the bottleneck: the more agents he runs, the more humans he needs.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=30405s" target="_blank" rel="noopener">8:26:45 ↗</a> <span class="prov prov--heard">day 1 · from captions</span></p></li>
+        </ol>
+      </div>
+
+      <div class="day">
+        <h3>Day 2, 12 Nov <span>· read, not watched</span></h3>
+        <ol class="moments">
+          <li class="moment"><span class="moment__num">13</span>
+            <p class="moment__head"><strong>Armin Ronacher</strong> <span class="org">Earendil</span> <span class="tag">AI coding tools</span></p>
+            <p class="moment__said">Showed a graph of 141 projects he had started with a coding agent, against far fewer that he worked on for five days or more, and argued that starting projects now scales faster than looking after them.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=2805s" target="_blank" rel="noopener">0:46:45 ↗</a> <span class="prov prov--read">day 2 · read from the organiser’s summary, not played</span></p></li>
+          <li class="moment"><span class="moment__num">14</span>
+            <p class="moment__head"><strong>Walden Yan</strong> <span class="org">Cognition</span> <span class="tag">AI coding tools</span></p>
+            <p class="moment__said">Said Cognition's merged code changes grew much faster than its headcount, and described what made that possible: the whole application in one virtual machine, snapshots built every hour, and agents that maintain their own testing instructions.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=9476s" target="_blank" rel="noopener">2:37:56 ↗</a> <span class="prov prov--read">day 2 · read from the organiser’s summary, not played</span></p></li>
+          <li class="moment"><span class="moment__num">15</span>
+            <p class="moment__head"><strong>Jeffrey Pinner</strong> <span class="org">Exa</span> <span class="tag">Retrieval (RAG)</span></p>
+            <p class="moment__said">Reported results on a research benchmark: a model answering without search scored about 9%, with keyword search about 28%, and with search by meaning 45%. The figures are for that benchmark's setup only.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=10941s" target="_blank" rel="noopener">3:02:21 ↗</a> <span class="prov prov--read">day 2 · read from the organiser’s summary, not played</span></p></li>
+          <li class="moment"><span class="moment__num">16</span>
+            <p class="moment__head"><strong>Lance Martin</strong> <span class="org">Anthropic</span> <span class="tag">AI agents</span></p>
+            <p class="moment__said">Reported that a group of agents, given shared state but no prescribed way of organising themselves, finished writing out the proof of Fermat's Last Theorem in a form a proof checker accepts, in a run of about 30 hours. The proof already existed; the agents did not discover it.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=13871s" target="_blank" rel="noopener">3:51:11 ↗</a> <span class="prov prov--read">day 2 · read from the organiser’s summary, not played</span></p></li>
+          <li class="moment"><span class="moment__num">17</span>
+            <p class="moment__head"><strong>Jarred Sumner</strong> <span class="org">Anthropic</span> <span class="tag">AI coding tools</span></p>
+            <p class="moment__said">Explained why he did not rewrite Claude Code in another language to make it faster: its tests would have had to be rewritten too, leaving nothing independent to check the result. He built a compiler instead, because the existing tests could check any version of it.</p>
+            <p class="moment__at"><a href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=19551s" target="_blank" rel="noopener">5:25:51 ↗</a> <span class="prov prov--read">day 2 · read from the organiser’s summary, not played</span></p></li>
+        </ol>
+      </div>
+    </details>
+
+    <details class="more wide" id="stage">
+      <summary>How the stage compares with the numbers <small>(14 topics)</small></summary>
+      <div class="stage">
+        <div class="stage__row">
+          <p class="stage__topic">AI agents</p>
+          <p class="stage__share"><span class="stage__bar"><span style="width:65%"></span></span><span class="stage__num">65.0% <span class="stage__count">1,096</span></span></p>
+          <p class="stage__reading">Loud here, flat in the numbers</p>
+          <p class="stage__back"><a href="#moments-agents">4 moments ↑</a></p>
+        </div>
+        <div class="stage__row">
+          <p class="stage__topic">AI coding tools</p>
+          <p class="stage__share"><span class="stage__bar"><span style="width:11.7%"></span></span><span class="stage__num">11.7% <span class="stage__count">198</span></span></p>
+          <p class="stage__reading">Loud here, flat in the numbers</p>
+          <p class="stage__back"><a href="#moments-coding">6 moments ↑</a></p>
+        </div>
+        <div class="stage__row">
+          <p class="stage__topic">Tool use &amp; MCP</p>
+          <p class="stage__share"><span class="stage__bar"><span style="width:10.7%"></span></span><span class="stage__num">10.7% <span class="stage__count">181</span></span></p>
+          <p class="stage__reading stage__reading--agree">Loud here and rising in the numbers</p>
+          <p class="stage__back"><a href="#moments-tools">1 moment ↑</a></p>
+        </div>
+        <div class="stage__row" id="stage-safety">
+          <p class="stage__topic">Safety</p>
+          <p class="stage__share"><span class="stage__bar"><span style="width:1%"></span></span><span class="stage__num">1.0% <span class="stage__count">17</span></span></p>
+          <p class="stage__reading">Quiet on both</p>
+          <p class="stage__back"><a href="#moments-safety">2 moments ↑</a></p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="band" aria-labelledby="said-h">
+    <div class="band__head">
+      <h2 id="said-h">What was said</h2>
+      <p>Watched 13 Nov, in part</p>
+    </div>
+    <div class="conf__recap">
+      <p>Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Day two turned to what an organisation has to change to absorb that much code: disposable test environments, tests that exist before the code does, review that keeps pace, and people who still decide what is worth building. Against the tracker, agents took about two thirds of topic mentions across both days while their research and discussion counts are roughly flat; tool use was loud and is rising in discussion; coding tools were loud here and flat in the numbers. Safety was rarely named, though much of both days was about verifying what agents do.</p>
+    </div>
+    <div class="covered covered--partial">
+      <h3>What was and was not watched</h3>
+      <p>Day one: automatic captions of the day-one stream (11 November), read in full, about nine hours: the morning and closing keynotes and the session and online talks shown between them. Lydia Hallie’s talk was cut short by a laptop failure, and the captions pick up part-way through Philipp Schmid’s. Day two (12 November) was read, not watched: the organiser’s summary of each of its 23 sessions and its longer written edition for eight of them, both published on the organiser’s site; the recording was not played. The topic counts are from the organiser’s transcripts of all 50 sessions across both days, about 153,000 words. No recording of the workshop day was found.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="sources-h">
+    <div class="band__head"><h2 id="sources-h">Recordings and programme</h2></div>
+    <p class="conf__videos"><strong>Recordings:</strong> <a href="https://www.youtube.com/live/ZZ19zhYnDKY" target="_blank" rel="noopener">Session day 1 stream (11 November)</a> <span class="prov prov--heard">from captions</span> · <a href="https://www.youtube.com/live/y9JtCCZP2MQ" target="_blank" rel="noopener">Session day 2 stream (12 November)</a> <span class="prov prov--read">read, not played</span></p>
+    <details class="more">
+      <summary>The programme <small>32 talks over two days, as announced</small></summary>
+      <p class="conf__caveat">Unchanged from today’s page.</p>
+    </details>
+  </section>
+
+  <section class="band" aria-labelledby="where-h">
+    <div class="band__head"><h2 id="where-h">Where this event stands</h2></div>
+    <div class="where-pair">
+      <div class="where">
+        <ol class="steps">
+          <li class="done">Upcoming</li>
+          <li class="done">Under way</li>
+          <li class="done">Held · recordings not yet watched</li>
+          <li class="now" aria-current="step">Held · partly watched<span class="vh"> (this event, now)</span><small>Watched in part on 13 Nov; some of the event is not read yet.</small></li>
+          <li>Watched</li>
+        </ol>
+      </div>
+      <div class="year" id="cal">
+        <ol aria-hidden="true">
+          <li class="held"></li><li class="held"></li><li class="held"></li><li class="held"></li><li class="this"></li>
+          <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+        </ol>
+        <p>5th of 22 events on the calendar, August 2026 to August 2027 · filled marks are held</p>
+      </div>
+    </div>
+    <nav class="around" aria-label="Before and after it on the calendar">
+      <a href="#prev" id="prev"><small>← Before</small><b>GitHub Universe 2026</b><span>28–29 Oct · San Francisco, USA · Held · recordings not yet watched</span></a>
+      <a href="#next" id="next"><small>After →</small><b>Microsoft Ignite 2026</b><span>17–20 Nov · San Francisco, USA · Upcoming</span></a>
+    </nav>
+  </section>
+
+  <!-- ===================================================== the card -->
+  <section class="strip" aria-labelledby="strip-h">
+    <p class="mock" style="margin:0;padding-inline:0"><b id="strip-h">On /conferences</b> · the card for a watched event. The bars are dropped; the card leads with the surprise or moment 1, with the timestamp link on the card.</p>
+    <div class="cards">
+      <article class="ev ev--read">
+        <p class="ev__date"><span class="ev__days">10–12</span><span class="ev__wk">Tue–Thu</span></p>
+        <h3 class="ev__name"><a href="#event">AI Engineer Code Summit</a></h3>
+        <p class="ev__meta">San Francisco, USA · <span class="ev__kind">Industry</span></p>
+        <p class="ev__phase"><i aria-hidden="true">◐</i> Held · partly watched</p>
+        <p class="ev__finding"><span class="ev__src">The editor’s note</span>Safety was barely named, 1% of topic mentions (17 of 1,687), though much of both days was about checking what agents do.</p>
+        <p class="ev__hear"><span>Moment 1: Brian Kennedy, ZoomInfo, on a judge model right 65% of the time</span> <a href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=22540s" target="_blank" rel="noopener">Hear it at 6:15:40 · day 1 ↗</a></p>
+        <p class="ev__honest">Read in part on 13 Nov: day one from captions, day two from the organiser’s summaries.</p>
+        <p class="ev__go"><a href="#event">The 5-minute version: 5 moments, ranked →</a></p>
+      </article>
+      <article class="ev ev--read">
+        <p class="ev__date"><span class="ev__days">12–14</span><span class="ev__wk">Mon–Wed</span></p>
+        <h3 class="ev__name"><a href="#nyc">AI Engineer New York</a></h3>
+        <p class="ev__meta">New York, USA · <span class="ev__kind">Industry</span></p>
+        <p class="ev__phase"><i aria-hidden="true">◐</i> Held · partly watched</p>
+        <p class="ev__finding"><span class="ev__src">Moment 1</span>Proposed five controls for agents in a firm, starting with a registry that records each agent's owner, purpose, tools and the systems it reaches, and ending with routing approval requests so that people are not trained to click yes. He opened with the 2020 Citibank error that sent about $900 million instead of $8 million.<em>John Feminella, Two Sigma</em></p>
+        <p class="ev__hear"><a href="https://www.youtube.com/watch?v=akEqiXFo3GM&amp;t=1778s" target="_blank" rel="noopener">Hear it at 0:29:38 · day 1 ↗</a> <span class="prov prov--read">read from the organiser’s summary, not played</span></p>
+        <p class="ev__honest">Read in part on 13 Nov, from the organiser’s transcripts and summaries; the recordings were not played.</p>
+        <p class="ev__go"><a href="#nyc">The 5-minute version: 8 moments, ranked →</a></p>
+      </article>
+    </div>
+  </section>
+
+  <section class="mock notes" style="padding-inline:0">
+    <div class="mock__box">
+      <b>Design notes, option B</b>
+      <ul>
+        <li>New component, proposed on its own: the lead-moment block (.moment--lead). Moment 1 in the display serif at --text-xl, the speaker and talk under it, and one clear “Hear it at …” link at 44px tall.</li>
+        <li>Small data addition: an optional per-video flag, e.g. <code>"read": true</code> on the day-two stream, so each timestamp can say “from captions” or “read from the organiser’s summary, not played”. Without the flag a timestamp reads “from captions”.</li>
+        <li>The surprise box is left out when there is no editor’s line and no stage-ahead or numbers-ahead topic. If the rule supplies it, the label reads “From the numbers”.</li>
+        <li>Stage table: unchanged inside the fold, quotes no longer repeated in its rows; each row ends with “N moments ↑”.</li>
+        <li>Cost about 2 days. If it runs long, drop the card change and ship the event page.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
