@@ -3550,12 +3550,7 @@ details.more > summary small {
   white-space: nowrap;
 }
 
-/* The reading list on its own page: the chapter head is the page's title. */
-.chapter--page {
-  margin-top: var(--space-2xl);
-}
-
-/* The landing page: no title block of its own, one line saying what the list is, then the lead story. */
+/* A page under the tabs: no title block of its own, since the tab names the page; one line saying what it holds, then its first section. */
 .chapter--front {
   margin-top: var(--space-md);
 }
@@ -3568,12 +3563,12 @@ details.more > summary small {
 }
 
 /* The label is a heading set as the first words of the line. */
-.dateline h2,
+.dateline :is(h1, h2),
 .dateline p {
   display: inline;
 }
 
-.dateline h2 {
+.dateline :is(h1, h2) {
   margin-right: 0.5em;
   font: inherit;
   font-weight: 600;
@@ -3581,7 +3576,8 @@ details.more > summary small {
   color: var(--color-ink);
 }
 
-.dateline + .band {
+.dateline + .band,
+.dateline + .agenda > .month:first-child {
   margin-top: 0;
 }
 

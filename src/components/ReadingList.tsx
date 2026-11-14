@@ -53,11 +53,12 @@ export function ReadingList() {
       <SiteMast ruled current="reading" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
       <main className="page">
-        <section id="reading" className="chapter chapter--page" aria-labelledby="reading-h">
-          <header className="chapter__head">
-            <h1 className="chapter__title" id="reading-h">The reading list</h1>
-            <p className="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
-          </header>
+        <section id="reading" className="chapter chapter--front" aria-labelledby="reading-h">
+          {/* The tab above already says which page this is, so its title is one quiet line and the week's block leads. */}
+          <div className="dateline">
+            <h1 id="reading-h">The reading list</h1>
+            <p>The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
+          </div>
 
           <ThisWeek lists={["news", "papers", "analysis", "announcements", ...(launches.length > 0 ? ["launches"] : []), "code", "models", "labs"]} />
 
