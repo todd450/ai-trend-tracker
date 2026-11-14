@@ -281,36 +281,43 @@ export function Conferences() {
       <ConfMast ruled />
 
       <main className="page">
-        <h1 className="vh">Conference calendar</h1>
+        <div className="chapter chapter--page">
+          <header className="chapter__head">
+            <h1 className="chapter__title">The conference calendar</h1>
+            <p className="chapter__dek">
+              The year’s AI conferences, month by month, and what was said on stage at the ones already held.
+            </p>
+          </header>
 
-        <div className="agenda" id="calendar">
-          {months.map((m) => {
-            const events = m.items.filter((x) => x.type === "event").length;
-            const y = m.month.slice(0, 4);
-            return (
-              <section
-                key={m.month}
-                id={`m-${m.month}`}
-                className={events ? "month" : "month month--quiet"}
-                aria-labelledby={`h-${m.month}`}
-              >
-                <div className="month__head">
-                  <h2 id={`h-${m.month}`}>
-                    {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
-                  </h2>
-                  {events > 0 && <p className="month__count">{monthCount(m)}</p>}
-                </div>
-                {m.items.length > 0 && (
-                  <ol className="month__list">
-                    {m.items.map((x) =>
-                      x.type === "today" ? <TodayLine key="now" hasUnderway={underway.length > 0} /> : <Row key={x.c.id} c={x.c} />,
-                    )}
-                  </ol>
-                )}
-                {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
-              </section>
-            );
-          })}
+          <div className="agenda" id="calendar">
+            {months.map((m) => {
+              const events = m.items.filter((x) => x.type === "event").length;
+              const y = m.month.slice(0, 4);
+              return (
+                <section
+                  key={m.month}
+                  id={`m-${m.month}`}
+                  className={events ? "month" : "month month--quiet"}
+                  aria-labelledby={`h-${m.month}`}
+                >
+                  <div className="month__head">
+                    <h2 id={`h-${m.month}`}>
+                      {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
+                    </h2>
+                    {events > 0 && <p className="month__count">{monthCount(m)}</p>}
+                  </div>
+                  {m.items.length > 0 && (
+                    <ol className="month__list">
+                      {m.items.map((x) =>
+                        x.type === "today" ? <TodayLine key="now" hasUnderway={underway.length > 0} /> : <Row key={x.c.id} c={x.c} />,
+                      )}
+                    </ol>
+                  )}
+                  {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
+                </section>
+              );
+            })}
+          </div>
         </div>
       </main>
 
