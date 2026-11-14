@@ -9,6 +9,7 @@ import {
   sameEvent,
   sameOutage,
   topStory,
+  topStoryGroup,
   topStoryReason,
   visible,
   type Editorial,
@@ -165,20 +166,68 @@ const hn = (title: string, points: number, from = "example.org"): Post => ({
   from,
   discussion: { url: `https://news.ycombinator.com/item?id=${points}`, points },
 });
-const labPost = (from: string, title: string, points?: number): Post => ({
+const labPost = (from: string, title: string, points?: number, site = "lab.example"): Post => ({
   title,
-  url: `https://lab.example/${encodeURIComponent(title)}`,
+  url: `https://${site}/${encodeURIComponent(title)}`,
   from,
   lab: true,
   discussion: points === undefined ? undefined : { url: `https://news.ycombinator.com/item?id=${points}`, points },
 });
 const group = (lead: Post, ...also: Post[]): Finished<Post> => ({ ...lead, also });
 
+const plain = (title: string, points: number) => group(hn(title, points));
+const launchGroup = group(labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", 551, "deepmind.google"), hn("Gemini 4 Hydrogen and Orchestrator", 454, "antigravity.google"));
+const PAST = [344, 627, 619];
+
 test("a frontier lab's own post discussed in two Hacker News stories is a lab launch", () => {
-  // 13 Nov 2026: the DeepMind post carries the 551-point story, and a second story sits under it.
-  assert.equal(isLabLaunch(group(labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", 551), hn("Gemini 4 Hydrogen and Orchestrator", 454))), true);
-  // The lab post need not have a discussion of its own, nor lead its group.
-  assert.equal(isLabLaunch(group(hn("OpenAI ships a model", 300), hn("A model from OpenAI", 120), labPost("OpenAI", "Introducing a model"))), true);
+  // 13 Nov 2026: the DeepMind post carries the 551-point story, and a second story, linking to
+  // Google's own antigravity.google, sits under it.
+  assert.equal(isLabLaunch(launchGroup), true);
+  // The lab post need not have a discussion of its own, nor lead its group, when the stories link to the lab's site.
+  const openai = labPost("OpenAI", "Introducing a model", undefined, "openai.com");
+  assert.equal(isLabLaunch(group(hn("OpenAI ships a model", 300, "openai.com"), hn("A model from OpenAI", 120, "openai.com"), openai)), true);
+});
+
+test("only stories that discuss the lab's post or link to the lab's own site count toward a launch", () => {
+  const deepmind = labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", undefined, "deepmind.google");
+  // Two stories elsewhere that share the headline's words are not the lab's launch being discussed.
+  const claim = hn("Gemini 4 Hydrogen login required: claim early access", 40, "attacker.example");
+  assert.equal(isLabLaunch(group(claim, hn("Gemini 4 Hydrogen early access tips", 25, "attacker.example"), deepmind)), false);
+  // Addresses that only look like the lab's site do not count.
+  for (const site of ["deepmind.google.attacker.example", "notdeepmind.google.example", "google.attacker.example", "xdeepmind.google-x.example"]) {
+    assert.equal(isLabLaunch(group(hn("Gemini 4 Hydrogen early access", 40, site), hn("Gemini 4 Hydrogen tips", 25, site), deepmind)), false, site);
+  }
+  // Sites where anyone can post are not the lab's own.
+  const openai = labPost("OpenAI", "Introducing a model", undefined, "openai.com");
+  assert.equal(isLabLaunch(group(hn("A model is out", 40, "community.openai.com"), hn("A model, tried", 25, "github.com"), openai)), false);
+  // The lab's own post carrying a discussion counts once, and one more story on the lab's site makes two.
+  const discussed = { ...openai, discussion: { url: "https://news.ycombinator.com/item?id=1", points: 30 } };
+  assert.equal(isLabLaunch(group(hn("A model is out", 40, "attacker.example"), discussed)), false);
+  assert.equal(isLabLaunch(group(hn("A model is out", 40, "attacker.example"), discussed, hn("A model, notes", 20, "openai.com"))), true);
+});
+
+test("the kicker counts only the discussions of the lab's launch", () => {
+  const { also, ...lab } = launchGroup;
+  const launch = group(hn("Gemini 4 Hydrogen early access", 900, "attacker.example"), lab, ...also);
+  assert.equal(isLabLaunch(launch), true);
+  assert.match(topStoryReason(launch, "lab"), /twice/);
+});
+
+test("a lab launch is set large under the lab's own post, whichever post led its group", () => {
+  const lab = labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", undefined, "deepmind.google");
+  const launch = group(hn("Gemini 4 Hydrogen, first look", 300, "deepmind.google"), hn("Gemini 4 Hydrogen and Orchestrator", 200, "antigravity.google"), lab);
+  const ranked = [plain("A bigger story", 600), launch];
+  assert.deepEqual(topStory(ranked, PAST), { index: 1, rule: "lab" });
+  const slot = topStoryGroup(launch, "lab");
+  assert.equal(slot.url, lab.url, "the headline links to the lab's own post");
+  assert.equal(slot.from, "Google DeepMind");
+  // Every post stays, the others under it in ranked order.
+  assert.deepEqual(slot.also.map((p) => p.url), [launch.url, launch.also[0].url]);
+  assert.match(topStoryReason(slot, "lab"), /Google DeepMind/);
+  // The other rules leave the group as it was.
+  assert.equal(topStoryGroup(ranked[0], "points"), ranked[0]);
+  const pinned: Finished<Post> = { ...launch, pinned: { note: "Why." } };
+  assert.equal(topStoryGroup(pinned, "pinned"), pinned);
 });
 
 test("one discussion, no lab post, or a specialist lab is not a lab launch", () => {
@@ -191,9 +240,6 @@ test("one discussion, no lab post, or a specialist lab is not a lab launch", () 
   assert.equal(isLabLaunch(group({ ...hn("Introducing X", 300), from: "OpenAI" }, hn("X is out", 200))), false);
 });
 
-const plain = (title: string, points: number) => group(hn(title, points));
-const launchGroup = group(labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", 551), hn("Gemini 4 Hydrogen and Orchestrator", 454));
-const PAST = [344, 627, 619];
 
 test("the top slot goes to a lab launch even when a bigger story leads the list", () => {
   assert.deepEqual(topStory([plain("A bigger story", 600), plain("Another", 500), launchGroup], PAST), { index: 2, rule: "lab" });

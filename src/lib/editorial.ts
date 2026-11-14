@@ -11,6 +11,7 @@
  * Nothing here changes the trend figures.
  */
 
+import { host } from "./links.ts";
 import { PRODUCTS } from "./products.ts";
 
 /** A post held at the top of "Today's AI news" through `until` (YYYY-MM-DD), whatever its points. */
@@ -43,30 +44,59 @@ export function matchesPastLeads(points: number | undefined, pastLeads: number[]
 }
 
 /**
- * The labs whose own posts can make a lab launch: the frontier labs among the lab feeds. The
- * specialist labs (ElevenLabs, Runway, Suno, Stability AI) are listed on the page but not here.
+ * The labs whose own posts can make a lab launch, the frontier labs among the lab feeds, each with
+ * the other sites it runs itself, besides the one its feed's posts are on. A site is a host,
+ * matched exactly ("www." aside); ".google" is the whole of Google's own top-level domain, which
+ * only Google can register under. Hosts where anyone can post (github.com, x.com, a lab's
+ * community forum) are left out. The specialist labs (ElevenLabs, Runway, Suno, Stability AI) are
+ * listed on the page but not here.
  */
-export const FRONTIER_LABS = new Set(["Anthropic", "OpenAI", "Google DeepMind", "Microsoft", "Mistral AI", "Meta", "xAI", "DeepSeek"]);
+const LAB_SITES: Record<string, string[]> = {
+  Anthropic: ["anthropic.com", "claude.com"],
+  OpenAI: ["openai.com"],
+  "Google DeepMind": [".google", "deepmind.com"],
+  Microsoft: ["blogs.microsoft.com", "news.microsoft.com"],
+  "Mistral AI": ["mistral.ai"],
+  Meta: ["about.fb.com", "ai.meta.com"],
+  xAI: ["x.ai"],
+  DeepSeek: ["deepseek.com", "api-docs.deepseek.com"],
+};
+export const FRONTIER_LABS = new Set(Object.keys(LAB_SITES));
 
 /** A post that can be weighed for the top slot: `lab` is set on posts from the labs' own feeds. */
-type Weighed = { from: string; lab?: boolean; discussion?: { points: number } };
+type Weighed = { url: string; from: string; lab?: boolean; discussion?: { points: number } };
 
 const postsOf = <T>(group: Finished<T>): T[] => [group, ...group.also];
 
-/** The frontier lab whose own post is in a group, if one is. */
-const launchingLab = <T extends Weighed>(group: Finished<T>) =>
-  postsOf(group).find((post) => post.lab && FRONTIER_LABS.has(post.from))?.from;
+/** The frontier lab's own post in a group, if one is there. */
+const labPostOf = <T extends Weighed>(group: Finished<T>) => postsOf(group).find((post) => post.lab && FRONTIER_LABS.has(post.from));
 
-/** How many Hacker News stories a group's posts carry. */
-const discussions = <T extends Weighed>(group: Finished<T>) => postsOf(group).filter((post) => post.discussion).length;
+/** True when `url` is on the site `lab` posted from, or on another site its lab runs itself. */
+function onLabSite(lab: Weighed, url: string): boolean {
+  const at = host(url);
+  if (!at) return false;
+  if (at === host(lab.url)) return true;
+  return (LAB_SITES[lab.from] ?? []).some((site) => (site.startsWith(".") ? at.endsWith(site) : at === site));
+}
 
 /**
- * True when a group holds a frontier lab's own post and at least two Hacker News stories: a
- * launch the community picked up twice. This does not depend on points, so a story a few hours
- * old is not weighed against older ones.
+ * How many Hacker News stories in a group discuss its lab's launch: the story the lab's post
+ * carries, and any story that links to the lab's own site. A story elsewhere that only shares the
+ * headline's words is not counted, since it may be about anything.
+ */
+function launchDiscussions<T extends Weighed>(group: Finished<T>): number {
+  const lab = labPostOf(group);
+  if (!lab) return 0;
+  return postsOf(group).filter((post) => post.discussion && (post === lab || onLabSite(lab, post.url))).length;
+}
+
+/**
+ * True when a group holds a frontier lab's own post and at least two Hacker News stories about
+ * it: a launch the community picked up twice. This does not depend on points, so a story a few
+ * hours old is not weighed against older ones.
  */
 export function isLabLaunch<T extends Weighed>(group: Finished<T>): boolean {
-  return launchingLab(group) !== undefined && discussions(group) >= 2;
+  return launchDiscussions(group) >= 2;
 }
 
 /** Why a story has the top slot: the editor pinned it, it is a lab launch, or its points are big. */
@@ -87,11 +117,30 @@ export function topStory<T extends Weighed>(items: Finished<T>[], pastLeads: num
 
 const times = (n: number) => (n === 2 ? "twice" : `${n} times`);
 
-/** The kicker over the top story: which rule lifted it, in words. */
+/** The kicker over the top story, as `topStoryGroup` leads it: which rule lifted it, in words. */
 export function topStoryReason<T extends Weighed>(group: Finished<T>, rule: TopRule): string {
   if (rule === "pinned") return "Editor’s pick";
-  if (rule === "lab") return `${launchingLab(group)}’s own announcement, discussed ${times(discussions(group))} on Hacker News`;
+  if (rule === "lab") return `${labPostOf(group)?.from}’s own announcement, discussed ${times(launchDiscussions(group))} on Hacker News`;
   return "As big as the past days’ leading stories";
+}
+
+/** A group with the first post that `isLead` picks as its lead, and the rest under it in ranked order. */
+function ledBy<T>(group: Finished<T>, isLead: (post: T) => boolean): Finished<T> {
+  const { also, pinned, ...first } = group;
+  const members = [first as unknown as T, ...also];
+  const lead = members.find(isLead);
+  if (lead === undefined || lead === members[0]) return group;
+  return { ...lead, also: members.filter((m) => m !== lead), ...(pinned && { pinned }) };
+}
+
+/**
+ * The group as it is set in the top slot. A lab launch is set under the lab's own post, so the
+ * headline is the announcement the kicker names, even when a story elsewhere had more points.
+ */
+export function topStoryGroup<T extends Weighed>(group: Finished<T>, rule: TopRule): Finished<T> {
+  if (rule !== "lab") return group;
+  const lab = labPostOf(group);
+  return ledBy(group, (post) => post === lab);
 }
 
 /** The same article reached by two routes: ignores the protocol, "www.", the query and a closing slash. */
@@ -247,11 +296,7 @@ export function finish<T extends { title: string; url: string }>(
     }
     const [group] = leads.splice(at, 1);
     // A pinned post that sat under another becomes the lead of its group.
-    const { also, ...rest } = group;
-    delete (rest as { pinned?: unknown }).pinned;
-    const members = [rest as unknown as T, ...also];
-    const lead = members.find((m) => sameArticle(m.url) === key)!;
-    leads.unshift({ ...lead, also: members.filter((m) => m !== lead), pinned });
+    leads.unshift({ ...ledBy(group, (m) => sameArticle(m.url) === key), pinned });
   }
   return leads;
 }

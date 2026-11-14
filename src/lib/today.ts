@@ -12,7 +12,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import editorialJson from "../../data/editorial.json";
-import { finish, sameArticle, sameHeadline, topStory, type Editorial, type Finished, type TopRule } from "./editorial";
+import { finish, sameArticle, sameHeadline, topStory, topStoryGroup, type Editorial, type Finished, type TopRule } from "./editorial";
 import { latest } from "./trends";
 import type { Latest } from "./types";
 
@@ -132,7 +132,8 @@ export function pastLeads(day: string): number[] {
 
 /**
  * The day's list as the page shows it, and its top story when one earns the slot: `index` is
- * the story's place in `items`, and `rule` says which rule put it there.
+ * the story's place in `items`, and `rule` says which rule put it there. A lab launch is led by
+ * the lab's own post (see `topStoryGroup`), so the page and MCP both link to it.
  */
 export function buildToday(
   data: Latest = latest,
@@ -140,5 +141,7 @@ export function buildToday(
 ): { since: string; until: string; items: Finished<TodayItem>[]; top?: { index: number; rule: TopRule } } {
   const day = listToday(data, notes);
   const top = topStory(day.items, pastLeads(data.generatedAt.slice(0, 10)));
-  return top ? { ...day, top } : day;
+  if (!top) return day;
+  const items = day.items.map((item, n) => (n === top.index ? topStoryGroup(item, top.rule) : item));
+  return { ...day, items, top };
 }

@@ -66,6 +66,65 @@ for (const date of DAYS) {
   });
 }
 
+/** A day built from the 13 Nov snapshot with only these lab posts and Hacker News stories in it. */
+const FROM = "2026-11-13T10:00:00.000Z";
+const dayWith = (labNews: { source: string; title: string; url: string }[], stories: { title: string; url: string; points: number }[]) =>
+  today.buildToday(
+    {
+      ...snapshot("2026-11-13"),
+      labNews: labNews.map((post) => ({ ...post, publishedAt: FROM })),
+      analysis: [],
+      today: stories.map((s, n) => ({ ...s, id: String(n), discussionUrl: `https://news.ycombinator.com/item?id=${n}`, comments: 1, createdAt: FROM })),
+    },
+    unpinned,
+  );
+const HYDROGEN = { source: "Google DeepMind", title: "Introducing Gemini 4 Hydrogen", url: "https://deepmind.google/blog/gemini-4-hydrogen/" };
+
+/** The kicker's claim of origin must match the link it labels, on the page and in MCP. */
+function assertSlotMatchesItsClaim(day: any) {
+  if (!day.top) return;
+  const slot = day.items[day.top.index];
+  const [mcp] = tools.todayItems(day, 20).filter((item: any) => "topStory" in item);
+  assert.equal(mcp.url, slot.url, "MCP flags the story the page sets large");
+  if (day.top.rule === "lab") {
+    assert.equal(slot.lab, true, `a lab launch's headline is the lab's own post, not ${slot.url}`);
+    assert.ok(mcp.topStory.reason.startsWith(slot.from), "and the kicker names the lab that posted it");
+  }
+}
+
+test("stories elsewhere that borrow a lab post's words do not make it a lab launch", () => {
+  const day = dayWith(
+    [HYDROGEN],
+    [
+      { title: "Gemini 4 Hydrogen login required: claim early access", url: "https://attacker.example/claim", points: 40 },
+      { title: "Gemini 4 Hydrogen early access tips", url: "https://attacker.example/tips", points: 25 },
+    ],
+  );
+  assert.notEqual(day.top?.rule, "lab");
+  for (const item of tools.todayItems(day, 20)) assert.ok(!/own announcement/.test(item.topStory?.reason ?? ""), item.url);
+  assertSlotMatchesItsClaim(day);
+});
+
+test("a lab launch led on the list by another post is set large under the lab's own post", () => {
+  const day = dayWith(
+    [HYDROGEN],
+    [
+      { title: "Gemini 4 Hydrogen early access", url: "https://attacker.example/claim", points: 90 },
+      { title: "Gemini 4 Hydrogen and Orchestrator", url: "https://antigravity.google/blog/hydrogen", points: 40 },
+      { title: "Gemini 4 Hydrogen model card", url: "https://deepmind.google/models/gemini-4-hydrogen/", points: 25 },
+    ],
+  );
+  assert.equal(day.top?.rule, "lab");
+  const slot = day.items[day.top.index];
+  assert.equal(slot.url, HYDROGEN.url);
+  assert.equal([slot, ...slot.also].length, 4, "every post stays in the group");
+  assertSlotMatchesItsClaim(day);
+});
+
+for (const date of DAYS) {
+  test(`${date}: the top slot's headline matches its kicker`, () => assertSlotMatchesItsClaim(replay(date)));
+}
+
 test("the day's own snapshot is not one of its past days", () => {
   assert.ok(!today.pastLeads("2026-11-13").includes(551), "13 Nov's own lead is not compared with itself");
 });
