@@ -1,7 +1,7 @@
-/** The card shown when a link to the site is shared: the mark, the name and what it measures. */
+/** The card shown when a link to the site is shared: the mark, the name and what the site holds. */
 import { ImageResponse } from "next/og";
 
-export const alt = "AI Trend Tracker: what is rising in AI";
+export const alt = "AI Trend Tracker: the day’s AI news and what is rising in AI";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -33,7 +33,7 @@ export default function Image() {
           <div style={{ fontSize: 30, letterSpacing: 4, textTransform: "uppercase", color: MUTED }}>Updated daily</div>
           <div style={{ fontSize: 104, fontWeight: 700, lineHeight: 1.02, marginTop: 20 }}>AI Trend Tracker</div>
           <div style={{ fontSize: 38, lineHeight: 1.3, marginTop: 28, color: MUTED }}>
-            What is rising in AI, measured from papers, code, model releases and news.
+            The day’s AI news, and what is rising: measured from papers, code, model releases and discussion.
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "flex-end" }}>

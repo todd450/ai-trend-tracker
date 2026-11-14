@@ -2,11 +2,12 @@ import Link from "next/link";
 
 const PAGES = [
   // The day's news is the landing page, so it leads; the Trends tab opens the three-month view.
-  { id: "today", label: "Today’s news", href: "/" },
-  { id: "trends", label: "Trends", href: "/three-months" },
-  { id: "reading", label: "Reading list", href: "/reading" },
+  // `more` is the part of a label a phone leaves off, so the four tabs fit on one line there.
+  { id: "today", label: "Today", more: "’s news", href: "/" },
+  { id: "trends", label: "Trends", more: "", href: "/three-months" },
+  { id: "reading", label: "Reading", more: " list", href: "/reading" },
   // Every tab opens its page at the top, so the tabs stay in view.
-  { id: "conferences", label: "Conferences", href: "/conferences" },
+  { id: "conferences", label: "Conferences", more: "", href: "/conferences" },
 ] as const;
 
 export type Page = (typeof PAGES)[number]["id"];
@@ -23,6 +24,7 @@ export function PageTabs({ current }: { current: Page }) {
           <li key={p.id}>
             <Link href={p.href} aria-current={p.id === current ? "page" : undefined}>
               {p.label}
+              {p.more && <span className="tabs__more">{p.more}</span>}
             </Link>
           </li>
         ))}

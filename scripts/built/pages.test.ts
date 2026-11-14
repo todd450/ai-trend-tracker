@@ -154,8 +154,12 @@ test("the MCP server ships with the daily snapshots its top story is weighed aga
 
 test("the landing page is the day's news, and the tabs lead with it", () => {
   const html = page("/");
-  assert.match(html, /<h1[^>]*>Today’s AI news<\/h1>/);
+  assert.match(text(html.match(/<h1[\s\S]*?<\/h1>/)![0]).trim(), /^AI Trend Tracker$/, "the name is the heading");
+  assert.match(html, /<h2 id="today-h">Today’s AI news<\/h2>/, "the list keeps its label, as a heading");
   const tabs = html.slice(html.indexOf('<nav class="tabs"'), html.indexOf("</nav>"));
-  const links = [...tabs.matchAll(/<a[^>]*href="([^"]+)"[^>]*>([^<]+)</g)].map((m) => `${m[2]} ${m[1]}`);
+  // A label's second half sits in its own span, which a phone leaves off: "Today", "Reading".
+  const links = [...tabs.matchAll(/<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => `${m[2].replace(/<[^>]+>/g, "")} ${m[1]}`);
   assert.deepEqual(links, ["Today’s news /", "Trends /three-months", "Reading list /reading", "Conferences /conferences"]);
+  const short = [...tabs.matchAll(/<a[^>]*>([\s\S]*?)<\/a>/g)].map((m) => m[1].replace(/<span class="tabs__more">[\s\S]*?<\/span>/, "").replace(/<[^>]+>/g, ""));
+  assert.deepEqual(short, ["Today", "Trends", "Reading", "Conferences"]);
 });

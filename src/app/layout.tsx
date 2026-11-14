@@ -11,7 +11,7 @@ const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
-  title: "AI Trend Tracker: what is rising in AI",
+  title: "AI Trend Tracker: today’s AI news, and what is rising in AI",
   description: SITE_DESCRIPTION,
 };
 
