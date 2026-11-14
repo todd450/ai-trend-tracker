@@ -837,12 +837,6 @@ code {
   color: var(--color-ink-2);
 }
 
-/* Today's news has its own page: the list follows the lede, and the method note follows the list. */
-.lede + .band--today,
-.band--today + .method {
-  margin-top: var(--space-xl);
-}
-
 /* A conference's phase, dates and place, above its title. */
 .band__head .band__source {
   font-size: var(--text-xs);
@@ -2173,8 +2167,9 @@ code {
  * each event a row, and an event with a reading grown into a card.
  * ================================================================ */
 
-.lede--cal {
-  padding-block: var(--space-lg) var(--space-md);
+/* Under the page's title, the first month sits close, like the first list on the reading list. */
+.chapter__head + .agenda > .month:first-child {
+  margin-top: 0;
 }
 
 .month {

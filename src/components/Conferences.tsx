@@ -281,7 +281,13 @@ export function Conferences() {
       <ConfMast ruled />
 
       <main className="page">
-        <h1 className="vh">Conference calendar</h1>
+        <div className="chapter chapter--page">
+          <header className="chapter__head">
+            <h1 className="chapter__title">The conference calendar</h1>
+            <p className="chapter__dek">
+              The year’s AI conferences, month by month, and what was said on stage at the ones already held.
+            </p>
+          </header>
 
         <div className="agenda" id="calendar">
           {months.map((m) => {
@@ -311,6 +317,7 @@ export function Conferences() {
               </section>
             );
           })}
+        </div>
         </div>
       </main>
 

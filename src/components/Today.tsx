@@ -24,7 +24,6 @@ export function Today() {
     first !== undefined &&
     (first.pinned !== undefined || isBigStory(first.discussion?.points, latest.stories.map((s) => s.points)));
   const rows = bigDay ? rest : today.items;
-  const count = today.items.length;
 
   return (
     <>
@@ -35,21 +34,14 @@ export function Today() {
       <SiteMast ruled current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
       <main className="page">
-        <section className="lede lede--cal">
-          <div className="lede__main">
-            <h1 className="lede__head" id="today-h">Today’s AI news</h1>
-            <div className="lede__dek">
-              <p>
-                What the labs announced, what the analysts published and which AI stories Hacker News picked up in
-                the 24 hours before this page was last updated. The biggest stories come first, by points on Hacker
-                News; posts not discussed there follow, newest first.
-              </p>
-              <p className="lede__meta">
-                {count} {count === 1 ? "story" : "stories"} · {fmtDayTime(today.since)} to {fmtDayTime(today.until)} UTC
-              </p>
-            </div>
-          </div>
-        </section>
+        <div className="chapter chapter--page">
+          <header className="chapter__head">
+            <h1 className="chapter__title" id="today-h">Today’s AI news</h1>
+            <p className="chapter__dek">
+              What the labs, the analysts and Hacker News published in the 24 hours to {fmtDayTime(today.until)} UTC,
+              biggest stories first.
+            </p>
+          </header>
 
         <section id="today" className="band band--today" aria-labelledby="today-h">
           {bigDay && (
@@ -146,6 +138,7 @@ export function Today() {
           )}
           <SourceLine names="the labs’ and newsletters’ own feeds; Hacker News" keys={["labNews", "analysis", "today"]} />
         </section>
+        </div>
 
         <section id="method" className="band method" aria-labelledby="method-h">
           <div className="band__head">
