@@ -193,7 +193,7 @@ test("the method page says how the track record is made", () => {
 
 test("how this is measured has a page of its own, linked from the foot of every page", () => {
   const method = page("/method");
-  for (const id of ["sources", "today-news", "trends", "track-record", "counted"]) assert.ok(ids(method).has(id), `#${id} is on /method`);
+  for (const id of ["today-news", "trends", "track-record", "counted", "reading-list", "sources"]) assert.ok(ids(method).has(id), `#${id} is on /method`);
   assert.match(text(method), /How this is measured/);
   for (const path of ["/", "/three-months", "/reading", "/conferences", "/data/topics", "/method"]) {
     const foot = page(path).slice(page(path).lastIndexOf("<footer"));
@@ -202,6 +202,9 @@ test("how this is measured has a page of its own, linked from the foot of every 
   for (const path of ["/", "/three-months"]) {
     assert.ok(!text(page(path)).includes("Read how each number is counted"), `${path} no longer carries the method`);
   }
+  assert.ok(!text(page("/reading")).includes("How these lists are made"), "/reading no longer carries how its lists are made");
+  const order = ["today-news", "trends", "reading-list", "sources"].map((id) => method.indexOf(`id="${id}"`));
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), "the sources come last");
 });
 
 test("under each lead chart: a rise shows what was counted, a few items, each from the file; a fall shows only why it has none", async () => {

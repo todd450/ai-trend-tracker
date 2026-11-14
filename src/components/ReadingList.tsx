@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Ledger } from "@/components/Ledger";
 import { Colophon, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
@@ -380,59 +379,8 @@ export function ReadingList() {
         </div>
         </section>
 
-        <section id="method" className="band method" aria-labelledby="method-h">
-          <div className="band__head">
-            <h2 id="method-h">How these lists are made</h2>
-          </div>
-          <div className="prose">
-                <p>
-                  Closed models released only through an API do not appear in the model lists, which cover open models
-                  on Hugging Face. They show up in the news and in the lab announcements instead.
-                </p>
-                <p>
-                  <strong>From the analysts</strong> lists the newest pieces from a fixed set of eight newsletters and
-                  research institutions, at most two from each, from the past 30 days. It is a reading list chosen
-                  by the editor, not a ranking. Publishers that cover other subjects are filtered to pieces that
-                  mention AI.
-                </p>
-                <p>
-                  <strong>Lab announcements</strong> come from the feeds of OpenAI, Google DeepMind, Microsoft,
-                  Mistral AI and ElevenLabs. The other seven labs publish no feed, or have terms that do not allow a
-                  script to read it, so their posts are the ones submitted to Hacker News, under the headline given
-                  there; a post nobody submitted is missing, which leaves the smaller labs thinly covered. A lab
-                  takes at most three places in the list, and a smaller lab two.
-                </p>
-                <p>
-                  <strong>Product launches</strong> are the past seven days’ “Show HN” and “Launch HN” posts on
-                  Hacker News, where makers present their own work, with an AI term in the title and at least 10
-                  points. Launch HN posts come from Y Combinator companies. The list shows what technologists
-                  launched and noticed: it leans to developer tools and open-source projects, and a consumer
-                  product nobody posted there is missing. A launch that describes an AI product without an AI term
-                  in its title is missed too. Points measure the attention of Hacker News readers, not use or sales.
-                </p>
-                <p>
-                  <strong>This week</strong> is chosen from the lists below by fixed rules, rebuilt with the page each
-                  day: the items from the seven days before the data was collected whose headline names a product or
-                  topic the site tracks, as Today’s tags read them, grouped under the first one named. Posts about one
-                  event are gathered as on Today’s page. A frontier lab’s launch discussed twice on Hacker News, and a
-                  post the editor pinned, always make it and come first; the other trends follow by their biggest story on Hacker News,
-                  whichever way the trend is moving. A trend
-                  shows at most two items, biggest on Hacker News first, and the block at most seven. The line under
-                  each trend says how its Hacker News stories have moved, read from the tracker’s own figures; it is
-                  about the trend, not about the stories under it. A big story that names no tracked trend is left
-                  out, and the block says so.
-                </p>
-                <p>
-                  <strong>The reading lists</strong> show their first few items; the rest open on request. Where a
-                  list is set in columns, the bar beside the figure it is ranked by shows it against the largest in
-                  that list.
-                </p>
-            <p>
-              The editor can leave a link out of every list; each link left out is named, with the reason, under{" "}
-              <Link href="/method#today-news">how this is measured</Link>. None of these lists feeds the trends.
-            </p>
-          </div>
-        </section>
+        {/* How these lists are made closed this page before it moved to /method; an old #method link lands at the foot, by the link to it. */}
+        <span id="method" />
       </main>
 
       <Colophon />
