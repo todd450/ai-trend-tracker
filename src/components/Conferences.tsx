@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Spark } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
-import { SectionNav } from "@/components/SectionNav";
 import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
@@ -13,7 +12,6 @@ import {
   conferences,
   daysUntil,
   fmtMonthOf,
-  fmtMonthShort,
   fmtSpan,
   phaseOf,
   stageAgainstTrends,
@@ -303,17 +301,6 @@ export function Conferences() {
 
   const first = conferences[0];
   const last = conferences.at(-1);
-  /** The year is given on the first month and on each January, so the line never leaves it in doubt. */
-  const sections = [
-    { href: "#now", label: "Today", long: "Today" } as const,
-    ...months.map((m, i) => ({
-      href: `#m-${m.month}` as const,
-      label: fmtMonthShort(m.month, { year: i === 0 || m.month.endsWith("-01") }),
-      long: fmtMonthOf(m.month + "-01"),
-      quiet: !m.items.some((x) => x.type === "event"),
-    })),
-  ];
-
   return (
     <>
       <a className="skip" href="#now">
@@ -321,14 +308,6 @@ export function Conferences() {
       </a>
 
       <ConfMast />
-
-      <div className="bar">
-        <div className="bar__inner">
-          <div className="bar__row">
-            <SectionNav sections={sections} label="Months" menu="Jump to a month" />
-          </div>
-        </div>
-      </div>
 
       <main className="page">
         <section className="lede lede--cal">
