@@ -18,7 +18,8 @@ export function SiteMast({
   ruled = false,
   heading = false,
 }: {
-  current: Page;
+  /** The tab of the page this is; a page that is not one of the tabs, such as /method, leaves it out. */
+  current?: Page;
   line: string;
   ruled?: boolean;
   /** The name is the page's h1, and is not a link to the page it is on. */
@@ -55,9 +56,18 @@ export function Colophon() {
         indicators, not measurements. Set in Newsreader and Geist. Data last collected{" "}
         {fmtDate(latest.generatedAt)}.
       </p>
-      <p>
-        <a href={SITE_MAKER_URL} {...NEW_TAB}>HalfBadger.com</a>
-      </p>
+      <FootLinks />
     </footer>
+  );
+}
+
+/** The last line of every page's footer: how the figures are measured, and the maker's site. */
+export function FootLinks() {
+  return (
+    <p>
+      <Link href="/method">How this is measured</Link>
+      {" · "}
+      <a href={SITE_MAKER_URL} {...NEW_TAB}>HalfBadger.com</a>
+    </p>
   );
 }

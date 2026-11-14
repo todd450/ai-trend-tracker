@@ -429,7 +429,7 @@ export function ReadingList() {
                 </p>
             <p>
               The editor can leave a link out of every list; each link left out is named, with the reason, under{" "}
-              <Link href="/three-months#method">how this is measured</Link> on the trends page. None of these lists feeds the trends.
+              <Link href="/method#today-news">how this is measured</Link>. None of these lists feeds the trends.
             </p>
           </div>
         </section>

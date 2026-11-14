@@ -78,19 +78,18 @@ function foldOf(html: string, id: string) {
   return html.slice(open, html.indexOf(">", open) + 1);
 }
 
-/** Ids the trends page keeps in a fold: product rows, and the method's track record paragraph. */
+/** Ids the trends page keeps in a fold: its product rows. */
 const folded = () => {
   const html = readFileSync(join(APP, "three-months.html"), "utf8");
-  return [...html.matchAll(/id="(product-[^"]+|track-record)"/g)].map((m) => m[1]).filter((id) => foldOf(html, id));
+  return [...html.matchAll(/id="(product-[^"]+)"/g)].map((m) => m[1]).filter((id) => foldOf(html, id));
 };
 
-test("a link to a folded row, or to the track record's method, opens its fold with no script", async () => {
+test("a link to a folded row opens its fold with no script", async () => {
   const ids = folded();
   assert.ok(ids.some((id) => id.startsWith("product-")), "some product rows start folded");
-  assert.ok(ids.includes("track-record"), "the method paragraph starts folded");
   const closed = await rendered("/three-months");
   for (const id of ids) assert.doesNotMatch(foldOf(closed, id)!, /\sopen/, `#${id} starts folded`);
-  for (const id of [ids.find((i) => i.startsWith("product-"))!, "track-record"]) {
+  for (const id of [ids.find((i) => i.startsWith("product-"))!]) {
     const followed = await rendered(`/three-months#${id}`);
     assert.match(foldOf(followed, id)!, /\sopen/, `following /three-months#${id} opens its fold`);
   }

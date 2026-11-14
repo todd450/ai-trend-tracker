@@ -30,6 +30,7 @@ export const PAGES = [
   "/data/topics",
   "/reading",
   "/conferences",
+  "/method",
 ] as const;
 
 /** The share card drawn by app/opengraph-image.tsx. */

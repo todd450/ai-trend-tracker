@@ -18,7 +18,7 @@ node --test scripts/built/*.test.ts
 
 echo "== html"
 pages=(.next/server/app/index.html .next/server/app/three-months.html .next/server/app/reading.html .next/server/app/conferences.html)
-pages+=(.next/server/app/data/topics.html .next/server/app/data/topics/*.html .next/server/app/conferences/*.html)
+pages+=(.next/server/app/method.html .next/server/app/data/topics.html .next/server/app/data/topics/*.html .next/server/app/conferences/*.html)
 npx html-validate "${pages[@]}"
 
 echo "all checks passed"

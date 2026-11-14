@@ -181,14 +181,27 @@ test("under each record, the calls checked by name are the replay's own, to two 
   assert.ok(views > 0, "at least one view carries the list");
 });
 
-test("the method says how the track record is made", () => {
-  const method = text(sectionOf(front("threeMonths"), "track-record"));
+test("the method page says how the track record is made", () => {
+  const method = text(sectionOf(page("/method"), "track-record"));
   assert.match(method, /replay/i);
   assert.match(method, /today’s rules/);
   assert.match(method, /once/);
   assert.match(method, /13 weeks/);
   assert.match(method, /calls checked by name/);
   assert.match(method, /most recent week that had any/);
+});
+
+test("how this is measured has a page of its own, linked from the foot of every page", () => {
+  const method = page("/method");
+  for (const id of ["sources", "today-news", "trends", "track-record", "counted"]) assert.ok(ids(method).has(id), `#${id} is on /method`);
+  assert.match(text(method), /How this is measured/);
+  for (const path of ["/", "/three-months", "/reading", "/conferences", "/data/topics", "/method"]) {
+    const foot = page(path).slice(page(path).lastIndexOf("<footer"));
+    assert.ok(foot.includes('href="/method"'), `${path} links to /method from its footer`);
+  }
+  for (const path of ["/", "/three-months"]) {
+    assert.ok(!text(page(path)).includes("Read how each number is counted"), `${path} no longer carries the method`);
+  }
 });
 
 test("under each lead chart: a rise shows what was counted, a few items, each from the file; a fall shows only why it has none", async () => {
@@ -290,7 +303,7 @@ test("the news page prints the why-it-matters line under the top story only, and
   const shown = [...html.matchAll(/<p class="top-story__why"[\s\S]*?<\/p>/g)].map((m) => text(m[0]).trim());
   assert.equal(shown.length, line ? 1 : 0);
   // Only the page's own words are checked: a headline of the day may say anything.
-  const method = html.slice(html.indexOf('id="method"'));
+  const method = sectionOf(page("/method"), "today-news");
   for (const own of [...shown, text(method)]) assert.doesNotMatch(own, /Why it matters/, "the line is about the trend, and says so");
   assert.match(text(method), /The trend\./, "the method note is headed as the line is labelled");
   if (line) {
