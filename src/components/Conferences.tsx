@@ -230,7 +230,7 @@ export function ConfMast({ ruled = false }: { ruled?: boolean }) {
     <header className={ruled ? "mast mast--ruled" : "mast"}>
       <div className="mast__top">
         <PageTabs current="conferences" />
-        <p className="mast__line">As of {fmtDate(today)}</p>
+        <p className="mast__line">Updated {fmtDate(today)}</p>
       </div>
       <p className="mast__name">
         <Logo className="mast__mark" />
