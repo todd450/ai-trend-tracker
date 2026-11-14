@@ -37,6 +37,17 @@ const theme = (id: string, name: string, blurb: string, parts: Subtheme[]): Them
   hn: [...new Set(parts.flatMap((p) => p.hn))],
 });
 
+/**
+ * Searches whose words must appear in a title as written. Hacker News search also matches a word's
+ * plural, which suits most searches but not these: "AI water" matched "muddying the waters" and a
+ * fast-food order of "18,000 waters". Editing this list changes past counts too, so recount the
+ * theme afterwards: `npm run collect -- --recount <theme id>`.
+ */
+export const HN_AS_WRITTEN = new Set(["AI water"]);
+
+/** The extra Hacker News search settings for one of a theme's searches. */
+export const hnWordRules = (search: string): Record<string, string> => (HN_AS_WRITTEN.has(search) ? { ignorePlurals: "false" } : {});
+
 /** The key a sub-theme's weekly counts are stored under in history.json. */
 export const subthemeKey = (themeId: string, partId: string) => `${themeId}.${partId}`;
 

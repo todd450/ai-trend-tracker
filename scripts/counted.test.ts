@@ -22,7 +22,7 @@ import {
   type PaperCandidate,
   type Span,
 } from "../src/lib/counted.ts";
-import { THEMES } from "../src/lib/themes.ts";
+import { HN_AS_WRITTEN, THEMES, hnWordRules } from "../src/lib/themes.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { LeadSeries } from "../src/lib/sentences.ts";
 
@@ -276,4 +276,15 @@ test("the page shows a list only for the same view, series and window it was col
   assert.equal(countedFor(file, "threeMonths", "theme", "infrastructure", { first: "2026-10-19", last: "2026-11-09" }), null, "a later window");
   assert.equal(countedFor(file, "threeMonths", "theme", "infrastructure", null), null);
   assert.equal(countedFor({ generatedAt: "", moves: [{ horizon: "threeMonths", series: "theme", id: "infrastructure", ...SPAN, stories: [] }] }, "threeMonths", "theme", "infrastructure", SPAN), null, "an empty list is no list");
+});
+
+// ------------------------------------------------------------ searches kept as written
+
+test("a search kept as written is one of a theme's own, and asks Hacker News not to match plurals", () => {
+  const all = new Set(THEMES.flatMap((t) => t.hn));
+  for (const search of HN_AS_WRITTEN) assert.ok(all.has(search), `${search} is a theme search`);
+  assert.deepEqual(hnWordRules("AI water"), { ignorePlurals: "false" }, "so 'muddying the waters' is not counted");
+  assert.deepEqual(hnWordRules("AI data center"), {}, "other searches are unchanged");
+  assert.ok(!titleMatches("AI fan wikis are muddying the waters of games culture", "AI water"), "the list already reads words as written");
+  assert.ok(titleMatches("AI data centers' water use doubles", "AI water"));
 });
