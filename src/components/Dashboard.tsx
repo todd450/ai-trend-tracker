@@ -6,10 +6,12 @@ import { MoreRows } from "@/components/MoreRows";
 import { Bar, MomentumBars, extentOf } from "@/components/MomentumBars";
 import { type Product } from "@/lib/products";
 import { PageTabs } from "@/components/PageTabs";
+import { SourceLine } from "@/components/SourceLine";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
-import { isBigStory, lineFor, visible } from "@/lib/editorial";
-import { buildToday, editorial } from "@/lib/today";
+import Link from "next/link";
+import { lineFor, visible } from "@/lib/editorial";
+import { editorial } from "@/lib/today";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
 import { NOISE_MULTIPLE } from "@/lib/noise";
@@ -24,7 +26,6 @@ import {
   fmtCompact,
   fmtDate,
   fmtDay,
-  fmtDayTime,
   fmtWeek,
   history,
   latest,
@@ -73,23 +74,6 @@ function host(url: string) {
   } catch {
     return "";
   }
-}
-
-/**
- * The line under a chart or list that says where its figures come from and when they were last
- * collected, so no reader has to go to the foot of the page to find out. When the latest update
- * of a source failed, the line says so and gives the day of the data being shown.
- */
-function SourceLine({ names, keys }: { names: string; keys: string[] }) {
-  const status = keys.map((key) => latest.sources[key]).filter((src) => src !== undefined);
-  const failed = status.some((src) => !src.ok);
-  const oldest = status.map((src) => src.at).filter(Boolean).sort()[0];
-  return (
-    <p className="source">
-      <b>{names.includes(";") ? "Sources" : "Source"}:</b> {names}.
-      {oldest && (failed ? ` The latest update failed; this is the data of ${fmtDay(oldest)}.` : ` Collected ${fmtDay(oldest)}.`)}
-    </p>
-  );
 }
 
 /** A weekly story count, shown short and read out in full. */
@@ -230,17 +214,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const productStoryExtent = extentOf(productTrends.filter((p) => p.enough).map((p) => p.stories.change));
   const productViewExtent = extentOf(productTrends.map((p) => p.views?.change ?? null));
 
-  const today = buildToday();
-  const pinsNow = today.items.filter((item) => item.pinned);
-  /**
-   * The day's first story is set large, above the list, when the editor pinned it or when it is
-   * already as big as the week's top stories. On an ordinary day every story is a row.
-   */
-  const [first, ...rest] = today.items;
-  const bigDay =
-    first !== undefined &&
-    (first.pinned !== undefined || isBigStory(first.discussion?.points, latest.stories.map((s) => s.points)));
-  const todayRows = bigDay ? rest : today.items;
   const editorLine = lineFor(editorial, latest.generatedAt.slice(0, 10));
   // The editor's hides apply to every ranked list, before it is cut to length.
   const stories = visible(latest.stories, editorial).slice(0, SHOWN);
@@ -329,111 +302,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </ol>
             </div>
           )}
-        </section>
-
-        <section id="today" className="band band--today" aria-labelledby="today-h">
-          <div className="band__head">
-            <h2 id="today-h">Today’s AI news</h2>
-            <p>
-              What the labs announced, what the analysts published and which AI stories Hacker News picked up in the
-              24 hours before this page was last updated. The biggest stories come first, by points on Hacker News;
-              posts not discussed there follow, newest first. Posts about one announcement are gathered under the
-              biggest of them, and the editor can pin a story to the top or leave one out;{" "}
-              <a href="#method">how this is measured</a> lists any such decision.
-            </p>
-          </div>
-          {bigDay && (
-            <article className="top-story">
-              <p className="top-story__kicker">{first.pinned ? "Editor’s pick" : "The day’s biggest story"}</p>
-              <h3>
-                <a href={first.url} {...NEW_TAB}>{first.title}</a>
-              </h3>
-              <p className="top-story__meta">
-                {first.from}
-                {first.discussion && (
-                  <>
-                    {" · "}
-                    <a href={first.discussion.url} {...NEW_TAB}>{fmtCompact(first.discussion.points)} points on Hacker News</a>
-                  </>
-                )}
-                {" · "}
-                {first.publishedAt.includes("T00:00:00") ? fmtDay(first.publishedAt) : `${fmtDayTime(first.publishedAt)} UTC`}
-              </p>
-              {first.pinned?.note && <p className="top-story__note">{first.pinned.note}</p>}
-              {first.also.length > 0 && (
-                <ul className="top-story__also" aria-label="Other posts on the same story">
-                  {first.also.map((other) => (
-                    <li key={other.url}>
-                      <a href={other.url} {...NEW_TAB}>{other.title}</a> ({other.from}
-                      {other.discussion && <>, {fmtCompact(other.discussion.points)} points</>})
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </article>
-          )}
-          {todayRows.length > 0 ? (
-            <Ledger
-              first="Headline"
-              labelledBy="today-h"
-              count={todayRows.length}
-              start={bigDay ? 2 : 1}
-              more={<a className="more" href="#news">The week’s top stories ↓</a>}
-              cells={[
-                { head: "From", width: "9.5rem", start: true },
-                { head: "Hacker News", width: "5.5rem" },
-                { head: "Published (UTC)", width: "6.5rem" },
-              ]}
-            >
-              {todayRows.map((item) => (
-                <li key={item.url}>
-                  <span className="ledger__main">
-                    {item.pinned && <span className="ledger__pick">Editor’s pick</span>}
-                    <a href={item.url} title={item.title} {...NEW_TAB}>{item.title}</a>
-                  </span>
-                  <span className="ledger__data">
-                    <span className="ledger__cell--start">{item.from}</span>
-                    <span>
-                      {item.discussion && (
-                        <a href={item.discussion.url} {...NEW_TAB}>
-                          {fmtCompact(item.discussion.points)}
-                          <span className="ledger__unit"> points</span>
-                        </a>
-                      )}
-                    </span>
-                    {/* Some feeds give a day and no time; midnight exactly means the time is not known. */}
-                    <span>{item.publishedAt.includes("T00:00:00") ? fmtDay(item.publishedAt) : fmtDayTime(item.publishedAt)}</span>
-                  </span>
-                  {(item.pinned?.note || item.also.length > 0) && (
-                    <span className="ledger__also">
-                      {item.pinned?.note && <span>{item.pinned.note}</span>}
-                      {item.also.length > 0 && (
-                        <span>
-                          Same story:{" "}
-                          {item.also.map((other, n) => (
-                            <span key={other.url}>
-                              {n > 0 && ", "}
-                              <a href={other.url} title={other.title} {...NEW_TAB}>
-                                {other.title}
-                              </a>{" "}
-                              ({other.from}
-                              {other.discussion && <>, {fmtCompact(other.discussion.points)} points</>})
-                            </span>
-                          ))}
-                        </span>
-                      )}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </Ledger>
-          ) : bigDay ? null : (
-            <p className="band__empty">
-              None of the sources published anything in the 24 hours before the last update. The week’s stories are
-              in <a href="#news">the reading list</a>.
-            </p>
-          )}
-        <SourceLine names="the labs’ and newsletters’ own feeds; Hacker News" keys={["labNews", "analysis", "today"]} />
         </section>
 
         <section className="chapter" aria-labelledby="trends-h">
@@ -1539,25 +1407,12 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 article stands in, and its views include interest in the company.
               </p>
               <p>
-                <strong>Today’s AI news</strong> lists what was published in the 24 hours before the data was
-                collected, which happens once a day: posts from the labs named under “Lab announcements”, pieces from the newsletters and
-                institutions, and up to twelve Hacker News stories with an AI term in the title and at least 20
-                points. The biggest stories come first, and size is measured by points on Hacker News, the one
-                figure the sources share. A lab or newsletter post takes the points of the story that links to it
-                or carries its headline; posts with no such story come after the rest, newest first, because
-                nothing says how big they are. The times are in UTC, and none of this feeds
-                the trends.
-              </p>
-              <p>
-                <strong>The editor’s step.</strong> Points say what one community upvoted, so the ranked list is
-                finished by rules before it is shown. Posts about one event are gathered under the highest-ranked
-                of them and stay on the page beneath it: two headlines count as one event when one holds the other,
-                or when they share three or more words in a row that include a version number. The editor can also
-                pin a post to the top until a set day, and leave a link out of every list on this page; both are
-                kept in a file in the project’s repository, with a reason for each link left out.{" "}
-                {pinsNow.length === 0 && editorial.hide.length === 0
-                  ? "Nothing is pinned or left out today."
-                  : `Today ${pinsNow.length} ${pinsNow.length === 1 ? "post is" : "posts are"} pinned and ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}
+                <strong>The editor’s step.</strong> The editor can leave a link out of every list on this page;
+                each is kept in a file in the project’s repository, with a reason.{" "}
+                {editorial.hide.length === 0
+                  ? "Nothing is left out today."
+                  : `Today ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}{" "}
+                The past day’s stories, and how they are ranked, are on <Link href="/today">Today’s news</Link>.
               </p>
               {editorial.hide.length > 0 && (
                 <ul>

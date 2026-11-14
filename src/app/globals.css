@@ -927,8 +927,9 @@ code {
   color: var(--color-ink-2);
 }
 
-/* Today's news sits between the lede and the first chapter. */
-.lede + .band--today {
+/* Today's news has its own page: the list follows the lede, and the method note follows the list. */
+.lede + .band--today,
+.band--today + .method {
   margin-top: var(--space-xl);
 }
 
@@ -1525,6 +1526,7 @@ code {
   color: var(--color-accent);
 }
 
+.top-story h2,
 .top-story h3 {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
@@ -1534,6 +1536,7 @@ code {
   text-wrap: balance;
 }
 
+.top-story h2 a,
 .top-story h3 a {
   text-decoration-color: transparent;
 }

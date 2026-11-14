@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { Spark } from "@/components/MomentumBars";
-import { PageTabs } from "@/components/PageTabs";
+import { PageTabs, type Page } from "@/components/PageTabs";
 import { SectionNav } from "@/components/SectionNav";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
@@ -229,12 +229,12 @@ export function Programme({ c }: { c: Conference }) {
   );
 }
 
-/** The masthead shared by the calendar and each event's page. */
-export function ConfMast() {
+/** The masthead of every page but the trends, where the site's name is the page's heading. */
+export function ConfMast({ current = "conferences" }: { current?: Page }) {
   return (
     <header className="mast">
       <div className="mast__top">
-        <PageTabs current="conferences" />
+        <PageTabs current={current} />
         <p className="mast__line">As of {fmtDate(today)}</p>
       </div>
       <p className="mast__name">
