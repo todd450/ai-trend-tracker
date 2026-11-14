@@ -158,9 +158,17 @@ code {
   line-height: 1;
   letter-spacing: -0.01em;
   white-space: nowrap;
+  /* The name keeps its width, as a heading too (headings may otherwise shrink and break anywhere), so on the narrowest phones it is the dateline that gives way. */
+  min-width: max-content;
+  overflow-wrap: normal;
   display: flex;
   align-items: baseline;
   gap: 0.3em;
+}
+
+/* The name links home from the inner pages without looking like a link. */
+.mast__name a {
+  text-decoration: none;
 }
 
 /* Sized to the capital height, sitting on the baseline of the name. */
@@ -2372,11 +2380,6 @@ code {
 }
 
 /* --------------------------------------------------------- conferences */
-
-/* The masthead name links home from the inner pages without looking like a link. */
-.mast__name a {
-  text-decoration: none;
-}
 
 .conf__basis,
 .conf__pending,
