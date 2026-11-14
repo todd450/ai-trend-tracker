@@ -714,6 +714,98 @@
    }
   },
   {
+   "id": "thesis-2027",
+   "name": "Thesis: 2027",
+   "host": "Every",
+   "kind": "industry",
+   "start": "2026-11-05",
+   "end": "2026-11-05",
+   "place": "New York, USA",
+   "url": "https://every.to/thesis-2027/schedule",
+   "recordings": "https://every.to/tv",
+   "note": "The first conference from Every, the newsletter company: one day at Pioneer Works in Brooklyn on what human work looks like once AI does more of it, with about 400 people in the room. The recordings need an Every subscription. The descriptions of its 25 sessions name the tracked topics only 14 times, too few to set against the trends, so no figures are shown.",
+   "programme": [
+    {
+     "day": "2026-11-05",
+     "title": "Welcome to Thesis: 2027",
+     "speaker": "Dan Shipper",
+     "org": "Every"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "Clackety-clack",
+     "speaker": "Josh Miller",
+     "org": "The Browser Company"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "How Established Companies Become AI Companies",
+     "speaker": "Hugh Wimberly and Jeremy Hadfield",
+     "org": "Ode with Anthropic and Anthropic"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "Media After AGI",
+     "speaker": "Nicholas Thompson and Kevin Roose",
+     "org": "The Atlantic and Machine Gods"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "Is It Priced In? What the AI Market Gets Wrong",
+     "speaker": "Lauren Reeder and Will England",
+     "org": "Sequoia and Walleye Capital"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "How Far Can a Solo Founder Go?",
+     "speaker": "Julian Weisser and Ben Cera",
+     "org": "Solo Founders and Polsia"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "What It Takes to Bring AI to a Team of 230,000",
+     "speaker": "Katy George",
+     "org": "Microsoft"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "Bubble, Boom, or Both?",
+     "speaker": "Allie Garfinkle and Dan Shipper",
+     "org": "Fortune and Every"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "Building Products in the AGI Era",
+     "speaker": "Andrew Ambrosino",
+     "org": "OpenAI"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "What Happens When Everyone Builds?",
+     "speaker": "Lauren Rhode and Curtis Anderson",
+     "org": "Lovable and Nursa"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "When Video Becomes the Interface",
+     "speaker": "Alejandro Matamala-Ortiz",
+     "org": "Runway"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "Tools for Thought in the Age of AI",
+     "speaker": "Ivan Zhao",
+     "org": "Notion"
+    },
+    {
+     "day": "2026-11-05",
+     "title": "A New Vision for Human Work After Automation",
+     "speaker": "Dan Shipper",
+     "org": "Every"
+    }
+   ]
+  },
+  {
    "id": "aie-code-2026",
    "name": "AI Engineer Code Summit",
    "host": "AI Engineer",
