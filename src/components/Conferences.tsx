@@ -228,10 +228,10 @@ export function Programme({ c }: { c: Conference }) {
   );
 }
 
-/** The masthead shared by the calendar and each event's page. */
-export function ConfMast() {
+/** The masthead shared by the calendar and each event's page. The calendar has no bar beneath, so it asks for `ruled`. */
+export function ConfMast({ ruled = false }: { ruled?: boolean }) {
   return (
-    <header className="mast">
+    <header className={ruled ? "mast mast--ruled" : "mast"}>
       <div className="mast__top">
         <PageTabs current="conferences" />
         <p className="mast__line">As of {fmtDate(today)}</p>
@@ -306,7 +306,7 @@ export function Conferences() {
         Skip to today
       </a>
 
-      <ConfMast />
+      <ConfMast ruled />
 
       <main className="page">
         <section className="lede lede--cal">

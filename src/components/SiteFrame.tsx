@@ -8,10 +8,11 @@ import { fmtDate, latest } from "@/lib/trends";
 /**
  * The masthead of a page inside the site: the page tabs, a dateline, and the name as a link home.
  * The front page sets the name as its h1; every other page keeps its h1 for its own title.
+ * A page with no time-span bar beneath asks for `ruled`, so the rule under the name is on every page.
  */
-export function SiteMast({ current, line }: { current: Page; line: string }) {
+export function SiteMast({ current, line, ruled = false }: { current: Page; line: string; ruled?: boolean }) {
   return (
-    <header className="mast">
+    <header className={ruled ? "mast mast--ruled" : "mast"}>
       <div className="mast__top">
         <PageTabs current={current} />
         <p className="mast__line">{line}</p>

@@ -32,7 +32,7 @@ export function Today() {
         Skip to the news
       </a>
 
-      <SiteMast current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
+      <SiteMast ruled current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
       <main className="page">
         <section className="lede lede--cal">
