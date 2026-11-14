@@ -5,8 +5,28 @@ import { SourceLine } from "@/components/SourceLine";
 import { FRONTIER_LABS, topStoryReason } from "@/lib/editorial";
 import { NEW_TAB, host } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
+import { trendTags } from "@/lib/tags";
 import { buildToday, editorial, pastLeads } from "@/lib/today";
 import { fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
+
+/**
+ * The trends a headline is counted in (see `trendTags`), each a link to its row on the site.
+ * Plain links, not client navigation, so the browser follows the #anchor on arrival.
+ */
+function Tags({ title, className }: { title: string; className: string }) {
+  const tags = trendTags(title);
+  if (tags.length === 0) return null;
+  return (
+    <span className={`tags ${className}`}>
+      <span className="vh">Counted in the trends: </span>
+      {tags.map((tag) => (
+        <a className="tag" href={tag.href} key={tag.href}>
+          {tag.name}
+        </a>
+      ))}
+    </span>
+  );
+}
 
 /**
  * Today's AI news: what was published in the 24 hours before the data was collected. It reads
@@ -62,6 +82,7 @@ export function Today() {
                   {" · "}
                   {first.publishedAt.includes("T00:00:00") ? fmtDay(first.publishedAt) : `${fmtDayTime(first.publishedAt)} UTC`}
                 </p>
+                <Tags title={first.title} className="top-story__tags" />
                 {first.pinned?.note && <p className="top-story__note">{first.pinned.note}</p>}
                 {first.also.length > 0 && (
                   <ul className="top-story__also" aria-label="Other posts on the same story">
@@ -108,8 +129,9 @@ export function Today() {
                       {/* Some feeds give a day and no time; midnight exactly means the time is not known. */}
                       <span>{item.publishedAt.includes("T00:00:00") ? fmtDay(item.publishedAt) : fmtDayTime(item.publishedAt)}</span>
                     </span>
-                    {(item.pinned?.note || item.also.length > 0) && (
+                    {(item.pinned?.note || item.also.length > 0 || trendTags(item.title).length > 0) && (
                       <span className="ledger__also">
+                        <Tags title={item.title} className="ledger__tags" />
                         {item.pinned?.note && <span>{item.pinned.note}</span>}
                         {item.also.length > 0 && (
                           <span>
@@ -181,6 +203,14 @@ export function Today() {
               {leads.length === 0
                 ? "No past days are on record to compare with today."
                 : `Today’s lead is compared with ${leads.length} past ${leads.length === 1 ? "day" : "days"}.`}
+            </p>
+            <p>
+              <strong>The tags.</strong> A headline is tagged with the tracked products and topics whose Hacker
+              News counts it is in, at most two, in the order the headline names them. The match is the one the
+              counts use: the trend’s own title phrases, as whole words, with its exceptions, so a headline naming
+              Claude Code is not tagged Claude. A headline that matches none has no tag. A tag links to the trend’s
+              row: a topic on the topics page, a product under “Product momentum” on the front page, both over the
+              default three months.
             </p>
             {editorial.hide.length > 0 && (
               <ul>

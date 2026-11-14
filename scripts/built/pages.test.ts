@@ -80,6 +80,27 @@ test("no old link into the front page breaks, and the reading lists are on their
   for (const id of READING) assert.ok(reading.has(id), `#${id} is on the reading list page`);
 });
 
+test("every product row on the front page has its own anchor", async () => {
+  const { PRODUCTS } = await fromSrc<any>("lib/products");
+  const front = ids(page("/"));
+  for (const p of PRODUCTS) assert.ok(front.has(`product-${p.id}`), `#product-${p.id}`);
+});
+
+test("/today tags each headline with its trends, and every tag lands on its trend's row", async () => {
+  const { buildToday } = await fromSrc<any>("lib/today");
+  const { trendTags } = await fromSrc<any>("lib/tags");
+  const html = page("/today");
+  const links = [...html.matchAll(/<a class="tag" href="([^"]+)"/g)].map((m) => m[1]);
+  const day = buildToday();
+  const shown = day.top ? [day.items[day.top.index], ...day.items.filter((_: any, n: number) => n !== day.top.index)] : day.items;
+  const expected = shown.flatMap((item: any) => trendTags(item.title).map((t: any) => t.href));
+  assert.deepEqual(links, expected, "one link per tag, top story first, then the rows in order");
+  for (const href of new Set(links)) {
+    const [path, anchor] = href.split("#");
+    assert.ok(ids(page(path)).has(anchor), `${href} lands on a row`);
+  }
+});
+
 test("the MCP server ships with the daily snapshots its top story is weighed against", () => {
   // /mcp runs on request, so it reads data/snapshots/ where it is deployed, where only the files the build traced are.
   const trace = JSON.parse(readFileSync(join(APP, "mcp/route.js.nft.json"), "utf8"));

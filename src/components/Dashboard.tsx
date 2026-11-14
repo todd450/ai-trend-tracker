@@ -452,7 +452,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                       {members.map(({ p, rank }) => {
                         const views = p.views;
                         return (
-                          <li key={p.id} className="mom__row">
+                          <li key={p.id} id={`product-${p.id}`} className="mom__row">
                             <div className="mom__topic">
                               <span className="mom__rank">{rank}</span>
                               <h4>{p.name}</h4>
