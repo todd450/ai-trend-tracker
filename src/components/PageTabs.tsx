@@ -5,7 +5,7 @@ const PAGES = [
   { id: "today", label: "Today’s news", href: "/today" },
   { id: "reading", label: "Reading list", href: "/reading" },
   // Every tab opens its page at the top, so the tabs stay in view. Today's line is one tap away
-  // in the calendar's own month bar.
+  // from the "Jump to today" link under the calendar's headline.
   { id: "conferences", label: "Conferences", href: "/conferences" },
 ] as const;
 
