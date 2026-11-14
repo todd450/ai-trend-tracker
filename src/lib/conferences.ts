@@ -35,6 +35,9 @@ export const phaseOf = (c: Conference): Phase => phaseAt(c, today);
 /** Every month of the calendar, with the "Today" line in the month it falls in. */
 export const calendarMonths = () => agenda(conferences, today);
 
+/** The word shown for each kind of event. */
+export const KIND_LABEL: Record<Conference["kind"], string> = { research: "Research", industry: "Industry", policy: "Policy" };
+
 /** The conference with this id, or undefined. */
 export const conferenceById = (id: string) => conferences.find((c) => c.id === id);
 

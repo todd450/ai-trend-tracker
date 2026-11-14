@@ -150,8 +150,8 @@ export type Conference = {
   name: string;
   /** Who runs it. */
   host: string;
-  /** "research" for academic meetings, "industry" for practitioner and vendor events. */
-  kind: "research" | "industry";
+  /** "research" for academic meetings, "industry" for practitioner and vendor events, "policy" for meetings of governments. */
+  kind: "research" | "industry" | "policy";
   /** First and last day, YYYY-MM-DD, in the event's own time zone. */
   start: string;
   end: string;
