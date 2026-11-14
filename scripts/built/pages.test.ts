@@ -75,6 +75,7 @@ const READING = ["reading", "analysis", "announcements", "code", "labs", "launch
 test("no old link into the front page breaks, and the reading lists are on their own page", () => {
   const front = ids(page("/"));
   for (const id of OLD_ANCHORS) assert.ok(front.has(id), `#${id} is still on the front page`);
+  assert.ok(ids(page("/today")).has("today"), "#today is on the news page");
   const reading = ids(page("/reading"));
   for (const id of READING) assert.ok(reading.has(id), `#${id} is on the reading list page`);
 });

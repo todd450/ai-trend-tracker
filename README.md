@@ -116,10 +116,10 @@ Stability AI).
 Read a publisher's terms before adding a feed. NBER and PIIE were removed because
 theirs bar any automatic access to their sites, with no exception for feeds.
 
-"Today's AI news", at the top of the page, is built in `src/lib/today.ts` from
+"Today's AI news", on its own page at `/today`, is built in `src/lib/today.ts` from
 the lab and newsletter lists plus the past day's Hacker News stories (20 points
 or more, at most twelve). The site is rebuilt once a day, so "today" means the
-24 hours before the last collection, and the section says which those are.
+24 hours before the last collection, and the page says which those are.
 The list is ranked by Hacker News points. A lab or newsletter post takes the
 points of the story that links to it or shares its headline; posts with no
 such story come last, newest first.
