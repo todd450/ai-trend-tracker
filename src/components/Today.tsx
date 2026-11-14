@@ -158,7 +158,9 @@ export function Today() {
               <strong>The editor’s step.</strong> Points say what one community upvoted, so the ranked list is
               finished by rules before it is shown. Posts about one event are gathered under the highest-ranked of
               them and stay on the page beneath it: two headlines count as one event when one holds the other, or
-              when they share three or more words in a row that include a version number. The editor can also pin a
+              when they share three or more words in a row that include a version number. Posts about an outage
+              count as one event too, when they come from the same status page, or when both headlines name the
+              same tracked product beside an outage word (down, outage, errors, degraded). The editor can also pin a
               post to the top until a set day, and leave a link out of every list on the site; both are kept in a
               file in the project’s repository, with a reason for each link left out.{" "}
               {pinsNow.length === 0 && editorial.hide.length === 0

@@ -4,12 +4,14 @@
  * word. So after a list is ranked:
  *
  *   1. anything listed under `hide` in data/editorial.json is left out,
- *   2. posts about one event are gathered under the highest-ranked of them, and
+ *   2. posts about one event (or one outage) are gathered under the highest-ranked of them, and
  *   3. anything listed under `pin` is moved to the top, until the pin's last day.
  *
  * Steps 1 and 3 are a person's decisions, kept by hand in the file; step 2 is a fixed rule.
  * Nothing here changes the trend figures.
  */
+
+import { PRODUCTS } from "./products.ts";
 
 /** A post held at the top of "Today's AI news" through `until` (YYYY-MM-DD), whatever its points. */
 export type Pin = { url: string; title: string; from: string; until: string; note?: string };
@@ -88,6 +90,60 @@ export function sameEvent(a: string, b: string): boolean {
   return false;
 }
 
+/** Words that say a service is failing. "down" has its own test, in `hasOutageWord`. */
+const OUTAGE_WORDS = new Set(["down", "outage", "outages", "errors", "degraded"]);
+
+/**
+ * Verbs, in any tense, that make "down" mean something other than an outage: "shuts down",
+ * "cracking down", "stepped down". Whole words only, so "site down" is still an outage.
+ */
+const NOT_AN_OUTAGE_BEFORE_DOWN =
+  /^((shut|cut|crack|step|back|break|turn|wind|slow|water|track|put|let|calm|weigh|lock|clamp|hunt|mark|knock|narrow|boil|bog|dumb|strip|stand|filter|hand|pass|vote)(s|ed|ing|ting|ping|ped|ged|ging|bed|bing)?|broke|scaled?|scal(es|ing)|tone[sd]?|toning|take[sn]?|taking|took|bring(s|ing)?|brought|sit(s|ting)?|sat|pare[sd]?|paring|double[sd]?|doubling|write[sn]?|writing|wrote|written|settle[sd]?|settling|stood)$/;
+
+const hasOutageWord = (w: string[]) =>
+  w.some((word, i) => OUTAGE_WORDS.has(word) && !(word === "down" && i > 0 && NOT_AN_OUTAGE_BEFORE_DOWN.test(w[i - 1])));
+
+/** A phrase, as words, padded so that it only matches whole words. */
+const padded = (w: string[]) => ` ${w.join(" ")} `;
+
+/**
+ * The ids of the tracked products a headline names. A longer product's name is taken out first,
+ * so "Claude Code is down" names Claude Code, not Claude, while "claude.ai and Claude Code" names both.
+ */
+function productsNamed(title: string): Set<string> {
+  const named = new Set<string>();
+  for (const product of PRODUCTS) {
+    let text = padded(words(title));
+    for (const except of product.hnExcept ?? []) text = text.split(padded(words(except))).join("  ");
+    if (product.hn.some((phrase) => text.includes(padded(words(phrase))))) named.add(product.id);
+  }
+  return named;
+}
+
+/** The host of a status page ("status.claude.com"), or undefined for any other address. */
+function statusPage(url: string): string | undefined {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    return host.startsWith("status.") ? host : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * True when two posts are about one outage: both link to the same status page (`status.<host>`),
+ * or both headlines carry an outage word (down, outage, errors, degraded) and name the same
+ * tracked product. Two posts about one product with no outage word stay apart, as do two outages
+ * of different products.
+ */
+export function sameOutage(a: { title: string; url: string }, b: { title: string; url: string }): boolean {
+  const page = statusPage(a.url);
+  if (page && page === statusPage(b.url)) return true;
+  if (!hasOutageWord(words(a.title)) || !hasOutageWord(words(b.title))) return false;
+  const named = productsNamed(b.title);
+  return [...productsNamed(a.title)].some((id) => named.has(id));
+}
+
 /** The hidden links, keyed as `sameArticle` keys them. */
 const hiddenKeys = (editorial: Editorial) => new Set(editorial.hide.map((h) => sameArticle(h.url)));
 
@@ -118,7 +174,7 @@ export function finish<T extends { title: string; url: string }>(
 ): Finished<T>[] {
   const leads: Finished<T>[] = [];
   for (const item of visible(ranked, editorial)) {
-    const lead = leads.find((l) => sameEvent(l.title, item.title));
+    const lead = leads.find((l) => sameEvent(l.title, item.title) || sameOutage(l, item));
     if (lead) lead.also.push(item);
     else leads.push({ ...item, also: [] });
   }

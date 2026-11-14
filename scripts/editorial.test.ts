@@ -1,7 +1,7 @@
 /** Run with `npm test`. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { finish, isBigStory, lineFor, sameEvent, visible, type Editorial, type Pin } from "../src/lib/editorial.ts";
+import { finish, isBigStory, lineFor, sameEvent, sameOutage, visible, type Editorial, type Pin } from "../src/lib/editorial.ts";
 
 type Item = { title: string; url: string; points?: number };
 const none: Editorial = { pin: [], hide: [] };
@@ -29,6 +29,54 @@ test("a shared year or a shared stock phrase does not join two stories", () => {
 test("one headline holding the other is one event, as before", () => {
   assert.equal(sameEvent("Introducing Gemini 4 Hydrogen", "Gemini 4 Hydrogen"), true);
   assert.equal(sameEvent("Claude", "Claude Fable 5.2 and Mythos 5.2"), false);
+});
+
+// The 13 Nov 2026 pair: one Claude outage, posted twice to Hacker News.
+const incident: Item = { title: "Elevated errors on claude.ai, Claude Code, and platform.claude.com", url: "https://status.claude.com/incidents/nn11wk485zfn", points: 339 };
+const isDown: Item = { title: "Claude Is Down", url: "https://status.claude.com/history", points: 166 };
+const elsewhere = (title: string): Item => ({ title, url: `https://example.org/${encodeURIComponent(title)}` });
+
+test("the 13 Nov 2026 outage posts are one story", () => {
+  const out = finish([incident, other, isDown], none, TODAY, fromPin);
+  assert.deepEqual(out.map((i) => i.url), [incident.url, other.url]);
+  assert.deepEqual(out[0].also.map((i) => i.url), [isDown.url]);
+});
+
+test("one tracked product with an outage word in both headlines is one event, wherever the posts live", () => {
+  assert.equal(sameOutage(elsewhere(incident.title), elsewhere(isDown.title)), true);
+  assert.equal(sameOutage(elsewhere("ChatGPT outage"), elsewhere("Is ChatGPT down for anyone else?")), true);
+  assert.equal(sameOutage(elsewhere("Claude Code is down"), elsewhere("Claude Code: degraded performance")), true);
+});
+
+test("posts from one status page are one event, whatever their headlines", () => {
+  const a: Item = { title: "Incident with Codespaces", url: "https://www.githubstatus.com/incidents/1" };
+  assert.equal(sameOutage({ title: "Ongoing incident", url: "https://status.openai.com/incidents/abc" }, { title: "Something is wrong", url: "http://status.openai.com/" }), true);
+  assert.equal(sameOutage({ title: "Ongoing incident", url: "https://status.openai.com/a" }, { title: "Ongoing incident", url: "https://status.claude.com/a" }), false);
+  assert.equal(sameOutage(a, { title: "Incident with Actions", url: "https://www.githubstatus.com/incidents/2" }), false);
+});
+
+test("two stories naming one product, with no outage word in one of them, stay apart", () => {
+  assert.equal(sameOutage(elsewhere("Claude can now remember past chats"), elsewhere("Claude Fable 5.2 and Mythos 5.2")), false);
+  assert.equal(sameOutage(elsewhere("Claude Is Down"), elsewhere("Claude can now remember past chats")), false);
+  const out = finish([elsewhere("Claude can now remember past chats"), elsewhere("What Claude taught me about writing")], none, TODAY, fromPin);
+  assert.equal(out.length, 2);
+});
+
+test("an outage word with two different products stays apart", () => {
+  assert.equal(sameOutage(elsewhere("ChatGPT is down"), elsewhere("Claude Is Down")), false);
+  assert.equal(sameOutage(elsewhere("Gemini outage"), elsewhere("Elevated errors on Cursor")), false);
+});
+
+test("a product named inside a longer one is not the shorter product", () => {
+  assert.equal(sameOutage(elsewhere("Claude Code is down"), elsewhere("Claude Is Down")), false);
+});
+
+test("an outage word must stand as a whole word, and 'down' in a phrase like 'shuts down' is no outage", () => {
+  assert.equal(sameOutage(elsewhere("Sora is down"), elsewhere("OpenAI shuts down Sora")), false);
+  assert.equal(sameOutage(elsewhere("Gemini errors"), elsewhere("Gemini downgrades its free tier")), false);
+  assert.equal(sameOutage(elsewhere("Gemini outage"), elsewhere("Gemini outages worldwide")), true);
+  assert.equal(sameOutage(elsewhere("Claude site down"), elsewhere("Claude Is Down")), true);
+  assert.equal(sameOutage(elsewhere("Cursor is down"), elsewhere("Cursor's CEO stepped down")), false);
 });
 
 test("posts about one event are gathered under the highest-ranked, and none is dropped", () => {
