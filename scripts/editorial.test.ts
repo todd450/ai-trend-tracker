@@ -1,7 +1,20 @@
 /** Run with `npm test`. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { finish, isBigStory, lineFor, sameEvent, sameOutage, visible, type Editorial, type Pin } from "../src/lib/editorial.ts";
+import {
+  finish,
+  isLabLaunch,
+  lineFor,
+  matchesPastLeads,
+  sameEvent,
+  sameOutage,
+  topStory,
+  topStoryReason,
+  visible,
+  type Editorial,
+  type Finished,
+  type Pin,
+} from "../src/lib/editorial.ts";
 
 type Item = { title: string; url: string; points?: number };
 const none: Editorial = { pin: [], hide: [] };
@@ -130,12 +143,82 @@ test("the first pin in the file ends up on top", () => {
   assert.deepEqual(out.map((i) => i.url), [other.url, launch.url]);
 });
 
-test("a day's story is big once it matches the middle of the week's top ten", () => {
-  const week = [1033, 998, 972, 903, 822, 737, 675, 641, 626, 573];
-  assert.equal(isBigStory(551, week), false);
-  assert.equal(isBigStory(780, week), true);
-  assert.equal(isBigStory(undefined, week), false);
-  assert.equal(isBigStory(5000, [900, 800]), false);
+test("a day's lead is big once its points match the middle of the past days' leads", () => {
+  assert.equal(matchesPastLeads(619, [344, 627, 619]), true);
+  assert.equal(matchesPastLeads(551, [344, 627, 619]), false);
+  // An even count takes the mean of the middle two: (551 + 619) / 2 = 585.
+  assert.equal(matchesPastLeads(585, [344, 627, 619, 551]), true);
+  assert.equal(matchesPastLeads(584, [344, 627, 619, 551]), false);
+  assert.equal(matchesPastLeads(undefined, [100, 100, 100]), false);
+});
+
+test("with fewer than three past days to compare with, points lift nothing", () => {
+  assert.equal(matchesPastLeads(5000, []), false);
+  assert.equal(matchesPastLeads(5000, [10, 20]), false);
+  assert.equal(matchesPastLeads(20, [10, 20, 30]), true);
+});
+
+type Post = { title: string; url: string; from: string; lab?: boolean; discussion?: { url: string; points: number } };
+const hn = (title: string, points: number, from = "example.org"): Post => ({
+  title,
+  url: `https://${from}/${encodeURIComponent(title)}`,
+  from,
+  discussion: { url: `https://news.ycombinator.com/item?id=${points}`, points },
+});
+const labPost = (from: string, title: string, points?: number): Post => ({
+  title,
+  url: `https://lab.example/${encodeURIComponent(title)}`,
+  from,
+  lab: true,
+  discussion: points === undefined ? undefined : { url: `https://news.ycombinator.com/item?id=${points}`, points },
+});
+const group = (lead: Post, ...also: Post[]): Finished<Post> => ({ ...lead, also });
+
+test("a frontier lab's own post discussed in two Hacker News stories is a lab launch", () => {
+  // 13 Nov 2026: the DeepMind post carries the 551-point story, and a second story sits under it.
+  assert.equal(isLabLaunch(group(labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", 551), hn("Gemini 4 Hydrogen and Orchestrator", 454))), true);
+  // The lab post need not have a discussion of its own, nor lead its group.
+  assert.equal(isLabLaunch(group(hn("OpenAI ships a model", 300), hn("A model from OpenAI", 120), labPost("OpenAI", "Introducing a model"))), true);
+});
+
+test("one discussion, no lab post, or a specialist lab is not a lab launch", () => {
+  assert.equal(isLabLaunch(group(labPost("Anthropic", "Introducing a model", 400))), false);
+  assert.equal(isLabLaunch(group(labPost("Anthropic", "Introducing a model"), hn("A model", 400))), false);
+  // Stories that link to a lab's site are not the lab's own post.
+  assert.equal(isLabLaunch(group(hn("Gemini 4 Hydrogen", 551, "deepmind.google"), hn("Gemini 4 Hydrogen and Orchestrator", 454))), false);
+  assert.equal(isLabLaunch(group(labPost("ElevenLabs", "A voice model", 300), hn("A voice model is out", 200))), false);
+  // A source named like a lab is not the lab's own post unless it came from the lab feeds.
+  assert.equal(isLabLaunch(group({ ...hn("Introducing X", 300), from: "OpenAI" }, hn("X is out", 200))), false);
+});
+
+const plain = (title: string, points: number) => group(hn(title, points));
+const launchGroup = group(labPost("Google DeepMind", "Introducing Gemini 4 Hydrogen", 551), hn("Gemini 4 Hydrogen and Orchestrator", 454));
+const PAST = [344, 627, 619];
+
+test("the top slot goes to a lab launch even when a bigger story leads the list", () => {
+  assert.deepEqual(topStory([plain("A bigger story", 600), plain("Another", 500), launchGroup], PAST), { index: 2, rule: "lab" });
+});
+
+test("the top slot goes to the lead when its points match the past days' leads", () => {
+  assert.deepEqual(topStory([plain("A big story", 700), launchGroup], PAST), { index: 0, rule: "points" });
+  assert.equal(topStory([plain("A big story", 700)], [10, 20]), undefined);
+});
+
+test("a pin wins the top slot over every rule", () => {
+  const pinned: Finished<Post> = { ...plain("Pinned", 5), pinned: { note: "Why." } };
+  assert.deepEqual(topStory([pinned, plain("A big story", 700), launchGroup], PAST), { index: 0, rule: "pinned" });
+});
+
+test("on an ordinary day the top slot stays empty", () => {
+  assert.equal(topStory([plain("A story", 300), plain("Another", 200)], PAST), undefined);
+  assert.equal(topStory([], PAST), undefined);
+});
+
+test("the kicker names the rule that lifted the story", () => {
+  const reasons = (["pinned", "lab", "points"] as const).map((rule) => topStoryReason(launchGroup, rule));
+  assert.equal(new Set(reasons).size, 3, "each rule reads differently");
+  assert.ok(reasons[1].includes("Google DeepMind"), "a lab launch names the lab");
+  assert.ok(reasons[1].includes("Hacker News"), "and where it was discussed");
 });
 
 test("the editor's line shows through its last day and not after", () => {

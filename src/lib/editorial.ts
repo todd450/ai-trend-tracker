@@ -26,17 +26,72 @@ export function lineFor(editorial: Editorial, today: string): string | undefined
   return editorial.line && editorial.line.until >= today ? editorial.line.text : undefined;
 }
 
+/** The fewest past days whose leads are worth taking the middle of. */
+export const MIN_PAST_DAYS = 3;
+
 /**
- * True when a day's top story deserves more room than a row in a list: its points already match
- * the middle of the week's ten most upvoted stories, which have had up to seven days to gather
- * theirs. With fewer than five stories to compare with, nothing is called big.
+ * True when a day's lead story has as many points as the middle of the past days' leads: the
+ * most upvoted story on each earlier day's list, measured when that list was collected, so each
+ * was under a day old, like today's. With fewer than three past days, points lift nothing.
  */
-export function isBigStory(points: number | undefined, weekPoints: number[]): boolean {
-  const topTen = [...weekPoints].sort((a, b) => b - a).slice(0, 10);
-  if (points === undefined || topTen.length < 5) return false;
-  const mid = topTen.length >> 1;
-  const median = topTen.length % 2 ? topTen[mid] : (topTen[mid - 1] + topTen[mid]) / 2;
+export function matchesPastLeads(points: number | undefined, pastLeads: number[]): boolean {
+  if (points === undefined || pastLeads.length < MIN_PAST_DAYS) return false;
+  const sorted = [...pastLeads].sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
   return points >= median;
+}
+
+/**
+ * The labs whose own posts can make a lab launch: the frontier labs among the lab feeds. The
+ * specialist labs (ElevenLabs, Runway, Suno, Stability AI) are listed on the page but not here.
+ */
+export const FRONTIER_LABS = new Set(["Anthropic", "OpenAI", "Google DeepMind", "Microsoft", "Mistral AI", "Meta", "xAI", "DeepSeek"]);
+
+/** A post that can be weighed for the top slot: `lab` is set on posts from the labs' own feeds. */
+type Weighed = { from: string; lab?: boolean; discussion?: { points: number } };
+
+const postsOf = <T>(group: Finished<T>): T[] => [group, ...group.also];
+
+/** The frontier lab whose own post is in a group, if one is. */
+const launchingLab = <T extends Weighed>(group: Finished<T>) =>
+  postsOf(group).find((post) => post.lab && FRONTIER_LABS.has(post.from))?.from;
+
+/** How many Hacker News stories a group's posts carry. */
+const discussions = <T extends Weighed>(group: Finished<T>) => postsOf(group).filter((post) => post.discussion).length;
+
+/**
+ * True when a group holds a frontier lab's own post and at least two Hacker News stories: a
+ * launch the community picked up twice. This does not depend on points, so a story a few hours
+ * old is not weighed against older ones.
+ */
+export function isLabLaunch<T extends Weighed>(group: Finished<T>): boolean {
+  return launchingLab(group) !== undefined && discussions(group) >= 2;
+}
+
+/** Why a story has the top slot: the editor pinned it, it is a lab launch, or its points are big. */
+export type TopRule = "pinned" | "lab" | "points";
+
+/**
+ * Which story, if any, is set large above the list, and by which rule. A pin always wins, and a
+ * pinned post is first in the list. Otherwise the first group in ranked order that is a lab
+ * launch, or whose points match the past days' leads, takes it; only the list's lead can match
+ * on points, since the list is ranked by them. On an ordinary day nothing does.
+ */
+export function topStory<T extends Weighed>(items: Finished<T>[], pastLeads: number[]): { index: number; rule: TopRule } | undefined {
+  if (items[0]?.pinned) return { index: 0, rule: "pinned" };
+  const index = items.findIndex((item) => isLabLaunch(item) || matchesPastLeads(item.discussion?.points, pastLeads));
+  if (index < 0) return undefined;
+  return { index, rule: isLabLaunch(items[index]) ? "lab" : "points" };
+}
+
+const times = (n: number) => (n === 2 ? "twice" : `${n} times`);
+
+/** The kicker over the top story: which rule lifted it, in words. */
+export function topStoryReason<T extends Weighed>(group: Finished<T>, rule: TopRule): string {
+  if (rule === "pinned") return "Editor’s pick";
+  if (rule === "lab") return `${launchingLab(group)}’s own announcement, discussed ${times(discussions(group))} on Hacker News`;
+  return "As big as the past days’ leading stories";
 }
 
 /** The same article reached by two routes: ignores the protocol, "www.", the query and a closing slash. */

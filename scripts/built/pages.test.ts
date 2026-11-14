@@ -4,7 +4,7 @@
  * table data, the file served is the file the tests check, and no old link into the front page breaks.
  */
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fromSrc } from "../support/load-src.ts";
@@ -78,4 +78,13 @@ test("no old link into the front page breaks, and the reading lists are on their
   assert.ok(ids(page("/today")).has("today"), "#today is on the news page");
   const reading = ids(page("/reading"));
   for (const id of READING) assert.ok(reading.has(id), `#${id} is on the reading list page`);
+});
+
+test("the MCP server ships with the daily snapshots its top story is weighed against", () => {
+  // /mcp runs on request, so it reads data/snapshots/ where it is deployed, where only the files the build traced are.
+  const trace = JSON.parse(readFileSync(join(APP, "mcp/route.js.nft.json"), "utf8"));
+  const shipped = new Set(trace.files.map((f: string) => f.replace(/^(\.\.\/)+/, "")));
+  const snapshots = readdirSync(join(import.meta.dirname, "../../data/snapshots")).filter((f) => f.endsWith(".json"));
+  assert.ok(snapshots.length > 0);
+  for (const f of snapshots) assert.ok(shipped.has(`data/snapshots/${f}`), `${f} is shipped with /mcp`);
 });
