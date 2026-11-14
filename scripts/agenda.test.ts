@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import calendar from "../data/conferences.json" with { type: "json" };
-import { PHASES, agenda, dayParts, neighbours, phaseAt } from "../src/lib/agenda.ts";
+import { PHASES, agenda, dayParts, neighbours, phaseAt, splitAtToday } from "../src/lib/agenda.ts";
 import type { Conference } from "../src/lib/types.ts";
 
 const ev = (id: string, start: string, end = start, extra: Partial<Conference> = {}): Conference => ({
@@ -103,6 +103,32 @@ test("each month counts its held and upcoming events", () => {
   const list = [ev("held", "2026-11-02"), ev("now", "2026-11-12", "2026-11-14"), ev("later", "2026-11-20"), ev("later2", "2026-11-25")];
   const nov = agenda(list, "2026-11-13")[0];
   assert.deepEqual(nov.count, { held: 1, underway: 1, upcoming: 2 });
+});
+
+test("the calendar opens on today's month; earlier months follow, newest first", () => {
+  const list = [
+    ev("aug", "2026-08-01"),
+    ev("oct-a", "2026-10-12"),
+    ev("oct-b", "2026-10-28"),
+    ev("nov-held", "2026-11-10"),
+    ev("nov-next", "2026-11-17"),
+    ev("dec", "2026-12-06"),
+  ];
+  const { ahead, earlier } = splitAtToday(agenda(list, "2026-11-13"), "2026-11-13");
+  assert.deepEqual(ahead.map((m) => m.month), ["2026-11", "2026-12"]);
+  assert.deepEqual(ids(ahead), ["nov-held", "nov-next", "dec"]);
+  assert.equal(todayLines(ahead).length, 1);
+  assert.equal(todayLines(ahead)[0].month, "2026-11");
+  // Empty September stays, so the gap between events still shows.
+  assert.deepEqual(earlier.map((m) => m.month), ["2026-10", "2026-09", "2026-08"]);
+  assert.deepEqual(ids(earlier), ["oct-b", "oct-a", "aug"]);
+  assert.equal(todayLines(earlier).length, 0);
+});
+
+test("with nothing held yet, there are no earlier months", () => {
+  const { ahead, earlier } = splitAtToday(agenda([ev("dec", "2026-12-06")], "2026-11-13"), "2026-11-13");
+  assert.deepEqual(earlier, []);
+  assert.deepEqual(ahead.map((m) => m.month), ["2026-11", "2026-12"]);
 });
 
 test("neighbours run in calendar order and stop at the ends", () => {

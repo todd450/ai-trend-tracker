@@ -79,6 +79,22 @@ export function agenda(conferences: Conference[], today: string): AgendaMonth[] 
   return months;
 }
 
+/**
+ * The agenda cut at today's month, so the calendar opens on now. `ahead` is today's month and
+ * every month after it, earliest first, with the Today line in the first. `earlier` is every month
+ * before it, newest first and each month's events newest first, so the latest readings lead.
+ */
+export function splitAtToday(months: AgendaMonth[], today: string): { ahead: AgendaMonth[]; earlier: AgendaMonth[] } {
+  const now = today.slice(0, 7);
+  return {
+    ahead: months.filter((m) => m.month >= now),
+    earlier: months
+      .filter((m) => m.month < now)
+      .reverse()
+      .map((m) => ({ ...m, items: [...m.items].reverse() })),
+  };
+}
+
 /** The events either side of one on the calendar, and its place in the list; null if it is not there. */
 export function neighbours(conferences: Conference[], id: string) {
   const index = conferences.findIndex((c) => c.id === id);

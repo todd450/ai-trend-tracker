@@ -5,7 +5,7 @@ import { PageTabs } from "@/components/PageTabs";
 import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
-import { PHASE_LABEL, PHASE_MARK, dayParts, type AgendaMonth } from "@/lib/agenda";
+import { PHASE_LABEL, PHASE_MARK, dayParts, splitAtToday, type AgendaMonth } from "@/lib/agenda";
 import {
   READING_LABEL,
   calendarMonths,
@@ -267,9 +267,12 @@ function monthCount({ count }: AgendaMonth): string {
     .join(" · ");
 }
 
-/** The conference calendar: one agenda of months, a line at today, and each event's phase in words. */
+/**
+ * The conference calendar: it opens on this month, with a line at today, and runs forward;
+ * the months already past follow under their own heading, newest first.
+ */
 export function Conferences() {
-  const months = calendarMonths();
+  const { ahead, earlier } = splitAtToday(calendarMonths(), today);
   const underway = conferences.filter((c) => phaseOf(c) === "underway");
 
   return (
@@ -290,39 +293,55 @@ export function Conferences() {
           </header>
 
           <div className="agenda" id="calendar">
-            {months.map((m) => {
-              const events = m.items.filter((x) => x.type === "event").length;
-              const y = m.month.slice(0, 4);
-              return (
-                <section
-                  key={m.month}
-                  id={`m-${m.month}`}
-                  className={events ? "month" : "month month--quiet"}
-                  aria-labelledby={`h-${m.month}`}
-                >
-                  <div className="month__head">
-                    <h2 id={`h-${m.month}`}>
-                      {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
-                    </h2>
-                    {events > 0 && <p className="month__count">{monthCount(m)}</p>}
-                  </div>
-                  {m.items.length > 0 && (
-                    <ol className="month__list">
-                      {m.items.map((x) =>
-                        x.type === "today" ? <TodayLine key="now" hasUnderway={underway.length > 0} /> : <Row key={x.c.id} c={x.c} />,
-                      )}
-                    </ol>
-                  )}
-                  {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
-                </section>
-              );
-            })}
+            {ahead.map((m) => (
+              <Month key={m.month} m={m} hasUnderway={underway.length > 0} />
+            ))}
           </div>
         </div>
+
+        {earlier.length > 0 && (
+          <section className="chapter" aria-labelledby="earlier-h">
+            <header className="chapter__head">
+              <h2 className="chapter__title" id="earlier-h">
+                Earlier
+              </h2>
+              <p className="chapter__dek">The months already past, most recent first, with what was said on stage.</p>
+            </header>
+            <div className="agenda">
+              {earlier.map((m) => (
+                <Month key={m.month} m={m} hasUnderway={false} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <ConfColophon />
     </>
+  );
+}
+
+/** One month: its name and count, then its events, or a line saying there are none. */
+function Month({ m, hasUnderway }: { m: AgendaMonth; hasUnderway: boolean }) {
+  const events = m.items.filter((x) => x.type === "event").length;
+  const y = m.month.slice(0, 4);
+  return (
+    <section id={`m-${m.month}`} className={events ? "month" : "month month--quiet"} aria-labelledby={`h-${m.month}`}>
+      <div className="month__head">
+        <h2 id={`h-${m.month}`}>
+          {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
+        </h2>
+        {events > 0 && <p className="month__count">{monthCount(m)}</p>}
+      </div>
+      {m.items.length > 0 && (
+        <ol className="month__list">
+          {m.items.map((x) =>
+            x.type === "today" ? <TodayLine key="now" hasUnderway={hasUnderway} /> : <Row key={x.c.id} c={x.c} />,
+          )}
+        </ol>
+      )}
+      {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
+    </section>
   );
 }
 
