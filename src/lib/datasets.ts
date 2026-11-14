@@ -47,7 +47,7 @@ export function comparedIn(horizon: Horizon) {
 }
 
 /**
- * The topics page for a range. The trends page's range (3 months) has no range in its address;
+ * The topics page for a range. The default range (3 months) has no range in its address;
  * the others carry the same name as the trends page's own view, /data/topics/one-year for /one-year.
  */
 export const topicsHref = (horizon: Horizon) => (horizon === "threeMonths" ? "/data/topics" : `/data/topics${HORIZONS[horizon].href}`);

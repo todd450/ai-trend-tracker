@@ -135,7 +135,7 @@ test("the table says exactly what it compares", () => {
   assert.match(data.topicTable("twoYears").compared, /last 52 weeks compared with the 52 weeks before/);
 });
 
-test("each range has its own address, and the trends page's range has none", () => {
+test("each range has its own address, and the default range (3 months) names none", () => {
   const hrefs = HORIZONS.map((h) => data.topicsHref(h));
   assert.equal(new Set(hrefs).size, HORIZONS.length);
   assert.equal(data.topicsHref("threeMonths"), "/data/topics");
