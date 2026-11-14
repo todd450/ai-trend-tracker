@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Agents' working copies of the repo, which only exist on a developer's machine.
+    ".claude/**",
   ]),
 ]);
 
