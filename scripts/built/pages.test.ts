@@ -205,7 +205,10 @@ test("the news page prints the why-it-matters line under the top story only, and
   const line = day.top && whyItMatters(day.items[day.top.index].title);
   const shown = [...html.matchAll(/<p class="top-story__why"[\s\S]*?<\/p>/g)].map((m) => text(m[0]).trim());
   assert.equal(shown.length, line ? 1 : 0);
-  assert.doesNotMatch(text(html), /Why it matters/, "the line is about the trend, and says so");
+  // Only the page's own words are checked: a headline of the day may say anything.
+  const method = html.slice(html.indexOf('id="method"'));
+  for (const own of [...shown, text(method)]) assert.doesNotMatch(own, /Why it matters/, "the line is about the trend, and says so");
+  assert.match(text(method), /The trend\./, "the method note is headed as the line is labelled");
   if (line) {
     assert.ok(shown[0].endsWith(line), shown[0]);
     assert.ok(shown[0].startsWith("The trend:"), "labelled as the reading list's block labels it");

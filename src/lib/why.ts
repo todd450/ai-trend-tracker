@@ -1,5 +1,5 @@
 /**
- * The "why it matters" line under Today's top story, written by a fixed rule from the tracker's
+ * The line under Today's top story, labelled "The trend", written by a fixed rule from the tracker's
  * own figures: the trend of the headline's first tag, as its row on the site reads it over the
  * default range (three months), the same row the tag links to. A topic reads as on the topics
  * page's table, a product as under "Product momentum" on the trends page. A headline with no tag
