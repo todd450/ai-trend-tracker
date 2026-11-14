@@ -6,6 +6,9 @@ import {
   FEW_CALLS,
   READINGS_NEEDED,
   RECORD_WEEKS,
+  callsChecked,
+  callsDue,
+  dueDecimals,
   held,
   recordRows,
   trackRecord,
@@ -14,7 +17,7 @@ import {
 } from "../src/lib/record.ts";
 import type { Direction } from "../src/lib/calls.ts";
 
-type Row = { series?: "topic" | "theme"; key?: string; direction: Direction; share: number };
+type Row = { series?: "topic" | "theme"; key?: string; name?: string; direction: Direction; share: number };
 
 /**
  * A run of weekly readings, oldest first, all steady at a share of 1, long enough for a record.
@@ -27,12 +30,16 @@ function weeks() {
   return {
     list,
     first,
-    set(i: number, { series = "topic", key = "a", direction, share }: Row) {
+    set(i: number, { series = "topic", key = "a", name, direction, share }: Row) {
       const week = list[first + i];
       const at = week.findIndex((r) => r.series === series && r.key === key);
-      const row = { series, key, direction, share };
+      const row = { series, key, ...(name ? { name } : {}), direction, share };
       if (at >= 0) week[at] = row;
       else week.push(row);
+    },
+    /** The index in `list` of week i, for `callsDue(list, w.at(i))`. */
+    at(i: number) {
+      return first + i;
     },
     /** One series' readings over weeks `from` to `to` inclusive. */
     run(from: number, to: number, row: Row) {
@@ -153,4 +160,131 @@ test("the weeks of counts a view needs for a record grow with its window", () =>
   // A 4-week window reads 8 weeks for its first call; then the week before the year, the year, and 13 weeks to check.
   assert.equal(weeksNeeded(4), 8 + RECORD_WEEKS + CHECK_AFTER);
   assert.ok(weeksNeeded(26) > weeksNeeded(13));
+});
+
+test("a call comes due 13 weeks after the week it first appears, with its share then and now", () => {
+  const w = weeks();
+  w.set(5, { name: "Tool use & MCP", direction: "rising", share: 2.38 });
+  w.set(5 + CHECK_AFTER, { name: "Tool use & MCP", direction: "steady", share: 2.42 });
+  assert.deepEqual(callsDue(w.list, w.at(5 + CHECK_AFTER)), [
+    { series: "topic", key: "a", name: "Tool use & MCP", direction: "rising", then: 2.38, now: 2.42, held: true },
+  ]);
+  // Not a week early, nor a week late.
+  assert.deepEqual(callsDue(w.list, w.at(4 + CHECK_AFTER)), []);
+  assert.deepEqual(callsDue(w.list, w.at(6 + CHECK_AFTER)), []);
+});
+
+test("a call made several weeks running comes due once, 13 weeks after its first week", () => {
+  const w = weeks();
+  w.run(0, 7, { direction: "cooling", share: 1 });
+  w.run(CHECK_AFTER, CHECK_AFTER + 7, { direction: "steady", share: 1.1 });
+  const due = Array.from({ length: 8 }, (_, i) => callsDue(w.list, w.at(CHECK_AFTER + i))!.length);
+  assert.deepEqual(due, [1, 0, 0, 0, 0, 0, 0, 0]);
+  assert.equal(callsDue(w.list, w.at(CHECK_AFTER))![0].held, false);
+});
+
+test("steady readings never come due; a call that turns round is a new one; a series gone 13 weeks on is not checked", () => {
+  const w = weeks();
+  w.run(0, 1, { key: "turn", direction: "rising", share: 1 });
+  w.set(2, { key: "turn", direction: "cooling", share: 1 });
+  w.set(2 + CHECK_AFTER, { key: "turn", direction: "steady", share: 0.9 });
+  w.set(2, { key: "flat", direction: "steady", share: 1 });
+  w.set(2, { series: "theme", key: "gone", direction: "rising", share: 1 });
+  assert.deepEqual(
+    callsDue(w.list, w.at(2 + CHECK_AFTER))!.map((c) => [c.key, c.direction, c.held]),
+    [["turn", "cooling", true]],
+  );
+});
+
+test("a call due names its series, and falls back to the key without a name", () => {
+  const w = weeks();
+  w.set(3, { series: "theme", key: "trust", name: "Public trust & backlash", direction: "rising", share: 3.43 });
+  w.set(3, { key: "nameless", direction: "cooling", share: 1 });
+  w.set(3 + CHECK_AFTER, { series: "theme", key: "trust", direction: "steady", share: 2.95 });
+  w.set(3 + CHECK_AFTER, { key: "nameless", direction: "steady", share: 0.5 });
+  const due = callsDue(w.list, w.at(3 + CHECK_AFTER))!;
+  assert.deepEqual(
+    due.map((c) => [c.series, c.name, c.then, c.now, c.held]),
+    [
+      ["theme", "Public trust & backlash", 3.43, 2.95, false],
+      ["topic", "nameless", 1, 0.5, true],
+    ],
+  );
+});
+
+test("without a reading for the week, the week of the call, or the week before it, the calls due are unknown", () => {
+  const w = weeks();
+  const list: (Reading | null)[] = [...w.list];
+  const at = w.at(RECORD_WEEKS - 1 + CHECK_AFTER);
+  assert.deepEqual(callsDue(list, at), []);
+  for (const gap of [at, at - CHECK_AFTER, at - CHECK_AFTER - 1]) {
+    const holed = [...list];
+    holed[gap] = null;
+    assert.equal(callsDue(holed, at), null, `gap at ${gap}`);
+  }
+  // The latest week is the default, and a week with no week before its call cannot be read.
+  assert.deepEqual(callsDue(list), callsDue(list, list.length - 1));
+  assert.equal(callsDue(list, CHECK_AFTER), null);
+});
+
+test("the calls due across the record's weeks are exactly the calls the record tallies", () => {
+  const w = weeks();
+  const pick = (n: number, k: number): Direction => (["rising", "steady", "cooling", "steady", "rising"] as const)[(n * 7 + k * 3) % 5];
+  for (let i = -1; i < RECORD_WEEKS + CHECK_AFTER; i++) {
+    for (const key of ["a", "b", "c"]) w.set(i, { key, direction: pick(i + 1, key.charCodeAt(0)), share: 1 + ((i * 13 + key.charCodeAt(0)) % 7) / 10 });
+    w.set(i, { series: "theme", key: "t", direction: pick(i + 2, 1), share: 2 + ((i * 5) % 3) / 10 });
+  }
+  const record = trackRecord(w.list)!;
+  const tally = { topic: { rising: [0, 0], cooling: [0, 0] }, theme: { rising: [0, 0], cooling: [0, 0] } };
+  for (let i = 0; i < RECORD_WEEKS; i++) {
+    for (const c of callsDue(w.list, w.list.length - 1 - i)!) {
+      tally[c.series][c.direction][0]++;
+      if (c.held) tally[c.series][c.direction][1]++;
+    }
+  }
+  for (const series of ["topic", "theme"] as const) {
+    for (const dir of ["rising", "cooling"] as const) {
+      assert.deepEqual([record[series][dir].calls, record[series][dir].held], tally[series][dir], `${series} ${dir}`);
+    }
+  }
+  assert.ok(record.topic.rising.calls > 0 && record.topic.cooling.calls > 0, "the fixture makes calls of both kinds");
+});
+
+test("the calls checked: the latest week's, and when it has none, the most recent week in the record that had any", () => {
+  const w = weeks();
+  const last = RECORD_WEEKS - 1;
+  // Nothing comes due anywhere: no list, latest or earlier.
+  assert.deepEqual(callsChecked(w.list), { latest: [], earlier: null });
+
+  // Calls due three weeks before the latest: shown as the earlier week.
+  w.set(last - 3, { key: "x", direction: "rising", share: 1 });
+  w.set(last - 3 + CHECK_AFTER, { key: "x", direction: "steady", share: 2 });
+  const quiet = callsChecked(w.list);
+  assert.deepEqual(quiet.latest, []);
+  assert.equal(quiet.earlier?.at, w.at(last - 3 + CHECK_AFTER));
+  assert.deepEqual(quiet.earlier?.calls.map((c) => c.key), ["x"]);
+
+  // Once the latest week has calls of its own, there is no earlier week to show.
+  w.set(last, { key: "y", direction: "cooling", share: 1 });
+  w.set(last + CHECK_AFTER, { key: "y", direction: "steady", share: 0.5 });
+  const busy = callsChecked(w.list);
+  assert.deepEqual(busy.latest.map((c) => c.key), ["y"]);
+  assert.equal(busy.earlier, null);
+});
+
+test("the earlier week shown is never older than the record's year", () => {
+  const w = weeks();
+  // A call made in the week before the year began, due before the record's first checked week.
+  w.set(-1, { key: "old", direction: "rising", share: 1 });
+  w.set(-1 + CHECK_AFTER, { key: "old", direction: "steady", share: 2 });
+  assert.deepEqual(callsChecked(w.list), { latest: [], earlier: null });
+});
+
+test("a call's shares print to two decimals, or more when two would print the same figure for both", () => {
+  assert.equal(dueDecimals(2.38, 2.42), 2);
+  // Held by under a hundredth: 2.92% then and 2.92% now would read as no move.
+  assert.equal(dueDecimals(2.915828, 2.918702), 3);
+  assert.equal(dueDecimals(2.91581, 2.91589), 4);
+  // Never more than four, even when the shares are the same.
+  assert.equal(dueDecimals(1, 1), 4);
 });
