@@ -439,7 +439,7 @@ export function todayItems(day: ReturnType<typeof buildToday>, limit: number) {
 }
 
 const LISTS = {
-  today: "Everything the lab, newsletter and Hacker News sources published in the 24 hours before collection, biggest first, with posts about one event gathered together. The story the site sets large as the day's top story, if any, carries topStory, with the rule that lifted it.",
+  today: "Everything the lab, newsletter and Hacker News sources published in the 24 hours before collection, biggest first, with posts about one event gathered together.",
   papers: "Most-upvoted papers on Hugging Face's daily papers page.",
   models: "Trending models on Hugging Face.",
   labModels: "Newest models uploaded to Hugging Face by major labs.",
@@ -458,7 +458,8 @@ const latestTool: Tool = {
     Object.entries(LISTS)
       .map(([name, what]) => `${name} (${what})`)
       .join(" ") +
-    " Use for 'what is new' questions, and to find the stories, papers or repositories behind a trend.",
+    " Use for 'what is new' questions, and to find the stories, papers or repositories behind a trend." +
+    " In today, the story the site sets large as the day's top story carries topStory, with the rule that put it there.",
   input: {
     list: { type: "string", description: "Which list.", enum: Object.keys(LISTS) },
     limit: { type: "integer", description: "How many items, most prominent first.", minimum: 1, maximum: 20, default: 10 },
