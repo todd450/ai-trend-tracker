@@ -7,6 +7,7 @@ import { NEW_TAB } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
 import { PHASE_LABEL, PHASE_MARK, aroundToday, dayParts, splitAtToday, type AgendaMonth } from "@/lib/agenda";
 import {
+  KIND_LABEL,
   READING_LABEL,
   calendarMonths,
   daysUntil,
@@ -387,7 +388,7 @@ function Row({ c, level }: { c: Conference; level: 3 | 4 }) {
         <Link href={href}>{c.name}</Link>
       </N>
       <p className="ev__meta">
-        {c.place} · <span className="ev__kind">{c.kind === "research" ? "Research" : "Industry"}</span>
+        {c.place} · <span className="ev__kind">{KIND_LABEL[c.kind]}</span>
       </p>
       <p className={`ev__phase ph--${phase}`}>
         <i aria-hidden="true">{PHASE_MARK[phase]}</i> {PHASE_LABEL[phase]}

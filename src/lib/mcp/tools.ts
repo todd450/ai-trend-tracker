@@ -521,7 +521,7 @@ const conferencesTool: Tool = {
   name: "get_conferences",
   title: "AI conference calendar",
   description:
-    "The calendar of major AI research and industry conferences (NeurIPS, ICML, AI Engineer, GTC, re:Invent...). Without an id, lists events " +
+    "The calendar of major AI research, industry and policy conferences (NeurIPS, ICML, AI Engineer, GTC, re:Invent...). Without an id, lists events " +
     "with dates, place and phase. With an id, adds what the tracker found in the event's talks: a written recap, and how much stage time each " +
     "research topic got set against that topic's trend in the numbers (for example 'Loud here, flat in the numbers').",
   input: {
