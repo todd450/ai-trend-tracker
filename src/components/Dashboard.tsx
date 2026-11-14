@@ -421,15 +421,15 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             {/* The key sits above the bars it explains, so a grey +55% beside a blue +19% reads at once. */}
             <p className="mom__key">
               <span>
-                <i className="mom__swatch mom__swatch--rising" aria-hidden="true" />
+                <i className="mom__chip mom__chip--rising" aria-hidden="true" />
                 Rising
               </span>
               <span>
-                <i className="mom__swatch mom__swatch--cooling" aria-hidden="true" />
+                <i className="mom__chip mom__chip--cooling" aria-hidden="true" />
                 Cooling
               </span>
               <span>
-                <i className="mom__swatch" aria-hidden="true" />
+                <i className="mom__chip" aria-hidden="true" />
                 Grey: too small to call, or within the product’s usual weekly swing
               </span>
             </p>
