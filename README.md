@@ -337,6 +337,15 @@ its figure, with a grey bar under "steady", and is never named in the
 headline. With fewer than nine weeks of history only the fixed threshold
 applies. The monthly and two-weekly indicators are not tested this way.
 
+Beside the headline, each view with enough weeks stored carries a track record:
+the past year's calls on research topics and themes, replayed with today's rules,
+and how many held, meaning that 13 weeks later the share had moved further the
+way it was called (`src/lib/record.ts`, replayed in `src/lib/replay.ts`). Under
+it, "Calls checked, by name" lists the calls that came due in the latest week,
+each with its share when called, its share now and whether it held
+(`callsDue`); when none came due that week, it shows the most recent week that
+had any, labelled with its week (`callsChecked`).
+
 Discussion is measured on Hacker News alone, so the headline and the labels
 name it: "On Hacker News, data centers, chips & energy rose to 2.9% of AI
 stories, from 1.8%." The headline always gives both figures, so it says what

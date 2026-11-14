@@ -583,6 +583,49 @@ code {
   --rbar: var(--color-ink-2);
 }
 
+/* The calls behind the record, by name, under its three lines. Each verdict word takes the colour
+ * the site uses for a check passed or failed; the words carry the verdict without the colour. */
+.record__due {
+  margin-top: var(--space-sm);
+}
+
+.record__head h3 {
+  font-size: var(--text-base);
+}
+
+.record__when {
+  padding-bottom: var(--space-2xs);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-ink-2);
+}
+
+.record__call {
+  padding-block: var(--space-2xs);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+
+.record__call b {
+  font-weight: 600;
+}
+
+.record__held,
+.record__missed {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.record__held {
+  color: var(--color-ok);
+}
+
+.record__missed {
+  color: var(--color-fail);
+}
+
 .record__test {
   margin-top: var(--space-xs);
   max-width: 36rem;

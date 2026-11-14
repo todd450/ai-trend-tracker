@@ -1008,7 +1008,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 calls needs {weeksNeeded(HORIZONS.threeMonths.window)} weeks of counts on the 3-month view, but{" "}
                 {weeksNeeded(HORIZONS.oneYear.window)} on the 1-year view and {weeksNeeded(HORIZONS.twoYears.window)}{" "}
                 on the 2-year view, since each of their calls takes longer to make; {everyWeek.length} weeks are
-                stored.
+                stored. Under the record, <a href="#calls-checked">the calls checked by name</a> are the calls that
+                came due in the latest week, each first made {CHECK_AFTER} weeks before, with its share when called,
+                its share now and whether it held, to two decimals since a call can hold by a few hundredths (more
+                where two would print the same figure for both); when
+                none came due that week, the list shows the most recent week that had any.
               </p>
               <p>
                 <strong>Topic momentum</strong>, a topic’s share of AI papers on arXiv and its stories on Hacker

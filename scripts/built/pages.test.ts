@@ -142,12 +142,53 @@ test("the record marks the rows today's headline makes a call of", async () => {
   expected.forEach((label, i) => assert.ok(marked[i].includes(label), label));
 });
 
+test("under each record, the calls checked by name are the replay's own, to two decimals or as many as tell them apart", async () => {
+  const { replayRecord } = await fromSrc<any>("lib/replay");
+  const { dueDecimals } = await fromSrc<any>("lib/record");
+  let views = 0;
+  for (const h of Object.keys(trends.HORIZONS)) {
+    const { record, checked, weeks } = replayRecord(h);
+    const html = front(h);
+    if (!record) {
+      assert.ok(!html.includes('id="calls-checked"'), `${h}: no list without a record`);
+      continue;
+    }
+    views++;
+    const block = sectionOf(html, "calls-checked");
+    const seen = text(block);
+    const last = weeks.length - 1;
+    const shown = checked.latest.length ? { at: last, calls: checked.latest } : checked.earlier;
+    if (!checked.latest.length) {
+      assert.ok(seen.includes(`No call came due in the latest week, ${trends.fmtWeek(weeks[last])}`), `${h} says none came due`);
+    }
+    // A row is one run of inline text: its tags (and React's <!-- --> joins) go without leaving a space.
+    const inline = (html: string) => text(html.replace(/<!-- -->|<\/?(?:li|b|span)[^>]*>/g, "")).trim();
+    const lines = [...block.matchAll(/<li class="record__call"[\s\S]*?<\/li>/g)].map((m) => inline(m[0]));
+    assert.equal(lines.length, shown ? shown.calls.length : 0, `${h}: one line per call checked`);
+    if (!shown) continue;
+    assert.ok(seen.includes(trends.fmtWeek(weeks[shown.at])), `${h} labels the week the calls came due`);
+    assert.ok(seen.includes(`in the week of ${trends.fmtWeek(weeks[shown.at - 13])}`), `${h} names the week they were made`);
+    shown.calls.forEach((c: any, i: number) => {
+      const of = c.series === "topic" ? "of papers" : "of AI stories";
+      const verdict = c.held ? "Held." : "Did not hold.";
+      const places = dueDecimals(c.then, c.now);
+      assert.ok(places >= 2, `${h}: ${c.name} prints at least two decimals`);
+      assert.equal(lines[i], `${c.name}, called ${c.direction} at ${c.then.toFixed(places)}% ${of}. Now ${c.now.toFixed(places)}%. ${verdict}`, `${h}: ${c.name}`);
+    });
+    const colours = [...block.matchAll(/class="record__(held|missed)"/g)].map((m) => m[1] === "held");
+    assert.deepEqual(colours, shown.calls.map((c: any) => c.held), `${h}: each verdict takes its colour`);
+  }
+  assert.ok(views > 0, "at least one view carries the list");
+});
+
 test("the method says how the track record is made", () => {
   const method = text(sectionOf(front("threeMonths"), "track-record"));
   assert.match(method, /replay/i);
   assert.match(method, /today’s rules/);
   assert.match(method, /once/);
   assert.match(method, /13 weeks/);
+  assert.match(method, /calls checked by name/);
+  assert.match(method, /most recent week that had any/);
 });
 
 test("under each lead chart: a rise shows what was counted, a few items, each from the file; a fall shows only why it has none", async () => {
