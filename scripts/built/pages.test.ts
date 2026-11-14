@@ -193,7 +193,7 @@ test("the method page says how the track record is made", () => {
 
 test("how this is measured has a page of its own, linked from the foot of every page", () => {
   const method = page("/method");
-  for (const id of ["today-news", "trends", "track-record", "counted", "reading-list", "sources"]) assert.ok(ids(method).has(id), `#${id} is on /method`);
+  for (const id of ["today-news", "trends", "track-record", "counted", "reading-list", "conferences", "sources"]) assert.ok(ids(method).has(id), `#${id} is on /method`);
   assert.match(text(method), /How this is measured/);
   for (const path of ["/", "/three-months", "/reading", "/conferences", "/data/topics", "/method"]) {
     const foot = page(path).slice(page(path).lastIndexOf("<footer"));
@@ -203,7 +203,12 @@ test("how this is measured has a page of its own, linked from the foot of every 
     assert.ok(!text(page(path)).includes("Read how each number is counted"), `${path} no longer carries the method`);
   }
   assert.ok(!text(page("/reading")).includes("How these lists are made"), "/reading no longer carries how its lists are made");
-  const order = ["today-news", "trends", "reading-list", "sources"].map((id) => method.indexOf(`id="${id}"`));
+  for (const file of readdirSync(join(APP, "conferences")).filter((f) => f.endsWith(".html"))) {
+    const html = readFileSync(join(APP, "conferences", file), "utf8");
+    assert.ok(!text(html).includes("How to read this."), `${file}: the stage note is on /method`);
+    if (html.includes('class="stage"')) assert.ok(html.includes('href="/method#conferences"'), `${file}: the stage table links to how to read it`);
+  }
+  const order = ["today-news", "trends", "reading-list", "conferences", "sources"].map((id) => method.indexOf(`id="${id}"`));
   assert.deepEqual(order, [...order].sort((a, b) => a - b), "the sources come last");
 });
 

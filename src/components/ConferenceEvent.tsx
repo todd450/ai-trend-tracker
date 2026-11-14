@@ -196,9 +196,8 @@ function Moments({ c }: { c: Conference }) {
           <p>Ranked by the editor, the one most worth your time first.</p>
         </div>
         <p className="conf__caveat">
-          Paraphrased by the editor from the recordings’ automatic captions or from the organiser’s transcripts and
-          summaries; the note on what was and was not watched, below, says which for each day. Captions can mishear
-          names and numbers, so each moment links to its time in the recording to be checked there.
+          Paraphrased by the editor; captions can mishear, so each moment links to its time in the recording.{" "}
+          <Link href="/method#conferences">How moments are chosen →</Link>
         </p>
         <div className="moment--lead" id="moment-1">
           <p className="moment__n">

@@ -103,9 +103,7 @@ export function Stage({ c }: { c: Conference }) {
         {window} before, as on the <Link href="/three-months">trends page</Link>.
       </p>
       <p className="conf__caveat">
-        <strong>How to read this.</strong> A conference’s subject decides most of what is said on its stage, so a
-        topic being loud here shows what the event was about, not that the field has moved. The comparison says
-        most about topics the event was not built around.
+        <Link href="/method#conferences">How to read this table →</Link>
       </p>
 
       <div className="stage-cols" aria-hidden="true">
