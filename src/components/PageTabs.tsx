@@ -4,8 +4,9 @@ const PAGES = [
   { id: "trends", label: "Trends", href: "/" },
   { id: "today", label: "Today’s news", href: "/today" },
   { id: "reading", label: "Reading list", href: "/reading" },
-  // The conference calendar opens at today's line, with what has been held above it.
-  { id: "conferences", label: "Conferences", href: "/conferences#now" },
+  // Every tab opens its page at the top, so the tabs stay in view. Today's line is one tap away
+  // from the "Jump to today" link under the calendar's headline.
+  { id: "conferences", label: "Conferences", href: "/conferences" },
 ] as const;
 
 export type Page = (typeof PAGES)[number]["id"];

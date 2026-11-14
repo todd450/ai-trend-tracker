@@ -330,7 +330,7 @@ export function Conferences() {
                 {conferences.length} events
                 {first && last && ` from ${fmtMonthOf(first.start)} to ${fmtMonthOf(last.start)}`} · {held} held
                 {underway.length > 0 && ` · ${underway.length} under way`} · {upcoming.length} upcoming · {watched}{" "}
-                watched in full{partly > 0 && `, ${partly} in part`}
+                watched in full{partly > 0 && `, ${partly} in part`} · <a href="#now">Jump to today</a>
               </p>
             </div>
           </div>
