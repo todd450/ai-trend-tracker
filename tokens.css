@@ -44,7 +44,6 @@
   --text-xl: 1.625rem;
   --text-2xl: 2.125rem;
   --text-display-s: clamp(1.875rem, 2.6vw + 1rem, 3rem);
-  --text-mast: clamp(2rem, 5vw, 3.5rem);
 
   /* 4pt spacing scale */
   --space-3xs: 0.125rem;
