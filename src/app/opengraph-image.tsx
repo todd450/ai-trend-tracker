@@ -33,7 +33,7 @@ export default function Image() {
           <div style={{ fontSize: 30, letterSpacing: 4, textTransform: "uppercase", color: MUTED }}>Updated daily</div>
           <div style={{ fontSize: 104, fontWeight: 700, lineHeight: 1.02, marginTop: 20 }}>AI Trend Tracker</div>
           <div style={{ fontSize: 38, lineHeight: 1.3, marginTop: 28, color: MUTED }}>
-            The day’s AI news, and what is rising: measured from papers, code and model releases.
+            The day’s AI news, and what is rising: measured from papers, code, model releases and discussion.
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "flex-end" }}>

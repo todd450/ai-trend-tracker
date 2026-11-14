@@ -192,6 +192,13 @@ code {
   }
 }
 
+/* The narrowest phones (320px): a smaller gap keeps "Conferences" inside the edge. */
+@media (max-width: 22rem) {
+  .tabs ul {
+    column-gap: var(--space-sm);
+  }
+}
+
 .tabs a[aria-current="page"],
 .tabs a[aria-current="page"]:hover {
   color: var(--color-ink);
@@ -3113,9 +3120,17 @@ code {
   text-wrap: pretty;
 }
 
-.dateline strong {
+/* The label is a heading set as the first words of the line. */
+.dateline h2,
+.dateline p {
+  display: inline;
+}
+
+.dateline h2 {
   margin-right: 0.5em;
+  font: inherit;
   font-weight: 600;
+  letter-spacing: 0;
   color: var(--color-ink);
 }
 

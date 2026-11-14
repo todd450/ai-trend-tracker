@@ -155,7 +155,7 @@ test("the MCP server ships with the daily snapshots its top story is weighed aga
 test("the landing page is the day's news, and the tabs lead with it", () => {
   const html = page("/");
   assert.match(text(html.match(/<h1[\s\S]*?<\/h1>/)![0]).trim(), /^AI Trend Tracker$/, "the name is the heading");
-  assert.match(html, /<strong id="today-h">Today’s AI news<\/strong>/, "the list keeps its label");
+  assert.match(html, /<h2 id="today-h">Today’s AI news<\/h2>/, "the list keeps its label, as a heading");
   const tabs = html.slice(html.indexOf('<nav class="tabs"'), html.indexOf("</nav>"));
   // A label's second half sits in its own span, which a phone leaves off: "Today", "Reading".
   const links = [...tabs.matchAll(/<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => `${m[2].replace(/<[^>]+>/g, "")} ${m[1]}`);
