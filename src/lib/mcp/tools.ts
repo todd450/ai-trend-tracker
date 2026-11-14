@@ -4,7 +4,7 @@
  * move is called rising, steady or cooling by the page's own rule, so the two cannot disagree.
  */
 import { buildBriefing } from "../briefing";
-import { READING_LABEL, conferences, daysUntil, phaseOf, stageAgainstTrends, type Phase } from "../conferences";
+import { READING_LABEL, conferences, daysUntil, phaseOf, stageAgainstTrends, surpriseOf, type Phase } from "../conferences";
 import { topStoryReason, visible } from "../editorial";
 import { ADOPTION_WINDOW, USAGE_WINDOW, adoption, buildMarketShare, federal, indicators, jobs, releases, usage } from "../indicators";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../site";
@@ -523,7 +523,10 @@ const conferencesTool: Tool = {
   description:
     "The calendar of major AI research, industry and policy conferences (NeurIPS, ICML, AI Engineer, GTC, re:Invent...). Without an id, lists events " +
     "with dates, place and phase. With an id, adds what the tracker found in the event's talks: a written recap, and how much stage time each " +
-    "research topic got set against that topic's trend in the numbers (for example 'Loud here, flat in the numbers').",
+    "research topic got set against that topic's trend in the numbers (for example 'Loud here, flat in the numbers'). The recap's points are " +
+    "ranked by the editor, the one most worth hearing first, and each is paraphrased with a link to its moment in the recording. " +
+    "`surprise` is the line the event's page leads with: the editor's own note (from 'editor'), or a topic that reads 'Louder here than in " +
+    "the numbers' or 'Rising, but little heard here' (from 'numbers'); it is null when there is neither.",
   input: {
     when: {
       type: "string",
@@ -583,6 +586,7 @@ const conferencesTool: Tool = {
       recordings: c.recordings ?? null,
       videos: c.videos ?? [],
       recap: c.recap ?? null,
+      surprise: surpriseOf(c),
       stage: stage ?? null,
       page: `${SITE_URL}/conferences/${c.id}`,
     };

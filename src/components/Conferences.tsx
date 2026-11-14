@@ -14,18 +14,21 @@ import {
   fmtMonthOf,
   fmtSpan,
   phaseOf,
+  momentDay,
   stageAgainstTrends,
+  surpriseOf,
   today,
+  type StageRow,
 } from "@/lib/conferences";
 import { HORIZONS, STEADY_BAND, fmtChange, fmtDate, fmtDay, heldBack, latest, signalDirection, type Direction, type Signal } from "@/lib/trends";
-import type { Conference } from "@/lib/types";
+import type { Conference, StagePoint } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
 
 /** The comparison uses the tracker's default view, so its arrows match the trends page. */
 const HORIZON = "threeMonths" as const;
 
-const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
+export const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
 
 /** An event has a reading once anything has been counted or written from it. */
 export const hasReading = (c: Conference) => Boolean(c.stage || c.recap);
@@ -33,6 +36,9 @@ export const hasReading = (c: Conference) => Boolean(c.stage || c.recap);
 
 /** A topic at or under this share of mentions, with nothing quoted from the stage, is listed in one line, not given a row. */
 const THIN_SHARE = 0.01;
+
+/** A topic gets its own row (and its #stage-<topic> anchor) with a real share of the stage or something quoted from it; the rest are named in one line. */
+export const hasRow = (r: StageRow) => r.mentions > 0 && (r.share > THIN_SHARE || r.points.length > 0);
 
 /**
  * A change as the trends page shows it: the series week by week as a small line, then the figure
@@ -73,11 +79,12 @@ export function Stage({ c }: { c: Conference }) {
   const total = rows.reduce((sum, r) => sum + r.mentions, 0);
   const max = Math.max(1, ...rows.map((r) => r.mentions));
   const fromTalks = stage.source === "talks";
-  /** A row needs either a real share of the stage or something quoted from it; the rest are named in one line. */
-  const heard = rows.filter((r) => r.mentions > 0 && (r.share > THIN_SHARE || r.points.length > 0));
+  const heard = rows.filter(hasRow);
   const barely = rows.filter((r) => r.mentions > 0 && !heard.includes(r));
   const unheard = rows.filter((r) => r.mentions === 0);
   const window = HORIZONS[HORIZON].window;
+  /** The editor's moments, ranked; a row links to its topic's first one in the list above the table. */
+  const points = c.recap?.points ?? [];
 
   return (
     <>
@@ -101,13 +108,6 @@ export function Stage({ c }: { c: Conference }) {
         <strong>How to read this.</strong> A conference’s subject decides most of what is said on its stage, so a
         topic being loud here shows what the event was about, not that the field has moved. The comparison says
         most about topics the event was not built around.
-        {fromTalks && (
-          <>
-            {" "}
-            What speakers said is paraphrased from automatic captions, which can mishear names and numbers; each
-            claim links to its moment in the recording so it can be checked there.
-          </>
-        )}
       </p>
 
       <div className="stage-cols" aria-hidden="true">
@@ -119,7 +119,7 @@ export function Stage({ c }: { c: Conference }) {
       </div>
       <ol className="stage">
         {heard.map((r) => (
-          <li key={r.topic.id} className="stage__row">
+          <li key={r.topic.id} className="stage__row" id={`stage-${r.topic.id}`}>
             <h3 className="stage__topic">
               <Link href={`${topicsHref(HORIZON)}#topic-${r.topic.id}`}>{r.topic.name}</Link>
             </h3>
@@ -144,21 +144,11 @@ export function Stage({ c }: { c: Conference }) {
             </div>
             <p className={`stage__reading stage__reading--${r.reading}`}>{READING_LABEL[r.reading]}</p>
             {r.points.length > 0 && (
-              <ul className="stage__points">
-                {r.points.map((p) => (
-                  <li key={p.said}>
-                    {p.said}
-                    {(p.who || p.at) && (
-                      <span className="stage__who">
-                        {" "}
-                        {p.who}
-                        {p.who && p.at && ", "}
-                        {p.at && <a href={p.at.url} {...NEW_TAB}>{p.at.label}</a>}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <p className="stage__back">
+                <a href={`#moment-${points.indexOf(r.points[0]) + 1}`}>
+                  {r.points.length} {r.points.length === 1 ? "moment" : "moments"} <span aria-hidden="true">↑</span>
+                </a>
+              </p>
             )}
           </li>
         ))}
@@ -399,7 +389,24 @@ function Row({ c, level }: { c: Conference; level: 3 | 4 }) {
   );
 }
 
-/** What a reading found, in one sentence and the three loudest topics, with a link to the whole of it. */
+/** Where a surprise line comes from, as the page and the card name it. */
+export const SURPRISE_SOURCE = { editor: "The editor’s note", numbers: "From the numbers" } as const;
+
+/** "Hear it at 6:15:40 · day 1 · YouTube": the link that opens a moment's recording at its time. */
+export function HearIt({ c, p }: { c: Conference; p: StagePoint }) {
+  if (!p.at) return null;
+  const day = momentDay(c, p);
+  const youtube = /^https:\/\/([a-z0-9-]+\.)*(youtube\.com|youtu\.be)\//i.test(p.at.url);
+  return (
+    <a href={p.at.url} {...NEW_TAB}>
+      Hear it at {p.at.label}
+      {day !== null && ` · day ${day}`}
+      {youtube && " · YouTube"}
+    </a>
+  );
+}
+
+/** What a reading found, with a link to the whole of it: a watched event leads with its surprise or its first moment. */
 function Card({ c, href }: { c: Conference; href: string }) {
   const rows = c.stage ? stageAgainstTrends(c, HORIZON).filter((r) => r.mentions > 0) : [];
   const top = rows[0];
@@ -407,9 +414,24 @@ function Card({ c, href }: { c: Conference; href: string }) {
   const where = fromTalks ? "on stage" : "in the programme";
   const max = Math.max(1, ...rows.map((r) => r.mentions));
   const said = c.recap?.points.length ?? 0;
+  const first = c.recap?.points[0];
+  const surprise = first ? surpriseOf(c) : null;
   return (
     <>
-      {top && (
+      {first ? (
+        <>
+          <p className="ev__finding">
+            <span className="ev__src">{surprise ? SURPRISE_SOURCE[surprise.from] : "Moment 1"}</span>
+            {surprise ? surprise.said : first.said}
+            {!surprise && first.who && <em className="ev__who"> {first.who}</em>}
+          </p>
+          {first.at && (
+            <p className="ev__hear">
+              {surprise && first.who && <span>Moment 1: {first.who}</span>} <HearIt c={c} p={first} />
+            </p>
+          )}
+        </>
+      ) : top && (
         <>
           <p className="ev__finding">
             {top.topic.name} took <strong>{pct(top.share)}</strong> of topic mentions {where}.
@@ -439,9 +461,11 @@ function Card({ c, href }: { c: Conference; href: string }) {
       </p>
       <p className="ev__go">
         <Link href={href}>
-          {c.stage
-            ? `The ${fromTalks ? "stage" : "programme"} against the numbers${said > 0 ? `, and ${said} ${said === 1 ? "thing" : "things"} speakers said` : ""}`
-            : "Read the recap"}{" "}
+          {said > 0
+            ? `The 5-minute version: ${said} ${said === 1 ? "moment" : "moments"}, ranked`
+            : c.stage
+              ? `The ${fromTalks ? "stage" : "programme"} against the numbers`
+              : "Read the recap"}{" "}
           <span aria-hidden="true">→</span>
         </Link>
       </p>

@@ -398,6 +398,18 @@ the trends:
    was covered (with `"partial": true` while some talks are still unread, which keeps the
    page from calling the event watched), a summary, and `points` (what was said about a topic, by whom, with a
    link to that moment in the video). Only write what the talks said.
+4. Rank the points: **the order of `points` is the rank**, the one most worth hearing
+   first. The event's page leads with the first as its main story, lists the next four,
+   and folds the rest and the stage table one click down; the calendar card and
+   `get_conferences` use the same order. There is no separate rank field.
+5. If the event did something its own subject would not lead you to expect, write it as
+   `"surprise": { "said": "…", "topic": "<topic id>" }` in the recap (the topic adds its
+   figure from `stage`). Leave it out when there is none: the page then shows a surprise
+   only if a topic reads "Louder here than in the numbers" or "Rising, but little heard
+   here", and otherwise nothing.
+
+Each moment says which day it is from when the title of the video its link opens names the
+day ("Session day 2 stream").
 
 Before captions exist, `npm run conference -- <id> --programme <file>` counts the
 published titles and abstracts instead, and the page labels the figures as the

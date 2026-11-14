@@ -178,6 +178,13 @@ export type Conference = {
     /** What was watched, and what was not: "Day one's main-stage stream, 8 of 9 hours". */
     coverage: string;
     summary: string;
+    /**
+     * The editor's one surprise, when there is a real one: what the event did that its own subject
+     * would not lead you to expect. `topic` (a topic id) adds that topic's figure from `stage`.
+     * Left out when there is none; the page then shows a line only if a topic reads stage-ahead or numbers-ahead.
+     */
+    surprise?: { said: string; topic?: string };
+    /** What was said, ranked by the editor: the order is the rank, the one most worth hearing first. */
     points: StagePoint[];
   };
 };

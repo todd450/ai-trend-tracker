@@ -1,10 +1,23 @@
 import Link from "next/link";
-import { ConfColophon, ConfMast, Programme, Stage, hasReading, when } from "@/components/Conferences";
+import { ConfColophon, ConfMast, HearIt, Programme, SURPRISE_SOURCE, Stage, hasReading, hasRow, pct, when } from "@/components/Conferences";
 import { PHASES, PHASE_LABEL, neighbours } from "@/lib/agenda";
-import { KIND_LABEL, conferences, fmtMonthOf, fmtSpan, phaseOf, today } from "@/lib/conferences";
+import {
+  KIND_LABEL,
+  conferences,
+  fmtMonthOf,
+  fmtSpan,
+  momentDay,
+  phaseOf,
+  stageAgainstTrends,
+  surpriseOf,
+  today,
+  type StageRow,
+  type Surprise,
+} from "@/lib/conferences";
 import { NEW_TAB } from "@/lib/links";
+import { TOPICS } from "@/lib/topics";
 import { fmtDate } from "@/lib/trends";
-import type { Conference } from "@/lib/types";
+import type { Conference, StagePoint } from "@/lib/types";
 
 const ordinal = (n: number) => {
   const tens = n % 100;
@@ -108,6 +121,134 @@ function Nothing({ c }: { c: Conference }) {
   );
 }
 
+/** How many moments lead the page; the rest are one click down. */
+const TOP = 5;
+const COUNT = ["", "One moment", "Two moments", "Three moments", "Four moments", "Five moments"];
+
+const topicName = (id: string) => TOPICS.find((t) => t.id === id)?.name ?? id;
+
+/** The surprise, when the editor wrote one or a reading gives one, with its topic's figure and a link to its row. */
+function SurpriseBox({ c, s, rows }: { c: Conference; s: Surprise; rows: StageRow[] }) {
+  const row = rows.find((r) => r.topic.id === s.topic);
+  const words = c.stage?.words;
+  return (
+    <aside className="surprise" aria-labelledby="surprise-src">
+      <p className="surprise__src" id="surprise-src">
+        {SURPRISE_SOURCE[s.from]}
+      </p>
+      <p className="surprise__line">{s.said}</p>
+      {row && words ? (
+        <p className="surprise__fig">
+          <span>
+            <b>{pct(row.share)}</b> of the {c.stage?.source === "talks" ? "stage" : "programme"} · <b>{row.mentions}</b>{" "}
+            {row.mentions === 1 ? "mention" : "mentions"} in {words.toLocaleString("en")} words
+          </span>{" "}
+          <a href={hasRow(row) ? `#stage-${row.topic.id}` : "#stage"}>
+            The {row.topic.name} row in the table <span aria-hidden="true">↓</span>
+          </a>
+        </p>
+      ) : null}
+    </aside>
+  );
+}
+
+/** One of moments 2 onwards: its rank, who said it and on which topic, the paraphrase, and its time and day. */
+function Moment({ c, p, n }: { c: Conference; p: StagePoint; n: number }) {
+  const day = momentDay(c, p);
+  return (
+    <li className="moment" id={`moment-${n}`}>
+      <span className="moment__num" aria-hidden="true">
+        {n}
+      </span>
+      <p className="moment__head">
+        {p.who && <strong>{p.who}</strong>} <span className="moment__tag">{topicName(p.topic)}</span>
+      </p>
+      <p className="moment__said">{p.said}</p>
+      {p.at && (
+        <p className="moment__at">
+          <a href={p.at.url} {...NEW_TAB}>
+            {p.at.label}
+          </a>
+          {day !== null && <span>day {day}</span>}
+        </p>
+      )}
+    </li>
+  );
+}
+
+/**
+ * The 5-minute version: the surprise if there is one, the editor's first moment as the lead, the
+ * next four as a list, the rest and the stage table each one click down.
+ */
+function Moments({ c }: { c: Conference }) {
+  const points = c.recap!.points;
+  const rows = c.stage ? stageAgainstTrends(c) : [];
+  const surprise = surpriseOf(c, rows);
+  const [lead, ...rest] = points;
+  const next = rest.slice(0, TOP - 1);
+  const more = rest.slice(TOP - 1);
+  return (
+    <>
+      {surprise && <SurpriseBox c={c} s={surprise} rows={rows} />}
+      <section className="band" id="moments" aria-labelledby="moments-h">
+        <div className="band__head">
+          <h2 id="moments-h">{COUNT[Math.min(TOP, points.length)]} worth hearing</h2>
+          <p>Ranked by the editor, the one most worth your time first.</p>
+        </div>
+        <p className="conf__caveat">
+          Paraphrased by the editor from the recordings’ automatic captions or from the organiser’s transcripts and
+          summaries; the note on what was and was not watched, below, says which for each day. Captions can mishear
+          names and numbers, so each moment links to its time in the recording to be checked there.
+        </p>
+        <div className="moment--lead" id="moment-1">
+          <p className="moment__n">
+            <b>1</b> <span className="moment__tag">{topicName(lead.topic)}</span>
+          </p>
+          <p className="moment__said">{lead.said}</p>
+          {lead.who && <p className="moment__who">{lead.who}</p>}
+          {lead.at && (
+            <p className="hear">
+              <HearIt c={c} p={lead} />
+            </p>
+          )}
+        </div>
+        {next.length > 0 && (
+          <ol className="moments" start={2}>
+            {next.map((p, i) => (
+              <Moment key={p.said} c={c} p={p} n={i + 2} />
+            ))}
+          </ol>
+        )}
+        {more.length > 0 && (
+          <details className="more">
+            <summary>
+              {more.length} more {more.length === 1 ? "moment" : "moments"}{" "}
+              <small>
+                ranked {TOP + 1}
+                {more.length > 1 && ` to ${points.length}`}
+              </small>
+            </summary>
+            <ol className="moments" start={TOP + 1}>
+              {more.map((p, i) => (
+                <Moment key={p.said} c={c} p={p} n={i + TOP + 1} />
+              ))}
+            </ol>
+          </details>
+        )}
+        {c.stage && (
+          <details className="more more--wide" id="stage">
+            <summary>
+              How the {c.stage.source === "talks" ? "stage" : "programme"} compares with the numbers{" "}
+              <small>({rows.length} topics)</small>
+            </summary>
+            <Stage c={c} />
+          </details>
+        )}
+      </section>
+    </>
+  );
+}
+
 function Neighbour({ c, dir }: { c: Conference | null; dir: "prev" | "next" }) {
   if (!c) return <span />;
   return (
@@ -137,6 +278,8 @@ export function ConferenceEvent({ c }: { c: Conference }) {
   const month = c.start.slice(0, 7);
   const fromTalks = c.stage?.source === "talks";
   const read = hasReading(c);
+  /** A recap with moments makes the page its 5-minute version; any other page keeps its layout. */
+  const ranked = Boolean(c.recap?.points.length);
 
   return (
     <>
@@ -180,9 +323,15 @@ export function ConferenceEvent({ c }: { c: Conference }) {
               </>
             )}
           </p>
-          <Year c={c} />
-          <Where c={c} />
+          {!ranked && (
+            <>
+              <Year c={c} />
+              <Where c={c} />
+            </>
+          )}
         </header>
+
+        {ranked && <Moments c={c} />}
 
         {c.recap && (
           <section className="band" aria-labelledby="said-h">
@@ -215,7 +364,7 @@ export function ConferenceEvent({ c }: { c: Conference }) {
           </p>
         )}
 
-        {c.stage && (
+        {c.stage && !ranked && (
           <section className="band" aria-labelledby="stage-h">
             <div className="band__head">
               <h2 id="stage-h">{fromTalks ? "The stage against the numbers" : "The programme against the numbers"}</h2>
@@ -245,6 +394,13 @@ export function ConferenceEvent({ c }: { c: Conference }) {
             </div>
           </section>
         ) : null}
+
+        {ranked && (
+          <div className="band foot">
+            <Where c={c} />
+            <Year c={c} />
+          </div>
+        )}
 
         <nav className="around" aria-label="Before and after it on the calendar">
           <NeighbourCard c={place.prev} dir="prev" />
