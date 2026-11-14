@@ -1,20 +1,12 @@
 import Link from "next/link";
-import { ConfMast } from "@/components/Conferences";
 import { Ledger } from "@/components/Ledger";
+import { SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { isBigStory } from "@/lib/editorial";
-import { NEW_TAB } from "@/lib/links";
+import { NEW_TAB, host } from "@/lib/links";
 import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
 import { buildToday, editorial } from "@/lib/today";
 import { fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
-
-function host(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
-}
 
 /**
  * Today's AI news: what was published in the 24 hours before the data was collected. It reads
@@ -40,7 +32,7 @@ export function Today() {
         Skip to the news
       </a>
 
-      <ConfMast current="today" />
+      <SiteMast current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
       <main className="page">
         <section className="lede lede--cal">
@@ -97,7 +89,7 @@ export function Today() {
               count={rows.length}
               start={bigDay ? 2 : 1}
               all
-              more={<Link className="more" href="/#news">The week’s top stories →</Link>}
+              more={<Link className="more" href="/reading#news">The week’s top stories →</Link>}
               cells={[
                 { head: "From", width: "9.5rem", start: true },
                 { head: "Hacker News", width: "5.5rem" },
@@ -149,7 +141,7 @@ export function Today() {
           ) : bigDay ? null : (
             <p className="band__empty">
               None of the sources published anything in the 24 hours before the last update. The week’s stories are
-              in <Link href="/#news">the reading list</Link>.
+              in <Link href="/reading">the reading list</Link>.
             </p>
           )}
           <SourceLine names="the labs’ and newsletters’ own feeds; Hacker News" keys={["labNews", "analysis", "today"]} />
@@ -162,7 +154,7 @@ export function Today() {
           <div className="prose">
             <p>
               <strong>The list</strong> is what was published in the 24 hours before the data was collected, which
-              happens once a day: posts from the labs named under “Lab announcements” on the trends page, pieces
+              happens once a day: posts from the labs named under “Lab announcements” in the reading list, pieces
               from the newsletters and institutions, and up to twelve Hacker News stories with an AI term in the
               title and at least 20 points. The biggest stories come first, and size is measured by points on Hacker
               News, the one figure the sources share. A lab or newsletter post takes the points of the story that

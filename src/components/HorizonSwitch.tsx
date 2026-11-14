@@ -7,7 +7,16 @@ import { HORIZONS, type Horizon } from "@/lib/trends";
  * in each link's tooltip. Each view is its own prebuilt page; `scroll={false}` keeps
  * the reader's place.
  */
-export function HorizonSwitch({ current, label }: { current: Horizon; label: string }) {
+export function HorizonSwitch({
+  current,
+  label,
+  hrefOf = (h) => HORIZONS[h].href,
+}: {
+  current: Horizon;
+  label: string;
+  /** Where each view of this page lives: the front page's own views unless a page has its own. */
+  hrefOf?: (horizon: Horizon) => string;
+}) {
   return (
     <nav className="horizon" aria-label={label}>
       <span className="horizon__title" aria-hidden="true">Trends over</span>
@@ -17,7 +26,7 @@ export function HorizonSwitch({ current, label }: { current: Horizon; label: str
           return (
             <li key={h}>
               <Link
-                href={HORIZONS[h].href}
+                href={hrefOf(h)}
                 scroll={false}
                 aria-current={h === current ? "page" : undefined}
                 title={

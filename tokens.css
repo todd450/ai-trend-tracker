@@ -33,6 +33,8 @@
 
   --font-display: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype", serif;
   --font-body: var(--font-geist), "Helvetica Neue", sans-serif;
+  /* For a file's rows shown as they are, where the columns should line up. */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* Type scale, perfect fourth (1.333) from a 17px base */
   --text-xs: 0.75rem;
