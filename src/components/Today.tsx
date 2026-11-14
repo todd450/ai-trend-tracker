@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Ledger } from "@/components/Ledger";
 import { SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
-import { isBigStory } from "@/lib/editorial";
+import { FRONTIER_LABS, topStoryReason } from "@/lib/editorial";
 import { NEW_TAB, host } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
-import { buildToday, editorial } from "@/lib/today";
+import { buildToday, editorial, pastLeads } from "@/lib/today";
 import { fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
 
 /**
@@ -16,14 +16,15 @@ export function Today() {
   const today = buildToday();
   const pinsNow = today.items.filter((item) => item.pinned);
   /**
-   * The day's first story is set large, above the list, when the editor pinned it or when it is
-   * already as big as the week's top stories. On an ordinary day every story is a row.
+   * The day's top story is set large, above the list, when the editor pinned it, when it is a
+   * frontier lab's launch discussed twice on Hacker News, or when its points match the past days'
+   * leads (see `topStory`). On an ordinary day every story is a row.
    */
-  const [first, ...rest] = today.items;
-  const bigDay =
-    first !== undefined &&
-    (first.pinned !== undefined || isBigStory(first.discussion?.points, latest.stories.map((s) => s.points)));
-  const rows = bigDay ? rest : today.items;
+  const top = today.top;
+  const first = top && today.items[top.index];
+  const bigDay = first !== undefined;
+  const rows = top ? today.items.filter((_, n) => n !== top.index) : today.items;
+  const leads = pastLeads(latest.generatedAt.slice(0, 10));
 
   return (
     <>
@@ -44,9 +45,9 @@ export function Today() {
           </header>
 
           <section id="today" className="band band--today" aria-labelledby="today-h">
-            {bigDay && (
+            {top && first && (
               <article className="top-story">
-                <p className="top-story__kicker">{first.pinned ? "Editor’s pick" : "The day’s biggest story"}</p>
+                <p className="top-story__kicker">{topStoryReason(first, top.rule)}</p>
                 <h2>
                   <a href={first.url} {...NEW_TAB}>{first.title}</a>
                 </h2>
@@ -166,6 +167,20 @@ export function Today() {
               {pinsNow.length === 0 && editorial.hide.length === 0
                 ? "Nothing is pinned or left out today."
                 : `Today ${pinsNow.length} ${pinsNow.length === 1 ? "post is" : "posts are"} pinned and ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}
+            </p>
+            <p>
+              <strong>The top story.</strong> One story is set large above the list when a rule lifts it, and the
+              line above its headline names the rule. A pinned post always takes the place. Otherwise it goes to the
+              highest-ranked story that one of two rules lifts. A launch: a post from a frontier lab’s own news page
+              ({[...FRONTIER_LABS].join(", ")}) gathered with at least two Hacker News stories about it, whatever
+              their points. A story counts when it discusses the lab’s post itself or links to the lab’s own site;
+              one that only shares the headline’s words does not. The lab’s post is then the headline. Or a story as big as the past days’ leads: its points match the middle of the most upvoted
+              story on each of up to seven earlier days, as counted when that day’s list was collected, so that
+              each had under a day to gather points, as today’s has. With fewer than three past days to compare
+              with, points lift nothing. On an ordinary day no story is set large.{" "}
+              {leads.length === 0
+                ? "No past days are on record to compare with today."
+                : `Today’s lead is compared with ${leads.length} past ${leads.length === 1 ? "day" : "days"}.`}
             </p>
             {editorial.hide.length > 0 && (
               <ul>

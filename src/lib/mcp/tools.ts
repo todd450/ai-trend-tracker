@@ -5,7 +5,7 @@
  */
 import { buildBriefing } from "../briefing";
 import { READING_LABEL, conferences, daysUntil, phaseOf, stageAgainstTrends, type Phase } from "../conferences";
-import { visible } from "../editorial";
+import { topStoryReason, visible } from "../editorial";
 import { ADOPTION_WINDOW, USAGE_WINDOW, adoption, buildMarketShare, federal, indicators, jobs, releases, usage } from "../indicators";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../site";
 import { buildToday, editorial } from "../today";
@@ -421,6 +421,23 @@ const indicatorsTool: Tool = {
 
 // ------------------------------------------------------------ get_latest
 
+/**
+ * Today's list as assistants get it. `topStory` was added after the rest and is set on the story
+ * the page sets large, with the rule that put it there; it is left out on every other story.
+ */
+export function todayItems(day: ReturnType<typeof buildToday>, limit: number) {
+  return day.items.slice(0, limit).map((item, n) => ({
+    title: item.title,
+    url: item.url,
+    from: item.from,
+    publishedAt: item.publishedAt,
+    hackerNews: item.discussion ?? null,
+    sameEvent: item.also.map((a) => ({ title: a.title, url: a.url, from: a.from })),
+    pinnedByEditor: item.pinned ? (item.pinned.note ?? true) : false,
+    ...(day.top?.index === n && { topStory: { rule: day.top.rule, reason: topStoryReason(item, day.top.rule) } }),
+  }));
+}
+
 const LISTS = {
   today: "Everything the lab, newsletter and Hacker News sources published in the 24 hours before collection, biggest first, with posts about one event gathered together.",
   papers: "Most-upvoted papers on Hugging Face's daily papers page.",
@@ -441,7 +458,8 @@ const latestTool: Tool = {
     Object.entries(LISTS)
       .map(([name, what]) => `${name} (${what})`)
       .join(" ") +
-    " Use for 'what is new' questions, and to find the stories, papers or repositories behind a trend.",
+    " Use for 'what is new' questions, and to find the stories, papers or repositories behind a trend." +
+    " In today, the story the site sets large as the day's top story carries topStory, with the rule that put it there.",
   input: {
     list: { type: "string", description: "Which list.", enum: Object.keys(LISTS) },
     limit: { type: "integer", description: "How many items, most prominent first.", minimum: 1, maximum: 20, default: 10 },
@@ -453,17 +471,7 @@ const latestTool: Tool = {
     const items = (() => {
       switch (args.list as keyof typeof LISTS) {
         case "today":
-          return buildToday()
-            .items.slice(0, limit)
-            .map((item) => ({
-              title: item.title,
-              url: item.url,
-              from: item.from,
-              publishedAt: item.publishedAt,
-              hackerNews: item.discussion ?? null,
-              sameEvent: item.also.map((a) => ({ title: a.title, url: a.url, from: a.from })),
-              pinnedByEditor: item.pinned ? (item.pinned.note ?? true) : false,
-            }));
+          return todayItems(buildToday(), limit);
         case "papers":
           return pick(latest.papers).map(({ id, ...paper }) => ({ arxivId: id, ...paper }));
         case "models":
