@@ -1,4 +1,6 @@
 import Link from "next/link";
+import countedJson from "../../data/counted.json";
+import { CountedFoot, countedId } from "@/components/Counted";
 import { DataIndex } from "@/components/DataIndex";
 import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { LeadChart } from "@/components/LeadChart";
@@ -10,7 +12,8 @@ import { type Product } from "@/lib/products";
 import { Colophon, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { ThemeRow } from "@/components/ThemeRow";
-import { buildBriefing } from "@/lib/briefing";
+import { buildBriefing, type LeadSeries } from "@/lib/briefing";
+import { COUNTED_MAX, countedFor, latestSpan, seriesOf, type CountedFile } from "@/lib/counted";
 import { topicsHref } from "@/lib/datasets";
 import { lineFor } from "@/lib/editorial";
 import { editorial } from "@/lib/today";
@@ -63,6 +66,12 @@ const SOURCE_LABELS: Record<string, string> = {
   business: "Census Bureau business survey",
   marketShare: "OpenRouter model rankings",
 };
+
+/** The stories and papers kept under the rising moves the headlines name (scripts/collect.ts writes it each day). */
+const counted = countedJson as unknown as CountedFile;
+
+/** The lead chart each briefing line speaks for. */
+const LEAD_OF: Record<string, string> = { Research: "Research", "Hacker News": "Hacker News discussion" };
 
 /** The reading list's sections, which were on this page before it had its own; old links to them still land. */
 const MOVED_ANCHORS = ["today", "reading", "news", "papers", "analysis", "announcements", "launches", "code", "models", "labs"];
@@ -134,8 +143,23 @@ const PRODUCT_GROUPS: { kind: Product["kind"]; title: string }[] = [
 /** The whole dashboard, read over one time horizon. The routes differ only in this prop. */
 export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
-  const { window: WINDOW, weeks, themeTrends, productTrends, hasThemes, hasProducts } = trends;
+  const { window: WINDOW, weeks, topicTrends, themeTrends, productTrends, hasThemes, hasProducts } = trends;
   const { headline, lead, briefing } = buildBriefing(trends);
+  /** What was counted under each rising lead chart, if it was collected over the window shown. */
+  const span = latestSpan(weeks, WINDOW);
+  const countedOf = (s: LeadSeries) =>
+    s.direction === "rising" ? countedFor(counted, horizon, seriesOf(s.measure), s.id, span) : null;
+  /** How many stories or papers the window's counts hold for a lead chart's series. */
+  const matchedIn = (s: LeadSeries) =>
+    (seriesOf(s.measure) === "topic"
+      ? (topicTrends.find((t) => t.id === s.id)?.paperCounts ?? [])
+      : (themeTrends.find((t) => t.id === s.id)?.stories.values ?? [])
+    )
+      .slice(-WINDOW)
+      .reduce((a, b) => a + b, 0);
+  const feet = Object.fromEntries(
+    lead.map((s) => [s.measure, <CountedFoot key={s.measure} s={s} move={countedOf(s)} matched={matchedIn(s)} window={WINDOW} />]),
+  );
   /** The kinds of call today's headline makes, so the track record can mark them. */
   const researchCall = lead.find((s) => s.measure === "Research")?.direction;
   const headlineCalls = {
@@ -263,6 +287,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             window={WINDOW}
             weeks={weeks}
             events={(indicators.releases?.log ?? []).map((r) => ({ date: r.date, label: r.model, url: r.url }))}
+            feet={feet}
           />
           {lead.length > 0 && (
             <SourceLine names="arXiv (research); Hacker News story titles (discussion)" keys={["arxivHistory", "hnThemes"]} />
@@ -270,13 +295,26 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           {briefing.length > 0 && (
             <div className="brief">
               <ol aria-label="The week in numbers">
-                {briefing.map((line) => (
-                  <li key={line.label}>
-                    <a className="brief__label" href={line.href}>{line.label}</a>
-                    <span className="brief__figure">{line.figure}</span>
-                    <p>{line.text}</p>
-                  </li>
-                ))}
+                {briefing.map((line) => {
+                  // A rise with its list under the chart above points down to it.
+                  const s = lead.find((l) => l.measure === LEAD_OF[line.label]);
+                  const move = s && countedOf(s);
+                  const n = move ? ("stories" in move ? move.stories.length : move.papers.length) : 0;
+                  const list = s && move ? `#${countedId(s)}` : null;
+                  return (
+                    <li key={line.label}>
+                      {/* The research label keeps its own page; the discussion label's row is further down this one. */}
+                      <a className="brief__label" href={list && line.label === "Hacker News" ? list : line.href}>{line.label}</a>
+                      <span className="brief__figure">{line.figure}</span>
+                      <p>{line.text}</p>
+                      {list && move && (
+                        <a className="brief__counted" href={list}>
+                          {"stories" in move ? `${n} ${n === 1 ? "story" : "stories"} counted` : `${n} example ${n === 1 ? "paper" : "papers"}`}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
               </ol>
             </div>
           )}
@@ -1005,6 +1043,17 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
                 The moves named in <a href="#data">the data</a> are picked by rule too: each is the largest change in
                 its dataset that clears these tests, among series big enough to trust.
+              </p>
+              <p id="counted">
+                <strong>What was counted</strong>, under a chart that rose, is chosen by rule too, each day, for
+                the rises the headline names and over the window it compares. For a theme it is the{" "}
+                {COUNTED_MAX} Hacker News stories with the most points among those whose title matches one of
+                the theme’s searches; a story submitted more than once, by link or by headline, counts once. For a
+                research topic it is {COUNTED_MAX} of the papers whose title or abstract holds one of the topic’s
+                phrases, those upvoted on Hugging Face first, then the newest. The papers are examples of what was
+                counted, not the reason for the move: there are hundreds of them, and arXiv gives no figure to rank
+                them by. A keyword can match a story that is about something else, and the list shows it as it
+                was counted. A fall has no list, since it means fewer stories or papers, so none stand for it.
               </p>
               <p>
                 <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a

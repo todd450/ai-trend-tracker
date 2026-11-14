@@ -9,6 +9,8 @@ import type { Direction, Signal } from "./calls";
 export type LeadSeries = {
   /** What is measured: "Research" or "Hacker News discussion". */
   measure: string;
+  /** The topic's or theme's id. */
+  id: string;
   name: string;
   /** Completes "0.9% …": "of AI papers". */
   unit: string;

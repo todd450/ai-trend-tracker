@@ -150,6 +150,43 @@ test("the method says how the track record is made", () => {
   assert.match(method, /13 weeks/);
 });
 
+test("under each lead chart: a rise shows what was counted, at most three, each from the file; a fall shows only why it has none", async () => {
+  const { buildBriefing } = await fromSrc<any>("lib/briefing");
+  const counted = await fromSrc<any>("lib/counted");
+  const file = JSON.parse(readFileSync(join(import.meta.dirname, "../../data/counted.json"), "utf8"));
+  let lists = 0;
+  for (const h of Object.keys(trends.HORIZONS)) {
+    const html = front(h);
+    const t = trends.buildTrends(h);
+    const { lead } = buildBriefing(t);
+    const panels = [...html.matchAll(/<figure class="leadchart__panel[\s\S]*?<\/figure>/g)].map((m) => m[0]);
+    assert.equal(panels.length, lead.length, `${h}: one panel per mover`);
+    lead.forEach((s: any, i: number) => {
+      const panel = panels[i];
+      const id = `counted-${counted.seriesOf(s.measure)}-${s.id}`;
+      if (s.direction === "cooling") {
+        assert.match(text(panel), /No list under a fall/, `${h} ${s.id}: a fall says why it has no list`);
+        assert.ok(!panel.includes(`id="${id}"`), `${h} ${s.id}: a fall has no list`);
+        return;
+      }
+      const move = counted.countedFor(file, h, counted.seriesOf(s.measure), s.id, counted.latestSpan(t.weeks, t.window));
+      if (!move) return assert.ok(!panel.includes("leadchart__evidence"), `${h} ${s.id}: nothing collected, nothing shown`);
+      lists++;
+      const items = move.stories ?? move.papers;
+      const list = sectionOf(panel, id);
+      const rows = [...list.matchAll(/<li>/g)];
+      assert.equal(rows.length, items.length, `${h} ${s.id}: one row per item kept`);
+      assert.ok(rows.length <= counted.COUNTED_MAX, `${h} ${s.id}: at most ${counted.COUNTED_MAX}`);
+      for (const item of items) assert.ok(list.includes(`href="${item.url.replace(/&/g, "&amp;")}"`), `${h} ${s.id}: links ${item.url}`);
+      const label = text(list.slice(0, list.indexOf("<div")));
+      assert.match(label, move.stories ? /What was counted/ : /Examples of the papers counted/);
+      assert.doesNotMatch(label, /\b(why|because|reason)\b/i, "the heading and rule say what was counted, not why");
+      assert.ok(html.includes(`class="brief__counted" href="#${id}"`), `${h} ${s.id}: the briefing line points to the list`);
+    });
+  }
+  assert.ok(lists > 0, "today's data has at least one rise with a list");
+});
+
 /** Steady themes and quiet products sit in one closed fold per section or group; called ones stay open. */
 const FOLD = '<details class="table-view fold">';
 

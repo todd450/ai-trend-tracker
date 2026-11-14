@@ -74,7 +74,41 @@ The collector writes to `data/`:
 - `latest.json`: the current ranked lists, plus whether each source succeeded.
 - `indicators.json`: the monthly hiring and policy figures, the model release log,
   monthly toolkit downloads and the two-weekly business survey answers.
-- `snapshots/YYYY-MM-DD.json`: a dated copy of the lists, kept as a record.
+- `counted.json`: "What was counted", the few stories and papers under each rising
+  move the trends headlines name. Overwritten each run.
+- `snapshots/YYYY-MM-DD.json`: a dated copy of the lists and of `counted.json`
+  (under `counted`), kept as a record.
+
+### What was counted
+
+Under each lead chart that rose, the trends page lists up to three items, chosen by
+the rules in `src/lib/counted.ts` (tested in `scripts/counted.test.ts`). After the
+counts, the collector reads each view's headline with the page's own code, and for
+each rising move it names runs one more search over that view's latest window, with
+the move's own phrases:
+
+- a Hacker News theme: every story in the window whose title matches one of the
+  theme's searches; one item per story however often it was submitted (by link or
+  headline), most points first;
+- a research topic: the newest 30 matching papers from arXiv's own search, plus the
+  Hugging Face daily papers that hold one of the topic's phrases and that the same
+  arXiv search also finds; upvoted papers first, then the newest. The page labels
+  them as examples, with the count of papers in the window.
+
+Falls get no list. The file holds titles, links, dates, points and comments; abstracts
+are read to match a phrase but not kept. `npm run collect -- --counted` rewrites only
+this file from the stored counts, in about a minute. The MCP server and the feed do
+not carry it.
+
+Terms, read in November 2026: arXiv's API terms put its descriptive metadata (titles,
+links, dates) under CC0 and ask that its rate limits be kept, which the collector does
+at one request every three seconds. Hacker News's titles and links are shown with
+links back to the story and its thread, as the reading list already does; Y
+Combinator's site terms bar copying and redistributing works derived from the site
+except as expressly allowed, and neither the Hacker News API nor Algolia's search for
+it grants a licence for the data, so the file keeps only the three stories a move
+shows (the daily snapshots keep each day's copy for the check-back), and Hacker News
+figures stay out of the downloadable dataset.
 
 ### Checks before a count is stored
 

@@ -1,5 +1,5 @@
 /**
- * Lets a test in `npm test` import the site's own modules in plain Node. They are written for
+ * Lets a test in `npm test`, or the collector, import the site's own modules in plain Node. They are written for
  * Next's bundler, which resolves `@/` to src/, finds a file without its `.ts` extension and reads
  * JSON without an import attribute; these hooks do the same three things and nothing else.
  *

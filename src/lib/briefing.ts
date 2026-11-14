@@ -21,10 +21,10 @@ export function buildBriefing({ horizon, hasHistory, hasThemes, rankedTopics, th
   const discussionMover = moverOf(topTheme, bottomTheme);
   const lead: LeadSeries[] = [
     ...(researchMover
-      ? [{ measure: "Research", name: researchMover.name, unit: "of AI papers", signal: researchMover.papers, direction: researchMover.direction }]
+      ? [{ measure: "Research", id: researchMover.id, name: researchMover.name, unit: "of AI papers", signal: researchMover.papers, direction: researchMover.direction }]
       : []),
     ...(discussionMover
-      ? [{ measure: "Hacker News discussion", name: discussionMover.name, unit: "of AI stories", signal: discussionMover.share, direction: discussionMover.direction }]
+      ? [{ measure: "Hacker News discussion", id: discussionMover.id, name: discussionMover.name, unit: "of AI stories", signal: discussionMover.share, direction: discussionMover.direction }]
       : []),
   ];
 

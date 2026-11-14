@@ -8,6 +8,7 @@ const sig = (prior: number, recent: number): Signal => ({ values: [], prior, rec
 const row = (name: string, direction: Direction) => ({ name, direction });
 const mover = (measure: string, name: string, prior: number, recent: number, unit = "of AI papers"): LeadSeries => ({
   measure,
+  id: name,
   name,
   unit,
   signal: sig(prior, recent),

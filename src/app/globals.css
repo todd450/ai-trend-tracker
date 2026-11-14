@@ -836,6 +836,58 @@ code {
   color: var(--color-muted);
 }
 
+/* Under a rise, what was counted: a ledger inside the panel, three rows at every width, no show-more. */
+.leadchart__evidence {
+  margin-top: var(--space-md);
+  padding-top: var(--space-xs);
+  border-top: var(--rule-hair) solid var(--tone);
+}
+
+.leadchart__evidence h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--color-ink);
+}
+
+.leadchart__rule {
+  margin-top: var(--space-3xs);
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Titles are read whole: never clamped, never cut with an ellipsis. */
+.leadchart__evidence .ledger__main a {
+  display: inline;
+  -webkit-line-clamp: unset;
+  line-clamp: none;
+  overflow: visible;
+}
+
+.leadchart__evidence .ledger__note {
+  white-space: normal;
+}
+
+.leadchart__evidence .ledger__data a {
+  color: var(--color-accent);
+  text-decoration-color: transparent;
+}
+
+/* Under a fall, the same place holds one muted line, so the empty space reads as a rule and not a fault. */
+.leadchart__evidence--none {
+  border-top-color: var(--color-rule);
+}
+
+.leadchart__evidence--none p {
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+
 .leadchart__key {
   font-size: var(--text-xs);
   line-height: 1.7;
@@ -888,6 +940,14 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+/* A rise's pointer down to what was counted under its chart. */
+.brief__counted {
+  grid-column: 2;
+  justify-self: start;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
 /* Tablets and up: the five lines become cards in a row, label, then number, then sentence. */
 @media (min-width: 40rem) {
   .brief ol {
@@ -927,6 +987,11 @@ code {
     font-size: var(--text-xs);
     line-height: 1.45;
     color: var(--color-ink-2);
+  }
+
+  .brief__counted {
+    grid-column: 1;
+    grid-row: 4;
   }
 }
 
