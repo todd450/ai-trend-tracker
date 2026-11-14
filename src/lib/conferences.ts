@@ -60,12 +60,6 @@ export function fmtSpan(start: string, end: string, { year = true }: { year?: bo
     : `${a.getUTCDate()} ${monthName(a, "short")} – ${b.getUTCDate()} ${tail}`;
 }
 
-/** "Nov", or "Nov 2026" with the year. */
-export const fmtMonthShort = (ym: string, { year = false }: { year?: boolean } = {}) => {
-  const d = new Date(ym.slice(0, 7) + "-01T00:00:00Z");
-  return `${monthName(d, "short")}${year ? ` ${d.getUTCFullYear()}` : ""}`;
-};
-
 /** "November 2026", the heading a calendar month is listed under. */
 export const fmtMonthOf = (iso: string) => {
   const d = new Date(iso + "T00:00:00Z");

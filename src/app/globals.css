@@ -224,95 +224,7 @@ code {
   border-bottom: var(--rule-heavy) double var(--color-rule-strong);
 }
 
-/* One line that scrolls sideways when the sections do not fit; the fade says there is more. */
-.bar__nav {
-  min-width: 0;
-  mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
-}
-
-.bar__nav ul {
-  display: flex;
-  column-gap: var(--space-lg);
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-inline-end: 2.5rem;
-}
-
-.bar__nav ul::-webkit-scrollbar {
-  display: none;
-}
-
-/* The button that stands in for the row of sections on a phone; hidden wherever the row fits. */
-.bar__menu {
-  display: none;
-}
-
-@media (max-width: 40rem) {
-  .bar__nav {
-    position: relative;
-    mask-image: none;
-  }
-
-  .bar__menu {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    width: 100%;
-    min-height: 2.75rem;
-    padding: 0;
-    border: 0;
-    background: none;
-    font: inherit;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-ink);
-    cursor: pointer;
-  }
-
-  .bar__menu::after {
-    content: "";
-    width: 0.4rem;
-    height: 0.4rem;
-    margin-inline-start: auto;
-    border-right: 1.5px solid currentColor;
-    border-bottom: 1.5px solid currentColor;
-    transform: translateY(-0.15rem) rotate(45deg);
-  }
-
-  .bar__menu[aria-expanded="true"]::after {
-    transform: translateY(0.1rem) rotate(-135deg);
-  }
-
-  .bar__nav ul {
-    display: none;
-    padding-inline-end: 0;
-  }
-
-  .bar__nav[data-open="true"] ul {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--space-lg);
-    padding-bottom: var(--space-xs);
-    border-top: var(--rule-hair) solid var(--color-rule);
-  }
-
-  .bar__nav ul li:first-child,
-  .bar__nav ul li:last-child {
-    margin-inline: 0;
-  }
-}
-
-/* Centred while everything fits, and still scrollable from the first link when it does not. */
-.bar__nav li:first-child {
-  margin-inline-start: auto;
-}
-
-.bar__nav li:last-child {
-  margin-inline-end: auto;
-}
-
-/* Sections and time spans are quiet text; the one in force is inked and underlined. */
-.bar__nav a,
+/* Time spans are quiet text; the one in force is inked and underlined. */
 .horizon a {
   display: flex;
   align-items: center;
@@ -328,15 +240,12 @@ code {
 }
 
 @media (hover: hover) {
-  .bar__nav a:hover,
   .horizon a:hover {
     color: var(--color-ink);
     text-decoration-color: var(--color-rule);
   }
 }
 
-.bar__nav a[aria-current],
-.bar__nav a[aria-current]:hover,
 .horizon a[aria-current],
 .horizon a[aria-current]:hover {
   color: var(--color-ink);
@@ -399,19 +308,6 @@ code {
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: var(--space-lg);
     align-items: center;
-  }
-
-  .bar__nav {
-    mask-image: none;
-  }
-
-  .bar__nav ul {
-    column-gap: var(--space-md);
-    padding-inline-end: 0;
-  }
-
-  .bar__nav li:first-child {
-    margin-inline-start: 0;
   }
 
   .horizon {
@@ -2258,11 +2154,6 @@ code {
  * The conference calendar: one agenda of months, a line at today,
  * each event a row, and an event with a reading grown into a card.
  * ================================================================ */
-
-/* A month with nothing in it is still linked from the bar, but quietly. */
-.bar__nav a.is-quiet {
-  color: var(--color-muted);
-}
 
 .lede--cal {
   padding-block: var(--space-lg) var(--space-md);
