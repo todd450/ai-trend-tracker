@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The reading list · AI Trend Tracker (mockup C: one lead and six short rows)</title>
+<style>
+/* Mockup for issue #76, option C. Light values copied from tokens.css as they are; dark values too. */
+:root {
+  color-scheme: light dark;
+  --color-paper: oklch(98.6% 0.006 85);
+  --color-paper-2: oklch(95.5% 0.008 85);
+  --color-rule: oklch(84% 0.012 85);
+  --color-rule-strong: oklch(30% 0.012 85);
+  --color-muted: oklch(50% 0.012 85);
+  --color-ink-2: oklch(36% 0.012 85);
+  --color-ink: oklch(18% 0.012 85);
+  --color-accent: oklch(48% 0.2 258);
+  --color-focus: oklch(50% 0.17 255);
+  --data-rising: oklch(54% 0.22 258);
+  --data-cooling: oklch(60% 0.175 48);
+  --data-rising-ink: oklch(54% 0.22 258);
+  --data-cooling-ink: oklch(52% 0.16 48);
+  --data-steady: oklch(55% 0.012 85);
+  --font-display: "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: "Helvetica Neue", sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.125rem;
+  --text-mast: clamp(2rem, 5vw, 3.5rem);
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 76rem;
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-sm: 2px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.01 85);
+    --color-paper-2: oklch(21% 0.012 85);
+    --color-rule: oklch(32% 0.012 85);
+    --color-rule-strong: oklch(82% 0.01 85);
+    --color-muted: oklch(66% 0.012 85);
+    --color-ink-2: oklch(80% 0.01 85);
+    --color-ink: oklch(93% 0.008 85);
+    --color-accent: oklch(78% 0.13 255);
+    --color-focus: oklch(74% 0.14 255);
+    --data-steady: oklch(62% 0.012 85);
+  }
+}
+
+/* ---- copied from src/app/globals.css ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-decoration-color: var(--color-rule);
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) var(--ease-out), text-decoration-color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) { a:hover { color: var(--color-accent); text-decoration-color: currentColor; } }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.mast {
+  display: grid; gap: var(--space-xs); justify-items: center; text-align: center;
+  max-width: var(--page-max); margin-inline: auto; padding: var(--space-md) var(--page-gutter) 0;
+}
+.mast__line { font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.mast__top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; column-gap: var(--space-lg); width: 100%; }
+@media (min-width: 40rem) { .mast__top { justify-content: space-between; } }
+.tabs ul { display: flex; column-gap: var(--space-lg); }
+.tabs a {
+  display: inline-block; padding-block: var(--space-xs); font-size: var(--text-base); font-weight: 500;
+  color: var(--color-ink-2); text-decoration-line: underline; text-decoration-thickness: 2px;
+  text-decoration-color: transparent; text-underline-offset: 0.45em;
+}
+.tabs a[aria-current="page"] { color: var(--color-ink); text-decoration-color: var(--color-accent); text-decoration-thickness: 3px; }
+.mast__name {
+  font-family: var(--font-display); font-size: var(--text-mast); font-weight: 700; line-height: 0.95;
+  letter-spacing: -0.02em; display: flex; align-items: baseline; justify-content: center; gap: 0.28em;
+}
+.mast__name a { text-decoration: none; }
+.mast__mark { flex: none; height: 0.66em; width: auto; }
+.mast--ruled::after {
+  content: ""; justify-self: stretch; margin-top: calc(var(--space-sm) - var(--space-xs));
+  border-top: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+.page { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+.chapter--page { margin-top: var(--space-2xl); }
+.chapter__head { display: grid; gap: var(--space-2xs); padding-bottom: var(--space-md); }
+@media (min-width: 60rem) {
+  .chapter__head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-md); }
+  .chapter__dek { flex: 1 1 0; min-width: 20ch; text-wrap: pretty; }
+}
+.chapter__title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 600; line-height: 1.1; letter-spacing: -0.018em; }
+.chapter__dek { color: var(--color-ink-2); }
+
+.band { margin-top: var(--space-2xl); padding-top: var(--space-sm); border-top: var(--rule-heavy) solid var(--color-rule-strong); min-width: 0; }
+.chapter__head + .band { margin-top: 0; }
+.band__head { display: grid; gap: var(--space-2xs); padding-bottom: var(--space-sm); }
+.band__head h2 { font-size: var(--text-xl); }
+.band__head p { font-size: var(--text-sm); color: var(--color-muted); }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 60rem) {
+  .pair { column-gap: var(--space-xl); align-items: start; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.source { margin-top: var(--space-xs); font-size: var(--text-xs); color: var(--color-muted); }
+
+.top-story { display: grid; row-gap: var(--space-2xs); max-width: 52rem; padding-block: var(--space-sm) var(--space-md); }
+.top-story__kicker { font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.02em; color: var(--color-accent); }
+.top-story h3 {
+  font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 600; line-height: 1.1;
+  letter-spacing: -0.015em; text-wrap: balance;
+}
+.top-story h3 a { text-decoration-color: transparent; }
+.top-story__meta, .top-story__also { font-size: var(--text-sm); color: var(--color-muted); }
+.top-story__why { font-size: var(--text-base); color: var(--color-ink-2); }
+.top-story__why strong { font-weight: 600; color: var(--color-ink); }
+.top-story__tags { padding-top: var(--space-3xs); }
+
+.tags { display: flex; flex-wrap: wrap; gap: var(--space-2xs); }
+.tag {
+  display: inline-flex; align-items: center; min-height: 1.5rem; padding-inline: var(--space-xs);
+  border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size: var(--text-xs); font-weight: 500; line-height: 1.2;
+  color: var(--color-ink-2); text-decoration: none; white-space: nowrap;
+}
+.tag:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.ledger__pick {
+  margin-inline-end: var(--space-xs); font-family: var(--font-body); font-size: var(--text-xs);
+  font-weight: 600; letter-spacing: 0.02em; color: var(--color-accent);
+}
+
+/* The existing ledger, in its narrow (phone) and wide forms, for the start of the lists below. */
+.ledger { container-type: inline-size; }
+.ledger ol { counter-reset: rank; }
+.ledger__head { display: none; }
+.ledger li {
+  counter-increment: rank; display: grid; grid-template-columns: 1.5rem minmax(0, 1fr);
+  column-gap: var(--space-xs); align-items: baseline; padding-block: var(--space-xs);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.ledger li::before { content: counter(rank); font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.ledger__main { min-width: 0; }
+.ledger__main a {
+  font-family: var(--font-display); font-size: var(--text-base); font-weight: 500; line-height: 1.3;
+  text-decoration-color: transparent; overflow-wrap: anywhere;
+}
+.ledger--paper .ledger__main a { font-style: italic; }
+.ledger__note { display: block; overflow: hidden; font-size: var(--text-xs); color: var(--color-muted); text-overflow: ellipsis; white-space: nowrap; }
+.ledger__data {
+  grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-sm);
+  font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums;
+}
+.ledger__data > span:empty { display: none; }
+.ledger__mag { display: inline-flex; align-items: center; gap: var(--space-xs); }
+.ledger__bar { display: none; height: 0.5rem; }
+.ledger__bar > span { display: block; height: 100%; min-width: 2px; background: var(--data-steady); }
+.ledger__num { font-weight: 500; color: var(--color-ink-2); }
+.ledger__unit { font-weight: 400; color: var(--color-muted); }
+.ledger__foot {
+  display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-lg);
+  margin-top: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule);
+}
+.ledger__toggle {
+  min-height: 2.75rem; padding: 0; border: 0; background: none; font: inherit; font-size: var(--text-sm);
+  font-weight: 500; color: var(--color-accent); cursor: pointer;
+}
+.ledger__toggle::after {
+  content: ""; display: inline-block; width: 0.4rem; height: 0.4rem; margin-inline-start: var(--space-xs);
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-0.15rem) rotate(45deg);
+}
+.more {
+  display: inline-flex; align-items: center; min-height: 2.75rem; font-size: var(--text-sm); font-weight: 500;
+  color: var(--color-accent); white-space: nowrap; text-decoration-color: transparent;
+}
+@container (min-width: 30rem) {
+  .ledger__head {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-md);
+    padding-bottom: var(--space-xs); font-size: var(--text-xs); font-weight: 500; color: var(--color-muted);
+  }
+  .ledger li { grid-template-columns: 1.5rem minmax(0, 1fr) auto; align-items: center; padding-block: var(--space-2xs); }
+  .ledger li > .ledger__data { margin-inline-start: var(--space-xs); }
+  .ledger__main { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-sm); }
+  .ledger__main a { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: normal; }
+  .ledger__note { flex: 1 1 6rem; min-width: 6rem; line-height: calc(var(--text-base) * 1.3); }
+  .ledger__data > .ledger__extra { display: none; }
+  .ledger__data { grid-column: auto; display: grid; grid-template-columns: var(--cells); text-align: end; white-space: nowrap; }
+  .ledger__data > span { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .ledger__data > .ledger__mag { display: grid; grid-template-columns: minmax(0, 1fr) 2.75rem; }
+  .ledger__bar { display: block; }
+  .ledger__unit { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+}
+
+.colophon { max-width: var(--page-max); margin: var(--space-3xl) auto 0; padding: 0 var(--page-gutter) var(--space-2xl); }
+.colophon p {
+  padding-top: var(--space-md); border-top: var(--rule-heavy) double var(--color-rule-strong);
+  font-size: var(--text-xs); line-height: 1.6; color: var(--color-muted);
+}
+
+/* ---- new for this option ---- */
+
+/* The "This week" block: a band whose head carries the window, then the lead beside the rows. */
+.week__window { max-width: 46rem; }
+.week__body { display: grid; grid-template-columns: minmax(0, 1fr); }
+.week .top-story { padding-top: var(--space-xs); }
+.week .top-story__also { display: grid; row-gap: var(--space-3xs); }
+
+/* The editor speaks in a different voice from the rule: a hairline at the left, and its own label. */
+.note {
+  padding-inline-start: var(--space-sm);
+  border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+.note strong { font-weight: 600; color: var(--color-ink); }
+
+/* NEW VARIANT: the compact row. A ledger row numbered on from the lead, headline and then its tag
+   and points; no trend line. On a phone the tag and points go under the headline; where the
+   column is wide enough they sit at the end of the same line. */
+.ledger--compact { border-top: var(--rule-hair) solid var(--color-rule-strong); }
+.ledger--compact ol { counter-reset: rank 1; }
+.ledger--compact li { padding-block: var(--space-xs); row-gap: var(--space-2xs); }
+.ledger--compact li > .ledger__data { column-gap: var(--space-xs); }
+.ledger--compact .ledger__main a { overflow-wrap: break-word; }
+.ledger--compact .note { grid-column: 2 / -1; margin-top: var(--space-3xs); font-size: var(--text-xs); line-height: 1.5; }
+.ledger--compact .ledger__pick { display: block; margin: 0 0 var(--space-3xs); }
+@container (min-width: 30rem) {
+  .ledger--compact li { grid-template-columns: 1.5rem minmax(0, 1fr) auto; align-items: baseline; padding-block: var(--space-xs); }
+  .ledger--compact .ledger__main { display: block; }
+  .ledger--compact .ledger__main a { display: inline; -webkit-line-clamp: none; overflow: visible; }
+  .ledger--compact li > .ledger__data { display: flex; flex-wrap: nowrap; justify-content: flex-end; text-align: end; }
+  .ledger--compact .ledger__data > span { overflow: visible; }
+}
+
+.week__left {
+  margin-top: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+.week__left a { color: var(--color-ink-2); }
+
+/* The jump links to the eight lists: plain links that wrap, never a scroller. */
+.jumps {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-md);
+  margin-top: var(--space-md); padding-top: var(--space-xs);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-sm);
+}
+.jumps b { font-weight: 600; color: var(--color-ink); }
+.jumps a {
+  display: inline-flex; align-items: center; min-height: 1.75rem;
+  color: var(--color-accent); font-weight: 500; text-decoration-color: transparent; white-space: nowrap;
+}
+
+@media (min-width: 60rem) {
+  /* Lead on the left, the six rows in a column on the right: the block is one screen high. */
+  .week__body { grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); column-gap: var(--space-xl); align-items: start; }
+  .week__rows { padding-inline-start: var(--space-xl); border-inline-start: var(--rule-hair) solid var(--color-rule); margin-top: var(--space-xs); }
+  .ledger--compact { border-top: 0; }
+  .ledger--compact li:first-child { border-top: 0; padding-top: 0; }
+  .week__lead .top-story { padding-top: var(--space-xs); }
+}
+</style>
+</head>
+<body>
+
+<header class="mast mast--ruled">
+  <div class="mast__top">
+    <nav class="tabs" aria-label="Pages">
+      <ul>
+        <li><a href="/">Trends</a></li>
+        <li><a href="/today">Today’s news</a></li>
+        <li><a href="/reading" aria-current="page">Reading list</a></li>
+        <li><a href="/conferences">Conferences</a></li>
+      </ul>
+    </nav>
+    <p class="mast__line">Updated 14 November 2026</p>
+  </div>
+  <p class="mast__name">
+    <svg class="mast__mark" viewBox="0 0 68 65" aria-hidden="true" focusable="false">
+      <rect x="0" y="42" width="20" height="5" fill="currentColor"/>
+      <rect x="0" y="50.5" width="20" height="2.5" fill="currentColor"/><rect x="0" y="56.5" width="20" height="2.5" fill="currentColor"/><rect x="0" y="62.5" width="20" height="2.5" fill="currentColor"/>
+      <rect x="24" y="24" width="20" height="5" fill="currentColor"/>
+      <rect x="24" y="32.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="38.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="44.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="50.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="56.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="62.5" width="20" height="2.5" fill="currentColor"/>
+      <rect x="48" y="0" width="20" height="5" fill="var(--color-accent)"/>
+      <rect x="48" y="8.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="14.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="20.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="26.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="32.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="38.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="44.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="50.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="56.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="62.5" width="20" height="2.5" fill="currentColor"/>
+    </svg>
+    <a href="/">AI Trend Tracker</a>
+  </p>
+</header>
+
+<main class="page">
+  <section id="reading" class="chapter chapter--page" aria-labelledby="reading-h">
+    <header class="chapter__head">
+      <h1 class="chapter__title" id="reading-h">The reading list</h1>
+      <p class="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
+    </header>
+
+    <!-- KEY MOMENT: This week. One lead, six short rows. -->
+    <section id="week" class="band week" aria-labelledby="week-h">
+      <div class="band__head">
+        <h2 id="week-h">This week</h2>
+        <p class="week__window">The past seven days, to 14 November. Chosen by rule from the lists below: stories that name a trend the site tracks, launches first.</p>
+      </div>
+
+      <div class="week__body">
+        <div class="week__lead">
+          <article class="top-story" aria-label="The story of the week">
+            <p class="top-story__kicker">The week’s lab launch: Anthropic, discussed on Hacker News</p>
+            <h3><a href="https://www.anthropic.com/claude-fable-and-mythos-5-2" target="_blank" rel="noopener noreferrer">Claude Fable 5.2 and Mythos 5.2</a></h3>
+            <p class="top-story__meta">
+              Anthropic ·
+              <a href="https://news.ycombinator.com/item?id=50429906" target="_blank" rel="noopener noreferrer">1,000 points on Hacker News</a>
+              · 9 Nov
+            </p>
+            <span class="tags top-story__tags">
+              <span class="vh">Counted in the trends: </span>
+              <a class="tag" href="/#product-claude">Claude</a>
+            </span>
+            <p class="top-story__why">
+              <strong>Why it matters:</strong> Claude on Hacker News over three months: steady, with 77 stories a week in the last 4 weeks against 76 in the 4 weeks before.
+            </p>
+            <ul class="top-story__also" aria-label="Other posts on the same story">
+              <li>Same story: <a href="https://www.oneusefulthing.org/p/fable-52-and-jagged-agi" target="_blank" rel="noopener noreferrer">Fable 5.2 and Jagged AGI</a> (One Useful Thing)</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="week__rows">
+          <div class="ledger ledger--compact">
+            <ol aria-label="The rest of the week" start="2">
+              <li>
+                <span class="ledger__main">
+                  <a href="https://caleb.software/posts/claude-to-pi.html" target="_blank" rel="noopener noreferrer">Goodbye Claude, hello Pi</a>
+                </span>
+                <span class="ledger__data">
+                  <a class="tag" href="/#product-claude"><span class="vh">Trend: </span>Claude</a>
+                  <span><a href="https://news.ycombinator.com/item?id=50410107" target="_blank" rel="noopener noreferrer">829<span class="ledger__unit"> points</span></a></span>
+                </span>
+              </li>
+              <li>
+                <span class="ledger__main">
+                  <span class="ledger__pick">Lab launch · Google DeepMind</span>
+                  <a href="https://deepmind.google/blog/introducing-gemini-4-hydrogen/" target="_blank" rel="noopener noreferrer">Introducing Gemini 4 Hydrogen</a>
+                </span>
+                <span class="ledger__data">
+                  <a class="tag" href="/#product-gemini"><span class="vh">Trend: </span>Gemini</a>
+                  <span><a href="https://news.ycombinator.com/item?id=50471431" target="_blank" rel="noopener noreferrer">565<span class="ledger__unit"> points</span></a></span>
+                </span>
+                <p class="note"><strong>Editor’s note:</strong> read it beside Gemini 4 Carbon, released two days earlier.</p>
+              </li>
+              <li>
+                <span class="ledger__main">
+                  <a href="https://github.com/thisisme6598/gemini_files/" target="_blank" rel="noopener noreferrer">Google Gemini routes personal Drive files and emails to human annotators</a>
+                </span>
+                <span class="ledger__data">
+                  <a class="tag" href="/#product-gemini"><span class="vh">Trend: </span>Gemini</a>
+                  <span><a href="https://news.ycombinator.com/item?id=50429426" target="_blank" rel="noopener noreferrer">737<span class="ledger__unit"> points</span></a></span>
+                </span>
+              </li>
+              <li>
+                <span class="ledger__main">
+                  <a href="https://www.thestateofai.com/news/goldman-sachs-claude-code-traders-bankers" target="_blank" rel="noopener noreferrer">Goldman Sachs is pulling Claude Code from its bankers and traders</a>
+                </span>
+                <span class="ledger__data">
+                  <a class="tag" href="/#product-claude-code"><span class="vh">Trend: </span>Claude Code</a>
+                  <span><a href="https://news.ycombinator.com/item?id=50415628" target="_blank" rel="noopener noreferrer">905<span class="ledger__unit"> points</span></a></span>
+                </span>
+              </li>
+              <li>
+                <span class="ledger__main">
+                  <a href="https://pietromiotti.com/latest/maya-site" target="_blank" rel="noopener noreferrer">My AI agents found an unmapped Maya site?</a>
+                </span>
+                <span class="ledger__data">
+                  <a class="tag" href="/data/topics#topic-agents"><span class="vh">Trend: </span>AI agents</a>
+                  <span><a href="https://news.ycombinator.com/item?id=50452455" target="_blank" rel="noopener noreferrer">1,035<span class="ledger__unit"> points</span></a></span>
+                </span>
+              </li>
+              <li>
+                <span class="ledger__main">
+                  <a href="https://www.cbsnews.com/news/united-airlines-bans-ai-agents-booking-flights/" target="_blank" rel="noopener noreferrer">United Airlines bans AI agents from booking flights on behalf of travelers</a>
+                </span>
+                <span class="ledger__data">
+                  <a class="tag" href="/data/topics#topic-agents"><span class="vh">Trend: </span>AI agents</a>
+                  <span><a href="https://news.ycombinator.com/item?id=50458900" target="_blank" rel="noopener noreferrer">677<span class="ledger__unit"> points</span></a></span>
+                </span>
+              </li>
+            </ol>
+          </div>
+          <p class="week__left">Left out because they name no tracked trend: <a href="#news">Anthropic IPO</a> (996 points) and one more. They are in the lists below.</p>
+        </div>
+      </div>
+
+      <nav class="jumps" aria-label="All the lists">
+        <b>All the lists:</b>
+        <a href="#news">In the news</a>
+        <a href="#papers">Papers</a>
+        <a href="#analysis">From the analysts</a>
+        <a href="#announcements">Lab announcements</a>
+        <a href="#launches">Launches</a>
+        <a href="#code">Repositories</a>
+        <a href="#models">Models trending</a>
+        <a href="#labs">New from the labs</a>
+      </nav>
+    </section>
+
+    <!-- The page as it is today, from here down. -->
+    <div class="pair">
+      <section id="news" class="band" aria-labelledby="news-h">
+        <div class="band__head">
+          <h2 id="news-h">In the news</h2>
+          <p>The most upvoted AI stories on Hacker News in the past seven days.</p>
+        </div>
+        <div class="ledger" style="--cells: 5.5rem 4.25rem">
+          <div class="ledger__head" aria-hidden="true"><span>Story</span><span class="ledger__data"><span>Points</span><span>Comments</span></span></div>
+          <ol aria-labelledby="news-h">
+            <li>
+              <span class="ledger__main"><a href="https://pietromiotti.com/latest/maya-site">My AI agents found an unmapped Maya site?</a><span class="ledger__note">pietromiotti.com</span></span>
+              <span class="ledger__data"><span class="ledger__mag"><span class="ledger__bar" aria-hidden="true"><span style="width:100%"></span></span><span class="ledger__num">1K<span class="ledger__unit"> points</span></span></span><span><a href="https://news.ycombinator.com/item?id=50452455">392<span class="ledger__unit"> comments</span></a></span><span class="ledger__extra">11 Nov</span></span>
+            </li>
+            <li>
+              <span class="ledger__main"><a href="https://www.anthropic.com/claude-fable-and-mythos-5-2">Claude Fable 5.2 and Mythos 5.2</a><span class="ledger__note">anthropic.com</span></span>
+              <span class="ledger__data"><span class="ledger__mag"><span class="ledger__bar" aria-hidden="true"><span style="width:96.6%"></span></span><span class="ledger__num">1K<span class="ledger__unit"> points</span></span></span><span><a href="https://news.ycombinator.com/item?id=50429906">8<span class="ledger__unit"> comments</span></a></span><span class="ledger__extra">9 Nov</span></span>
+            </li>
+            <li>
+              <span class="ledger__main"><a href="https://ipo.anthropic.com/us/">Anthropic IPO</a><span class="ledger__note">ipo.anthropic.com</span></span>
+              <span class="ledger__data"><span class="ledger__mag"><span class="ledger__bar" aria-hidden="true"><span style="width:96.2%"></span></span><span class="ledger__num">996<span class="ledger__unit"> points</span></span></span><span><a href="https://news.ycombinator.com/item?id=50465829">911<span class="ledger__unit"> comments</span></a></span><span class="ledger__extra">12 Nov</span></span>
+            </li>
+          </ol>
+          <p class="ledger__foot"><button type="button" class="ledger__toggle" aria-expanded="false">Show more</button><a class="more" href="https://hn.algolia.com/">More on Hacker News →</a></p>
+        </div>
+        <p class="source">Source: <b>Hacker News</b>, collected 14 Nov.</p>
+      </section>
+
+      <section id="papers" class="band" aria-labelledby="papers-h">
+        <div class="band__head">
+          <h2 id="papers-h">Papers getting attention</h2>
+          <p>Recent papers ranked by reader upvotes on Hugging Face.</p>
+        </div>
+        <div class="ledger ledger--paper" style="--cells: 5.5rem 2.25rem">
+          <div class="ledger__head" aria-hidden="true"><span>Paper</span><span class="ledger__data"><span>Upvotes</span><span>Code</span></span></div>
+          <ol aria-labelledby="papers-h">
+            <li>
+              <span class="ledger__main"><a href="https://arxiv.org/abs/2611.14033">Few-Step Streaming Video Generation via Condition Shifting</a></span>
+              <span class="ledger__data"><span class="ledger__mag"><span class="ledger__bar" aria-hidden="true"><span style="width:100%"></span></span><span class="ledger__num">88<span class="ledger__unit"> upvotes</span></span></span><span class="ledger__extra">10 Nov</span><span></span></span>
+            </li>
+            <li>
+              <span class="ledger__main"><a href="https://arxiv.org/abs/2611.15777">SO-Arena: Benchmarking the Capability Spectrum and Reliability of System One Models</a></span>
+              <span class="ledger__data"><span class="ledger__mag"><span class="ledger__bar" aria-hidden="true"><span style="width:95.5%"></span></span><span class="ledger__num">84<span class="ledger__unit"> upvotes</span></span></span><span class="ledger__extra">11 Nov</span><span><a href="https://github.com/holdrain/SO-Arena">code</a></span></span>
+            </li>
+            <li>
+              <span class="ledger__main"><a href="https://arxiv.org/abs/2611.14320">Don’t Just Trust Your Memory: Evidence-Linked Memory Reduces Memory-Induced Degradation in LLM Agents</a></span>
+              <span class="ledger__data"><span class="ledger__mag"><span class="ledger__bar" aria-hidden="true"><span style="width:79.5%"></span></span><span class="ledger__num">70<span class="ledger__unit"> upvotes</span></span></span><span class="ledger__extra">10 Nov</span><span><a href="https://github.com/yukyeongleee/wikitrace">code</a></span></span>
+            </li>
+          </ol>
+          <p class="ledger__foot"><button type="button" class="ledger__toggle" aria-expanded="false">Show more</button><a class="more" href="https://huggingface.co/papers">More papers →</a></p>
+        </div>
+        <p class="source">Source: <b>Hugging Face Daily Papers</b>, collected 14 Nov.</p>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="colophon">
+  <p>Mockup C for issue #76: one lead and six short rows. The lists below “In the news” and “Papers getting attention” are unchanged and not drawn here.</p>
+</footer>
+
+</body>
+</html>
