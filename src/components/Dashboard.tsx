@@ -202,7 +202,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         <div className="mast__top">
           <PageTabs current="trends" />
           <p className="mast__line">
-            {latestWeek ? `Week of ${fmtWeek(latestWeek)}` : "First edition in preparation"}
+            {latestWeek ? `Updated ${fmtDate(latest.generatedAt)}` : "First edition in preparation"}
           </p>
         </div>
         <h1 className="mast__name">
@@ -233,8 +233,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
             </h2>
             <div className="lede__dek">
               <p className="lede__meta">
-                Updated {fmtDate(latest.generatedAt)}
-                {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv last week</>}
+                {latestWeek && <>Latest week: {fmtWeek(latestWeek)}</>}
+                {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv that week</>}
                 {" · "}Showing {HORIZONS[horizon].label}: charts cover {weeks.length} weeks, and each change is the {compared}.
               </p>
             </div>
@@ -418,6 +418,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
             </div>
 
+            {/* The key sits above the bars it explains, so a grey +55% beside a blue +19% reads at once. */}
+            <p className="mom__key">
+              <span>
+                <i className="mom__chip mom__chip--rising" aria-hidden="true" />
+                Rising
+              </span>
+              <span>
+                <i className="mom__chip mom__chip--cooling" aria-hidden="true" />
+                Cooling
+              </span>
+              <span>
+                <i className="mom__chip" aria-hidden="true" />
+                Grey: too small to call, or within the product’s usual weekly swing
+              </span>
+            </p>
+
             <div className="mom">
               <div className="trend-cols" aria-hidden="true">
                 <span>Product</span>
@@ -495,8 +511,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               })}
               <p className="mom__note">
                 Each group shows its five most discussed products first. Bars run to ±{Math.round(productStoryExtent * 100)}%
-                (discussion) and ±{Math.round(productViewExtent * 100)}% (interest). Grey: too small to call, or within
-                the product’s usual weekly swing. Under {PRODUCT_MIN_STORIES} stories a week, discussion is not called.
+                (discussion) and ±{Math.round(productViewExtent * 100)}% (interest). Under {PRODUCT_MIN_STORIES} stories
+                a week, discussion is not called.
               </p>
               <SourceLine names="Hacker News story titles (discussion); Wikipedia page views (public interest)" keys={["hnProducts", "wikiProducts"]} />
             </div>
