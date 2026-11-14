@@ -10,9 +10,9 @@
  *      hides and pins kept by hand in data/editorial.json.
  *   4. Choose: an item qualifies when its headline carries a trend tag (`trendTags`), when it is a
  *      frontier lab's launch (`isLabLaunch`), or when the editor pinned it. Each is grouped under
- *      its first tag. Groups go pinned first, then lab launches, then by their trend's call: rising,
- *      steady, cooling, then the trends too noisy or too few to call. At most two items go in a
- *      group and seven in all; a pin or a lab launch is never cut.
+ *      its first tag. Groups go pinned first, then lab launches, then by their biggest story on Hacker
+ *      News, so the week's most discussed stories lead whichever way their trend is moving. At most
+ *      two items go in a group and seven in all; a pin or a lab launch is never cut.
  *
  * Nothing here is stored, and nothing about the reader is read: the block is rebuilt with the
  * page each day. Like Today's, it reads the editor's file and the trend figures, and changes neither.
@@ -70,13 +70,6 @@ export type Week = {
   groups: WeekGroup[];
   /** The biggest of the week's stories the block leaves out because they name no tracked trend, biggest first. */
   leftOut: Finished<WeekItem>[];
-};
-
-/** The order trends are taken in, by their call; anything else comes last. */
-const CALL_ORDER = ["rising", "steady", "cooling", "too noisy to call", "too few to call"];
-const callRank = (call: string | undefined) => {
-  const at = CALL_ORDER.indexOf(call ?? "");
-  return at < 0 ? CALL_ORDER.length : at;
 };
 
 /** The week's items from the eight lists, one per article, ranked and finished. */
@@ -170,11 +163,9 @@ export function buildWeek(
     draft.candidates.push({ entry, at, must });
   });
 
-  const rank = (d: Draft) => [Math.min(...d.candidates.map((c) => c.must)), callRank(d.reading?.call), d.first];
-  const ordered = [...drafts.values()].sort((a, b) => {
-    const [x, y] = [rank(a), rank(b)];
-    return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
-  });
+  // `first` is the place of a group's biggest story in the ranked pool, so it orders groups by size.
+  const must = (d: Draft) => Math.min(...d.candidates.map((c) => c.must));
+  const ordered = [...drafts.values()].sort((a, b) => must(a) - must(b) || a.first - b.first);
 
   let total = 0;
   const groups: WeekGroup[] = [];

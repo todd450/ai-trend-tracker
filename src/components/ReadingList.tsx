@@ -414,8 +414,8 @@ export function ReadingList() {
                   day: the items from the seven days before the data was collected whose headline names a product or
                   topic the site tracks, as Today’s tags read them, grouped under the first one named. Posts about one
                   event are gathered as on Today’s page. A frontier lab’s launch discussed twice on Hacker News, and a
-                  post the editor pinned, always make it and come first; the other trends follow by their call over
-                  three months, rising, then steady, then cooling, then those too noisy or too few to call. A trend
+                  post the editor pinned, always make it and come first; the other trends follow by their biggest story on Hacker News,
+                  whichever way the trend is moving. A trend
                   shows at most two items, biggest on Hacker News first, and the block at most seven. The line under
                   each trend says how its Hacker News stories have moved, read from the tracker’s own figures; it is
                   about the trend, not about the stories under it. A big story that names no tracked trend is left

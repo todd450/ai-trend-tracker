@@ -119,7 +119,7 @@ test("at most two items to a group and seven in all", () => {
   assert.equal(week.MAX_ITEMS, 7);
 });
 
-test("groups go rising first, then steady, then the rest; within a call, biggest story first", () => {
+test("groups go by their biggest story on Hacker News, whatever the trend's call: a small rising story does not lead", () => {
   const w = week.buildWeek(
     data({
       stories: [story(GEMINI("steady but big"), 900), story(AGENTS("cooling"), 950), story(CLAUDE_CODE("rising"), 100), story(DEEPSEEK("steady"), 400)],
@@ -129,7 +129,7 @@ test("groups go rising first, then steady, then the rest; within a call, biggest
   );
   assert.deepEqual(
     w.groups.map((g: any) => g.tag.name),
-    ["Claude Code", "Gemini", "DeepSeek", "AI agents"],
+    ["AI agents", "Gemini", "DeepSeek", "Claude Code"],
   );
 });
 
