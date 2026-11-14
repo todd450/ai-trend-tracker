@@ -6,10 +6,11 @@ import { SITE_MAKER_URL } from "@/lib/site";
 import { fmtDate, latest } from "@/lib/trends";
 
 /**
- * The masthead of a page inside the site: the page tabs, a dateline, and the name as a link home.
+ * The masthead of a page inside the site, on one line where there is room: the name, small, as a
+ * link home; the page tabs in the middle, where the eye lands; and the dateline at the far end.
  * The trend pages set the name as their h1, and the landing page asks for the same with `heading`;
  * every other page keeps its h1 for its own title.
- * A page with no time-span bar beneath asks for `ruled`, so the rule under the name is on every page.
+ * A page with no time-span bar beneath asks for `ruled`, so the rule under the tabs is on every page.
  */
 export function SiteMast({
   current,
@@ -20,26 +21,26 @@ export function SiteMast({
   current: Page;
   line: string;
   ruled?: boolean;
-  /** The landing page: the name is the page's h1, and is not a link to the page it is on. */
+  /** The name is the page's h1, and is not a link to the page it is on. */
   heading?: boolean;
 }) {
   return (
     <header className={ruled ? "mast mast--ruled" : "mast"}>
-      <div className="mast__top">
+      <div className="mast__row">
+        {heading ? (
+          <h1 className="mast__name">
+            <Logo className="mast__mark" />
+            AI Trend Tracker
+          </h1>
+        ) : (
+          <p className="mast__name">
+            <Logo className="mast__mark" />
+            <Link href="/">AI Trend Tracker</Link>
+          </p>
+        )}
         <PageTabs current={current} />
         <p className="mast__line">{line}</p>
       </div>
-      {heading ? (
-        <h1 className="mast__name">
-          <Logo className="mast__mark" />
-          AI Trend Tracker
-        </h1>
-      ) : (
-        <p className="mast__name">
-          <Logo className="mast__mark" />
-          <Link href="/">AI Trend Tracker</Link>
-        </p>
-      )}
     </header>
   );
 }

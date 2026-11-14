@@ -2,14 +2,12 @@ import Link from "next/link";
 import { DataIndex } from "@/components/DataIndex";
 import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { LeadChart } from "@/components/LeadChart";
-import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
 import { TrackRecord } from "@/components/TrackRecord";
 import { CHECK_AFTER, FEW_CALLS, RECORD_WEEKS, weeksNeeded } from "@/lib/record";
 import { Bar, extentOf } from "@/components/MomentumBars";
 import { type Product } from "@/lib/products";
-import { PageTabs } from "@/components/PageTabs";
-import { Colophon } from "@/components/SiteFrame";
+import { Colophon, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing } from "@/lib/briefing";
@@ -218,18 +216,11 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         Skip to the data
       </a>
 
-      <header className="mast">
-        <div className="mast__top">
-          <PageTabs current="trends" />
-          <p className="mast__line">
-            {latestWeek ? `Updated ${fmtDate(latest.generatedAt)}` : "First edition in preparation"}
-          </p>
-        </div>
-        <h1 className="mast__name">
-          <Logo className="mast__mark" />
-          AI Trend Tracker
-        </h1>
-      </header>
+      <SiteMast
+        heading
+        current="trends"
+        line={latestWeek ? `Updated ${fmtDate(latest.generatedAt)}` : "First edition in preparation"}
+      />
 
       <div className="bar">
         <div className="bar__inner">

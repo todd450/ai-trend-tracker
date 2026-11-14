@@ -125,98 +125,42 @@ code {
 /* ---------------------------------------------------------- masthead */
 
 .mast {
-  display: grid;
-  gap: var(--space-xs);
-  justify-items: center;
-  text-align: center;
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--space-md) var(--page-gutter) 0;
+  padding: var(--space-sm) var(--page-gutter) 0;
 }
 
-.mast__line {
-  font-size: var(--text-sm);
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
+/* Two lines until there is room for one: the name and the dateline above, the tabs beneath. */
+.mast__row {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    "name line"
+    "tabs tabs";
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--space-md);
+  row-gap: var(--space-2xs);
 }
 
-/* The pages and the dateline share the line above the name: the pages to the left,
- * the dateline to the right, both centred and stacked on a phone. */
-.mast__top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: center;
-  column-gap: var(--space-lg);
-  width: 100%;
+/* A page with no time-span bar still gets the hairline under the tabs, in the place the bar's top rule takes. */
+.mast--ruled .mast__row {
+  border-bottom: var(--rule-hair) solid var(--color-rule-strong);
 }
 
-@media (min-width: 40rem) {
-  .mast__top {
-    justify-content: space-between;
-  }
-}
-
-.tabs ul {
-  display: flex;
-  column-gap: var(--space-lg);
-}
-
-.tabs a {
-  display: inline-block;
-  padding-block: var(--space-xs);
-  font-size: var(--text-base);
-  font-weight: 500;
-  color: var(--color-ink-2);
-  text-decoration-line: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: transparent;
-  text-underline-offset: 0.45em;
-}
-
-@media (hover: hover) {
-  .tabs a:hover {
-    color: var(--color-ink);
-    text-decoration-color: var(--color-rule);
-  }
-}
-
-/* A phone has room for four short names on one line: "Today", not "Today’s news". */
-@media (max-width: 39.99rem) {
-  .tabs ul {
-    column-gap: var(--space-md);
-  }
-
-  .tabs__more {
-    display: none;
-  }
-}
-
-/* The narrowest phones (320px): a smaller gap keeps "Conferences" inside the edge. */
-@media (max-width: 22rem) {
-  .tabs ul {
-    column-gap: var(--space-sm);
-  }
-}
-
-.tabs a[aria-current="page"],
-.tabs a[aria-current="page"]:hover {
-  color: var(--color-ink);
-  text-decoration-color: var(--color-accent);
-  text-decoration-thickness: 3px;
-}
-
+/* The name is a signature in the corner, not the headline: the tabs are what the masthead is for. */
 .mast__name {
-  /* Set here, not left to the heading rule: the name is a heading on one page and a link home on the other. */
+  /* Set here, not left to the heading rule: the name is a heading on some pages and a link home on others. */
+  grid-area: name;
   font-family: var(--font-display);
-  font-size: var(--text-mast);
+  font-size: var(--text-lg);
   font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
   display: flex;
   align-items: baseline;
-  justify-content: center;
-  gap: 0.28em;
+  gap: 0.3em;
 }
 
 /* Sized to the capital height, sitting on the baseline of the name. */
@@ -226,12 +170,108 @@ code {
   width: auto;
 }
 
-/* A page with no time-span bar still gets the hairline under the name, in the place the bar's top rule takes. */
-.mast--ruled::after {
-  content: "";
-  justify-self: stretch;
-  margin-top: calc(var(--space-sm) - var(--space-xs));
-  border-top: var(--rule-hair) solid var(--color-rule-strong);
+/* Small on a phone, so the date keeps to the name's line; on the narrowest it breaks evenly. */
+.mast__line {
+  grid-area: line;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  text-wrap: balance;
+}
+
+.tabs {
+  grid-area: tabs;
+}
+
+/* A phone gives each tab a quarter of the line, its pictogram above a short name: "Today", not "Today’s news". */
+.tabs ul {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  justify-content: space-between;
+}
+
+/* The mark of the page you are on is the tab's own bottom edge, so it sits on the rule under the masthead. */
+.tabs a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3xs);
+  padding-block: var(--space-xs) calc(var(--space-xs) - var(--rule-heavy));
+  border-bottom: var(--rule-heavy) solid transparent;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-ink-2);
+  text-decoration: none;
+}
+
+.tabs__icon {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tabs__more {
+  display: none;
+}
+
+@media (hover: hover) {
+  .tabs a:hover {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-rule);
+  }
+}
+
+.tabs a[aria-current="page"],
+.tabs a[aria-current="page"]:hover {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-accent);
+}
+
+.tabs a[aria-current="page"] .tabs__icon {
+  color: var(--color-accent);
+}
+
+/* With more room the tabs gather in the middle at reading size, pictogram beside the full name. */
+@media (min-width: 40rem) {
+  .mast__line {
+    font-size: var(--text-sm);
+  }
+
+  .tabs ul {
+    display: flex;
+    justify-content: center;
+    column-gap: var(--space-xl);
+  }
+
+  .tabs a {
+    flex-direction: row;
+    gap: var(--space-xs);
+    padding-block: var(--space-sm) calc(var(--space-sm) - var(--rule-heavy));
+    font-size: var(--text-lg);
+  }
+
+  .tabs__more {
+    display: inline;
+  }
+}
+
+/* A wide screen has one line: the name at one end, the dateline at the other, the tabs dead centre. */
+@media (min-width: 68rem) {
+  .mast__row {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "name tabs line";
+    column-gap: var(--space-lg);
+  }
+
+  .tabs a {
+    padding-block: var(--space-md) calc(var(--space-md) - var(--rule-heavy));
+  }
 }
 
 /* The sections and the time-span switch stay in view while the page scrolls. */
@@ -239,7 +279,6 @@ code {
   position: sticky;
   top: 0;
   z-index: 5;
-  margin-top: var(--space-sm);
   background: var(--color-paper);
 }
 

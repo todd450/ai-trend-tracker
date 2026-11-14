@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
 import { Spark } from "@/components/MomentumBars";
-import { PageTabs } from "@/components/PageTabs";
+import { SiteMast } from "@/components/SiteFrame";
 import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
@@ -217,18 +216,7 @@ export function Programme({ c }: { c: Conference }) {
 
 /** The masthead shared by the calendar and each event's page. The calendar has no bar beneath, so it asks for `ruled`. */
 export function ConfMast({ ruled = false }: { ruled?: boolean }) {
-  return (
-    <header className={ruled ? "mast mast--ruled" : "mast"}>
-      <div className="mast__top">
-        <PageTabs current="conferences" />
-        <p className="mast__line">Updated {fmtDate(today)}</p>
-      </div>
-      <p className="mast__name">
-        <Logo className="mast__mark" />
-        <Link href="/">AI Trend Tracker</Link>
-      </p>
-    </header>
-  );
+  return <SiteMast ruled={ruled} current="conferences" line={`Updated ${fmtDate(today)}`} />;
 }
 
 export function ConfColophon() {
