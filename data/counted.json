@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-14T18:58:46.955Z",
+ "generatedAt": "2026-11-14T19:25:18.474Z",
  "moves": [
   {
    "horizon": "oneMonth",
@@ -39,28 +39,36 @@
    "last": "2026-11-02",
    "stories": [
     {
+     "title": "American Voters Overwhelmingly Reject AI Data Centers",
+     "url": "https://www.404media.co/american-voters-overwhelmingly-reject-ai-data-centers/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50373505",
+     "points": 61,
+     "comments": 2,
+     "createdAt": "2026-11-05T00:43:13Z"
+    },
+    {
+     "title": "Fiber lasts decades, GPUs last three years: the AI boom isn't the dot-com boom [video]",
+     "url": "https://www.youtube.com/watch?v=MENoB3Rex28",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50302407",
+     "points": 42,
+     "comments": 54,
+     "createdAt": "2026-10-30T11:16:15Z"
+    },
+    {
+     "title": "Most Americans Say AI Is Bad for Society, Oppose More Data Centers",
+     "url": "https://abcnews.com/Politics/americans-ai-bad-society-oppose-data-centers-abcpostipsos/story?id=137414085",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50200843",
+     "points": 93,
+     "comments": 73,
+     "createdAt": "2026-10-22T20:51:23Z"
+    },
+    {
      "title": "Banks are now trying to offload the AI data center debt they just underwrote",
      "url": "https://startupfortune.com/banks-are-now-trying-to-offload-the-ai-data-center-debt-they-just-underwrote/",
      "discussionUrl": "https://news.ycombinator.com/item?id=50092664",
      "points": 386,
      "comments": 277,
      "createdAt": "2026-10-14T18:32:52Z"
-    },
-    {
-     "title": "Intel D270 GPU AI Accelerator–Up to 480 GB LPDDR5X",
-     "url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/data-center-gpu/d-series.html",
-     "discussionUrl": "https://news.ycombinator.com/item?id=50063365",
-     "points": 308,
-     "comments": 179,
-     "createdAt": "2026-10-12T21:35:35Z"
-    },
-    {
-     "title": "AI models may be capable of self-replicating without access to a datacenter",
-     "url": "https://www.anthropic.com/research/self-replicating-ai",
-     "discussionUrl": "https://news.ycombinator.com/item?id=50061603",
-     "points": 118,
-     "comments": 116,
-     "createdAt": "2026-10-12T19:25:29Z"
     }
    ]
   },
@@ -128,28 +136,36 @@
    "last": "2026-11-02",
    "stories": [
     {
-     "title": "Pentagon says overreliance on AI contributed to missile strike on Iran school",
-     "url": "https://www.bloomberg.com/graphics/2026-iran-school-attack/",
-     "discussionUrl": "https://news.ycombinator.com/item?id=49806430",
-     "points": 974,
-     "comments": 553,
-     "createdAt": "2026-09-22T19:03:38Z"
+     "title": "Google will turn off search for schools that reject AI",
+     "url": "https://www.nytimes.com/2026/11/03/us/google-search-schools-restrict-ai.html",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50353192",
+     "points": 677,
+     "comments": 471,
+     "createdAt": "2026-11-03T15:25:47Z"
     },
     {
-     "title": "AI is just unauthorised plagiarism at a bigger scale",
-     "url": "https://axelk.ee/ai-is-just-unauthorised-plagiarism-at-a-bigger-scale/",
-     "discussionUrl": "https://news.ycombinator.com/item?id=48222383",
-     "points": 824,
-     "comments": 733,
-     "createdAt": "2026-05-21T13:38:12Z"
+     "title": "Computer Science Programs Lose Students as AI Replaces Jobs",
+     "url": "https://www.bloomberg.com/news/articles/2026-10-29/computer-science-degree-programs-lose-students-as-ai-takes-jobs",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50321065",
+     "points": 32,
+     "comments": 20,
+     "createdAt": "2026-10-31T22:57:27Z"
     },
     {
-     "title": "Norway imposes near ban on AI in elementary school",
-     "url": "https://www.reuters.com/technology/norway-imposes-near-ban-ai-elementary-school-2026-06-19/",
-     "discussionUrl": "https://news.ycombinator.com/item?id=48600093",
-     "points": 823,
-     "comments": 588,
-     "createdAt": "2026-06-19T16:03:15Z"
+     "title": "AI is devastating higher education, but the system was broken",
+     "url": "https://theconversation.com/friday-essay-ai-is-devastating-higher-education-but-the-system-was-already-broken-292988",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50215398",
+     "points": 22,
+     "comments": 1,
+     "createdAt": "2026-10-23T21:11:59Z"
+    },
+    {
+     "title": "Teachers Using AI Say It Frees Up Time for What Matters Most",
+     "url": "https://news.gallup.com/poll/715364/teachers-using-say-frees-time-matters-mostost.aspx",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50100386",
+     "points": 8,
+     "comments": 2,
+     "createdAt": "2026-10-15T07:20:17Z"
     }
    ]
   },
@@ -189,28 +205,36 @@
    "last": "2026-11-02",
    "stories": [
     {
-     "title": "Don't fall into the anti-AI hype",
-     "url": "https://antirez.com/news/158",
-     "discussionUrl": "https://news.ycombinator.com/item?id=46574276",
-     "points": 1296,
-     "comments": 1631,
-     "createdAt": "2026-01-11T10:26:18Z"
+     "title": "Cuban: Facebook knowingly runs AI deepfake scam ads; docs say $16B fraud revenue",
+     "url": "https://finance.yahoo.com/technology/ai/articles/mark-cuban-says-facebook-knowingly-213000020.html",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50385870",
+     "points": 525,
+     "comments": 234,
+     "createdAt": "2026-11-05T23:09:57Z"
     },
     {
-     "title": "Israel creates fake think tank in likely attempt to dupe AI chatbots",
-     "url": "https://responsiblestatecraft.org/israel-influence-chatgpt/",
-     "discussionUrl": "https://news.ycombinator.com/item?id=49337392",
-     "points": 1071,
-     "comments": 881,
-     "createdAt": "2026-08-17T20:46:10Z"
+     "title": "Valve Responds to Developers Fearing AI Slop and Clones",
+     "url": "https://www.invenglobal.com/articles/27761/valve-responds-to-developers-fearing-ai-slop-and-clones",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50273192",
+     "points": 69,
+     "comments": 87,
+     "createdAt": "2026-10-28T13:27:24Z"
     },
     {
-     "title": "AI slop is killing online communities",
-     "url": "https://rmoff.net/2026/05/06/ai-slop-is-killing-online-communities/",
-     "discussionUrl": "https://news.ycombinator.com/item?id=48053203",
-     "points": 834,
-     "comments": 734,
-     "createdAt": "2026-05-07T18:46:25Z"
+     "title": "Google staff resign in backlash over its AI contracts with military",
+     "url": "https://www.bbc.com/news/articles/cmreyvepnv0po",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50186043",
+     "points": 128,
+     "comments": 26,
+     "createdAt": "2026-10-21T19:14:21Z"
+    },
+    {
+     "title": "Android gets AI defenses against messaging scams, fake calls",
+     "url": "https://www.bleepingcomputer.com/news/security/android-gets-ai-defenses-against-messaging-scams-fake-calls/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50126802",
+     "points": 8,
+     "comments": 0,
+     "createdAt": "2026-10-17T01:05:28Z"
     }
    ]
   }

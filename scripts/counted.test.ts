@@ -7,12 +7,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   COUNTED_MAX,
+  COUNTED_WEEKS,
   countedFor,
   latestSpan,
   phraseIn,
   pickPapers,
   pickStories,
   risingMoves,
+  storiesByWeek,
   titleMatches,
   within,
   type CountedFile,
@@ -88,57 +90,118 @@ test("a paper matches a topic phrase in its title or its abstract, as a run of w
 
 // ------------------------------------------------------------ choosing the stories
 
-test("stories: the most points first, at most three, each matching a search and inside the window", () => {
+const at = (day: string) => `${day}T10:00:00.000Z`;
+/** Two weeks, 26 Oct to 8 Nov: too short for a story from each week, so the most points overall. */
+const SHORT: Span = { first: "2026-10-26", last: "2026-11-02" };
+const IN_SHORT = at("2026-10-28");
+
+test("stories: a window of three weeks or more is read week by week, a shorter one as a whole", () => {
+  assert.ok(storiesByWeek(SPAN));
+  assert.ok(storiesByWeek({ first: "2026-10-19", last: "2026-11-02" }), "three weeks");
+  assert.ok(!storiesByWeek(SHORT));
+  assert.ok(!storiesByWeek({ first: "2026-11-02", last: "2026-11-02" }));
+});
+
+test("stories, week by week: the most-discussed from each week, newest week first, each matching a search and inside the window", () => {
   const searches = ["AI data center", "AI GPU"];
   const kept = pickStories(
     [
-      story("Banks offload the AI data center debt", 386),
-      story("Intel D270 GPU AI Accelerator", 308),
-      story("AI models may self-replicate without a datacenter", 900), // matches no search here
-      story("A new AI GPU from nowhere", 50),
-      story("AI data center in orbit", 120),
+      story("Banks offload the AI data center debt", 386, at("2026-10-14")),
+      story("Intel D270 GPU AI Accelerator", 308, at("2026-10-12")), // the banks' week, with fewer points
+      story("AI models may self-replicate without a datacenter", 900, at("2026-10-13")), // matches no search here
+      story("Most Americans oppose a new AI data center", 93, at("2026-10-22")),
+      story("Fiber lasts decades, an AI GPU three years", 42, at("2026-10-30")),
+      story("Voters reject the AI data center", 61, at("2026-11-05")),
+      story("AI data center stocks slide", 56, at("2026-11-04")),
       story("Old news on AI GPU prices", 999, "2026-10-11T23:00:00.000Z"), // the week before
       story("Next week's AI GPU", 999, "2026-11-09T00:00:00.000Z"), // after the window
     ],
     searches,
     SPAN,
   );
-  assert.deepEqual(kept.map((s) => s.points), [386, 308, 120]);
-  assert.ok(kept.length <= COUNTED_MAX);
+  assert.deepEqual(kept.map((s) => s.points), [61, 42, 93, 386], "the latest week first, whatever its points");
   for (const s of kept) {
     assert.ok(searches.some((q) => titleMatches(s.title, q)), s.title);
     assert.ok(within(s.createdAt, SPAN), s.title);
   }
 });
 
-test("stories: one story submitted twice is one item, by link or by headline, keeping the higher-scoring copy", () => {
+test("stories, week by week: a week with no match is left out, and a long window gives its latest four weeks only", () => {
+  const quarter: Span = { first: "2026-08-10", last: "2026-11-02" };
   const kept = pickStories(
     [
-      story("Nvidia's AI GPU sales double", 200, undefined, "https://www.nvidia.com/news/q3"),
-      story("Nvidia's AI GPU sales double", 90, undefined, "https://nvidia.com/news/q3/"), // same article
-      story("Nvidia's AI GPU sales double again this quarter", 150), // holds the other headline whole
-      story("AI GPU", 140), // too short to stand for every headline that contains it
-      story("Another AI GPU story", 10),
+      story("An AI GPU shortage in August", 5000, at("2026-08-12")),
+      story("AI GPU prices five weeks back", 4000, at("2026-10-07")),
+      story("AI GPU exports four weeks back", 10, at("2026-10-13")),
+      story("AI GPU rentals two weeks back", 20, at("2026-10-27")),
+      story("AI GPU benchmarks last week", 30, at("2026-11-03")),
+    ],
+    ["AI GPU"],
+    quarter,
+  );
+  assert.deepEqual(kept.map((s) => s.points), [30, 20, 10]);
+  assert.ok(kept.length <= COUNTED_WEEKS);
+});
+
+test("stories, week by week: a story submitted in two weeks is listed once, under its higher-scoring copy", () => {
+  const kept = pickStories(
+    [
+      story("Nvidia's AI GPU sales double", 200, at("2026-11-03"), "https://www.nvidia.com/news/q3"),
+      story("Nvidia's AI GPU sales double", 300, at("2026-10-28"), "https://nvidia.com/news/q3/"), // same article
+      story("A quieter AI GPU launch", 12, at("2026-11-04")),
+      story("An AI GPU recall", 15, at("2026-10-29")),
     ],
     ["AI GPU"],
     SPAN,
+  );
+  assert.deepEqual(kept.map((s) => s.points), [12, 300]);
+});
+
+test("stories, short window: the most points first, at most three", () => {
+  const kept = pickStories(
+    [
+      story("Banks offload the AI data center debt", 386, IN_SHORT),
+      story("Intel D270 GPU AI Accelerator", 308, IN_SHORT),
+      story("A new AI GPU from nowhere", 50, IN_SHORT),
+      story("AI data center in orbit", 120, at("2026-11-04")),
+      story("Old news on AI GPU prices", 999, at("2026-10-22")), // the week before
+    ],
+    ["AI data center", "AI GPU"],
+    SHORT,
+  );
+  assert.deepEqual(kept.map((s) => s.points), [386, 308, 120]);
+  assert.ok(kept.length <= COUNTED_MAX);
+});
+
+test("stories: one story submitted twice is one item, by link or by headline, keeping the higher-scoring copy", () => {
+  const kept = pickStories(
+    [
+      story("Nvidia's AI GPU sales double", 200, IN_SHORT, "https://www.nvidia.com/news/q3"),
+      story("Nvidia's AI GPU sales double", 90, IN_SHORT, "https://nvidia.com/news/q3/"), // same article
+      story("Nvidia's AI GPU sales double again this quarter", 150, IN_SHORT), // holds the other headline whole
+      story("AI GPU", 140, IN_SHORT), // too short to stand for every headline that contains it
+      story("Another AI GPU story", 10, IN_SHORT),
+    ],
+    ["AI GPU"],
+    SHORT,
   );
   assert.deepEqual(kept.map((s) => s.points), [200, 140, 10]);
 });
 
 test("stories: Hacker News text posts are told apart by their item, not taken for one article", () => {
   const ask = (title: string, points: number) => {
-    const s = story(title, points);
+    const s = story(title, points, IN_SHORT);
     return { ...s, url: s.discussionUrl };
   };
-  const kept = pickStories([ask("Ask HN: Is the AI GPU shortage over?", 80), ask("Ask HN: Which AI GPU for a home lab?", 60)], ["AI GPU"], SPAN);
+  const kept = pickStories([ask("Ask HN: Is the AI GPU shortage over?", 80), ask("Ask HN: Which AI GPU for a home lab?", 60)], ["AI GPU"], SHORT);
   assert.equal(kept.length, 2);
 });
 
 test("stories: ties go to the more discussed, and nothing matching gives an empty list", () => {
-  const a = { ...story("AI GPU one", 100), comments: 5 };
-  const b = { ...story("AI GPU two", 100), comments: 40 };
-  assert.deepEqual(pickStories([a, b], ["AI GPU"], SPAN).map((s) => s.title), ["AI GPU two", "AI GPU one"]);
+  const a = { ...story("AI GPU one", 100, IN_SHORT), comments: 5 };
+  const b = { ...story("AI GPU two", 100, IN_SHORT), comments: 40 };
+  assert.deepEqual(pickStories([a, b], ["AI GPU"], SHORT).map((s) => s.title), ["AI GPU two", "AI GPU one"]);
+  assert.deepEqual(pickStories([{ ...a, createdAt: at("2026-11-03") }, { ...b, createdAt: at("2026-11-04") }], ["AI GPU"], SPAN).map((s) => s.title), ["AI GPU two"]);
   assert.deepEqual(pickStories([story("Nothing here", 500)], ["AI GPU"], SPAN), []);
   assert.deepEqual(pickStories([], ["AI GPU"], SPAN), []);
 });

@@ -150,7 +150,7 @@ test("the method says how the track record is made", () => {
   assert.match(method, /13 weeks/);
 });
 
-test("under each lead chart: a rise shows what was counted, at most three, each from the file; a fall shows only why it has none", async () => {
+test("under each lead chart: a rise shows what was counted, a few items, each from the file; a fall shows only why it has none", async () => {
   const { buildBriefing } = await fromSrc<any>("lib/briefing");
   const counted = await fromSrc<any>("lib/counted");
   const file = JSON.parse(readFileSync(join(import.meta.dirname, "../../data/counted.json"), "utf8"));
@@ -176,7 +176,13 @@ test("under each lead chart: a rise shows what was counted, at most three, each 
       const list = sectionOf(panel, id);
       const rows = [...list.matchAll(/<li>/g)];
       assert.equal(rows.length, items.length, `${h} ${s.id}: one row per item kept`);
-      assert.ok(rows.length <= counted.COUNTED_MAX, `${h} ${s.id}: at most ${counted.COUNTED_MAX}`);
+      const most = move.stories && counted.storiesByWeek(move) ? counted.COUNTED_WEEKS : counted.COUNTED_MAX;
+      assert.ok(rows.length <= most, `${h} ${s.id}: at most ${most}`);
+      if (move.stories && counted.storiesByWeek(move)) {
+        const days = move.stories.map((x: any) => x.createdAt);
+        assert.deepEqual(days, [...days].sort().reverse(), `${h} ${s.id}: newest week first`);
+        assert.match(text(list), /The most-discussed story from each (week|of the last 4 weeks), newest first/, `${h} ${s.id}: the rule line`);
+      }
       for (const item of items) assert.ok(list.includes(`href="${item.url.replace(/&/g, "&amp;")}"`), `${h} ${s.id}: links ${item.url}`);
       const label = text(list.slice(0, list.indexOf("<div")));
       assert.match(label, move.stories ? /What was counted/ : /Examples of the papers counted/);

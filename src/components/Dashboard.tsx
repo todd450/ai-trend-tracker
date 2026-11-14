@@ -13,7 +13,7 @@ import { Colophon, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing, type LeadSeries } from "@/lib/briefing";
-import { COUNTED_MAX, countedFor, latestSpan, seriesOf, type CountedFile } from "@/lib/counted";
+import { COUNTED_MAX, COUNTED_WEEKS, countedFor, latestSpan, seriesOf, type CountedFile } from "@/lib/counted";
 import { topicsHref } from "@/lib/datasets";
 import { lineFor } from "@/lib/editorial";
 import { editorial } from "@/lib/today";
@@ -1046,9 +1046,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               </p>
               <p id="counted">
                 <strong>What was counted</strong>, under a chart that rose, is chosen by rule too, each day, for
-                the rises the headline names and over the window it compares. For a theme it is the{" "}
-                {COUNTED_MAX} Hacker News stories with the most points among those whose title matches one of
-                the theme’s searches; a story submitted more than once, by link or by headline, counts once. For a
+                the rises the headline names and over the window it compares. For a theme it is the Hacker News
+                story with the most points from each of the window’s latest {COUNTED_WEEKS} weeks, newest first,
+                among those whose title matches one of the theme’s searches. It is taken week by week because
+                points build up over days, so the most points overall would mostly be the window’s oldest
+                stories. A window under {COUNTED_MAX} weeks gives the {COUNTED_MAX} stories with the most points
+                instead. A story submitted more than once, by link or by headline, counts once. For a
                 research topic it is {COUNTED_MAX} of the papers whose title or abstract holds one of the topic’s
                 phrases, those upvoted on Hugging Face first, then the newest. The papers are examples of what was
                 counted, not the reason for the move: there are hundreds of them, and arXiv gives no figure to rank
