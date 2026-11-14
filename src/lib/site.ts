@@ -33,7 +33,7 @@ export const PAGES = [
 ] as const;
 
 /** The share card drawn by app/opengraph-image.tsx. */
-const SHARE_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "AI Trend Tracker: what is rising in AI" };
+const SHARE_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "AI Trend Tracker: the day’s AI news and what is rising in AI" };
 
 /**
  * One page's metadata. Next replaces nested fields such as `openGraph` whole rather than

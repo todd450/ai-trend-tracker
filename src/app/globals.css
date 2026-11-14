@@ -181,6 +181,17 @@ code {
   }
 }
 
+/* A phone has room for four short names on one line: "Today", not "Today’s news". */
+@media (max-width: 39.99rem) {
+  .tabs ul {
+    column-gap: var(--space-md);
+  }
+
+  .tabs__more {
+    display: none;
+  }
+}
+
 .tabs a[aria-current="page"],
 .tabs a[aria-current="page"]:hover {
   color: var(--color-ink);
@@ -3088,6 +3099,28 @@ code {
 /* The reading list on its own page: the chapter head is the page's title. */
 .chapter--page {
   margin-top: var(--space-2xl);
+}
+
+/* The landing page: no title block of its own, one line saying what the list is, then the lead story. */
+.chapter--front {
+  margin-top: var(--space-md);
+}
+
+.dateline {
+  padding-bottom: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+
+.dateline strong {
+  margin-right: 0.5em;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.dateline + .band {
+  margin-top: 0;
 }
 
 /* ------------------------------------------------------- the data index */

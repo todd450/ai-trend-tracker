@@ -58,17 +58,15 @@ export function Today() {
 
       <OldTrendLinks to={HORIZONS.threeMonths.href} />
 
-      <SiteMast ruled current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
+      <SiteMast ruled heading current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
       <main className="page">
-        <div className="chapter chapter--page">
-          <header className="chapter__head">
-            <h1 className="chapter__title" id="today-h">Today’s AI news</h1>
-            <p className="chapter__dek">
-              What the labs, the analysts and Hacker News published in the 24 hours to {fmtDayTime(today.until)} UTC,
-              biggest stories first.
-            </p>
-          </header>
+        <div className="chapter chapter--front">
+          {/* The landing page: the name above is its heading, so the page's own title is one line and the lead story sits high. */}
+          <p className="dateline">
+            <strong id="today-h">Today’s AI news</strong> From the labs, the analysts and Hacker News in the 24 hours
+            to {fmtDayTime(today.until)} UTC, biggest stories first.
+          </p>
 
           <section id="today" className="band band--today" aria-labelledby="today-h">
             {top && first && (
