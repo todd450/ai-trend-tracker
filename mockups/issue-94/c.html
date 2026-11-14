@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option C: Stories on the line · Trends, 3 months · AI Trend Tracker (mockup, issue #94)</title>
+<style>
+/* Tokens: copied from tokens.css, including its dark-mode block. */
+:root {
+  color-scheme: light dark;
+  --color-paper: oklch(98.6% 0.006 85);
+  --color-paper-2: oklch(95.5% 0.008 85);
+  --color-rule: oklch(84% 0.012 85);
+  --color-rule-strong: oklch(30% 0.012 85);
+  --color-muted: oklch(50% 0.012 85);
+  --color-ink-2: oklch(36% 0.012 85);
+  --color-ink: oklch(18% 0.012 85);
+  --color-accent: oklch(48% 0.2 258);
+  --color-focus: oklch(50% 0.17 255);
+  --data-rising: oklch(54% 0.22 258);
+  --data-cooling: oklch(60% 0.175 48);
+  --data-rising-ink: oklch(54% 0.22 258);
+  --data-cooling-ink: oklch(52% 0.16 48);
+  --data-steady: oklch(55% 0.012 85);
+  --color-ok: oklch(48% 0.13 150);
+  --color-fail: oklch(50% 0.17 27);
+  /* The product sets these two through next/font; named here so the stacks below resolve. */
+  --font-newsreader: "Newsreader";
+  --font-geist: "Geist";
+  --font-display: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: var(--font-geist), "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.125rem;
+  --text-display-s: clamp(1.875rem, 2.6vw + 1rem, 3rem);
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 76rem;
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-sm: 2px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.01 85);
+    --color-paper-2: oklch(21% 0.012 85);
+    --color-rule: oklch(32% 0.012 85);
+    --color-rule-strong: oklch(82% 0.01 85);
+    --color-muted: oklch(66% 0.012 85);
+    --color-ink-2: oklch(80% 0.01 85);
+    --color-ink: oklch(93% 0.008 85);
+    --color-accent: oklch(78% 0.13 255);
+    --color-focus: oklch(74% 0.14 255);
+    --data-rising: oklch(70% 0.17 255);
+    --data-cooling: oklch(76% 0.165 58);
+    --data-rising-ink: oklch(70% 0.17 255);
+    --data-cooling-ink: oklch(76% 0.165 58);
+    --data-steady: oklch(62% 0.012 85);
+    --color-ok: oklch(72% 0.15 150);
+    --color-fail: oklch(70% 0.16 27);
+  }
+}
+
+/* ------------------------------------------------ the product's own styles, as live */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+:where([id]) { scroll-margin-top: 1rem; }
+body {
+  margin: 0; background: var(--color-paper); color: var(--color-ink);
+  font-family: var(--font-body); font-size: var(--text-base); line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+h1, h2, h3 {
+  font-family: var(--font-display); font-weight: 600; line-height: 1.12;
+  letter-spacing: -0.012em; overflow-wrap: anywhere; min-width: 0;
+}
+a {
+  color: inherit; text-decoration-line: underline; text-decoration-thickness: var(--rule-hair);
+  text-decoration-color: var(--color-rule); text-underline-offset: 0.2em;
+}
+@media (hover: hover) { a:hover { color: var(--color-accent); text-decoration-color: currentColor; } }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.mast { max-width: var(--page-max); margin-inline: auto; padding: var(--space-sm) var(--page-gutter) 0; }
+.mast__row {
+  display: grid; grid-template-columns: auto auto;
+  grid-template-areas: "name line" "tabs tabs";
+  align-items: center; justify-content: space-between; column-gap: var(--space-md); row-gap: var(--space-2xs);
+}
+.mast__name {
+  grid-area: name; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700;
+  line-height: 1; letter-spacing: -0.01em; white-space: nowrap; min-width: max-content;
+  overflow-wrap: normal; display: flex; align-items: baseline; gap: 0.3em;
+}
+.mast__mark { flex: none; height: 0.66em; width: auto; }
+.mast__line {
+  grid-area: line; font-size: var(--text-xs); color: var(--color-muted);
+  font-variant-numeric: tabular-nums; text-align: end; text-wrap: balance;
+}
+.tabs { grid-area: tabs; }
+.tabs ul { display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; }
+.tabs a {
+  display: flex; flex-direction: column; align-items: center; gap: var(--space-3xs);
+  padding-block: var(--space-xs) calc(var(--space-xs) - var(--rule-heavy));
+  border-bottom: var(--rule-heavy) solid transparent; font-size: var(--text-sm); font-weight: 500;
+  color: var(--color-ink-2); text-decoration: none;
+}
+.tabs__icon { flex: none; width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.tabs__more { display: none; }
+.tabs a[aria-current="page"] { color: var(--color-ink); border-bottom-color: var(--color-accent); }
+.tabs a[aria-current="page"] .tabs__icon { color: var(--color-accent); }
+@media (min-width: 40rem) {
+  .mast__line { font-size: var(--text-sm); }
+  .tabs ul { display: flex; justify-content: center; column-gap: var(--space-xl); }
+  .tabs a { flex-direction: row; gap: var(--space-xs); padding-block: var(--space-sm) calc(var(--space-sm) - var(--rule-heavy)); font-size: var(--text-lg); }
+  .tabs__more { display: inline; }
+}
+@media (min-width: 68rem) {
+  .mast__row { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "name tabs line"; column-gap: var(--space-lg); }
+  .tabs a { padding-block: var(--space-md) calc(var(--space-md) - var(--rule-heavy)); }
+}
+
+.bar { background: var(--color-paper); }
+.bar__inner { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+.bar__row {
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  border-top: var(--rule-hair) solid var(--color-rule-strong);
+  border-bottom: var(--rule-heavy) double var(--color-rule-strong);
+}
+.horizon { display: flex; align-items: center; justify-content: center; column-gap: var(--space-md); }
+.horizon__title { display: none; font-size: var(--text-sm); color: var(--color-muted); white-space: nowrap; }
+.horizon ul { display: flex; flex: 1; }
+.horizon li { flex: auto; }
+.horizon a {
+  display: flex; align-items: center; justify-content: center; min-height: 2.75rem;
+  padding-inline: var(--space-2xs); font-size: var(--text-sm); font-weight: 500; white-space: nowrap;
+  color: var(--color-ink-2); text-decoration-line: underline; text-decoration-thickness: 2px;
+  text-decoration-color: transparent; text-underline-offset: 0.5em;
+}
+.horizon a[aria-current] { color: var(--color-ink); text-decoration-color: var(--color-accent); text-decoration-thickness: 3px; }
+@media (min-width: 40rem) {
+  .horizon__title { display: block; }
+  .horizon ul, .horizon li { flex: none; }
+  .horizon ul { column-gap: var(--space-sm); }
+  .horizon a { padding-inline: 0; }
+}
+
+.page { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+.lede { display: grid; gap: var(--space-lg); padding-block: var(--space-lg) var(--space-xl); }
+.lede__head {
+  font-size: clamp(1.625rem, 1.4vw + 1rem, 2.375rem); font-weight: 600; line-height: 1.04;
+  letter-spacing: -0.022em; text-wrap: balance;
+}
+.lede__turn { display: block; }
+.lede__dek { display: grid; gap: var(--space-xs); font-size: var(--text-sm); color: var(--color-ink-2); }
+.lede__meta { font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.lede__main { display: grid; gap: var(--space-md); min-width: 0; }
+@media (min-width: 60rem) {
+  .lede__main { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: var(--space-2xl); align-items: start; }
+}
+.lede__text { display: grid; gap: var(--space-sm); align-content: start; }
+
+.record { min-width: 0; padding-top: var(--space-xs); border-top: var(--rule-heavy) solid var(--color-rule-strong); }
+.record__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: var(--space-sm); padding-bottom: var(--space-2xs); }
+.record__head h2 { font-size: var(--text-lg); }
+.record__head p { font-size: var(--text-xs); color: var(--color-muted); }
+.record__row {
+  display: grid; grid-template-columns: 5.75rem minmax(0, 1fr); column-gap: var(--space-sm);
+  align-items: baseline; padding-block: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule);
+}
+.record__row--today { margin-inline: calc(-1 * var(--space-xs)); padding-inline: var(--space-xs); background: var(--color-paper-2); }
+.record__figure {
+  grid-column: 1; grid-row: 1 / span 2; font-family: var(--font-display); font-size: var(--text-xl);
+  font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.record__figure small { font-size: var(--text-base); font-weight: 500; color: var(--color-ink-2); }
+.record__label { grid-column: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2xs) var(--space-xs); font-size: var(--text-sm); }
+.record__label b { font-weight: 600; }
+.record__tag {
+  padding-inline: var(--space-2xs); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-sm);
+  font-size: var(--text-xs); font-weight: 500; line-height: 1.5; color: var(--color-muted); white-space: nowrap;
+}
+.rbar { grid-column: 2; display: block; height: 0.375rem; margin-top: var(--space-2xs); overflow: hidden; border-radius: var(--radius-sm); background: var(--color-rule); }
+.rbar > span { display: block; height: 100%; background: var(--rbar); }
+.rbar--rising { --rbar: var(--data-rising); }
+.rbar--cooling { --rbar: var(--data-cooling); }
+.rbar--both { --rbar: var(--color-ink-2); }
+.record__test { margin-top: var(--space-xs); max-width: 36rem; font-size: var(--text-xs); line-height: 1.5; color: var(--color-ink-2); }
+.record__test a { font-weight: 500; color: var(--color-accent); white-space: nowrap; }
+
+.leadchart { display: grid; gap: var(--space-sm); }
+.leadchart__panels { display: grid; gap: var(--space-lg); }
+@media (min-width: 40rem) {
+  .leadchart__panels[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-2xl); }
+}
+.leadchart__panel { --tone: var(--data-steady); --tone-ink: var(--color-ink); min-width: 0; margin: 0; }
+.leadchart__panel--rising { --tone: var(--data-rising); --tone-ink: var(--data-rising-ink); }
+.leadchart__panel--cooling { --tone: var(--data-cooling); --tone-ink: var(--data-cooling-ink); }
+.leadchart figcaption { display: grid; row-gap: var(--space-3xs); margin-bottom: var(--space-xs); }
+.leadchart__measure { font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+.leadchart__name { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; line-height: 1.2; }
+.leadchart__figure { font-size: var(--text-sm); color: var(--color-ink-2); font-variant-numeric: tabular-nums; }
+.leadchart__figure b { margin-inline-end: var(--space-2xs); font-weight: 700; color: var(--tone-ink); }
+.leadchart__plot { position: relative; }
+.leadchart svg { display: block; width: 100%; height: clamp(9rem, 18vw, 12rem); }
+.leadchart__prior { fill: var(--color-paper-2); }
+.leadchart__recent { fill: color-mix(in oklch, var(--tone) 20%, var(--color-paper)); }
+.leadchart__area { fill: color-mix(in oklch, var(--tone) 16%, transparent); }
+.leadchart__grid, .leadchart__event { stroke: var(--color-rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.leadchart__event { stroke: var(--color-muted); stroke-dasharray: 1 3; }
+.leadchart__zero { stroke: var(--color-rule-strong); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.leadchart__line { fill: none; stroke: var(--color-ink); stroke-width: 2.25; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.leadchart__mean { stroke: var(--color-muted); stroke-width: 2; stroke-dasharray: 5 3; vector-effect: non-scaling-stroke; }
+.leadchart__mean--recent { stroke: var(--tone); stroke-dasharray: none; stroke-width: 4; }
+.leadchart__end { fill: none; stroke: var(--tone); stroke-width: 10; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.leadchart__labels {
+  position: absolute; inset: 0; font-size: var(--text-xs); line-height: 1; color: var(--color-muted);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.leadchart__labels span {
+  position: absolute; white-space: nowrap;
+  text-shadow: 0 0 2px var(--color-paper), 0 0 2px var(--color-paper), 0 0 3px var(--color-paper);
+}
+.leadchart__tick { left: 0; transform: translateY(-115%); }
+.leadchart__band { bottom: 0.4rem; padding-inline-start: var(--space-2xs); font-weight: 500; }
+.leadchart__band--recent { color: var(--color-ink-2); }
+.leadchart__avg { padding-inline-start: var(--space-2xs); transform: translateY(-125%); font-weight: 600; color: var(--color-ink-2); }
+.leadchart__avg--recent { color: var(--color-ink); }
+.leadchart__foot { position: relative; height: 1.125rem; margin-top: var(--space-3xs); }
+.leadchart__badge {
+  display: inline-grid; place-items: center; width: 1rem; height: 1rem; border: var(--rule-hair) solid var(--color-muted);
+  border-radius: 50%; font-size: 0.6875rem; font-weight: 600; line-height: 1; color: var(--color-ink-2); font-variant-numeric: tabular-nums;
+}
+.leadchart__foot .leadchart__badge { position: absolute; top: 0; transform: translateX(-50%); background: var(--color-paper); }
+.leadchart__axis { display: flex; justify-content: space-between; gap: var(--space-sm); font-size: var(--text-xs); color: var(--color-muted); }
+.leadchart__key { font-size: var(--text-xs); line-height: 1.7; color: var(--color-muted); }
+.leadchart__key b { font-weight: 600; color: var(--color-ink-2); }
+
+.source { margin-top: var(--space-xs); font-size: var(--text-xs); color: var(--color-muted); }
+.source b { font-weight: 600; }
+
+.brief li {
+  display: grid; grid-template-columns: 5.75rem minmax(0, 1fr); column-gap: var(--space-sm);
+  align-items: baseline; padding-block: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule);
+}
+.brief__figure {
+  grid-column: 1; grid-row: 1 / span 3; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.015em; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.brief__label { grid-column: 2; justify-self: start; font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+.brief li p { grid-column: 2; font-size: var(--text-sm); color: var(--color-ink); font-variant-numeric: tabular-nums; }
+@media (min-width: 40rem) {
+  .brief ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); border-top: var(--rule-hair) solid var(--color-rule); }
+  .brief li {
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; align-content: start; row-gap: var(--space-3xs);
+    padding: var(--space-sm) var(--space-md) var(--space-xs); border-top: 0; border-left: var(--rule-hair) solid var(--color-rule);
+  }
+  .brief li:first-child { border-left: 0; padding-left: 0; }
+  .brief__label { grid-row: 1; grid-column: 1; }
+  .brief__figure { grid-row: 2; grid-column: 1; }
+  .brief li p { grid-row: 3; grid-column: 1; font-size: var(--text-xs); line-height: 1.45; color: var(--color-ink-2); }
+  .brief li .brief__more { grid-row: 4; grid-column: 1; }
+}
+
+.moved { margin-top: var(--space-sm); font-size: var(--text-sm); color: var(--color-ink-2); }
+.moved a { font-weight: 500; color: var(--color-accent); white-space: nowrap; }
+
+/* The ledger, as the reading list sets it. */
+.ledger { container-type: inline-size; }
+.ledger__head { display: none; }
+.ledger li {
+  display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); column-gap: var(--space-xs);
+  align-items: baseline; padding-block: var(--space-xs); border-top: var(--rule-hair) solid var(--color-rule);
+}
+.ledger__main { min-width: 0; }
+.ledger__main a {
+  font-family: var(--font-display); font-size: var(--text-base); font-weight: 500; line-height: 1.3;
+  text-decoration-color: transparent; overflow-wrap: anywhere;
+}
+.ledger--paper .ledger__main a { font-style: italic; }
+.ledger__note { display: block; font-size: var(--text-xs); color: var(--color-muted); }
+.ledger__data {
+  grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-sm);
+  font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums;
+}
+.ledger__num { font-weight: 500; color: var(--color-ink-2); }
+.ledger__unit { font-weight: 400; color: var(--color-muted); }
+@container (min-width: 30rem) {
+  .ledger__head {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--space-md);
+    padding-bottom: var(--space-xs); font-size: var(--text-xs); font-weight: 500; color: var(--color-muted);
+  }
+  .ledger li { grid-template-columns: 1.5rem minmax(0, 1fr) auto; padding-block: var(--space-2xs); }
+  .ledger li > .ledger__data { margin-inline-start: var(--space-xs); }
+  .ledger__data { grid-column: auto; display: grid; grid-template-columns: var(--cells); text-align: end; white-space: nowrap; }
+  .ledger__data > span { display: block; min-width: 0; }
+  .ledger__head .ledger__data { display: grid; grid-template-columns: var(--cells); text-align: end; }
+}
+@media (pointer: coarse) { .ledger li { min-height: 2.75rem; } }
+
+/* ------------------------------------------------ PROPOSED in option C */
+
+/* 1. The panel foot (leadchart__evidence), as option B: the list sits under the chart it explains. */
+.leadchart__evidence {
+  margin-top: var(--space-md);
+  padding-top: var(--space-xs);
+  border-top: 2px solid var(--tone);
+}
+.leadchart__evidence h3 { font-size: var(--text-base); font-weight: 600; }
+.leadchart__rule { margin-top: var(--space-3xs); margin-bottom: var(--space-xs); font-size: var(--text-xs); line-height: 1.5; color: var(--color-ink-2); text-wrap: pretty; }
+.leadchart__rule b { font-weight: 600; color: var(--color-ink); }
+.leadchart__evidence .ledger li::before { content: none; }
+.leadchart__evidence .ledger__main { display: grid; row-gap: var(--space-3xs); }
+.leadchart__evidence .ledger__data a { color: var(--color-ink-2); text-decoration-color: var(--color-rule); }
+/* Under a fall: one quiet line in the same place, so the columns stay level and the absence reads as a rule. */
+.leadchart__evidence--none { border-top: var(--rule-hair) solid var(--color-rule); }
+.leadchart__none { font-size: var(--text-sm); line-height: 1.45; color: var(--color-muted); }
+
+/* 2. Story marks on the line (leadchart__item): a lettered square at the week the item was posted,
+ * inside the latest band, on a hairline stem from the line. Squares, so they never read as the
+ * circled release numbers. Each is a 24px link to its row. */
+.leadchart__stem { stroke: var(--tone); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.leadchart__items { position: absolute; inset: 0; pointer-events: none; }
+.leadchart__item, .leadchart__letter {
+  display: inline-grid; place-items: center;
+  width: 1.5rem; height: 1.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--data-rising);
+  color: var(--color-paper);
+  font-family: var(--font-body); font-size: var(--text-xs); font-weight: 700; line-height: 1;
+  text-decoration: none;
+}
+.leadchart__item {
+  position: absolute; pointer-events: auto;
+  box-shadow: 0 0 0 2px var(--color-paper);
+}
+@media (hover: hover) { .leadchart__item:hover { color: var(--color-paper); background: var(--color-accent); } }
+.leadchart__letter { width: 1.25rem; height: 1.25rem; align-self: start; margin-top: 0.15rem; }
+.leadchart__evidence .ledger li { grid-template-columns: 1.25rem minmax(0, 1fr); column-gap: var(--space-sm); padding-block: var(--space-xs); }
+.leadchart__evidence .ledger li:target { background: color-mix(in oklch, var(--data-rising) 10%, var(--color-paper)); }
+@container (min-width: 30rem) {
+  .leadchart__evidence .ledger li { grid-template-columns: 1.25rem minmax(0, 1fr) auto; align-items: start; }
+  .leadchart__evidence .ledger__head { grid-template-columns: 1.25rem minmax(0, 1fr) auto; column-gap: var(--space-sm); }
+  .leadchart__evidence .ledger__unit { display: none; }
+  .leadchart__evidence .ledger__data { padding-top: 0.2rem; }
+}
+
+/* 3. The matched phrase: the words of the theme's search that this title holds, as the collector stored them. */
+.leadchart__match {
+  font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.4; color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+.leadchart__match q { color: var(--color-ink-2); quotes: "\201C" "\201D"; }
+
+/* The briefing cell's pointer down to the list (as option B). */
+.brief__more { grid-column: 2; font-size: var(--text-xs); color: var(--color-muted); }
+
+/* ------------------------------------------------ mockup annotations, not product */
+.note-mock {
+  max-width: var(--page-max); margin: var(--space-2xl) auto 0; padding: var(--space-xs) var(--page-gutter) 0;
+}
+.note-mock p {
+  padding-top: var(--space-xs); border-top: var(--rule-hair) dashed var(--color-muted);
+  font-size: var(--text-xs); color: var(--color-muted);
+}
+.note-mock--top { margin-top: 0; padding-top: var(--space-2xs); }
+.note-mock--top p { border-top: 0; padding-top: 0; }
+.state2 { padding-bottom: var(--space-2xl); }
+</style>
+</head>
+<body>
+
+<div class="note-mock note-mock--top"><p>Mockup for issue #94 · Option C, “Stories on the line” (7 stars) · 3-month view, data from the 14 Nov collection</p></div>
+
+<header class="mast"><div class="mast__row"><h1 class="mast__name"><svg class="mast__mark" viewBox="0 0 68 65" aria-hidden="true" focusable="false"><g><rect x="0" y="42" width="20" height="5" fill="currentColor"/><rect x="0" y="50.5" width="20" height="2.5" fill="currentColor"/><rect x="0" y="56.5" width="20" height="2.5" fill="currentColor"/><rect x="0" y="62.5" width="20" height="2.5" fill="currentColor"/></g><g><rect x="24" y="24" width="20" height="5" fill="currentColor"/><rect x="24" y="32.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="38.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="44.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="50.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="56.5" width="20" height="2.5" fill="currentColor"/><rect x="24" y="62.5" width="20" height="2.5" fill="currentColor"/></g><g><rect x="48" y="0" width="20" height="5" fill="var(--color-accent)"/><rect x="48" y="8.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="14.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="20.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="26.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="32.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="38.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="44.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="50.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="56.5" width="20" height="2.5" fill="currentColor"/><rect x="48" y="62.5" width="20" height="2.5" fill="currentColor"/></g></svg>AI Trend Tracker</h1><nav class="tabs" aria-label="Pages"><ul><li><a href="#"><svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v8a2 2 0 0 1-2 2H6"/><path d="M7.5 9h6M7.5 12.5h6M7.5 16h3.5"/></svg><span>Today<span class="tabs__more">’s news</span></span></a></li><li><a aria-current="page" href="#"><svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Trends</span></a></li><li><a href="#"><svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5c-1.5-1.3-4-2-8-2v13c4 0 6.5.7 8 2 1.5-1.3 4-2 8-2v-13c-4 0-6.5.7-8 2z"/><path d="M12 6.5v13"/></svg><span>Reading<span class="tabs__more"> list</span></span></a></li><li><a href="#"><svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span>Conferences</span></a></li></ul></nav><p class="mast__line">Updated 14 November 2026</p></div></header>
+
+<div class="bar"><div class="bar__inner"><div class="bar__row"><nav class="horizon" aria-label="Time span"><span class="horizon__title" aria-hidden="true">Trends over</span><ul><li><a href="#">1 week</a></li><li><a href="#state2">1 month</a></li><li><a aria-current="page" href="#">3 months</a></li><li><a href="#">6 months</a></li><li><a href="#">1 year</a></li><li><a href="#">2 years</a></li></ul></nav></div></div></div>
+
+<main class="page">
+<section class="lede">
+  <div class="lede__main">
+    <div class="lede__text">
+      <h2 class="lede__head">Voice &amp; speech fell to 0.9% of AI papers, from 1.5%. <span class="lede__turn">On Hacker News, data centers, chips &amp; energy rose to 2.9% of AI stories, from 1.8%.</span></h2>
+      <div class="lede__dek"><p class="lede__meta">Latest week: 2–8 November 2026 · 3,535 AI papers reached arXiv that week · Showing 3 months: charts cover 12 weeks, and each change is the last 4 weeks compared with the 4 weeks before.</p></div>
+    </div>
+    <section class="record" aria-labelledby="record-h">
+      <div class="record__head"><h2 id="record-h">Track record</h2><p>3-month calls over the past year</p></div>
+      <ol>
+        <li class="record__row"><span class="record__figure">26 <small>of 49</small></span><span class="record__label"><span><b>Research topics, rising:</b> kept rising</span></span><span class="rbar rbar--rising" aria-hidden="true"><span style="width:53.06%"></span></span></li>
+        <li class="record__row record__row--today"><span class="record__figure">9 <small>of 33</small></span><span class="record__label"><span><b>Research topics, cooling:</b> kept falling</span><span class="record__tag">in today’s headline</span></span><span class="rbar rbar--cooling" aria-hidden="true"><span style="width:27.27%"></span></span></li>
+        <li class="record__row record__row--today"><span class="record__figure">6 <small>of 12</small></span><span class="record__label"><span><b>Themes, rising or cooling:</b> kept going</span><span class="record__tag">few calls</span><span class="record__tag">in today’s headline</span></span><span class="rbar rbar--both" aria-hidden="true"><span style="width:50%"></span></span></li>
+      </ol>
+      <p class="record__test">A call is counted once, in the week it first appears. It held if, 13 weeks later, the share had moved further the way it was called. This is a replay of the past year with today’s rules and today’s counts, not a record of what the page said at the time. <a href="#">How we check →</a></p>
+    </section>
+  </div>
+
+  <div class="leadchart">
+    <div class="leadchart__panels" data-count="2">
+
+      <!-- The fall: chart as live, then one quiet line where a list would be. -->
+      <figure class="leadchart__panel leadchart__panel--cooling">
+        <figcaption><span class="leadchart__measure">Research</span><strong class="leadchart__name">Voice &amp; speech</strong><span class="leadchart__figure"><b>−40%</b> 0.9% of AI papers, was 1.5%</span></figcaption>
+        <div class="leadchart__plot">
+          <svg viewBox="0 0 320 120" role="img" aria-label="Voice &amp; speech: 0.9% of AI papers on average over the latest 4 weeks, against 1.5% over the 4 weeks before, −40%. Weekly values from the week of 17 Aug to the week of 2 Nov." preserveAspectRatio="none"><rect class="leadchart__prior" x="104" y="0" width="112" height="120"/><rect class="leadchart__recent" x="216" y="0" width="104" height="120"/><line class="leadchart__grid" x1="0" x2="320" y1="64.56" y2="64.56"/><line class="leadchart__grid" x1="0" x2="320" y1="15.13" y2="15.13"/><line class="leadchart__event" x1="58.72" x2="58.72" y1="0" y2="120"/><line class="leadchart__event" x1="136" x2="136" y1="0" y2="120"/><line class="leadchart__event" x1="160" x2="160" y1="0" y2="120"/><line class="leadchart__event" x1="196" x2="196" y1="0" y2="120"/><line class="leadchart__zero" x1="0" x2="320" y1="114" y2="114"/><polygon class="leadchart__area" points="6,114 6,75.68 34,67.92 62,62.65 90,21.88 118,32.48 146,19.45 174,66.62 202,48.2 230,60.75 258,61.23 286,79.99 314,79.04 314,114"/><polyline class="leadchart__line" points="6,75.68 34,67.92 62,62.65 90,21.88 118,32.48 146,19.45 174,66.62 202,48.2 230,60.75 258,61.23 286,79.99 314,79.04"/><line class="leadchart__mean" x1="104" x2="216" y1="41.69" y2="41.69"/><line class="leadchart__mean leadchart__mean--recent" x1="216" x2="320" y1="70.25" y2="70.25"/><path class="leadchart__end" d="M314,79.04h0"/></svg>
+          <div class="leadchart__labels" aria-hidden="true"><span class="leadchart__tick" style="top:53.8%">1%</span><span class="leadchart__tick" style="top:12.6%">2% of AI papers</span><span class="leadchart__band" style="left:32.5%">4 weeks before</span><span class="leadchart__band leadchart__band--recent" style="left:67.5%">latest 4 weeks</span><span class="leadchart__avg" style="left:32.5%;top:34.74%">average 1.5%</span><span class="leadchart__avg leadchart__avg--recent" style="left:67.5%;top:58.54%">average 0.9%</span></div>
+        </div>
+        <div class="leadchart__foot" aria-hidden="true"><span class="leadchart__badge" style="left:18.35%">1</span><span class="leadchart__badge" style="left:42.5%">2</span><span class="leadchart__badge" style="left:50%">3</span><span class="leadchart__badge" style="left:61.25%">4</span></div>
+        <p class="leadchart__axis" aria-hidden="true"><span>Week of 17 Aug</span><span>Week of 2 Nov</span></p>
+        <div class="leadchart__evidence leadchart__evidence--none">
+          <p class="leadchart__none">No list under a fall: a fall means fewer papers, so no papers stand for it.</p>
+        </div>
+      </figure>
+
+      <!-- The rise: chart with the stories marked on it, then the list with letters and matched phrases. -->
+      <figure class="leadchart__panel leadchart__panel--rising" id="chart-hn">
+        <figcaption><span class="leadchart__measure">Hacker News discussion</span><strong class="leadchart__name">Data centers, chips &amp; energy</strong><span class="leadchart__figure"><b>+66%</b> 2.9% of AI stories, was 1.8%</span></figcaption>
+        <div class="leadchart__plot">
+          <svg viewBox="0 0 320 120" role="img" aria-label="Data centers, chips &amp; energy: 2.9% of AI stories on average over the latest 4 weeks, against 1.8% over the 4 weeks before, +66%. Weekly values from the week of 17 Aug to the week of 2 Nov. Stories counted, marked A to C: all three were posted in the week of 12 Oct." preserveAspectRatio="none"><rect class="leadchart__prior" x="104" y="0" width="112" height="120"/><rect class="leadchart__recent" x="216" y="0" width="104" height="120"/><line class="leadchart__grid" x1="0" x2="320" y1="86.4" y2="86.4"/><line class="leadchart__grid" x1="0" x2="320" y1="58.8" y2="58.8"/><line class="leadchart__grid" x1="0" x2="320" y1="31.2" y2="31.2"/><line class="leadchart__event" x1="58.72" x2="58.72" y1="0" y2="120"/><line class="leadchart__event" x1="136" x2="136" y1="0" y2="120"/><line class="leadchart__event" x1="160" x2="160" y1="0" y2="120"/><line class="leadchart__event" x1="196" x2="196" y1="0" y2="120"/><line class="leadchart__zero" x1="0" x2="320" y1="114" y2="114"/><polygon class="leadchart__area" points="6,114 6,42.59 34,20.82 62,42.92 90,64.66 118,68.79 146,71.05 174,56.77 202,63.55 230,35.7 258,50.01 286,25.24 314,19.45 314,114"/><polyline class="leadchart__line" points="6,42.59 34,20.82 62,42.92 90,64.66 118,68.79 146,71.05 174,56.77 202,63.55 230,35.7 258,50.01 286,25.24 314,19.45"/><line class="leadchart__mean" x1="104" x2="216" y1="65.04" y2="65.04"/><line class="leadchart__mean leadchart__mean--recent" x1="216" x2="320" y1="32.6" y2="32.6"/><path class="leadchart__end" d="M314,19.45h0"/><line class="leadchart__stem" x1="230" x2="230" y1="35.7" y2="55.2"/></svg>
+          <div class="leadchart__labels" aria-hidden="true"><span class="leadchart__tick" style="top:72%">1%</span><span class="leadchart__tick" style="top:49%">2%</span><span class="leadchart__tick" style="top:26%">3% of AI stories</span><span class="leadchart__band" style="left:32.5%">4 weeks before</span><span class="leadchart__band leadchart__band--recent" style="left:67.5%">latest 4 weeks</span><span class="leadchart__avg" style="left:32.5%;top:54.2%">average 1.8%</span><span class="leadchart__avg leadchart__avg--recent" style="left:67.5%;top:27.17%">average 2.9%</span></div>
+          <!-- Week of 12 Oct is the first week of the band (x = 230 of 320). Items in one week sit side by side, starting at the week and running right. -->
+          <div class="leadchart__items">
+            <a class="leadchart__item" href="#hn-a" style="left:calc(71.875% - 0.75rem);top:46%" aria-label="Story A, week of 12 Oct: go to its row">A</a>
+            <a class="leadchart__item" href="#hn-b" style="left:calc(71.875% + 1rem);top:46%" aria-label="Story B, week of 12 Oct: go to its row">B</a>
+            <a class="leadchart__item" href="#hn-c" style="left:calc(71.875% + 2.75rem);top:46%" aria-label="Story C, week of 12 Oct: go to its row">C</a>
+          </div>
+        </div>
+        <div class="leadchart__foot" aria-hidden="true"><span class="leadchart__badge" style="left:18.35%">1</span><span class="leadchart__badge" style="left:42.5%">2</span><span class="leadchart__badge" style="left:50%">3</span><span class="leadchart__badge" style="left:61.25%">4</span></div>
+        <p class="leadchart__axis" aria-hidden="true"><span>Week of 17 Aug</span><span>Week of 2 Nov</span></p>
+
+        <section class="leadchart__evidence" id="counted-hn" aria-labelledby="counted-hn-h">
+          <h3 id="counted-hn-h">What was counted</h3>
+          <p class="leadchart__rule">The <b>3 most-discussed of 112 matching stories</b> in the latest 4 weeks, 12 Oct – 8 Nov, most points first. A story counts when its title holds every word of one of the theme’s phrases; the phrase it matched is under each. A–C mark the week each was posted, on the chart above.</p>
+          <div class="ledger ledger--read" style="--cells: 3.5rem 5.5rem">
+            <div class="ledger__head" aria-hidden="true"><span></span><span>Story</span><span class="ledger__data"><span>Points</span><span>Comments</span></span></div>
+            <ol aria-labelledby="counted-hn-h">
+              <li id="hn-a">
+                <span class="leadchart__letter" aria-hidden="true">A</span>
+                <span class="ledger__main">
+                  <a href="https://startupfortune.com/">Banks are now trying to offload the AI data center debt they just underwrote</a>
+                  <span class="ledger__note">startupfortune.com · 14 Oct</span>
+                  <span class="leadchart__match">matched <q>AI data center</q></span>
+                </span>
+                <span class="ledger__data"><span><span class="ledger__num">386</span><span class="ledger__unit"> points</span></span><span><a href="https://news.ycombinator.com/item?id=50092664"><span class="ledger__num">277</span><span class="ledger__unit"> comments</span></a></span></span>
+              </li>
+              <li id="hn-b">
+                <span class="leadchart__letter" aria-hidden="true">B</span>
+                <span class="ledger__main">
+                  <a href="https://www.intel.com/">Intel D270 GPU AI Accelerator – Up to 480 GB LPDDR5X</a>
+                  <span class="ledger__note">intel.com · 12 Oct</span>
+                  <span class="leadchart__match">matched <q>AI GPU</q></span>
+                </span>
+                <span class="ledger__data"><span><span class="ledger__num">308</span><span class="ledger__unit"> points</span></span><span><a href="https://news.ycombinator.com/item?id=50063365"><span class="ledger__num">179</span><span class="ledger__unit"> comments</span></a></span></span>
+              </li>
+              <li id="hn-c">
+                <span class="leadchart__letter" aria-hidden="true">C</span>
+                <span class="ledger__main">
+                  <a href="https://www.anthropic.com/">AI models may be capable of self-replicating without access to a datacenter</a>
+                  <span class="ledger__note">anthropic.com · 12 Oct</span>
+                  <span class="leadchart__match">matched <q>AI datacenter</q></span>
+                </span>
+                <span class="ledger__data"><span><span class="ledger__num">118</span><span class="ledger__unit"> points</span></span><span><a href="https://news.ycombinator.com/item?id=50061603"><span class="ledger__num">116</span><span class="ledger__unit"> comments</span></a></span></span>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </figure>
+    </div>
+    <p class="leadchart__key"><b>Frontier model releases</b>, marked for context and not offered as causes: <span class="leadchart__badge" aria-hidden="true">1</span> <a href="#">Gemini 3.8</a>, <a href="#">GPT-6</a>, 2 Sept · <span class="leadchart__badge" aria-hidden="true">2</span> <a href="#">Claude Opus 5.5</a>, 22 Sept · <span class="leadchart__badge" aria-hidden="true">3</span> <a href="#">Claude Sonnet 5.5</a>, <a href="#">GPT-6.1</a>, <a href="#">Gemini 4</a>, 28 Sept · <span class="leadchart__badge" aria-hidden="true">4</span> <a href="#">Claude Haiku 5.5</a>, 7 Oct</p>
+  </div>
+
+  <p class="source"><b>Sources:</b> arXiv (research); Hacker News story titles (discussion). Collected 14 Nov.</p>
+
+  <div class="brief"><ol aria-label="The week in numbers">
+    <li><a class="brief__label" href="#">Research</a><span class="brief__figure">−40%</span><p>Voice &amp; speech fell as a share of AI papers.</p></li>
+    <li><a class="brief__label" href="#counted-hn">Hacker News</a><span class="brief__figure">+66%</span><p>Data centers, chips &amp; energy rose as a share of AI stories on Hacker News.</p><span class="brief__more">3 stories counted</span></li>
+    <li><a class="brief__label" href="#">Economy</a><span class="brief__figure">7.3%</span><p>of US job postings ask for AI skills, up from 3.7% a year earlier.</p></li>
+    <li><a class="brief__label" href="#">Releases</a><span class="brief__figure">8</span><p>frontier model versions in the last 90 days, against 8 in the 90 days before. Most recent: Claude Fable 5.2 and Claude Mythos 5.2.</p></li>
+    <li><a class="brief__label" href="#">Policy</a><span class="brief__figure">31</span><p>US federal documents mentioned AI in Oct 2026, against 13 a year earlier.</p></li>
+  </ol></div>
+</section>
+<p class="moved">The past day’s stories are in <a href="#">today’s AI news →</a> The week’s top stories, papers, essays, launches, code and models are in <a href="#">the reading list →</a></p>
+</main>
+
+<!-- ============================================ second state: the 1-month view, research rise -->
+<div class="note-mock" id="state2"><p>Second state: the 1-month view, research rise</p></div>
+<main class="page state2">
+<section class="lede">
+  <div class="lede__text">
+    <h2 class="lede__head">Small &amp; local models rose to 5.7% of AI papers, from 4.6%.</h2>
+    <div class="lede__dek"><p class="lede__meta">Latest week: 2–8 November 2026 · 3,535 AI papers reached arXiv that week · Showing 1 month: charts cover 8 weeks, and each change is the last 2 weeks compared with the 2 weeks before.</p></div>
+  </div>
+  <div class="leadchart">
+    <div class="leadchart__panels" data-count="1">
+      <figure class="leadchart__panel leadchart__panel--rising">
+        <figcaption><span class="leadchart__measure">Research</span><strong class="leadchart__name">Small &amp; local models</strong><span class="leadchart__figure"><b>+22%</b> 5.7% of AI papers, was 4.6%</span></figcaption>
+        <div class="leadchart__plot">
+          <svg viewBox="0 0 320 120" role="img" aria-label="Small &amp; local models: 5.7% of AI papers on average over the latest 2 weeks, against 4.6% over the 2 weeks before, +22%. Weekly values from the week of 14 Sept to the week of 2 Nov. Example papers, marked A to C: B in the week of 26 Oct; A and C in the week of 2 Nov." preserveAspectRatio="none"><rect class="leadchart__prior" x="160" y="0" width="88" height="120"/><rect class="leadchart__recent" x="248" y="0" width="72" height="120"/><line class="leadchart__grid" x1="0" x2="320" y1="81.18" y2="81.18"/><line class="leadchart__grid" x1="0" x2="320" y1="48.35" y2="48.35"/><line class="leadchart__grid" x1="0" x2="320" y1="15.53" y2="15.53"/><line class="leadchart__event" x1="34.29" x2="34.29" y1="0" y2="120"/><line class="leadchart__event" x1="72" x2="72" y1="0" y2="120"/><line class="leadchart__event" x1="128.57" x2="128.57" y1="0" y2="120"/><line class="leadchart__zero" x1="0" x2="320" y1="114" y2="114"/><polygon class="leadchart__area" points="6,114 6,32.29 50,26.45 94,36.53 138,27.37 182,41.33 226,34.25 270,19.45 314,22.54 314,114"/><polyline class="leadchart__line" points="6,32.29 50,26.45 94,36.53 138,27.37 182,41.33 226,34.25 270,19.45 314,22.54"/><line class="leadchart__mean" x1="160" x2="248" y1="37.79" y2="37.79"/><line class="leadchart__mean leadchart__mean--recent" x1="248" x2="320" y1="21" y2="21"/><path class="leadchart__end" d="M314,22.54h0"/><line class="leadchart__stem" x1="270" x2="270" y1="19.45" y2="48"/><line class="leadchart__stem" x1="314" x2="314" y1="22.54" y2="48"/></svg>
+          <div class="leadchart__labels" aria-hidden="true"><span class="leadchart__tick" style="top:67.65%">2%</span><span class="leadchart__tick" style="top:40.3%">4%</span><span class="leadchart__tick" style="top:12.94%">6% of AI papers</span><span class="leadchart__band" style="left:50%">2 weeks before</span><span class="leadchart__band leadchart__band--recent" style="left:77.5%">latest 2 weeks</span><span class="leadchart__avg" style="left:50%;top:31.49%">average 4.6%</span><span class="leadchart__avg leadchart__avg--recent" style="left:77.5%;top:17.5%">average 5.7%</span></div>
+          <!-- B: week of 26 Oct (x = 270). A and C: week of 2 Nov (x = 314), the last week, so they stack and keep to the right edge. -->
+          <div class="leadchart__items">
+            <a class="leadchart__item" href="#p-b" style="left:calc(84.375% - 0.75rem);top:40%" aria-label="Paper B, week of 26 Oct: go to its row">B</a>
+            <a class="leadchart__item" href="#p-a" style="right:0;top:40%" aria-label="Paper A, week of 2 Nov: go to its row">A</a>
+            <a class="leadchart__item" href="#p-c" style="right:0;top:calc(40% + 1.875rem)" aria-label="Paper C, week of 2 Nov: go to its row">C</a>
+          </div>
+        </div>
+        <div class="leadchart__foot" aria-hidden="true"><span class="leadchart__badge" style="left:10.71%">1</span><span class="leadchart__badge" style="left:22.5%">2</span><span class="leadchart__badge" style="left:40.18%">3</span></div>
+        <p class="leadchart__axis" aria-hidden="true"><span>Week of 14 Sept</span><span>Week of 2 Nov</span></p>
+
+        <section class="leadchart__evidence" id="counted-papers" aria-labelledby="counted-papers-h">
+          <h3 id="counted-papers-h">Examples of the papers counted</h3>
+          <p class="leadchart__rule"><b>3 of 398 papers</b> in the latest 2 weeks, 26 Oct – 8 Nov. Hugging Face upvoted first, then arXiv’s own search. A paper counts when its title or abstract holds one of the topic’s phrases; the phrase it matched is under each. A–C mark the week each was posted, on the chart above.</p>
+          <div class="ledger ledger--paper" style="--cells: 10rem">
+            <div class="ledger__head" aria-hidden="true"><span></span><span>Paper</span><span class="ledger__data"><span>Found by</span></span></div>
+            <ol aria-labelledby="counted-papers-h">
+              <li id="p-a">
+                <span class="leadchart__letter" aria-hidden="true">A</span>
+                <span class="ledger__main">
+                  <a href="https://arxiv.org/abs/2611.02112">Order-Only On-Policy Distillation</a>
+                  <span class="ledger__note">arxiv.org · 3 Nov</span>
+                  <span class="leadchart__match">matched <q>knowledge distillation</q></span>
+                </span>
+                <span class="ledger__data"><span><span class="ledger__num">▲35</span> on Hugging Face</span></span>
+              </li>
+              <li id="p-b">
+                <span class="leadchart__letter" aria-hidden="true">B</span>
+                <span class="ledger__main">
+                  <a href="https://arxiv.org/abs/2610.31309">Extreme Compression of Per-Layer Embeddings via Cross-Layer Latent Vector Quantization</a>
+                  <span class="ledger__note">arxiv.org · 27 Oct</span>
+                  <span class="leadchart__match">matched <q>quantization</q></span>
+                </span>
+                <span class="ledger__data"><span><span class="ledger__num">▲12</span> on Hugging Face</span></span>
+              </li>
+              <li id="p-c">
+                <span class="leadchart__letter" aria-hidden="true">C</span>
+                <span class="ledger__main">
+                  <a href="https://arxiv.org/abs/2611.11695">Language model capabilities fail in a shared, predictable order under compression and perturbation</a>
+                  <span class="ledger__note">arxiv.org · 8 Nov</span>
+                  <span class="leadchart__match">matched <q>quantization</q></span>
+                </span>
+                <span class="ledger__data"><span>arXiv search</span></span>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </figure>
+    </div>
+  </div>
+</section>
+</main>
+<div class="note-mock state2"><p>Proposed in this option: the chart’s evidence foot (<code>leadchart__evidence</code>, as B), lettered story marks on the line (<code>leadchart__item</code>), and a matched-phrase field the collector stores with each item.</p></div>
+
+</body>
+</html>
