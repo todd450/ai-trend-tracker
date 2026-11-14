@@ -6,6 +6,8 @@
  *   npm run collect -- --fast  skip the slow arXiv history backfill
  *   npm run collect -- --accept  store weekly counts without the plausibility checks
  *   npm run collect -- --counted only rewrite counted.json from the stored counts
+ *   npm run collect -- --recount <theme id>  recount every stored week of one theme and its
+ *                                             sub-themes, after one of its searches is edited
  *
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
@@ -25,7 +27,7 @@ import path from "node:path";
 import { inflateRawSync } from "node:zlib";
 import { phraseIn, pickPapers, pickStories, risingMoves, type CountedFile, type CountedMove, type CountedStory, type PaperCandidate, type Span } from "../src/lib/counted.ts";
 import { PRODUCTS } from "../src/lib/products.ts";
-import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
+import { THEMES, hnWordRules, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
 import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
@@ -46,6 +48,8 @@ const FAST = process.argv.includes("--fast");
 const ACCEPT = process.argv.includes("--accept");
 /** Rewrites only counted.json, from the counts already stored. */
 const COUNTED_ONLY = process.argv.includes("--counted");
+/** Recounts every stored week of one theme, after one of its searches was edited. */
+const RECOUNT = process.argv.includes("--recount") ? (process.argv[process.argv.indexOf("--recount") + 1] ?? "") : null;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -178,6 +182,7 @@ function hnWeek(weekStart: string, query: string, hitsPerPage: number) {
       restrictSearchableAttributes: "title",
       typoTolerance: "false",
       queryType: "prefixNone",
+      ...hnWordRules(query),
       numericFilters: `created_at_i>=${from},created_at_i<${from + 7 * 86400}`,
       attributesToRetrieve: "objectID",
       attributesToHighlight: "",
@@ -1040,6 +1045,7 @@ async function hnSpanStories(query: string, span: Span): Promise<CountedStory[]>
         restrictSearchableAttributes: "title",
         typoTolerance: "false",
         queryType: "prefixNone",
+        ...hnWordRules(query),
         numericFilters: `created_at_i>=${from},created_at_i<${to},points>=${minPoints}`,
         attributesToRetrieve: "objectID,title,url,points,num_comments,created_at",
         attributesToHighlight: "",
@@ -1314,8 +1320,37 @@ function holdBackUnfinishedWeek(history: History, week: string) {
   console.warn(`  ! week ${week} held back: ${missing.length} count${missing.length > 1 ? "s" : ""} missing (${missing.slice(0, 5).join(", ")}${missing.length > 5 ? ", …" : ""})`);
 }
 
+/**
+ * Recounts every week already stored for one theme and its sub-themes with the searches as they are
+ * now. A daily run recounts only the newest weeks, so an edited search would otherwise leave the
+ * older weeks counted the old way. Prints each week that changed, for the person who ran it to read.
+ */
+async function recountTheme(id: string) {
+  const theme = THEMES.find((t) => t.id === id);
+  if (!theme) throw new Error(`--recount: no theme "${id}"; one of ${THEMES.map((t) => t.id).join(", ")}`);
+  const history = await readJson<History>("history.json", { updatedAt: "", arxivTotal: {}, topics: {} });
+  const series = history.themes?.[theme.id] ?? {};
+  const weeks = Object.keys(series).sort();
+  let changed = 0;
+  for (const week of weeks) {
+    const counts = await hnThemeCounts(week, theme);
+    if (counts.total !== series[week]) {
+      changed++;
+      console.log(`  ${week}: ${series[week]} → ${counts.total}`);
+    }
+    series[week] = counts.total;
+    for (const part of theme.parts) ((history.subthemes ??= {})[subthemeKey(theme.id, part.id)] ??= {})[week] = counts.parts[part.id];
+  }
+  await writeJson("history.json", history);
+  console.log(`Recounted ${theme.id}: ${weeks.length} weeks, ${changed} changed.`);
+}
+
 async function main() {
   const now = new Date();
+  if (RECOUNT !== null) {
+    await recountTheme(RECOUNT);
+    return;
+  }
   if (COUNTED_ONLY) {
     console.log("Collecting what was counted…");
     await collectCounted(now);

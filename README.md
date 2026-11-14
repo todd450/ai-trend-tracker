@@ -358,7 +358,11 @@ searches, so adding a search to a sub-theme also changes its theme's count.
 A story can sit in more than one sub-theme. A sub-theme averaging fewer than
 3 stories a week in either half of the comparison is shown as "too few to call".
 Adding a sub-theme makes the next `npm run collect` backfill its 104 weeks
-from Hacker News (a few minutes). The page's "How this is measured" section
+from Hacker News (a few minutes). Editing a search does not: a daily run recounts only the two newest
+weeks, so run `npm run collect -- --recount <theme id>` to recount every stored week of
+that theme with the searches as they are now. Hacker News search also matches a word's
+plural; a search listed in `HN_AS_WRITTEN` (`src/lib/themes.ts`) matches its words only
+as written, so "AI water" does not count "muddying the waters". The page's "How this is measured" section
 explains the limits to readers.
 
 ## How product momentum is measured

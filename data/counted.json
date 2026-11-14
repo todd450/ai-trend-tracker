@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-14T19:25:18.474Z",
+ "generatedAt": "2026-11-14T19:49:31.150Z",
  "moves": [
   {
    "horizon": "oneMonth",
@@ -13,7 +13,7 @@
      "title": "G-STAR: Group-Scaled Token Capacity for Deeply Compressed Autoregressive Generation",
      "url": "https://arxiv.org/abs/2611.13004",
      "publishedAt": "2026-11-08T16:59:18Z",
-     "upvotes": 44
+     "upvotes": 45
     },
     {
      "id": "2611.10649",
