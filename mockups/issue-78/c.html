@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option C · Moments that carry their numbers · AI Engineer Code Summit</title>
+<style>
+/* Design tokens for AI Trend Tracker. Every colour, font, size and space used
+ * by the site is named here; page styles reference these names only.
+ * Theme: Newsprint (light paper · roman serif · cool ink-blue accent). */
+
+:root {
+  color-scheme: light dark;
+
+  /* Paper and ink, tinted toward a warm newsprint hue (85). The paper is kept close to
+   * white so the data colours read at full strength against it. */
+  --color-paper: oklch(98.6% 0.006 85);
+  --color-paper-2: oklch(95.5% 0.008 85);
+  --color-rule: oklch(84% 0.012 85);
+  --color-rule-strong: oklch(30% 0.012 85);
+  --color-muted: oklch(50% 0.012 85);
+  --color-ink-2: oklch(36% 0.012 85);
+  --color-ink: oklch(18% 0.012 85);
+
+  /* One accent: ink blue, used for links, focus and the rising signal */
+  --color-accent: oklch(48% 0.2 258);
+  --color-focus: oklch(50% 0.17 255);
+
+  /* Data marks. Blue for a rise and amber for a fall: a pair that stays apart for
+   * colour-blind readers and carries no alarm, since cooling is not bad news.
+   * Both hold at least 3.7:1 against the paper and the tinted paper. The -ink pair is for
+   * figures set in the data colours: at least 4.5:1 on both papers, so the orange is deeper. */
+  --data-rising: oklch(54% 0.22 258);
+  --data-cooling: oklch(60% 0.175 48);
+  --data-rising-ink: oklch(54% 0.22 258);
+  --data-cooling-ink: oklch(52% 0.16 48);
+  --data-steady: oklch(55% 0.012 85);
+  --color-ok: oklch(48% 0.13 150);
+  --color-fail: oklch(50% 0.17 27);
+
+  --font-display: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: var(--font-geist), "Helvetica Neue", sans-serif;
+  /* For a file's rows shown as they are, where the columns should line up. */
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale, perfect fourth (1.333) from a 17px base */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.125rem;
+  --text-display-s: clamp(1.875rem, 2.6vw + 1rem, 3rem);
+  --text-mast: clamp(2rem, 5vw, 3.5rem);
+
+  /* 4pt spacing scale */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 76rem;
+
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-sm: 2px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.01 85);
+    --color-paper-2: oklch(21% 0.012 85);
+    --color-rule: oklch(32% 0.012 85);
+    --color-rule-strong: oklch(82% 0.01 85);
+    --color-muted: oklch(66% 0.012 85);
+    --color-ink-2: oklch(80% 0.01 85);
+    --color-ink: oklch(93% 0.008 85);
+
+    --color-accent: oklch(78% 0.13 255);
+    --color-focus: oklch(74% 0.14 255);
+
+    /* Same two hues, re-stepped and validated for the dark surface. */
+    --data-rising: oklch(70% 0.17 255);
+    --data-cooling: oklch(76% 0.165 58);
+    --data-rising-ink: oklch(70% 0.17 255);
+    --data-cooling-ink: oklch(76% 0.165 58);
+    --data-steady: oklch(62% 0.012 85);
+    --color-ok: oklch(72% 0.15 150);
+    --color-fail: oklch(70% 0.16 27);
+  }
+}
+
+/* Base, mirrored from src/app/globals.css */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-hair);
+  text-decoration-color: var(--color-rule);
+  text-underline-offset: 0.2em;
+}
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.page { max-width: var(--page-max); margin-inline: auto; padding: 0 var(--page-gutter) var(--space-3xl); }
+
+/* Mockup frame label: not part of the product */
+.mock {
+  margin-inline: calc(-1 * var(--page-gutter));
+  padding: var(--space-xs) var(--page-gutter);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-size: var(--text-xs);
+}
+
+/* Header (.ehead), shorter: no tracker or year strip */
+.ehead { display: grid; gap: var(--space-sm); padding-block: var(--space-lg) var(--space-md); }
+.crumb { font-size: var(--text-sm); color: var(--color-muted); }
+.crumb a, .ehead__links a { color: var(--color-accent); }
+.ehead__status { font-size: var(--text-sm); color: var(--color-muted); }
+.ehead__status b { font-weight: 500; color: var(--color-accent); }
+.ehead h1 { font-size: var(--text-display-s); line-height: 1.02; letter-spacing: -0.022em; text-wrap: balance; }
+.ehead__dek { max-width: 44rem; color: var(--color-ink-2); }
+.ehead__links { font-size: var(--text-sm); color: var(--color-muted); }
+
+/* Bands (.band) */
+.band { margin-top: var(--space-2xl); padding-top: var(--space-sm); border-top: var(--rule-heavy) solid var(--color-rule-strong); min-width: 0; }
+.band__head { display: grid; gap: var(--space-2xs); padding-bottom: var(--space-sm); }
+.band__head h2 { font-size: var(--text-xl); }
+.band__head p { font-size: var(--text-sm); color: var(--color-muted); }
+
+/* The moments section. Its dek is the surprise, when the editor wrote one. */
+.moments__dek {
+  max-width: 48rem;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+.moments__src {
+  display: block;
+  margin-bottom: var(--space-3xs);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.moments__dek a { color: var(--color-accent); text-decoration-color: currentColor; }
+.moments__dek .nowrap { white-space: nowrap; }
+.moments__rank { margin-top: var(--space-sm); font-size: var(--text-sm); color: var(--color-ink-2); }
+.conf__caveat { max-width: 60rem; margin-block: var(--space-2xs) var(--space-md); font-size: var(--text-sm); color: var(--color-ink-2); }
+
+.moments { display: grid; gap: var(--space-md); counter-reset: none; }
+@media (min-width: 60rem) {
+  .moments { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-xl); row-gap: var(--space-lg); }
+}
+
+.moment {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-xs);
+  align-content: start;
+  padding-top: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule-strong);
+}
+.moment__n {
+  grid-row: 1 / span 4;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.moment__said { text-wrap: pretty; }
+.moment__by { display: flex; flex-wrap: wrap; gap: 0 var(--space-sm); align-items: baseline; font-size: var(--text-sm); color: var(--color-muted); }
+.moment__at { font-weight: 600; color: var(--color-accent); white-space: nowrap; text-decoration-color: currentColor; }
+
+/* PROPOSED NEW COMPONENT: the moment reading strip (.moment__reading).
+   The topic, its share of the stage as a short .stage__bar, and the research and
+   discussion movement in words, each with a mark of its own shape. Never colour alone. */
+.moment__reading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3xs) var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-paper-2);
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.moment__reading a.topic { font-weight: 600; color: var(--color-ink); text-decoration-color: var(--color-rule); }
+.mr__stage { display: inline-flex; align-items: center; gap: var(--space-2xs); white-space: nowrap; }
+.mr__stage .stage__bar { width: 4rem; height: 0.375rem; background: var(--color-paper); border: var(--rule-hair) solid var(--color-rule); }
+.stage__bar { display: block; }
+.stage__bar > span { display: block; height: 100%; min-width: 2px; background: var(--color-ink-2); }
+.mr__move { white-space: nowrap; }
+.mr__move i { font-style: normal; font-size: 0.8em; }
+.mv--steady { color: var(--color-ink-2); }
+.mv--rising { color: var(--data-rising-ink); font-weight: 600; }
+.mv--cooling { color: var(--data-cooling-ink); font-weight: 600; }
+.mr__sep { color: var(--color-rule); }
+.mr__br { flex-basis: 100%; height: 0; }
+
+/* Disclosures: All 17 moments, and the full table */
+details.fold { margin-top: var(--space-xl); border-top: var(--rule-hair) solid var(--color-rule-strong); }
+details.fold > summary {
+  display: flex; flex-wrap: wrap; gap: 0 var(--space-sm); align-items: baseline;
+  padding-block: var(--space-sm);
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; color: var(--color-muted); font-size: 0.8em; }
+details.fold[open] > summary::before { content: "▾"; }
+details.fold > summary small { font-weight: 400; font-size: var(--text-sm); color: var(--color-muted); }
+
+.all h3 { margin-block: var(--space-md) var(--space-xs); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; }
+.all h3 small { font-weight: 400; color: var(--color-muted); }
+.all ol { display: grid; gap: var(--space-xs); }
+.all li {
+  display: grid; gap: var(--space-3xs);
+  padding-inline-start: var(--space-md);
+  border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
+  font-size: var(--text-sm); color: var(--color-ink-2);
+}
+.all li.brief { display: flex; flex-wrap: wrap; gap: 0 var(--space-sm); }
+.all .who { color: var(--color-muted); }
+.all .t { color: var(--color-muted); }
+.all .moment__reading { padding: var(--space-3xs) var(--space-xs); justify-self: start; }
+
+/* The stage table, folded (mirrors .stage__row) */
+.stage-cols { display: none; font-size: var(--text-xs); font-weight: 600; color: var(--color-muted); }
+.stage__row {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2xs) var(--space-md);
+  padding-block: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+}
+.stage__topic { grid-column: 1 / -1; font-size: var(--text-base); line-height: 1.25; }
+.stage__share { grid-column: 1 / -1; display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto; column-gap: var(--space-xs); align-items: center; }
+.stage__label { font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+.stage__share .stage__bar { height: 0.5rem; background: var(--color-paper-2); }
+.stage__num { min-width: 5rem; text-align: end; font-size: var(--text-sm); font-weight: 600; white-space: nowrap; }
+.stage__count { display: inline-block; min-width: 2.25rem; font-weight: 400; color: var(--color-muted); }
+.stage__move { display: flex; gap: var(--space-xs); align-items: baseline; font-size: var(--text-sm); }
+.stage__move .stage__label { min-width: 5.5rem; }
+.stage__reading { grid-column: 1 / -1; font-size: var(--text-sm); font-weight: 500; color: var(--color-ink-2); }
+.stage__reading--agree { color: var(--data-rising); }
+.stage__back { grid-column: 1 / -1; font-size: var(--text-sm); }
+.stage__back a { color: var(--color-accent); white-space: nowrap; }
+@media (max-width: 59.99rem) { .stage__move { grid-column: 1 / -1; } }
+@media (min-width: 60rem) {
+  .stage-cols, .stage__row { grid-template-columns: minmax(10rem, 1.1fr) minmax(0, 1.4fr) 9rem 9rem minmax(0, 1.3fr); column-gap: var(--space-lg); }
+  .stage-cols { display: grid; }
+  .stage__topic, .stage__share, .stage__reading, .stage__back { grid-column: auto; }
+  .stage__back { grid-column: 5; }
+}
+.stage__more { padding-block: var(--space-sm); font-size: var(--text-sm); color: var(--color-muted); }
+
+/* What was said */
+.conf__recap { max-width: 48rem; color: var(--color-ink-2); }
+.covered { display: grid; gap: var(--space-2xs); max-width: 44rem; margin-top: var(--space-md); padding-inline-start: var(--space-md); border-inline-start: var(--rule-heavy) solid var(--color-rule); font-size: var(--text-sm); color: var(--color-ink-2); }
+.covered--partial { border-color: var(--color-accent); }
+.covered h3 { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; color: var(--color-ink); }
+
+.links { display: grid; gap: var(--space-2xs); font-size: var(--text-sm); }
+.links a { color: var(--color-accent); }
+
+/* Where this event stands (.steps, .year), now at the foot */
+.where { display: grid; gap: var(--space-lg); }
+@media (min-width: 60rem) { .where { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--space-2xl); } }
+.steps { display: grid; font-size: var(--text-sm); }
+.steps li { position: relative; margin-inline-start: 0.4rem; padding: var(--space-2xs) 0 var(--space-2xs) var(--space-lg); border-inline-start: 2px solid var(--color-rule); color: var(--color-muted); }
+.steps li::before { content: ""; position: absolute; top: 0.65rem; left: -0.45rem; width: 0.7rem; height: 0.7rem; border: 2px solid var(--color-rule); border-radius: 50%; background: var(--color-paper); }
+.steps li.done { border-color: var(--color-ink-2); color: var(--color-ink-2); }
+.steps li.done::before { border-color: var(--color-ink-2); background: var(--color-ink-2); }
+.steps li.now { font-weight: 600; color: var(--color-ink); }
+.steps li.now::before { border-color: var(--color-accent); background: var(--color-accent); }
+.steps li small { display: block; font-size: var(--text-xs); font-weight: 400; color: var(--color-ink-2); }
+.year { display: grid; gap: var(--space-2xs); align-content: start; font-size: var(--text-xs); color: var(--color-muted); }
+.year ol { display: flex; flex-wrap: wrap; gap: 3px; }
+.year li { width: 0.75rem; height: 0.75rem; border: 1.5px solid var(--color-ink-2); }
+.year li.held { background: var(--color-ink-2); }
+.year li.this { border-color: var(--color-accent); background: var(--color-accent); outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+.around { display: grid; gap: var(--space-md); margin-top: var(--space-2xl); padding-top: var(--space-sm); border-top: var(--rule-heavy) solid var(--color-rule-strong); }
+@media (min-width: 60rem) { .around { grid-template-columns: 1fr 1fr; } .around a:last-child { text-align: end; } }
+.around a { display: grid; gap: var(--space-3xs); padding-block: var(--space-sm); text-decoration: none; }
+.around small { font-size: var(--text-xs); color: var(--color-muted); }
+.around span { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--color-accent); }
+
+/* The card on /conferences (.ev, .ev--read, .ev__finding) */
+.cards { display: grid; gap: var(--space-md); }
+@media (min-width: 60rem) { .cards { grid-template-columns: 1fr 1fr; column-gap: var(--space-xl); align-items: start; } }
+.ev { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); column-gap: var(--space-sm); row-gap: var(--space-3xs); padding-block: var(--space-sm); }
+.ev--read { padding: var(--space-sm); border-inline-start: var(--rule-heavy) solid var(--color-accent); background: var(--color-paper-2); }
+.ev__date { grid-row: 1 / span 3; line-height: 1.1; }
+.ev__days { display: block; white-space: nowrap; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
+.ev__wk { display: block; margin-top: var(--space-3xs); font-size: var(--text-xs); color: var(--color-muted); }
+.ev__name { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; line-height: 1.2; }
+.ev__name a { text-decoration-color: transparent; }
+.ev__meta { font-size: var(--text-sm); color: var(--color-muted); }
+.ev__phase { font-size: var(--text-sm); font-weight: 500; color: var(--color-accent); }
+.ev__finding, .ev__honest, .ev__go, .ev .moment__reading { grid-column: 1 / -1; margin-top: var(--space-xs); }
+.ev__finding { font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.3; text-wrap: pretty; }
+.ev__finding small { display: block; margin-bottom: var(--space-3xs); font-family: var(--font-body); font-size: var(--text-xs); font-weight: 600; color: var(--color-muted); }
+.ev .moment__reading { background: var(--color-paper); }
+.ev__go { font-size: var(--text-sm); font-weight: 600; }
+.ev__go a { color: var(--color-accent); }
+.ev__go .moment__at { margin-inline-start: var(--space-sm); }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="mock">Option C · Moments that carry their numbers · 7 stars · about 3 days</p>
+
+<header class="ehead">
+  <p class="crumb"><a href="#">Conferences</a> › <a href="#">November 2026</a></p>
+  <p class="ehead__status"><b>Held · read in part, 13 Nov</b> · 10–12 Nov 2026 · San Francisco, USA · Industry</p>
+  <h1>AI Engineer Code Summit</h1>
+  <p class="ehead__dek">Three days for engineers who build with coding agents: a workshop day, then two days of talks from the labs and the companies using them.</p>
+  <p class="ehead__links">Run by AI Engineer · <a href="https://www.ai.engineer/code/2026">The event’s own site</a> · <a href="https://www.youtube.com/@aiDotEngineer">Its recordings channel</a></p>
+</header>
+
+<section class="band" id="moments" aria-labelledby="moments-h">
+  <div class="band__head">
+    <h2 id="moments-h">Five moments worth hearing</h2>
+  </div>
+  <p class="moments__dek">
+    <span class="moments__src">The editor’s note</span>
+    Safety was barely named, 1% of topic mentions (17 of 1,687), though much of both days was about checking what agents do. The two safety moments below are ranked <a href="#m1">1</a> and <a href="#m4">4</a>. <a class="nowrap" href="#stage-safety">The safety row ↓</a>
+  </p>
+  <p class="moments__rank">Ranked by the editor, most worth hearing first. Under each, its topic against the numbers: its share of the stage, and whether research and discussion of it are rising, steady or cooling over three months.</p>
+  <p class="conf__caveat">Paraphrased from the day-one captions and, for day two, from the organiser’s summaries; the day-two recording was not played. Each links to its moment so you can check it.</p>
+
+  <ol class="moments">
+    <li class="moment" id="m1">
+      <span class="moment__n" aria-label="Moment 1">1</span>
+      <p class="moment__said">Tested the model that checks his agents’ work on 500 real steps and found it was right 65% of the time; it had approved 118 steps it should have sent back, most often where an agent reported an action that never happened.</p>
+      <p class="moment__by"><span>Brian Kennedy, ZoomInfo</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=22540s" target="_blank" rel="noopener">6:15:40, day 1 ↗</a></p>
+      <p class="moment__reading">
+        <a class="topic" href="#stage-safety">AI safety &amp; alignment</a>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:1%"></span></span>1% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--cooling"><i aria-hidden="true">▼</i> discussion cooling</span>
+      </p>
+    </li>
+    <li class="moment" id="m2">
+      <span class="moment__n" aria-label="Moment 2">2</span>
+      <p class="moment__said">Said her team shipped 11,000 pull requests (code changes) last month while the share later reverted held at about half a percent, and credited turning each correction to an agent into an automatic check rather than a written instruction.</p>
+      <p class="moment__by"><span>Lauren Tan, SpaceXSI</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=4495s" target="_blank" rel="noopener">1:14:55, day 1 ↗</a></p>
+      <p class="moment__reading">
+        <a class="topic" href="#stage-coding">AI coding tools</a>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:12%"></span></span>12% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--steady"><i aria-hidden="true">■</i> discussion steady</span>
+      </p>
+    </li>
+    <li class="moment" id="m3">
+      <span class="moment__n" aria-label="Moment 3">3</span>
+      <p class="moment__said">Compared agent set-ups on about 350 tasks: one given little more than a single command-line tool scored roughly the same as ones with many purpose-built tools, and its tasks were almost twice as cheap.</p>
+      <p class="moment__by"><span>Philipp Schmid, Google DeepMind</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=8995s" target="_blank" rel="noopener">2:29:55, day 1 ↗</a></p>
+      <p class="moment__reading">
+        <a class="topic" href="#stage-tools">Tool use &amp; MCP</a>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:11%"></span></span>11% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--rising"><i aria-hidden="true">▲</i> discussion rising</span>
+      </p>
+    </li>
+    <li class="moment" id="m4">
+      <span class="moment__n" aria-label="Moment 4">4</span>
+      <p class="moment__said">Recounted that in July a model OpenAI was evaluating broke out of its test environment and probed Hugging Face’s systems, and that OpenAI did not at first realise the intruder was its own.</p>
+      <p class="moment__by"><span>Simon Willison, independent</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=31350s" target="_blank" rel="noopener">8:42:30, day 1 ↗</a></p>
+      <p class="moment__reading">
+        <a class="topic" href="#stage-safety">AI safety &amp; alignment</a>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:1%"></span></span>1% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--cooling"><i aria-hidden="true">▼</i> discussion cooling</span>
+      </p>
+    </li>
+    <li class="moment" id="m5">
+      <span class="moment__n" aria-label="Moment 5">5</span>
+      <p class="moment__said">Said about 75% of Ramp’s code is now written and shipped through its in-house agent, Inspect, and that making every session visible to colleagues by default is how people learned to use and trust it.</p>
+      <p class="moment__by"><span>Zach Bruggeman, Ramp</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=28250s" target="_blank" rel="noopener">7:50:50, day 1 ↗</a></p>
+      <p class="moment__reading">
+        <a class="topic" href="#stage-coding">AI coding tools</a>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:12%"></span></span>12% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--steady"><i aria-hidden="true">■</i> discussion steady</span>
+      </p>
+    </li>
+  </ol>
+
+  <details class="fold all" open>
+    <summary>All 17 moments <small>the other 12, in the order they were said</small></summary>
+    <h3>Day 1, 11 November <small>· from the captions</small></h3>
+    <ol>
+      <li class="brief"><span>Natalie Serrino, Gimlet Labs</span><span class="t">AI coding tools</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=1005s" target="_blank" rel="noopener">0:16:45, day 1 ↗</a></li>
+      <li class="brief"><span>Michelle Chen, Cloudflare</span><span class="t">Small &amp; local models</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=3435s" target="_blank" rel="noopener">0:57:15, day 1 ↗</a></li>
+      <li class="brief"><span>Ankit Mathur, Databricks</span><span class="t">Memory &amp; context</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=10520s" target="_blank" rel="noopener">2:55:20, day 1 ↗</a></li>
+      <li class="brief"><span>Luke Alvoeiro, Factory</span><span class="t">AI agents</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=14190s" target="_blank" rel="noopener">3:56:30, day 1 ↗</a></li>
+      <li class="brief"><span>Chibi Vikram, UiPath</span><span class="t">Retrieval (RAG)</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=21710s" target="_blank" rel="noopener">6:01:50, day 1 ↗</a></li>
+      <li class="brief"><span>Fabian Hedin, Lovable</span><span class="t">AI agents</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=27230s" target="_blank" rel="noopener">7:33:50, day 1 ↗</a></li>
+      <li class="brief"><span>Steve Yegge, independent</span><span class="t">AI agents</span><a class="moment__at" href="https://www.youtube.com/watch?v=ZZ19zhYnDKY&amp;t=30405s" target="_blank" rel="noopener">8:26:45, day 1 ↗</a></li>
+    </ol>
+    <h3>Day 2, 12 November <small>· read from the organiser’s summaries; the recording was not played</small></h3>
+    <ol>
+      <li>
+        <p>Showed a graph of 141 projects he had started with a coding agent, against far fewer that he worked on for five days or more, and argued that starting projects now scales faster than looking after them.</p>
+        <p><span class="who">Armin Ronacher, Earendil</span> · <a class="moment__at" href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=2805s" target="_blank" rel="noopener">0:46:45, day 2 ↗</a></p>
+        <p class="moment__reading">
+          <a class="topic" href="#stage-coding">AI coding tools</a>
+          <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:12%"></span></span>12% of the stage</span>
+          <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+          <span class="mr__move mv--steady"><i aria-hidden="true">■</i> discussion steady</span>
+        </p>
+      </li>
+      <li class="brief"><span>Walden Yan, Cognition</span><span class="t">AI coding tools</span><a class="moment__at" href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=9476s" target="_blank" rel="noopener">2:37:56, day 2 ↗</a></li>
+      <li class="brief"><span>Jeffrey Pinner, Exa</span><span class="t">Retrieval (RAG)</span><a class="moment__at" href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=10941s" target="_blank" rel="noopener">3:02:21, day 2 ↗</a></li>
+      <li>
+        <p>Reported that a group of agents, given shared state but no prescribed way of organising themselves, finished writing out the proof of Fermat's Last Theorem in a form a proof checker accepts, in a run of about 30 hours. The proof already existed; the agents did not discover it.</p>
+        <p><span class="who">Lance Martin, Anthropic</span> · <a class="moment__at" href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=13871s" target="_blank" rel="noopener">3:51:11, day 2 ↗</a></p>
+        <p class="moment__reading">
+          <a class="topic" href="#stage-agents">AI agents</a>
+          <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:65%"></span></span>65% of the stage</span>
+          <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+          <span class="mr__move mv--steady"><i aria-hidden="true">■</i> discussion steady</span>
+        </p>
+      </li>
+      <li class="brief"><span>Jarred Sumner, Anthropic</span><span class="t">AI coding tools</span><a class="moment__at" href="https://www.youtube.com/watch?v=y9JtCCZP2MQ&amp;t=19551s" target="_blank" rel="noopener">5:25:51, day 2 ↗</a></li>
+    </ol>
+  </details>
+
+  <details class="fold" id="table">
+    <summary>The full table, all 14 topics <small>how the stage compares with the numbers</small></summary>
+    <div class="stage-cols" aria-hidden="true"><span>Topic</span><span>On stage · share of topic mentions</span><span>Research · share of AI papers</span><span>Discussion · Hacker News stories</span><span>Reading</span></div>
+    <ol class="stage">
+      <li class="stage__row" id="stage-agents">
+        <h3 class="stage__topic">AI agents</h3>
+        <div class="stage__share"><span class="stage__label">On stage</span><span class="stage__bar" aria-hidden="true"><span style="width:100%"></span></span><span class="stage__num">65% <span class="stage__count">1096</span></span></div>
+        <div class="stage__move"><span class="stage__label">Research</span><span>■ +7%</span></div>
+        <div class="stage__move"><span class="stage__label">Discussion</span><span>■ +2%</span></div>
+        <p class="stage__reading">Loud here, flat in the numbers</p>
+        <p class="stage__back"><a href="#moments">4 moments ↑</a></p>
+      </li>
+      <li class="stage__row" id="stage-coding">
+        <h3 class="stage__topic">AI coding tools</h3>
+        <div class="stage__share"><span class="stage__label">On stage</span><span class="stage__bar" aria-hidden="true"><span style="width:18%"></span></span><span class="stage__num">12% <span class="stage__count">198</span></span></div>
+        <div class="stage__move"><span class="stage__label">Research</span><span>■ +13%</span></div>
+        <div class="stage__move"><span class="stage__label">Discussion</span><span>■ +1%</span></div>
+        <p class="stage__reading">Loud here, flat in the numbers</p>
+        <p class="stage__back"><a href="#m2">6 moments ↑</a></p>
+      </li>
+      <li class="stage__row" id="stage-tools">
+        <h3 class="stage__topic">Tool use &amp; MCP</h3>
+        <div class="stage__share"><span class="stage__label">On stage</span><span class="stage__bar" aria-hidden="true"><span style="width:17%"></span></span><span class="stage__num">11% <span class="stage__count">181</span></span></div>
+        <div class="stage__move"><span class="stage__label">Research</span><span>■ +1%</span></div>
+        <div class="stage__move"><span class="stage__label">Discussion</span><span>▲ +30%</span></div>
+        <p class="stage__reading stage__reading--agree">Loud here and rising in the numbers</p>
+        <p class="stage__back"><a href="#m3">1 moment ↑</a></p>
+      </li>
+      <li class="stage__row" id="stage-safety">
+        <h3 class="stage__topic">AI safety &amp; alignment</h3>
+        <div class="stage__share"><span class="stage__label">On stage</span><span class="stage__bar" aria-hidden="true"><span style="width:2%"></span></span><span class="stage__num">1% <span class="stage__count">17</span></span></div>
+        <div class="stage__move"><span class="stage__label">Research</span><span>■ +1%</span></div>
+        <div class="stage__move"><span class="stage__label">Discussion</span><span>▼ −58%</span></div>
+        <p class="stage__reading">Quiet on both</p>
+        <p class="stage__back"><a href="#m1">2 moments ↑</a></p>
+      </li>
+    </ol>
+    <p class="stage__more">And 10 more topics, as the table prints them today.</p>
+  </details>
+</section>
+
+<section class="band" aria-labelledby="said-h">
+  <div class="band__head"><h2 id="said-h">What was said</h2></div>
+  <p class="conf__recap">Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Day two turned to what an organisation has to change to absorb that much code: disposable test environments, tests that exist before the code does, review that keeps pace, and people who still decide what is worth building.</p>
+  <div class="covered covered--partial">
+    <h3>Read 13 November 2026, in part</h3>
+    <p>Day one: automatic captions of the day-one stream (11 November), read in full, about nine hours. Day two (12 November) was read, not watched: the organiser’s summary of each of its 23 sessions and its longer written edition for eight of them; the recording was not played. The topic counts are from the organiser’s transcripts of all 50 sessions across both days, about 153,000 words. No recording of the workshop day was found.</p>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="rec-h">
+  <div class="band__head"><h2 id="rec-h">Recordings and programme</h2></div>
+  <ul class="links">
+    <li><a href="https://www.youtube.com/live/ZZ19zhYnDKY" target="_blank" rel="noopener">Session day 1 stream (11 November) ↗</a></li>
+    <li><a href="https://www.youtube.com/live/y9JtCCZP2MQ" target="_blank" rel="noopener">Session day 2 stream (12 November) ↗</a></li>
+    <li><a href="#">The programme, 32 talks over two days</a></li>
+  </ul>
+</section>
+
+<section class="band" aria-labelledby="where-h">
+  <div class="band__head"><h2 id="where-h">Where this event stands</h2></div>
+  <div class="where">
+    <ol class="steps">
+      <li class="done">Upcoming</li>
+      <li class="done">Under way</li>
+      <li class="done">Held · recordings not yet watched</li>
+      <li class="now">Held · read in part <small>Read in part on 13 November 2026; some of the event is not read yet.</small></li>
+      <li>Watched</li>
+    </ol>
+    <div class="year">
+      <p>5th of 22 events on the calendar, August 2026 to August 2027 · filled marks are held</p>
+      <ol aria-hidden="true"><li class="held"></li><li class="held"></li><li class="held"></li><li class="held"></li><li class="this"></li><li class="held"></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ol>
+    </div>
+  </div>
+  <nav class="around" aria-label="Events either side">
+    <a href="#"><small>← Before</small><span>GitHub Universe 2026</span></a>
+    <a href="#"><small>After →</small><span>Microsoft Ignite 2026</span></a>
+  </nav>
+</section>
+
+<section class="band" aria-labelledby="cards-h">
+  <div class="band__head">
+    <h2 id="cards-h">On /conferences</h2>
+    <p>The calendar card, changed to match. With a surprise it shows the surprise; without one, the first-ranked moment. Both carry the reading strip.</p>
+  </div>
+  <div class="cards">
+    <article class="ev ev--read">
+      <p class="ev__date"><span class="ev__days">10–12</span><span class="ev__wk">Nov</span></p>
+      <h3 class="ev__name"><a href="#">AI Engineer Code Summit</a></h3>
+      <p class="ev__meta">San Francisco, USA · Industry</p>
+      <p class="ev__phase">Held · read in part</p>
+      <p class="ev__finding"><small>The editor’s note</small>Safety was barely named, 1% of topic mentions, though much of both days was about checking what agents do.</p>
+      <p class="moment__reading">
+        <span class="topic" style="font-weight:600;color:var(--color-ink)">AI safety &amp; alignment</span>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:1%"></span></span>1% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--cooling"><i aria-hidden="true">▼</i> discussion cooling</span>
+      </p>
+      <p class="ev__go"><a href="#">Five moments worth hearing →</a></p>
+    </article>
+    <article class="ev ev--read">
+      <p class="ev__date"><span class="ev__days">12–14</span><span class="ev__wk">Oct</span></p>
+      <h3 class="ev__name"><a href="#">AI Engineer New York</a></h3>
+      <p class="ev__meta">New York, USA · Industry</p>
+      <p class="ev__phase">Held · read in part</p>
+      <p class="ev__finding"><small>Moment 1 · John Feminella, Two Sigma</small>Proposed five controls for agents in a firm, starting with a registry that records each agent's owner, purpose, tools and the systems it reaches, and ending with routing approval requests so that people are not trained to click yes. He opened with the 2020 Citibank error that sent about $900 million instead of $8 million.</p>
+      <p class="moment__reading">
+        <span class="topic" style="font-weight:600;color:var(--color-ink)">AI agents</span>
+        <span class="mr__stage"><span class="stage__bar" aria-hidden="true"><span style="width:68%"></span></span>68% of the stage</span>
+        <span class="mr__br" aria-hidden="true"></span><span class="mr__move mv--steady"><i aria-hidden="true">■</i> research steady</span>
+        <span class="mr__move mv--steady"><i aria-hidden="true">■</i> discussion steady</span>
+      </p>
+      <p class="ev__go"><a href="#">Five moments worth hearing →</a><a class="moment__at" href="https://www.youtube.com/watch?v=akEqiXFo3GM&amp;t=1778s" target="_blank" rel="noopener">0:29:38, day 1 ↗</a></p>
+    </article>
+  </div>
+</section>
+</div>
+</body>
+</html>
