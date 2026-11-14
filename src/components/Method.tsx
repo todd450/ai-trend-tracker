@@ -9,6 +9,7 @@ import { buildToday, editorial, pastLeads } from "@/lib/today";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
+  MAP_MIN_STORIES,
   PRODUCT_MIN_STORIES,
   SUBTHEME_MIN_STORIES,
   THEME_STEADY_BAND,
@@ -17,6 +18,7 @@ import {
   fmtDay,
   latest,
 } from "@/lib/trends";
+import { READING_LABEL, STAGE_LOUD, STAGE_QUIET } from "@/lib/conferences";
 import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary } from "@/lib/indicators";
 
 /** What each source is, in words, for the list of when each was last collected. */
@@ -45,8 +47,9 @@ const SOURCE_LABELS: Record<string, string> = {
 
 /**
  * How this is measured: how the day’s news is ranked, the rules that turn the counts on the trend
- * pages into calls, how the reading list is made, and, last, whether each source is current. It used
- * to close the Today, trend and reading-list pages; it has a page of its own, linked from every footer.
+ * pages into calls, how the reading list is made, how a conference is read against the numbers, and,
+ * last, whether each source is current. It used to close the Today, trend and reading-list pages, and
+ * to sit beside each conference's moments and stage table; it has a page of its own, linked from every footer.
  */
 export function Method() {
   const sources = Object.entries(latest.sources);
@@ -350,6 +353,48 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
               <p>
                 The editor can leave a link out of every list; each link left out is named, with the reason, under{" "}
                 <a href="#today-news">today’s news</a> above. None of these lists feeds the trends.
+              </p>
+            </div>
+          </section>
+
+          <section id="conferences" className="band method" aria-labelledby="conferences-h">
+            <div className="band__head">
+              <h2 id="conferences-h">Conferences</h2>
+            </div>
+            <div className="prose">
+              <p>
+                <strong>The moments worth hearing</strong> are chosen and ranked by the editor, the one most worth
+                your time first, and paraphrased from the recordings’ automatic captions or from the organiser’s
+                transcripts and summaries; each event’s note on what was and was not watched says which for each
+                day. Captions can mishear names and numbers, so each moment links to its time in the recording to be
+                checked there.
+              </p>
+              <p>
+                <strong>The stage against the numbers.</strong> A topic’s share of the stage is its part of all the
+                mentions of tracked topics, found with the trends’ own search phrases plus the ways speakers say them
+                aloud, in the talks’ captions
+                or, where the recordings have no captions yet, in the titles and abstracts of the published
+                programme. Beside it are the topic’s research and discussion figures over the default three-month
+                view, the last {HORIZONS.threeMonths.window} weeks against the {HORIZONS.threeMonths.window} before,
+                as on the trends page. A figure resting on too few papers (under {HEADLINE_MIN_PAPERS} a week) or
+                stories (under {MAP_MIN_STORIES} a week) is shown grey, marked “small numbers”, and never decides
+                the reading.
+              </p>
+              <p>
+                <strong>The reading</strong> beside each topic follows fixed rules. A topic is loud at{" "}
+                {STAGE_LOUD * 100}% of the mentions or more, and quiet under {STAGE_QUIET * 100}%. A loud topic
+                reads “{READING_LABEL.agree}” when a trusted figure rises and none cools, “
+                {READING_LABEL["stage-ahead"]}” when a figure cools and none rises, “mixed” when one rises and
+                the other cools, “flat” when neither moves, and “too few to call” when neither figure is trusted.
+                A quiet topic reads “{READING_LABEL["numbers-ahead"]}” when a trusted figure rises and none
+                cools, and “{READING_LABEL.quiet}” the other way round. Any other topic has no reading. An event’s page leads with a
+                surprise when there is one: the editor’s own note, or failing that, from the numbers, the loudest
+                topic that reads “{READING_LABEL["stage-ahead"]}” or “{READING_LABEL["numbers-ahead"]}”.
+              </p>
+              <p>
+                <strong>How to read this.</strong> A conference’s subject decides most of what is said on its stage,
+                so a topic being loud there shows what the event was about, not that the field has moved. The
+                comparison says most about topics the event was not built around.
               </p>
             </div>
           </section>
