@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * A list of trend rows that shows its first five and keeps the rest in the page,
- * hidden until asked for. A link to a hidden row's anchor (`/#product-…`) opens the list,
+ * hidden until asked for. A link to a hidden row's anchor (`/three-months#product-…`) opens the list,
  * so the row it names is there to land on.
  */
 export function MoreRows({ count, noun, children }: { count: number; noun: string; children: React.ReactNode }) {

@@ -96,7 +96,7 @@ export function TopicsPage({ horizon }: { horizon: Horizon }) {
         <nav className="crumbs" aria-label="Breadcrumb">
           <ol>
             <li>
-              <Link href={front}>Front page</Link>
+              <Link href={front}>Trends</Link>
             </li>
             <li>
               <Link href={`${front}#data`}>The data</Link>
@@ -334,7 +334,7 @@ export function TopicsPage({ horizon }: { horizon: Horizon }) {
         <nav className="dpage__next" aria-label="Datasets">
           <p>
             <span>Back to</span>
-            <Link href={front}>← The front page</Link>
+            <Link href={front}>← Trends</Link>
           </p>
           <p>
             <span>Next dataset</span>

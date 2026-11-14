@@ -2,7 +2,7 @@
  * The "why it matters" line under Today's top story, written by a fixed rule from the tracker's
  * own figures: the trend of the headline's first tag, as its row on the site reads it over the
  * default range (three months), the same row the tag links to. A topic reads as on the topics
- * page's table, a product as under "Product momentum" on the front page. A headline with no tag
+ * page's table, a product as under "Product momentum" on the trends page. A headline with no tag
  * has no line.
  */
 import { topicTable, type Call } from "./datasets";
@@ -19,7 +19,7 @@ function readingOf(kind: "product" | "topic", id: string, name: string): TrendRe
   }
   const p = buildTrends(RANGE).productTrends.find((t) => t.id === id);
   if (!p) return undefined;
-  // The front page draws no bar for a product with too few stories, and greys one within its usual swing.
+  // The trends page draws no bar for a product with too few stories, and greys one within its usual swing.
   const call: Call = !p.enough
     ? "too few to call"
     : heldBack(p.stories, THEME_STEADY_BAND)

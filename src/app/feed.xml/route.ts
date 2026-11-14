@@ -17,7 +17,7 @@ export function GET() {
       (e) => `  <entry>
     <id>tag:${host},${e.week.slice(0, 4)}:edition:${e.week}</id>
     <title>${escape(`${e.name}: ${e.headline}`)}</title>
-    <link rel="alternate" type="text/html" href="${SITE_URL}/"/>
+    <link rel="alternate" type="text/html" href="${SITE_URL}/three-months"/>
     <published>${e.closed}</published>
     <updated>${e.closed}</updated>
     <summary>${escape(`${e.headline} From the three-month view: the last 4 weeks compared with the 4 before, as today's data gives it for that week.`)}</summary>
@@ -30,7 +30,7 @@ export function GET() {
   <title>${escape(SITE_NAME)}</title>
   <subtitle>${escape(SITE_DESCRIPTION)}</subtitle>
   <link rel="self" type="application/atom+xml" href="${SITE_URL}/feed.xml"/>
-  <link rel="alternate" type="text/html" href="${SITE_URL}/"/>
+  <link rel="alternate" type="text/html" href="${SITE_URL}/three-months"/>
   <updated>${list[0]?.closed ?? "1970-01-01T00:00:00.000Z"}</updated>
   <author><name>${escape(SITE_AUTHOR)}</name></author>
 ${entries}

@@ -30,15 +30,15 @@ import { ToolError, type InputField, type ServerInfo, type Tool } from "./protoc
 
 // ------------------------------------------------------------ shared pieces
 
-/** The front page's horizon, which has no path of its own to be named after. */
-const FRONT_PAGE = "three-months";
+/** The horizon a tool uses when none is asked for: the one the Trends tab opens. */
+const DEFAULT_HORIZON = "three-months";
 
 /**
  * The horizons by the names their pages use ("one-week" for /one-week), taken from HORIZONS so a
  * view added to the site is offered here too.
  */
 const HORIZON_NAMES: Record<string, Horizon> = Object.fromEntries(
-  (Object.keys(HORIZONS) as Horizon[]).map((h) => [HORIZONS[h].href.slice(1) || FRONT_PAGE, h]),
+  (Object.keys(HORIZONS) as Horizon[]).map((h) => [HORIZONS[h].href.slice(1), h]),
 );
 
 const horizonField: InputField = {
@@ -49,12 +49,12 @@ const horizonField: InputField = {
       .map(([name, h]) =>
         HORIZONS[h].window === 1
           ? `${name}, the latest week against the week before`
-          : `${name}, the latest ${HORIZONS[h].window} weeks against the ${HORIZONS[h].window} before${name === FRONT_PAGE ? " (the site's front page)" : ""}`,
+          : `${name}, the latest ${HORIZONS[h].window} weeks against the ${HORIZONS[h].window} before`,
       )
       .join("; ") +
     ". Shorter horizons react faster and are noisier.",
   enum: Object.keys(HORIZON_NAMES),
-  default: FRONT_PAGE,
+  default: DEFAULT_HORIZON,
 };
 
 const horizonOf = (args: Record<string, string | number>) => HORIZON_NAMES[String(args.horizon)];
@@ -416,7 +416,7 @@ const indicatorsTool: Tool = {
     return {
       dataCollectedAt: indicators.updatedAt,
       ...Object.fromEntries(names.map((name) => [name, all[name]() ?? null])),
-      page: `${SITE_URL}/#indicators`,
+      page: `${SITE_URL}/three-months#indicators`,
     };
   },
 };

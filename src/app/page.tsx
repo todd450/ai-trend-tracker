@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/site";
-import { Dashboard } from "@/components/Dashboard";
+import { Today } from "@/components/Today";
 
 export const metadata: Metadata = pageMetadata({
   path: "/",
-  title: "AI Trend Tracker: what is rising in AI over three months",
+  title: "AI Trend Tracker: today’s AI news",
   description:
-    "The three-month view of where attention in artificial intelligence is moving: the last 4 weeks compared with the 4 before, across research papers, code, model releases and news.",
+    "What the AI labs announced, what the analysts published and which AI stories Hacker News picked up in the past 24 hours, biggest first.",
 });
 
-export default function Home() {
-  return <Dashboard horizon="threeMonths" />;
+export default function TodayPage() {
+  return <Today />;
 }

@@ -14,9 +14,9 @@ const { TOPICS } = await fromSrc<any>("lib/topics");
 
 const ids = (title: string) => trendTags(title).map((t: any) => `${t.kind}:${t.id}`);
 
-test("a headline naming a product is tagged with it, linked to its row on the front page", () => {
+test("a headline naming a product is tagged with it, linked to its row on the trends page", () => {
   const [tag] = trendTags("Gemini 4 Hydrogen");
-  assert.deepEqual(tag, { kind: "product", id: "gemini", name: "Gemini", href: "/#product-gemini" });
+  assert.deepEqual(tag, { kind: "product", id: "gemini", name: "Gemini", href: "/three-months#product-gemini" });
 });
 
 test("a headline naming a topic is tagged with it, linked to its row on the topics page", () => {

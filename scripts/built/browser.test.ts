@@ -78,9 +78,9 @@ function listOf(html: string, id: string) {
   return { tag, place };
 }
 
-/** Product rows the front page keeps folded away: past the fifth in their group. */
+/** Product rows the trends page keeps folded away: past the fifth in their group. */
 const folded = () => {
-  const html = readFileSync(join(APP, "index.html"), "utf8");
+  const html = readFileSync(join(APP, "three-months.html"), "utf8");
   return [...html.matchAll(/id="(product-[^"]+)"/g)].map((m) => m[1]).filter((id) => listOf(html, id).place > 5);
 };
 
@@ -88,18 +88,33 @@ test("a link to a product row folded under “Show all” opens its group", asyn
   const ids = folded();
   assert.ok(ids.length > 0, "some product rows start folded");
   const id = ids[0];
-  const closed = await rendered("/");
+  const closed = await rendered("/three-months");
   assert.match(listOf(closed, id).tag, /data-open="false"/, "the group starts folded");
-  const followed = await rendered(`/#${id}`);
-  assert.match(listOf(followed, id).tag, /data-open="true"/, `following /#${id} opens its group`);
+  const followed = await rendered(`/three-months#${id}`);
+  assert.match(listOf(followed, id).tag, /data-open="true"/, `following /three-months#${id} opens its group`);
 });
 
-test("a malformed #fragment in a shared link leaves the front page whole", async () => {
+test("a malformed #fragment in a shared link leaves the trends page whole", async () => {
   const groups = (html: string) => html.split('<ol class="mom__list"').length - 1;
-  const whole = groups(await rendered("/"));
-  assert.ok(whole > 0, "the front page has trend groups");
+  const whole = groups(await rendered("/three-months"));
+  assert.ok(whole > 0, "the trends page has trend groups");
   // Fragments that are not valid percent-encoding, as a mangled or hand-typed link can carry.
   for (const hash of ["%", "%E0%A4%A", "%zz", "product-%"]) {
-    assert.equal(groups(await rendered(`/#${hash}`)), whole, `/#${hash} renders the same groups as /`);
+    assert.equal(groups(await rendered(`/three-months#${hash}`)), whole, `/three-months#${hash} renders the same groups as /three-months`);
   }
+});
+
+test("an old link to a trend row on the landing page is followed on the trends page", async () => {
+  // The trends were the landing page before the news was, so `/#product-…` links are still about.
+  const id = folded()[0];
+  const followed = await rendered(`/#${id}`);
+  assert.match(listOf(followed, id).tag, /data-open="true"/, `/#${id} ends on the trends page with its group open`);
+  // A fragment the news page has itself stays there.
+  assert.ok((await rendered("/#today")).includes('id="today-h"'), "/#today stays on the news page");
+});
+
+test("the news page's old address sends readers to the landing page", async () => {
+  const response = await fetch(origin + "/today", { redirect: "manual" });
+  assert.equal(response.status, 308);
+  assert.equal(new URL(response.headers.get("location")!, origin).pathname, "/");
 });

@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 const PAGES = [
-  { id: "trends", label: "Trends", href: "/" },
-  { id: "today", label: "Today’s news", href: "/today" },
+  // The day's news is the landing page, so it leads; the Trends tab opens the three-month view.
+  { id: "today", label: "Today’s news", href: "/" },
+  { id: "trends", label: "Trends", href: "/three-months" },
   { id: "reading", label: "Reading list", href: "/reading" },
   // Every tab opens its page at the top, so the tabs stay in view.
   { id: "conferences", label: "Conferences", href: "/conferences" },
