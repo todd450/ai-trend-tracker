@@ -46,7 +46,7 @@ function Move({ signal, label, firm }: { signal: Signal; label: string; firm: bo
   const tone = firm ? signalDirection(signal, STEADY_BAND) : "steady";
   const held = firm && heldBack(signal, STEADY_BAND);
   return (
-    <span className={firm ? (held ? "change change--held" : "change") : "change change--thin"}>
+    <span className={firm ? (held ? "change change--held" : `change change--${tone}`) : "change change--thin"}>
       <Spark values={signal.values} tone={tone} />
       <span className={`change__mark change__mark--${tone}`} aria-hidden="true">
         {firm ? ARROW[tone] : "○"}

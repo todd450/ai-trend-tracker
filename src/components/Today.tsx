@@ -4,7 +4,7 @@ import { SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { isBigStory } from "@/lib/editorial";
 import { NEW_TAB, host } from "@/lib/links";
-import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
+import { SITE_MAKER_URL } from "@/lib/site";
 import { buildToday, editorial } from "@/lib/today";
 import { fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
 
@@ -192,8 +192,7 @@ export function Today() {
           {fmtDate(latest.generatedAt)}.
         </p>
         <p>
-          Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>. To
-          follow along, subscribe to the <a href="/feed.xml">weekly feed</a>: one entry a week, with that week’s headline.
+          <a href={SITE_MAKER_URL} {...NEW_TAB}>HalfBadger.com</a>
         </p>
       </footer>
     </>
