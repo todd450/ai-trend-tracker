@@ -5,12 +5,14 @@
  *   npm run collect            everything
  *   npm run collect -- --fast  skip the slow arXiv history backfill
  *   npm run collect -- --accept  store weekly counts without the plausibility checks
+ *   npm run collect -- --counted only rewrite counted.json from the stored counts
  *
  * Output:
  *   data/history.json              weekly mention counts per topic (grows over time)
  *   data/latest.json               current ranked lists (papers, repos, models, news)
  *   data/indicators.json           job-posting, federal, model-release, download, business-survey and model-share figures
- *   data/snapshots/YYYY-MM-DD.json a dated copy of the lists, kept as a record
+ *   data/counted.json              the few stories and papers behind each rising move the headlines name
+ *   data/snapshots/YYYY-MM-DD.json a dated copy of the lists and of counted.json, kept as a record
  *
  * No API keys are required. Set GITHUB_TOKEN to raise GitHub's rate limit.
  * If one source fails, the previous data for that source is kept and the
@@ -21,6 +23,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { inflateRawSync } from "node:zlib";
+import { phraseIn, pickPapers, pickStories, risingMoves, type CountedFile, type CountedMove, type CountedStory, type PaperCandidate, type Span } from "../src/lib/counted.ts";
 import { PRODUCTS } from "../src/lib/products.ts";
 import { THEMES, subthemeKey, type Theme } from "../src/lib/themes.ts";
 import { TOOLKITS, packageKey } from "../src/lib/toolkits.ts";
@@ -28,6 +31,8 @@ import { TOPICS } from "../src/lib/topics.ts";
 import type { FeedItem, History, Indicators, Latest, Release, SourceStatus } from "../src/lib/types.ts";
 import { weeklyMakerTokens, type RankingRow } from "./marketShare.ts";
 import { implausible, type Kind } from "./sanity.ts";
+// Lets the collector read the site's own modules, to name the moves exactly as the page does.
+import { fromSrc } from "./support/load-src.ts";
 
 const DATA_DIR = path.join(import.meta.dirname, "..", "data");
 /** Enough for the two-year view: 52 weeks compared with the 52 before. */
@@ -39,6 +44,8 @@ const DAY = 86_400_000;
 const FAST = process.argv.includes("--fast");
 /** Skips the plausibility checks, for a person who has looked at a rejected figure and found it real. */
 const ACCEPT = process.argv.includes("--accept");
+/** Rewrites only counted.json, from the counts already stored. */
+const COUNTED_ONLY = process.argv.includes("--counted");
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -93,16 +100,20 @@ function completedWeeks(count: number, now = new Date()): string[] {
 
 const ARXIV_CATEGORIES = ["cs.AI", "cs.LG", "cs.CL", "cs.CV", "cs.RO", "cs.MA", "cs.SD", "eess.AS", "stat.ML"];
 
-/** Number of AI papers submitted in a week, optionally matching any phrase. */
-async function arxivCount(weekStart: string, phrases: string[] | null): Promise<number> {
-  const start = new Date(weekStart + "T00:00:00Z");
-  const end = new Date(start.getTime() + 6 * DAY);
+/** arXiv's search for AI papers submitted from the Monday `first` to the end of the Sunday after `last`, optionally matching any phrase. */
+function arxivQuery(first: string, last: string, phrases: string[] | null): string {
+  const start = new Date(first + "T00:00:00Z");
+  const end = new Date(Date.parse(last + "T00:00:00Z") + 6 * DAY);
   const stamp = (d: Date, hhmm: string) => isoDay(d).replaceAll("-", "") + hhmm;
   const parts = [`(${ARXIV_CATEGORIES.map((c) => `cat:${c}`).join(" OR ")})`];
   if (phrases) parts.push(`(${phrases.map((p) => `abs:"${p}" OR ti:"${p}"`).join(" OR ")})`);
   parts.push(`submittedDate:[${stamp(start, "0000")} TO ${stamp(end, "2359")}]`);
-  const url = `https://export.arxiv.org/api/query?max_results=1&search_query=${encodeURIComponent(parts.join(" AND "))}`;
+  return parts.join(" AND ");
+}
 
+/** One arXiv API request, paced and retried as arXiv asks; `read` turns the answer into a result or throws. */
+async function arxivFetch<T>(params: Record<string, string>, read: (xml: string) => T): Promise<T> {
+  const url = `https://export.arxiv.org/api/query?${new URLSearchParams(params)}`;
   let lastError: unknown;
   for (let attempt = 0; attempt < 5; attempt++) {
     // arXiv asks for at most one request every three seconds, and answers 429
@@ -111,14 +122,21 @@ async function arxivCount(weekStart: string, phrases: string[] | null): Promise<
     try {
       const res = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(45_000) });
       if (!res.ok) throw new Error(`arXiv responded ${res.status}`);
-      const match = (await res.text()).match(/<opensearch:totalResults[^>]*>(\d+)</);
-      if (!match) throw new Error("arXiv response had no result count");
-      return Number(match[1]);
+      return read(await res.text());
     } catch (err) {
       lastError = err;
     }
   }
   throw lastError;
+}
+
+/** Number of AI papers submitted in a week, optionally matching any phrase. */
+function arxivCount(weekStart: string, phrases: string[] | null): Promise<number> {
+  return arxivFetch({ max_results: "1", search_query: arxivQuery(weekStart, weekStart, phrases) }, (xml) => {
+    const match = xml.match(/<opensearch:totalResults[^>]*>(\d+)</);
+    if (!match) throw new Error("arXiv response had no result count");
+    return Number(match[1]);
+  });
 }
 
 // ---------------------------------------------------------- Hacker News
@@ -1007,6 +1025,132 @@ async function modelReleases(
   return { releases: { log: all, anthropicChecked: checked }, failed };
 }
 
+// ------------------------------------------------------ what was counted
+
+/** Every story in a span whose title matches one Hacker News search, as `hnThemeCounts` runs it. */
+async function hnSpanStories(query: string, span: Span): Promise<CountedStory[]> {
+  const from = Date.parse(span.first + "T00:00:00Z") / 1000;
+  const to = Date.parse(span.last + "T00:00:00Z") / 1000 + 7 * 86400;
+  // Algolia returns at most 1,000 hits, by relevance. Over a long window a broad search can
+  // match more, so the floor on points is raised until every match is in hand.
+  for (let minPoints = 0; ; minPoints = Math.max(10, minPoints * 2)) {
+    const data = await getJson<HnResponse>(
+      hnUrl({
+        query,
+        restrictSearchableAttributes: "title",
+        typoTolerance: "false",
+        queryType: "prefixNone",
+        numericFilters: `created_at_i>=${from},created_at_i<${to},points>=${minPoints}`,
+        attributesToRetrieve: "objectID,title,url,points,num_comments,created_at",
+        attributesToHighlight: "",
+        hitsPerPage: "1000",
+      }),
+    );
+    await sleep(120);
+    if (data.nbHits > data.hits.length && minPoints < 10_000) continue;
+    return data.hits.map((h) => {
+      const discussionUrl = `https://news.ycombinator.com/item?id=${h.objectID}`;
+      return {
+        title: h.title,
+        url: h.url || discussionUrl,
+        discussionUrl,
+        points: h.points ?? 0,
+        comments: h.num_comments ?? 0,
+        createdAt: h.created_at,
+      };
+    });
+  }
+}
+
+/** The papers in an arXiv API answer, with their abstracts, ids without their version. */
+function arxivEntries(xml: string): PaperCandidate[] {
+  return xml
+    .split(/<entry>/)
+    .slice(1)
+    .flatMap((block) => {
+      const id = field(block, "id").match(/abs\/([^\s<]+?)(?:v\d+)?$/)?.[1];
+      if (!id) return [];
+      return [
+        {
+          id,
+          title: plain(field(block, "title")),
+          summary: plain(field(block, "summary")),
+          url: `https://arxiv.org/abs/${id}`,
+          publishedAt: field(block, "published").trim(),
+        },
+      ];
+    });
+}
+
+type HfDaily = { paper: { id: string; title: string; summary?: string; upvotes: number; publishedAt: string } };
+
+/** How many of a topic's newest matching papers are read, to find three that hold a phrase as written. */
+const ARXIV_EXAMPLES_READ = 30;
+
+/**
+ * A topic's candidate papers over a span: the newest matching AI papers from arXiv's own search,
+ * and the Hugging Face daily papers that hold one of its phrases, kept only if the same arXiv
+ * search finds them too (so each was counted), with their upvotes.
+ */
+async function arxivSpanPapers(phrases: string[], span: Span, daily: HfDaily[]): Promise<PaperCandidate[]> {
+  const search_query = arxivQuery(span.first, span.last, phrases);
+  const newest = await arxivFetch(
+    { search_query, sortBy: "submittedDate", sortOrder: "descending", max_results: String(ARXIV_EXAMPLES_READ) },
+    arxivEntries,
+  );
+  const upvoted = daily.filter((d) => d.paper.upvotes > 0 && phrases.some((p) => phraseIn(`${d.paper.title} ${d.paper.summary ?? ""}`, p)));
+  if (upvoted.length === 0) return newest;
+  const ids = upvoted.map((d) => d.paper.id);
+  // With both a search and a list of ids, arXiv returns the listed papers the search matches.
+  const counted = await arxivFetch({ search_query, id_list: ids.join(","), max_results: String(ids.length) }, arxivEntries);
+  const upvotes = new Map(upvoted.map((d) => [d.paper.id, d.paper.upvotes]));
+  return [...counted.map((p) => ({ ...p, upvotes: upvotes.get(p.id) })), ...newest];
+}
+
+/**
+ * data/counted.json: for each view, the rising moves its headline names, with the few stories or
+ * papers behind each (see src/lib/counted.ts). The moves are read with the page's own rules from
+ * the files just written, so the lists are for exactly the moves the page will name. Overwritten
+ * each run; a move whose search fails is left out, and the page then shows no list under it.
+ */
+async function collectCounted(now: Date): Promise<CountedFile> {
+  const { HORIZONS, buildTrends } = await fromSrc<typeof import("../src/lib/trends.ts")>("lib/trends");
+  const { buildBriefing } = await fromSrc<typeof import("../src/lib/briefing.ts")>("lib/briefing");
+  const searches = (Object.keys(HORIZONS) as (keyof typeof HORIZONS)[]).flatMap((horizon) => {
+    const trends = buildTrends(horizon);
+    return risingMoves(horizon, buildBriefing(trends).lead, trends.weeks, trends.window);
+  });
+
+  let daily: HfDaily[] = [];
+  if (searches.some((m) => m.series === "topic")) {
+    try {
+      daily = await getJson<HfDaily[]>("https://huggingface.co/api/daily_papers?limit=100");
+    } catch (err) {
+      console.warn(`  ! counted: Hugging Face daily papers failed, papers from arXiv alone: ${(err as Error).message}`);
+    }
+  }
+
+  const moves: CountedMove[] = [];
+  for (const { searches: phrases, ...move } of searches) {
+    try {
+      if (move.series === "theme") {
+        const found: CountedStory[] = [];
+        for (const query of phrases) found.push(...(await hnSpanStories(query, move)));
+        moves.push({ ...move, stories: pickStories(found, phrases, move) });
+      } else {
+        moves.push({ ...move, papers: pickPapers(await arxivSpanPapers(phrases, move, daily), phrases, move) });
+      }
+      const kept = moves.at(-1)!;
+      console.log(`  counted ${move.horizon} ${move.id}: ${"stories" in kept ? kept.stories.length : kept.papers.length}`);
+    } catch (err) {
+      console.warn(`  ! counted ${move.horizon} ${move.id} failed: ${(err as Error).message}`);
+    }
+  }
+  const file: CountedFile = { generatedAt: now.toISOString(), moves };
+  await writeJson("counted.json", file);
+  return file;
+}
+
 // ------------------------------------------------------------------ main
 
 async function collectHistory(history: History, weeks: string[], status: Record<string, SourceStatus>) {
@@ -1172,6 +1316,11 @@ function holdBackUnfinishedWeek(history: History, week: string) {
 
 async function main() {
   const now = new Date();
+  if (COUNTED_ONLY) {
+    console.log("Collecting what was counted…");
+    await collectCounted(now);
+    return;
+  }
   const weeks = completedWeeks(WEEKS_OF_HISTORY, now);
   const history = await readJson<History>("history.json", { updatedAt: "", arxivTotal: {}, topics: {} });
   const previous = await readJson<Latest | null>("latest.json", null);
@@ -1251,9 +1400,13 @@ async function main() {
   history.updatedAt = new Date().toISOString();
   await writeJson("history.json", history);
 
+  // The moves are read from the files just written, so this comes after the history.
+  console.log("Collecting what was counted…");
+  const counted = await collectCounted(now);
+
   latest.sources = status;
   await writeJson("latest.json", latest);
-  await writeJson(`snapshots/${isoDay(now)}.json`, latest);
+  await writeJson(`snapshots/${isoDay(now)}.json`, { ...latest, counted });
 
   const failed = Object.entries(status).filter(([, s]) => !s.ok).map(([k]) => k);
   console.log(failed.length ? `Done, with failures: ${failed.join(", ")}` : "Done. All sources OK.");

@@ -1,0 +1,218 @@
+{
+ "generatedAt": "2026-11-14T18:58:46.955Z",
+ "moves": [
+  {
+   "horizon": "oneMonth",
+   "series": "topic",
+   "id": "efficient",
+   "first": "2026-10-26",
+   "last": "2026-11-02",
+   "papers": [
+    {
+     "id": "2611.13004",
+     "title": "G-STAR: Group-Scaled Token Capacity for Deeply Compressed Autoregressive Generation",
+     "url": "https://arxiv.org/abs/2611.13004",
+     "publishedAt": "2026-11-08T16:59:18Z",
+     "upvotes": 44
+    },
+    {
+     "id": "2611.10649",
+     "title": "MACaQ: Fast, Model Agnostic Calibrated Quantization for Low-Precision Weights and Activations",
+     "url": "https://arxiv.org/abs/2611.10649",
+     "publishedAt": "2026-11-07T10:49:02Z",
+     "upvotes": 30
+    },
+    {
+     "id": "2611.09501",
+     "title": "e-means: outperforming k-means (in one-tenth the epochs)",
+     "url": "https://arxiv.org/abs/2611.09501",
+     "publishedAt": "2026-11-06T14:22:43Z",
+     "upvotes": 11
+    }
+   ]
+  },
+  {
+   "horizon": "threeMonths",
+   "series": "theme",
+   "id": "infrastructure",
+   "first": "2026-10-12",
+   "last": "2026-11-02",
+   "stories": [
+    {
+     "title": "Banks are now trying to offload the AI data center debt they just underwrote",
+     "url": "https://startupfortune.com/banks-are-now-trying-to-offload-the-ai-data-center-debt-they-just-underwrote/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50092664",
+     "points": 386,
+     "comments": 277,
+     "createdAt": "2026-10-14T18:32:52Z"
+    },
+    {
+     "title": "Intel D270 GPU AI Accelerator–Up to 480 GB LPDDR5X",
+     "url": "https://www.intel.com/content/www/us/en/products/details/discrete-gpus/data-center-gpu/d-series.html",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50063365",
+     "points": 308,
+     "comments": 179,
+     "createdAt": "2026-10-12T21:35:35Z"
+    },
+    {
+     "title": "AI models may be capable of self-replicating without access to a datacenter",
+     "url": "https://www.anthropic.com/research/self-replicating-ai",
+     "discussionUrl": "https://news.ycombinator.com/item?id=50061603",
+     "points": 118,
+     "comments": 116,
+     "createdAt": "2026-10-12T19:25:29Z"
+    }
+   ]
+  },
+  {
+   "horizon": "sixMonths",
+   "series": "topic",
+   "id": "world-models",
+   "first": "2026-08-10",
+   "last": "2026-11-02",
+   "papers": [
+    {
+     "id": "2611.11166",
+     "title": "DexForesight: Grounding Dexterous Policies with Implicit Spatial Foresight",
+     "url": "https://arxiv.org/abs/2611.11166",
+     "publishedAt": "2026-11-08T06:14:36Z",
+     "upvotes": 26
+    },
+    {
+     "id": "2611.11605",
+     "title": "ScanDreamer: A Map-Grounded World Model for Quadrotor Navigation",
+     "url": "https://arxiv.org/abs/2611.11605",
+     "publishedAt": "2026-11-08T20:33:43Z"
+    },
+    {
+     "id": "2611.11521",
+     "title": "K-PWM: Control-Oriented Structured Bilinear World Models under Partial Observation",
+     "url": "https://arxiv.org/abs/2611.11521",
+     "publishedAt": "2026-11-08T17:51:31Z"
+    }
+   ]
+  },
+  {
+   "horizon": "oneYear",
+   "series": "topic",
+   "id": "world-models",
+   "first": "2026-05-11",
+   "last": "2026-11-02",
+   "papers": [
+    {
+     "id": "2611.11166",
+     "title": "DexForesight: Grounding Dexterous Policies with Implicit Spatial Foresight",
+     "url": "https://arxiv.org/abs/2611.11166",
+     "publishedAt": "2026-11-08T06:14:36Z",
+     "upvotes": 26
+    },
+    {
+     "id": "2611.11605",
+     "title": "ScanDreamer: A Map-Grounded World Model for Quadrotor Navigation",
+     "url": "https://arxiv.org/abs/2611.11605",
+     "publishedAt": "2026-11-08T20:33:43Z"
+    },
+    {
+     "id": "2611.11521",
+     "title": "K-PWM: Control-Oriented Structured Bilinear World Models under Partial Observation",
+     "url": "https://arxiv.org/abs/2611.11521",
+     "publishedAt": "2026-11-08T17:51:31Z"
+    }
+   ]
+  },
+  {
+   "horizon": "oneYear",
+   "series": "theme",
+   "id": "education",
+   "first": "2026-05-11",
+   "last": "2026-11-02",
+   "stories": [
+    {
+     "title": "Pentagon says overreliance on AI contributed to missile strike on Iran school",
+     "url": "https://www.bloomberg.com/graphics/2026-iran-school-attack/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=49806430",
+     "points": 974,
+     "comments": 553,
+     "createdAt": "2026-09-22T19:03:38Z"
+    },
+    {
+     "title": "AI is just unauthorised plagiarism at a bigger scale",
+     "url": "https://axelk.ee/ai-is-just-unauthorised-plagiarism-at-a-bigger-scale/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=48222383",
+     "points": 824,
+     "comments": 733,
+     "createdAt": "2026-05-21T13:38:12Z"
+    },
+    {
+     "title": "Norway imposes near ban on AI in elementary school",
+     "url": "https://www.reuters.com/technology/norway-imposes-near-ban-ai-elementary-school-2026-06-19/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=48600093",
+     "points": 823,
+     "comments": 588,
+     "createdAt": "2026-06-19T16:03:15Z"
+    }
+   ]
+  },
+  {
+   "horizon": "twoYears",
+   "series": "topic",
+   "id": "world-models",
+   "first": "2025-11-10",
+   "last": "2026-11-02",
+   "papers": [
+    {
+     "id": "2611.11166",
+     "title": "DexForesight: Grounding Dexterous Policies with Implicit Spatial Foresight",
+     "url": "https://arxiv.org/abs/2611.11166",
+     "publishedAt": "2026-11-08T06:14:36Z",
+     "upvotes": 26
+    },
+    {
+     "id": "2611.11605",
+     "title": "ScanDreamer: A Map-Grounded World Model for Quadrotor Navigation",
+     "url": "https://arxiv.org/abs/2611.11605",
+     "publishedAt": "2026-11-08T20:33:43Z"
+    },
+    {
+     "id": "2611.11521",
+     "title": "K-PWM: Control-Oriented Structured Bilinear World Models under Partial Observation",
+     "url": "https://arxiv.org/abs/2611.11521",
+     "publishedAt": "2026-11-08T17:51:31Z"
+    }
+   ]
+  },
+  {
+   "horizon": "twoYears",
+   "series": "theme",
+   "id": "trust",
+   "first": "2025-11-10",
+   "last": "2026-11-02",
+   "stories": [
+    {
+     "title": "Don't fall into the anti-AI hype",
+     "url": "https://antirez.com/news/158",
+     "discussionUrl": "https://news.ycombinator.com/item?id=46574276",
+     "points": 1296,
+     "comments": 1631,
+     "createdAt": "2026-01-11T10:26:18Z"
+    },
+    {
+     "title": "Israel creates fake think tank in likely attempt to dupe AI chatbots",
+     "url": "https://responsiblestatecraft.org/israel-influence-chatgpt/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=49337392",
+     "points": 1071,
+     "comments": 881,
+     "createdAt": "2026-08-17T20:46:10Z"
+    },
+    {
+     "title": "AI slop is killing online communities",
+     "url": "https://rmoff.net/2026/05/06/ai-slop-is-killing-online-communities/",
+     "discussionUrl": "https://news.ycombinator.com/item?id=48053203",
+     "points": 834,
+     "comments": 734,
+     "createdAt": "2026-05-07T18:46:25Z"
+    }
+   ]
+  }
+ ]
+}

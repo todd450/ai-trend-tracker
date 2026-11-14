@@ -28,19 +28,21 @@ function ticks(top: number): number[] {
  * headline names as a line over the weeks charted, from zero, with the two periods being compared
  * shaded and named, their averages ruled across them and labelled, the scale marked on gridlines,
  * and the frontier model releases of those weeks numbered along the foot. Nothing a reader needs
- * is left to a tooltip.
+ * is left to a tooltip. Under each panel's axis goes its entry in `feet`, keyed by measure: what was counted.
  */
 export function LeadChart({
   series,
   window,
   weeks,
   events,
+  feet = {},
 }: {
   series: LeadSeries[];
   window: number;
   /** The Monday each charted week starts on (YYYY-MM-DD), oldest first. */
   weeks: string[];
   events: ChartEvent[];
+  feet?: Record<string, React.ReactNode>;
 }) {
   if (series.length === 0 || weeks.length < 2) return null;
   const start = Date.parse(weeks[0] + "T00:00:00Z");
@@ -62,7 +64,7 @@ export function LeadChart({
     <div className="leadchart">
       <div className="leadchart__panels" data-count={series.length}>
         {series.map((s) => (
-          <Panel key={s.measure} s={s} window={window} weeks={weeks} marks={marks} />
+          <Panel key={s.measure} s={s} window={window} weeks={weeks} marks={marks} foot={feet[s.measure]} />
         ))}
       </div>
       {marks.length > 0 && (
@@ -88,7 +90,19 @@ export function LeadChart({
   );
 }
 
-function Panel({ s, window, weeks, marks }: { s: LeadSeries; window: number; weeks: string[]; marks: Mark[] }) {
+function Panel({
+  s,
+  window,
+  weeks,
+  marks,
+  foot,
+}: {
+  s: LeadSeries;
+  window: number;
+  weeks: string[];
+  marks: Mark[];
+  foot?: React.ReactNode;
+}) {
   const values = s.signal.values;
   const n = values.length;
   const top = Math.max(...values, s.signal.prior, s.signal.recent) * 1.1 || 1;
@@ -162,6 +176,7 @@ function Panel({ s, window, weeks, marks }: { s: LeadSeries; window: number; wee
         <span>Week of {fmtDay(weeks[0])}</span>
         <span>Week of {fmtDay(weeks[n - 1])}</span>
       </p>
+      {foot}
     </figure>
   );
 }
