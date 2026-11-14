@@ -116,6 +116,33 @@ test("/today prints the why-it-matters line under the top story only, and nowher
   }
 });
 
+test("/reading leads with the week's block: its chosen items, each trend tag landing on its row, then links to every list", async () => {
+  const { buildWeek } = await fromSrc<any>("lib/week");
+  const html = page("/reading");
+  const reading = ids(html);
+  const start = html.indexOf('id="week"');
+  assert.ok(start >= 0, "the block is on the page");
+  assert.ok(start < html.indexOf('id="news"'), "above the lists");
+  const block = html.slice(start, html.indexOf("</section>", html.indexOf('class="week__jump"')));
+  const week = buildWeek();
+  for (const group of week.groups) {
+    if (group.tag) assert.ok(block.includes(`href="${group.tag.href}"`), group.tag.name);
+    if (group.line) assert.ok(text(block).includes(group.line), `${group.tag?.name}'s line`);
+    for (const item of group.items) assert.ok(text(block).includes(item.title), item.title);
+  }
+  assert.doesNotMatch(text(block), /Why it matters/, "the line is about the trend, and says so");
+  for (const href of new Set([...block.matchAll(/<a class="tag" href="([^"]+)"/g)].map((m) => m[1]))) {
+    const [path, anchor] = href.split("#");
+    assert.ok(ids(page(path)).has(anchor), `${href} lands on a row`);
+  }
+  const jumps = [...block.slice(block.indexOf("week__jump")).matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(jumps.length >= 7, "a link to each list");
+  for (const id of jumps) assert.ok(reading.has(id), `#${id} is on the page`);
+  for (const id of READING.filter((id) => id !== "reading")) {
+    if (reading.has(id)) assert.ok(jumps.includes(id), `#${id} has a jump link`);
+  }
+});
+
 test("the MCP server ships with the daily snapshots its top story is weighed against", () => {
   // /mcp runs on request, so it reads data/snapshots/ where it is deployed, where only the files the build traced are.
   const trace = JSON.parse(readFileSync(join(APP, "mcp/route.js.nft.json"), "utf8"));

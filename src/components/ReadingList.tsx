@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Ledger } from "@/components/Ledger";
 import { Colophon, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
+import { ThisWeek } from "@/components/ThisWeek";
 import { visible } from "@/lib/editorial";
 import { NEW_TAB, host } from "@/lib/links";
 import { editorial } from "@/lib/today";
@@ -57,6 +58,8 @@ export function ReadingList() {
             <h1 className="chapter__title" id="reading-h">The reading list</h1>
             <p className="chapter__dek">The stories, papers, essays, launches, code and models behind this week’s numbers.</p>
           </header>
+
+          <ThisWeek lists={["news", "papers", "analysis", "announcements", ...(launches.length > 0 ? ["launches"] : []), "code", "models", "labs"]} />
 
         <div className="pair">
           <section id="news" className="band" aria-labelledby="news-h">
@@ -405,6 +408,18 @@ export function ReadingList() {
                   launched and noticed: it leans to developer tools and open-source projects, and a consumer
                   product nobody posted there is missing. A launch that describes an AI product without an AI term
                   in its title is missed too. Points measure the attention of Hacker News readers, not use or sales.
+                </p>
+                <p>
+                  <strong>This week</strong> is chosen from the lists below by fixed rules, rebuilt with the page each
+                  day: the items from the seven days before the data was collected whose headline names a product or
+                  topic the site tracks, as Today’s tags read them, grouped under the first one named. Posts about one
+                  event are gathered as on Today’s page. A frontier lab’s launch discussed twice on Hacker News, and a
+                  post the editor pinned, always make it and come first; the other trends follow by their call over
+                  three months, rising, then steady, then cooling, then those too noisy or too few to call. A trend
+                  shows at most two items, biggest on Hacker News first, and the block at most seven. The line under
+                  each trend says how its Hacker News stories have moved, read from the tracker’s own figures; it is
+                  about the trend, not about the stories under it. A big story that names no tracked trend is left
+                  out, and the block says so.
                 </p>
                 <p>
                   <strong>The reading lists</strong> show their first few items; the rest open on request. Where a
