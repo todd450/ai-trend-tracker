@@ -1657,6 +1657,39 @@ code {
   color: var(--color-accent);
 }
 
+/* The trends a headline is counted in: small labels that link to the trend's row. 24px tall, so a
+   finger can hit one without its neighbour. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
+  padding-inline: var(--space-xs);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-ink-2);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tag:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.top-story__tags {
+  padding-top: var(--space-3xs);
+}
+
 .ledger__also {
   grid-column: 2 / -1;
   display: grid;

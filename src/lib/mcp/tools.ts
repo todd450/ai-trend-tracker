@@ -8,6 +8,7 @@ import { READING_LABEL, conferences, daysUntil, phaseOf, stageAgainstTrends, typ
 import { topStoryReason, visible } from "../editorial";
 import { ADOPTION_WINDOW, USAGE_WINDOW, adoption, buildMarketShare, federal, indicators, jobs, releases, usage } from "../indicators";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../site";
+import { trendTags } from "../tags";
 import { buildToday, editorial } from "../today";
 import {
   HEADLINE_MIN_PAPERS,
@@ -422,20 +423,26 @@ const indicatorsTool: Tool = {
 // ------------------------------------------------------------ get_latest
 
 /**
- * Today's list as assistants get it. `topStory` was added after the rest and is set on the story
- * the page sets large, with the rule that put it there; it is left out on every other story.
+ * Today's list as assistants get it. `topStory` and `tags` were added after the rest, so both are
+ * optional and left out on a story they do not apply to. `topStory` is set on the story the page
+ * sets large, with the rule that put it there. `tags` are the trends (at most two) whose counts
+ * the headline is in, as the page tags it, each with the trend's page.
  */
 export function todayItems(day: ReturnType<typeof buildToday>, limit: number) {
-  return day.items.slice(0, limit).map((item, n) => ({
-    title: item.title,
-    url: item.url,
-    from: item.from,
-    publishedAt: item.publishedAt,
-    hackerNews: item.discussion ?? null,
-    sameEvent: item.also.map((a) => ({ title: a.title, url: a.url, from: a.from })),
-    pinnedByEditor: item.pinned ? (item.pinned.note ?? true) : false,
-    ...(day.top?.index === n && { topStory: { rule: day.top.rule, reason: topStoryReason(item, day.top.rule) } }),
-  }));
+  return day.items.slice(0, limit).map((item, n) => {
+    const tags = trendTags(item.title).map((t) => ({ kind: t.kind, id: t.id, name: t.name, page: SITE_URL + t.href }));
+    return {
+      title: item.title,
+      url: item.url,
+      from: item.from,
+      publishedAt: item.publishedAt,
+      hackerNews: item.discussion ?? null,
+      sameEvent: item.also.map((a) => ({ title: a.title, url: a.url, from: a.from })),
+      pinnedByEditor: item.pinned ? (item.pinned.note ?? true) : false,
+      ...(day.top?.index === n && { topStory: { rule: day.top.rule, reason: topStoryReason(item, day.top.rule) } }),
+      ...(tags.length > 0 && { tags }),
+    };
+  });
 }
 
 const LISTS = {
@@ -459,7 +466,8 @@ const latestTool: Tool = {
       .map(([name, what]) => `${name} (${what})`)
       .join(" ") +
     " Use for 'what is new' questions, and to find the stories, papers or repositories behind a trend." +
-    " In today, the story the site sets large as the day's top story carries topStory, with the rule that put it there.",
+    " In today, the story the site sets large as the day's top story carries topStory, with the rule that put it there," +
+    " and a story whose headline is counted in a tracked topic or product carries tags (at most two), each with that trend's page.",
   input: {
     list: { type: "string", description: "Which list.", enum: Object.keys(LISTS) },
     limit: { type: "integer", description: "How many items, most prominent first.", minimum: 1, maximum: 20, default: 10 },

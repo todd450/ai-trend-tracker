@@ -53,7 +53,7 @@ for (const date of DAYS) {
     const items = tools.todayItems(day, 20);
     for (const item of items) {
       for (const key of EXISTING) assert.ok(key in item, `${key} is still there`);
-      assert.deepEqual(Object.keys(item).filter((k) => !EXISTING.includes(k) && k !== "topStory"), [], "no other new field");
+      assert.deepEqual(Object.keys(item).filter((k) => !EXISTING.includes(k) && k !== "topStory" && k !== "tags"), [], "no other new field");
     }
     // The field is optional: it is left out, not set to false, on every other story.
     const flagged = items.filter((item: any) => "topStory" in item);
@@ -65,6 +65,34 @@ for (const date of DAYS) {
     } else assert.equal(flagged.length, 0);
   });
 }
+
+const tags = await fromSrc<any>("lib/tags");
+const SITE = (await fromSrc<any>("lib/site")).SITE_URL;
+
+for (const date of DAYS) {
+  test(`MCP get_latest on ${date}: a story's trend tags are its headline's, and left out when it has none`, () => {
+    const day = replay(date);
+    const items = tools.todayItems(day, 20);
+    items.forEach((item: any, n: number) => {
+      const expected = tags.trendTags(day.items[n].title);
+      if (expected.length === 0) assert.ok(!("tags" in item), `${item.title}: no empty list`);
+      else
+        assert.deepEqual(
+          item.tags,
+          expected.map((t: any) => ({ kind: t.kind, id: t.id, name: t.name, page: SITE + t.href })),
+          item.title,
+        );
+    });
+  });
+}
+
+test("13 Nov 2026: the outage rows are tagged with the products the collector counts them under", () => {
+  const items = tools.todayItems(replay("2026-11-13"), 20);
+  const row = items.find((item: any) => /^Elevated errors on claude\.ai/.test(item.title));
+  assert.deepEqual(row.tags.map((t: any) => t.id), ["claude-code", "coding"]);
+  const top = items.find((item: any) => item.topStory);
+  assert.ok(top.tags.some((t: any) => t.id === "gemini"), "the top story is tagged too");
+});
 
 /** A day built from the 13 Nov snapshot with only these lab posts and Hacker News stories in it. */
 const FROM = "2026-11-13T10:00:00.000Z";
