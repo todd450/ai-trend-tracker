@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { Ledger } from "@/components/Ledger";
 import { OldTrendLinks } from "@/components/OldTrendLinks";
-import { SiteMast } from "@/components/SiteFrame";
+import { FootLinks, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
-import { FRONTIER_LABS, topStoryReason } from "@/lib/editorial";
-import { NEW_TAB, host } from "@/lib/links";
-import { SITE_MAKER_URL } from "@/lib/site";
+import { topStoryReason } from "@/lib/editorial";
+import { NEW_TAB } from "@/lib/links";
 import { trendTags } from "@/lib/tags";
-import { buildToday, editorial, pastLeads } from "@/lib/today";
+import { buildToday } from "@/lib/today";
 import { HORIZONS, fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
 import { whyItMatters } from "@/lib/why";
 
@@ -36,7 +35,6 @@ function Tags({ title, className }: { title: string; className: string }) {
  */
 export function Today() {
   const today = buildToday();
-  const pinsNow = today.items.filter((item) => item.pinned);
   /**
    * The day's top story is set large, above the list, when the editor pinned it, when it is a
    * frontier lab's launch discussed twice on Hacker News, or when its points match the past days'
@@ -48,7 +46,6 @@ export function Today() {
   /** The line under the top story, from its first tag's trend (see `whyItMatters`); none without a tag. */
   const why = first && whyItMatters(first.title);
   const rows = top ? today.items.filter((_, n) => n !== top.index) : today.items;
-  const leads = pastLeads(latest.generatedAt.slice(0, 10));
 
   return (
     <>
@@ -175,75 +172,8 @@ export function Today() {
             <SourceLine names="the labs’ and newsletters’ own feeds; Hacker News" keys={["labNews", "analysis", "today"]} />
           </section>
         </div>
-
-        <section id="method" className="band method" aria-labelledby="method-h">
-          <div className="band__head">
-            <h2 id="method-h">How this is measured</h2>
-          </div>
-          <div className="prose">
-            <p>
-              <strong>The list</strong> is what was published in the 24 hours before the data was collected, which
-              happens once a day: posts from the labs named under “Lab announcements” in the reading list, pieces
-              from the newsletters and institutions, and up to twelve Hacker News stories with an AI term in the
-              title and at least 20 points. The biggest stories come first, and size is measured by points on Hacker
-              News, the one figure the sources share. A lab or newsletter post takes the points of the story that
-              links to it or carries its headline; posts with no such story come after the rest, newest first,
-              because nothing says how big they are. The times are in UTC, and none of this feeds the trends.
-            </p>
-            <p>
-              <strong>The editor’s step.</strong> Points say what one community upvoted, so the ranked list is
-              finished by rules before it is shown. Posts about one event are gathered under the highest-ranked of
-              them and stay on the page beneath it: two headlines count as one event when one holds the other, or
-              when they share three or more words in a row that include a version number. Posts about an outage
-              count as one event too, when they come from the same status page, or when both headlines name the
-              same tracked product beside an outage word (down, outage, errors, degraded). The editor can also pin a
-              post to the top until a set day, and leave a link out of every list on the site; both are kept in a
-              file in the project’s repository, with a reason for each link left out.{" "}
-              {pinsNow.length === 0 && editorial.hide.length === 0
-                ? "Nothing is pinned or left out today."
-                : `Today ${pinsNow.length} ${pinsNow.length === 1 ? "post is" : "posts are"} pinned and ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}
-            </p>
-            <p>
-              <strong>The top story.</strong> One story is set large above the list when a rule lifts it, and the
-              line above its headline names the rule. A pinned post always takes the place. Otherwise it goes to the
-              highest-ranked story that one of two rules lifts. A launch: a post from a frontier lab’s own news page
-              ({[...FRONTIER_LABS].join(", ")}) gathered with at least two Hacker News stories about it, whatever
-              their points. A story counts when it discusses the lab’s post itself or links to the lab’s own site;
-              one that only shares the headline’s words does not. The lab’s post is then the headline. Or a story as big as the past days’ leads: its points match the middle of the most upvoted
-              story on each of up to seven earlier days, as counted when that day’s list was collected, so that
-              each had under a day to gather points, as today’s has. With fewer than three past days to compare
-              with, points lift nothing. On an ordinary day no story is set large.{" "}
-              {leads.length === 0
-                ? "No past days are on record to compare with today."
-                : `Today’s lead is compared with ${leads.length} past ${leads.length === 1 ? "day" : "days"}.`}
-            </p>
-            <p>
-              <strong>The tags.</strong> A headline is tagged with the tracked products and topics whose Hacker
-              News counts it is in, at most two, in the order the headline names them. The match is the one the
-              counts use: the trend’s own title phrases, as whole words, with its exceptions, so a headline naming
-              Claude Code is not tagged Claude. A headline that matches none has no tag. A tag links to the trend’s
-              row: a topic on the topics page, a product under “Product momentum” on the trends page, both over the
-              default three months.
-            </p>
-            <p>
-              <strong>The trend.</strong> Under the top story, one line reads the trend of its first tag, as
-              that trend’s row reads it over three months: its Hacker News stories a week in the last four weeks
-              against the four weeks before, and the call the row makes, rising, steady or cooling. A trend with
-              too few stories in either period is too few to call, and a change no bigger than its usual week-to-week
-              swing is too noisy to call. A top story with no tag has no line. The line is written by this rule,
-              never by hand; the editor’s note on a pinned story is shown beside it.
-            </p>
-            {editorial.hide.length > 0 && (
-              <ul>
-                {editorial.hide.map((h) => (
-                  <li key={h.url}>
-                    Left out: {host(h.url)}. {h.reason}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
+        {/* How this is measured closed this page before it had a page of its own; an old #method link lands at the foot, by the link to it. */}
+        <span id="method" />
       </main>
 
       <footer className="colophon">
@@ -252,9 +182,7 @@ export function Today() {
           measure the attention of Hacker News readers, not importance. Data last collected{" "}
           {fmtDate(latest.generatedAt)}.
         </p>
-        <p>
-          <a href={SITE_MAKER_URL} {...NEW_TAB}>HalfBadger.com</a>
-        </p>
+        <FootLinks />
       </footer>
     </>
   );

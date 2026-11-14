@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Spark } from "@/components/MomentumBars";
-import { SiteMast } from "@/components/SiteFrame";
+import { FootLinks, SiteMast } from "@/components/SiteFrame";
 import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
-import { SITE_MAKER_URL } from "@/lib/site";
 import { PHASE_LABEL, PHASE_MARK, aroundToday, dayParts, splitAtToday, type AgendaMonth } from "@/lib/agenda";
 import {
   KIND_LABEL,
@@ -227,9 +226,7 @@ export function ConfColophon() {
         travelling. Talk titles and speaker names are the organisers’. Counts are keyword matches and should be
         read as indicators, not measurements. Data last collected {fmtDate(today)}.
       </p>
-      <p>
-        <a href={SITE_MAKER_URL} {...NEW_TAB}>HalfBadger.com</a>
-      </p>
+      <FootLinks />
     </footer>
   );
 }

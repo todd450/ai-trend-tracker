@@ -92,7 +92,7 @@ export function TrackRecord({ horizon, headline }: { horizon: Horizon; headline:
             A call is counted once, in the week it first appears. It held if, {CHECK_AFTER} weeks later, the share
             had moved further the way it was called. This is a replay of the past year with today’s rules and
             today’s counts, not a record of what the page said at the time.{" "}
-            <a href="#track-record">How we check →</a>
+            <a href="/method#track-record">How we check →</a>
           </p>
         </>
       ) : (
@@ -102,7 +102,7 @@ export function TrackRecord({ horizon, headline }: { horizon: Horizon; headline:
             {CHECK_AFTER} weeks later, needs {needed} weeks of counts, and {stored} are stored.
           </p>
           <p className="record__test">
-            The shorter views carry a record. <a href="#track-record">How we check →</a>
+            The shorter views carry a record. <a href="/method#track-record">How we check →</a>
           </p>
         </>
       )}

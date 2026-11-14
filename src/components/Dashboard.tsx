@@ -6,28 +6,23 @@ import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { LeadChart } from "@/components/LeadChart";
 import { MoreRows } from "@/components/MoreRows";
 import { TrackRecord } from "@/components/TrackRecord";
-import { CHECK_AFTER, FEW_CALLS, RECORD_WEEKS, weeksNeeded } from "@/lib/record";
 import { Bar, extentOf } from "@/components/MomentumBars";
 import { type Product } from "@/lib/products";
 import { Colophon, SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { ThemeRow } from "@/components/ThemeRow";
 import { buildBriefing, type LeadSeries } from "@/lib/briefing";
-import { COUNTED_MAX, COUNTED_WEEKS, countedFor, latestSpan, seriesOf, type CountedFile } from "@/lib/counted";
-import { topicsHref } from "@/lib/datasets";
+import { countedFor, latestSpan, seriesOf, type CountedFile } from "@/lib/counted";
 import { lineFor } from "@/lib/editorial";
 import { editorial } from "@/lib/today";
-import { NEW_TAB, host } from "@/lib/links";
-import { NOISE_MULTIPLE } from "@/lib/noise";
+import { NEW_TAB } from "@/lib/links";
 import {
-  HEADLINE_MIN_PAPERS,
   HORIZONS,
   SUBTHEME_MIN_STORIES,
   PRODUCT_MIN_STORIES,
   STEADY_BAND,
   THEME_STEADY_BAND,
   buildTrends,
-  everyWeek,
   signalDirection,
   fmtCompact,
   fmtDate,
@@ -42,30 +37,6 @@ import {
 } from "@/lib/trends";
 
 import { ADOPTION_WINDOW, USAGE_WINDOW, adoption as adoptionSummary, buildMarketShare, federal, fmtMonth, indicators, jobs, releases, usage as usageSummary } from "@/lib/indicators";
-
-
-const SOURCE_LABELS: Record<string, string> = {
-  arxivHistory: "arXiv weekly paper counts",
-  hnHistory: "Hacker News weekly story counts",
-  hnThemes: "Hacker News weekly theme counts",
-  papers: "Hugging Face daily papers",
-  models: "Hugging Face trending models",
-  releases: "Hugging Face lab uploads",
-  stories: "Hacker News top stories",
-  today: "Hacker News past-day stories",
-  launches: "Hacker News product launches",
-  hnProducts: "Hacker News product mentions",
-  wikiProducts: "Wikipedia page views",
-  repos: "GitHub repository search",
-  analysis: "Newsletter and institution feeds",
-  labNews: "Lab news pages",
-  jobs: "Indeed Hiring Lab job postings",
-  federal: "Federal Register document counts",
-  modelReleases: "Lab model release log",
-  downloads: "npm and PyPI download counts",
-  business: "Census Bureau business survey",
-  marketShare: "OpenRouter model rankings",
-};
 
 /** The stories and papers kept under the rising moves the headlines name (scripts/collect.ts writes it each day). */
 const counted = countedJson as unknown as CountedFile;
@@ -230,9 +201,6 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const productViewExtent = extentOf(productTrends.map((p) => p.views?.change ?? null));
 
   const editorLine = lineFor(editorial, latest.generatedAt.slice(0, 10));
-  const sources = Object.entries(latest.sources);
-  const stale = sources.filter(([, src]) => !src.ok).length;
-  const oldest = sources.map(([, src]) => src.at).filter(Boolean).sort()[0];
 
   return (
     <>
@@ -962,205 +930,8 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
         )}
 
         </section>
-
-
-        <section id="method" className="band method" aria-labelledby="method-h">
-          <div className="band__head">
-            <h2 id="method-h">How this is measured</h2>
-          </div>
-          <p className="method__status">
-            <span className={stale ? "status status--fail" : "status status--ok"}>
-              <span aria-hidden="true">{stale ? "▲" : "●"}</span>{" "}
-              {stale ? `${stale} of ${sources.length} sources stale` : `All ${sources.length} sources current`}
-            </span>
-            {oldest && <span className="sources__when">oldest collected {fmtDay(oldest)}</span>}
-          </p>
-          <details className="table-view" open={stale > 0}>
-            <summary>Show each source</summary>
-            <div className="sources">
-              <ul>
-                {sources.map(([key, src]) => (
-                  <li key={key}>
-                    <span className={src.ok ? "status status--ok" : "status status--fail"}>
-                      <span aria-hidden="true">{src.ok ? "●" : "▲"}</span> {src.ok ? "Current" : "Stale"}
-                    </span>
-                    <span>{SOURCE_LABELS[key] ?? key}</span>
-                    <span className="sources__when">{src.at ? fmtDay(src.at) : "never"}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </details>
-          <details className="table-view">
-            <summary>Read how each number is counted</summary>
-            <div className="prose">
-              <p id="track-record">
-                <strong>Track record.</strong> For each view with enough weeks stored, the page replays the past
-                year week by week: it reads the stored counts as each week would have read them, with today’s
-                rules, and notes what it would have called on research topics and on themes. A call is counted
-                once, in the week it first appears, so a topic called rising eight weeks running is one call; one
-                that goes steady or turns round and is called again is a new one. A call held if, {CHECK_AFTER}{" "}
-                weeks later, the share (the average over the view’s latest window) had moved further the way it was
-                called; the record covers the {RECORD_WEEKS} weeks of calls up to the last one that can be checked.
-                This is a replay with today’s rules and today’s counts, which can have been revised since, and
-                each week’s wobble is measured on the weeks up to it; it is not a record of what the page said at
-                the time. A line resting on fewer than {FEW_CALLS} calls is marked “few calls”. A year of checked
-                calls needs {weeksNeeded(HORIZONS.threeMonths.window)} weeks of counts on the 3-month view, but{" "}
-                {weeksNeeded(HORIZONS.oneYear.window)} on the 1-year view and {weeksNeeded(HORIZONS.twoYears.window)}{" "}
-                on the 2-year view, since each of their calls takes longer to make; {everyWeek.length} weeks are
-                stored. Under the record, <a href="#calls-checked">the calls checked by name</a> are the calls that
-                came due in the latest week, each first made {CHECK_AFTER} weeks before, with its share when called,
-                its share now and whether it held, to two decimals since a call can hold by a few hundredths (more
-                where two would print the same figure for both); when
-                none came due that week, the list shows the most recent week that had any.
-              </p>
-              <p>
-                <strong>Topic momentum</strong>, a topic’s share of AI papers on arXiv and its stories on Hacker
-                News, is explained beside its figures on <Link href={`${topicsHref(horizon)}#counted`}>its own page</Link>,
-                with a file of every week’s counts.
-              </p>
-              <p>
-                A topic is called rising or cooling when its paper share moved by at least 10%, rounded to a whole percent as shown, between the two
-                windows being compared, and when that move stands clear of the topic’s own wobble. The wobble is
-                measured from how much the topic’s weekly figure usually changes from one week to the next, over
-                every week on record; a move counts only if it is at least {NOISE_MULTIPLE} times what that wobble
-                alone would be expected to produce between the two windows. A move that fails this test keeps its
-                figure but its bar is drawn grey, under “steady”, and it is never named in the headline. The same test applies
-                to discussion, themes and sub-themes. It is a guard against calling noise a trend, not a proof:
-                with this many topics, an occasional call will still be chance. The switch at the top sets those windows, and the colours carry no judgement: blue marks a rise and amber a fall. <strong>1 week</strong> compares
-                the latest week with the week before, and <strong>1 month</strong> the last{" "}
-                {HORIZONS.oneMonth.window} weeks with the {HORIZONS.oneMonth.window} before. These two react
-                fastest and are the noisiest: one conference deadline or one news story can move them, so treat a
-                call there as a prompt to look, not a trend. <strong>3 months</strong> compares the last{" "}
-                {HORIZONS.threeMonths.window} weeks with the {HORIZONS.threeMonths.window} before.{" "}
-                <strong>6 months</strong> compares the last {HORIZONS.sixMonths.window} weeks with the{" "}
-                {HORIZONS.sixMonths.window} before, one quarter against the previous one.{" "}
-                <strong>1 year</strong> compares the last {HORIZONS.oneYear.window} weeks with the{" "}
-                {HORIZONS.oneYear.window} before, one half-year against the other.{" "}
-                <strong>2 years</strong> compares the last {HORIZONS.twoYears.window} weeks with the{" "}
-                {HORIZONS.twoYears.window} before, this year against last year. The longer views react slowly,
-                and a topic can be rising in one view and cooling in another. Topics are defined by keyword lists, so a paper can count toward several topics,
-                and work that uses unfamiliar wording is missed. Small topics swing more easily, so the headline only
-                names topics averaging at least {HEADLINE_MIN_PAPERS} papers a week.
-              </p>
-              <p>
-                <strong>The numbers under the headline</strong> are written by fixed rules from the same numbers, not by an editor or a model. Their research and discussion lines follow the view chosen; their economy, releases and policy lines are the same in every view.
-                The moves named in <a href="#data">the data</a> are picked by rule too: each is the largest change in
-                its dataset that clears these tests, among series big enough to trust.
-              </p>
-              <p id="counted">
-                <strong>What was counted</strong>, under a chart that rose, is chosen by rule too, each day, for
-                the rises the headline names and over the window it compares. For a theme it is the Hacker News
-                story with the most points from each of the window’s latest {COUNTED_WEEKS} weeks, newest first,
-                among those whose title matches one of the theme’s searches. It is taken week by week because
-                points build up over days, so the most points overall would mostly be the window’s oldest
-                stories. A window under {COUNTED_MAX} weeks gives the {COUNTED_MAX} stories with the most points
-                instead. A story submitted more than once, by link or by headline, counts once. For a
-                research topic it is {COUNTED_MAX} of the papers whose title or abstract holds one of the topic’s
-                phrases, those upvoted on Hugging Face first, then the newest. The papers are examples of what was
-                counted, not the reason for the move: there are hundreds of them, and arXiv gives no figure to rank
-                them by. A keyword can match a story that is about something else, and the list shows it as it
-                was counted. A fall has no list, since it means fewer stories or papers, so none stand for it.
-              </p>
-              <p>
-                <strong>Economy and society themes</strong> count Hacker News stories whose title contains AI and a
-                theme word, such as “layoffs” or “data center”, as a share of all stories with AI in the title. Each
-                story counts once per theme. The counts are small, often 10 to 30 stories a week, so a theme is
-called rising or cooling only when its share moved by at least {THEME_STEADY_BAND * 100}% and
-                stands clear of its own wobble, as above. Hacker
-                News readers are mostly technologists, so this shows what that community is discussing, not public
-                opinion.
-              </p>
-              <p>
-                <strong>Sub-themes</strong> split each theme into four narrower groups of the same title searches;
-                point at a sub-theme’s name, or read under it on a phone, to see its searches. A story counts once per
-                sub-theme but can sit in more than one, so the sub-themes add up to more than their theme. Their
-                counts are smaller still: a sub-theme averaging fewer than {SUBTHEME_MIN_STORIES} stories a week
-                in either half of the comparison is marked “too few to call” instead of rising or cooling.
-              </p>
-              <p>
-                <strong>Product momentum</strong> follows a fixed list of products chosen by the editor, so a
-                product not on the list cannot appear however fast it grows. Discussion counts Hacker News
-                stories with the product’s name in the title. Claude is counted without its Claude Code stories,
-                which have their own row. A few names are also ordinary words: in a sample of 40 recent titles
-                each, about one in ten for Cursor (mouse cursors), one in twelve for Gemini (a network protocol
-                of the same name) and one in seven for Copilot (“copilot” used for any assistant) were not about
-                the product; none were for Codex, Devin, Grok, Antigravity or Perplexity. The phrases are left
-                broad because narrowing them would miss far more real stories than it removes. A product averaging fewer than{" "}
-                {PRODUCT_MIN_STORIES} stories a week in either half of the comparison is marked “too few to
-                call”, and discussion is called rising or cooling only on a move of at least{" "}
-                {THEME_STEADY_BAND * 100}%. Image, video and music products are rarely discussed there, so read
-                them by the second measure. Public interest is the daily views of the product’s English
-                Wikipedia article by people, not crawlers, averaged over each week. It shows how many people
-                looked the product up, which rises with news of any kind, good or bad, and is not a count of
-                users. It covers English readers only. A product whose article is part of a larger one has no
-                figure. Neither measure is use or revenue. Devices, robots and driverless cars are discussed too little on Hacker News to call, so
-                they are read by public interest alone; where a robot has no article of its own, its maker’s
-                article stands in, and its views include interest in the company.
-              </p>
-              <p>
-                <strong>The editor’s step.</strong> The editor can leave a link out of every list on the site;
-                each is kept in a file in the project’s repository, with a reason.{" "}
-                {editorial.hide.length === 0
-                  ? "Nothing is left out today."
-                  : `Today ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}{" "}
-                The past day’s stories, and how they are ranked, are on <Link href="/">Today’s news</Link>.
-              </p>
-              {editorial.hide.length > 0 && (
-                <ul>
-                  {editorial.hide.map((h) => (
-                    <li key={h.url}>
-                      Left out: {host(h.url)}. {h.reason}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <p>
-                <strong>The indicators</strong> each rest on one source and one rule. Job postings are Indeed’s own
-                count of US postings asking for AI skills. Federal documents are those whose text includes the phrase
-                “artificial intelligence”. A model release is the first post announcing a new version number in a
-                lab’s main line (GPT, Gemini or Claude); variants of a version already announced, such as a smaller
-                or faster edition, are not counted again, and labs other than these three are not covered.
-              </p>
-              {adoption && (
-              <p>
-                <strong>Business adoption</strong> is the Census Bureau’s Business Trends and Outlook Survey, which
-                asks a sample of US businesses the same questions every two weeks. The figure is the share answering
-                yes, as the Bureau publishes it for the country as a whole; it counts a business the same whether
-                one person or everyone there uses AI, and whether it has five staff or fifty thousand. The trend
-                compares the average of the last {ADOPTION_WINDOW} surveys with the {ADOPTION_WINDOW} before, so
-                that one survey’s sampling noise is not read as a move. The series here begins with the survey of
-                two weeks to {fmtDate(adoption.since)}, the first with the question’s current wording, which asks
-                about use “in any of its business functions”; answers to the narrower earlier wording were lower
-                and are not joined on.
-              </p>
-              )}
-              <p>
-                <strong>Model share</strong> is the weekly count of tokens (the units of text a model reads and
-                writes) that passed through OpenRouter, grouped by the company that made the model. OpenRouter is a
-                marketplace developers use to reach many models through one account, so it shows the choices of
-                developers who shop around; companies that buy from OpenAI, Anthropic or Google directly, and
-                everyone using a chat app, are not in it. Free and low-priced models draw heavy automated use there,
-                which lifts their makers. Each maker counts tokens its own way, so shares are approximate. OpenRouter
-                publishes each day’s 50 most-used models, so a maker’s total leaves out any of its models below
-                that line. A week names only its nine largest makers, so a maker’s line starts from when it last
-                entered the nine, and its change is shown only if it stayed there for the whole comparison.
-              </p>
-              <p>
-                <strong>Developer usage</strong> counts downloads of each toolkit’s Python packages from PyPI and
-                JavaScript packages from npm, per complete month. A download is not a user: build servers fetch
-                packages again on every run, and one toolkit can pull in another, so a download of LangChain often
-                brings OpenAI’s toolkit with it. Share is worked out separately for Python and for JavaScript, as each
-                toolkit’s part of the downloads tracked here in that language, and the two are averaged; a toolkit
-                published in only one language counts as 0% in the other. Measuring each language on its own keeps a
-                change in how one registry counts from moving every share. A toolkit is rising or cooling when its
-                average share over the last {USAGE_WINDOW} months moved by 10% or more against the {USAGE_WINDOW}{" "}
-                before. Apps that call a model without one of these toolkits, and everyone using a chat app, are not
-                counted.
-              </p>
-            </div>
-          </details>
-        </section>
+        {/* How this is measured closed this page before it had a page of its own; an old #method link lands at the foot, by the link to it. */}
+        <span id="method" />
       </main>
 
       <Colophon />

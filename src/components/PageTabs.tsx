@@ -19,7 +19,7 @@ export type Page = (typeof PAGES)[number]["id"];
  * are on inked and underlined. They sit in the masthead so that the sticky bar below is only
  * ever about the page you are on.
  */
-export function PageTabs({ current }: { current: Page }) {
+export function PageTabs({ current }: { current?: Page }) {
   return (
     <nav className="tabs" aria-label="Pages">
       <ul>
