@@ -88,7 +88,7 @@ export type TrendReading = {
 const perWeek = (v: number) => (v >= 10 ? String(Math.round(v)) : v.toFixed(1));
 
 /**
- * The "why it matters" line under the day's top story: "Gemini on Hacker News over three months:
+ * The line under the day's top story, labelled "The trend": "Gemini on Hacker News over three months:
  * rising, with 12 stories a week in the last 4 weeks against 8.0 in the 4 weeks before." It names
  * the range, says the site's own call and gives both figures the call is made on, nothing more.
  */

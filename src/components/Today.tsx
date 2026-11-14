@@ -93,7 +93,7 @@ export function Today() {
                 <Tags title={first.title} className="top-story__tags" />
                 {why && (
                   <p className="top-story__why">
-                    <strong>Why it matters:</strong> {why}
+                    <strong>The trend:</strong> {why}
                   </p>
                 )}
                 {first.pinned?.note && <p className="top-story__note">{first.pinned.note}</p>}
@@ -226,7 +226,7 @@ export function Today() {
               default three months.
             </p>
             <p>
-              <strong>Why it matters.</strong> Under the top story, one line reads the trend of its first tag, as
+              <strong>The trend.</strong> Under the top story, one line reads the trend of its first tag, as
               that trend’s row reads it over three months: its Hacker News stories a week in the last four weeks
               against the four weeks before, and the call the row makes, rising, steady or cooling. A trend with
               too few stories in either period is too few to call, and a change no bigger than its usual week-to-week
