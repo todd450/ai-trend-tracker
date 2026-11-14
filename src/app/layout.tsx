@@ -42,7 +42,9 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, view
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${newsreader.variable} ${geist.variable}`}>
+    // data-scroll-behavior lets Next switch smooth scrolling off while it opens a page, so a new
+    // page starts at the top at once instead of gliding there (and being overtaken on the way).
+    <html lang="en" data-scroll-behavior="smooth" className={`${newsreader.variable} ${geist.variable}`}>
       <body>
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredData }} />

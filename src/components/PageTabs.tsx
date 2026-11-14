@@ -3,8 +3,9 @@ import Link from "next/link";
 const PAGES = [
   { id: "trends", label: "Trends", href: "/" },
   { id: "reading", label: "Reading list", href: "/reading" },
-  // The conference calendar opens at today's line, with what has been held above it.
-  { id: "conferences", label: "Conferences", href: "/conferences#now" },
+  // Every tab opens its page at the top, so the tabs stay in view. Today's line is one tap away
+  // in the calendar's own month bar.
+  { id: "conferences", label: "Conferences", href: "/conferences" },
 ] as const;
 
 export type Page = (typeof PAGES)[number]["id"];

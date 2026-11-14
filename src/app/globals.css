@@ -17,7 +17,13 @@ body {
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--bar-h) + var(--space-md));
+}
+
+/* Jump targets leave room for the sticky bar. This sits on the targets, not as scroll-padding on
+   html: Next reads html's scroll-padding when it opens a page, takes the top of every page to be
+   hidden behind it, and scrolls the page tabs out of view. */
+:where([id]) {
+  scroll-margin-top: calc(var(--bar-h) + var(--space-md));
 }
 
 /* The height of the sticky bar, so a link to a section lands below it. */
@@ -2553,7 +2559,7 @@ code {
   font-size: var(--text-sm);
   font-weight: 700;
   color: var(--color-accent);
-  scroll-margin-top: calc(var(--bar-h) + 8rem);
+  scroll-margin-top: calc(var(--bar-h) + var(--space-md) + 8rem);
 }
 
 .today::after {
