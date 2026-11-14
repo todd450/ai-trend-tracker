@@ -7,7 +7,7 @@
  */
 import { topicTable, type Call } from "./datasets";
 import { trendLine, type TrendReading } from "./sentences";
-import { trendTags } from "./tags";
+import { trendTags, type TrendTag } from "./tags";
 import { HORIZONS, THEME_STEADY_BAND, buildTrends, heldBack, signalDirection } from "./trends";
 
 const RANGE = "threeMonths" as const;
@@ -28,9 +28,17 @@ function readingOf(kind: "product" | "topic", id: string, name: string): TrendRe
   return { name, call, recent: p.stories.recent, prior: p.stories.prior };
 }
 
+/** How a tagged trend reads over the default range, as the row its tag links to reads it. */
+export function trendReading(tag: TrendTag): TrendReading | undefined {
+  return readingOf(tag.kind, tag.id, tag.name);
+}
+
+/** The line for one trend's reading, naming the default range. */
+export const lineOf = (reading: TrendReading) => trendLine(reading, HORIZONS[RANGE]);
+
 /** The line for a headline, or undefined when it names no tracked trend. */
 export function whyItMatters(title: string): string | undefined {
   const [tag] = trendTags(title);
-  const reading = tag && readingOf(tag.kind, tag.id, tag.name);
-  return reading ? trendLine(reading, HORIZONS[RANGE]) : undefined;
+  const reading = tag && trendReading(tag);
+  return reading ? lineOf(reading) : undefined;
 }
