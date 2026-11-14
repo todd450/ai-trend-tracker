@@ -25,9 +25,6 @@ const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling
 /** The comparison uses the tracker's default view, so its arrows match the front page. */
 const HORIZON = "threeMonths" as const;
 
-/** "Tool use & MCP" reads as "tool use & MCP" mid-sentence; names that open with an acronym keep their capitals. */
-const inSentence = (name: string) => (/^[A-Z]{2,}\b/.test(name) ? name : name[0].toLowerCase() + name.slice(1));
-
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
 
 /** An event has a reading once anything has been counted or written from it. */
@@ -273,33 +270,8 @@ function monthCount({ count }: AgendaMonth): string {
 /** The conference calendar: one agenda of months, a line at today, and each event's phase in words. */
 export function Conferences() {
   const months = calendarMonths();
-  const phases = conferences.map(phaseOf);
-  const upcoming = conferences.filter((c) => phaseOf(c) === "upcoming");
   const underway = conferences.filter((c) => phaseOf(c) === "underway");
-  const held = phases.filter((p) => p === "awaiting" || p === "partly" || p === "watched").length;
-  const watched = phases.filter((p) => p === "watched").length;
-  const partly = phases.filter((p) => p === "partly").length;
-  const next = upcoming[0];
 
-  /** The newest event whose talks have been read: its loudest topic is the page's finding. */
-  const reported = [...conferences].reverse().find((c) => c.recap && c.stage?.source === "talks");
-  const loudest = reported ? stageAgainstTrends(reported, HORIZON)[0] : undefined;
-
-  const finding =
-    reported && loudest && loudest.mentions > 0
-      ? `At ${reported.name}, ${inSentence(loudest.topic.name)} took ${pct(loudest.share)} of topic mentions on stage.`
-      : "";
-  const calendar = underway.length
-    ? `${underway.map((c) => c.name).join(" and ")} ${underway.length > 1 ? "are" : "is"} under way in ${underway[0].place.split(",")[0]}.`
-    : next
-      ? `Next on the calendar: ${next.name}, ${when(next)}.`
-      : "No conferences on the calendar yet.";
-  // What was said leads when there is something to report; the calendar follows it.
-  const lead = finding || calendar;
-  const turn = finding ? calendar : underway.length && next ? `Next: ${next.name}, ${when(next)}.` : "";
-
-  const first = conferences[0];
-  const last = conferences.at(-1);
   return (
     <>
       <a className="skip" href="#now">
@@ -309,32 +281,7 @@ export function Conferences() {
       <ConfMast ruled />
 
       <main className="page">
-        <section className="lede lede--cal">
-          <div className="lede__main">
-            <h1 className="lede__head">
-              {lead}
-              {turn && (
-                <>
-                  {" "}
-                  <span className="lede__turn">{turn}</span>
-                </>
-              )}
-            </h1>
-            <div className="lede__dek">
-              <p>
-                Every event on the calendar, month by month. Once an event is over and its talks are watched, its
-                card says what the stage was about and how that compares with the tracker’s numbers. Until then it
-                makes no claim.
-              </p>
-              <p className="lede__meta">
-                {conferences.length} events
-                {first && last && ` from ${fmtMonthOf(first.start)} to ${fmtMonthOf(last.start)}`} · {held} held
-                {underway.length > 0 && ` · ${underway.length} under way`} · {upcoming.length} upcoming · {watched}{" "}
-                watched in full{partly > 0 && `, ${partly} in part`} · <a href="#now">Jump to today</a>
-              </p>
-            </div>
-          </div>
-        </section>
+        <h1 className="vh">Conference calendar</h1>
 
         <div className="agenda" id="calendar">
           {months.map((m) => {
