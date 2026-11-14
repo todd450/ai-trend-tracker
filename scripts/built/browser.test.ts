@@ -68,30 +68,32 @@ async function rendered(path: string): Promise<string> {
   return stdout;
 }
 
-/** The opening tag of the list that holds the row with this id, and the row's place in it. */
-function listOf(html: string, id: string) {
+/** The opening tag of the closest <details> still open around the element with this id, or null when it is in none. */
+function foldOf(html: string, id: string) {
   const at = html.indexOf(`id="${id}"`);
   assert.ok(at >= 0, `#${id} is on the page`);
-  const open = html.lastIndexOf('<ol class="mom__list"', at);
-  const tag = html.slice(open, html.indexOf(">", open) + 1);
-  const place = html.slice(open, at).split("<li").length - 1;
-  return { tag, place };
+  const before = html.slice(0, at);
+  const open = before.lastIndexOf("<details");
+  if (open < 0 || before.lastIndexOf("</details>") > open) return null;
+  return html.slice(open, html.indexOf(">", open) + 1);
 }
 
-/** Product rows the front page keeps folded away: past the fifth in their group. */
+/** Ids the front page keeps in a fold: product rows, and the method's track record paragraph. */
 const folded = () => {
   const html = readFileSync(join(APP, "index.html"), "utf8");
-  return [...html.matchAll(/id="(product-[^"]+)"/g)].map((m) => m[1]).filter((id) => listOf(html, id).place > 5);
+  return [...html.matchAll(/id="(product-[^"]+|track-record)"/g)].map((m) => m[1]).filter((id) => foldOf(html, id));
 };
 
-test("a link to a product row folded under “Show all” opens its group", async () => {
+test("a link to a folded row, or to the track record's method, opens its fold with no script", async () => {
   const ids = folded();
-  assert.ok(ids.length > 0, "some product rows start folded");
-  const id = ids[0];
+  assert.ok(ids.some((id) => id.startsWith("product-")), "some product rows start folded");
+  assert.ok(ids.includes("track-record"), "the method paragraph starts folded");
   const closed = await rendered("/");
-  assert.match(listOf(closed, id).tag, /data-open="false"/, "the group starts folded");
-  const followed = await rendered(`/#${id}`);
-  assert.match(listOf(followed, id).tag, /data-open="true"/, `following /#${id} opens its group`);
+  for (const id of ids) assert.doesNotMatch(foldOf(closed, id)!, /\sopen/, `#${id} starts folded`);
+  for (const id of [ids.find((i) => i.startsWith("product-"))!, "track-record"]) {
+    const followed = await rendered(`/#${id}`);
+    assert.match(foldOf(followed, id)!, /\sopen/, `following /#${id} opens its fold`);
+  }
 });
 
 test("a malformed #fragment in a shared link leaves the front page whole", async () => {

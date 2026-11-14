@@ -5,6 +5,8 @@ import { LeadChart } from "@/components/LeadChart";
 import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
+import { TrackRecord } from "@/components/TrackRecord";
+import { CHECK_AFTER, FEW_CALLS, RECORD_WEEKS, weeksNeeded } from "@/lib/record";
 import { Bar, extentOf } from "@/components/MomentumBars";
 import { type Product } from "@/lib/products";
 import { PageTabs } from "@/components/PageTabs";
@@ -22,8 +24,11 @@ import {
   HORIZONS,
   SUBTHEME_MIN_STORIES,
   PRODUCT_MIN_STORIES,
+  STEADY_BAND,
   THEME_STEADY_BAND,
   buildTrends,
+  everyWeek,
+  signalDirection,
   fmtCompact,
   fmtDate,
   fmtDay,
@@ -32,6 +37,7 @@ import {
   latest,
   type Direction,
   type Horizon,
+  type ProductTrend,
   type Signal,
 } from "@/lib/trends";
 
@@ -64,10 +70,11 @@ const SOURCE_LABELS: Record<string, string> = {
 /** The reading list's sections, which were on this page before it had its own; old links to them still land. */
 const MOVED_ANCHORS = ["today", "reading", "news", "papers", "analysis", "announcements", "launches", "code", "models", "labs"];
 
+/** Called themes first, open; the steady ones last, in one fold. */
 const THEME_GROUPS:{ direction: Direction; title: string }[] = [
   { direction: "rising", title: "Rising" },
-  { direction: "steady", title: "Steady" },
   { direction: "cooling", title: "Cooling" },
+  { direction: "steady", title: "Steady" },
 ];
 
 /** A weekly story count, shown short and read out in full. */
@@ -132,6 +139,12 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const trends = buildTrends(horizon);
   const { window: WINDOW, weeks, themeTrends, productTrends, hasThemes, hasProducts } = trends;
   const { headline, lead, briefing } = buildBriefing(trends);
+  /** The kinds of call today's headline makes, so the track record can mark them. */
+  const researchCall = lead.find((s) => s.measure === "Research")?.direction;
+  const headlineCalls = {
+    topic: researchCall === "steady" ? undefined : researchCall,
+    theme: lead.some((s) => s.measure !== "Research"),
+  };
   const compared =
     WINDOW === 1
       ? "latest week compared with the week before"
@@ -180,10 +193,18 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
   const usageExtent = extentOf((usage?.toolkits ?? []).map((t) => t.share.change));
   const marketExtent = extentOf((marketShare?.makers ?? []).map((m) => m.share.change));
 
-  /** Products in their groups, numbered down the page; within a group, most discussed first. */
-  const productRows = PRODUCT_GROUPS.flatMap((group) => productTrends.filter((p) => p.kind === group.kind)).map(
-    (p, i) => ({ p, rank: i + 1 }),
-  );
+  /** A product with a rise or fall called on either measure, the same test that colours its bars. */
+  const productCalled = (p: ProductTrend) =>
+    (p.enough && signalDirection(p.stories, THEME_STEADY_BAND) !== "steady") ||
+    (p.views !== null && signalDirection(p.views, STEADY_BAND) !== "steady");
+  /**
+   * Products in their groups, numbered down the page; within a group, those with a called move
+   * first, open, and the rest after them in one fold; most discussed first within each.
+   */
+  const productRows = PRODUCT_GROUPS.flatMap((group) => {
+    const members = productTrends.filter((p) => p.kind === group.kind);
+    return [...members.filter(productCalled), ...members.filter((p) => !productCalled(p))];
+  }).map((p, i) => ({ p, rank: i + 1, called: productCalled(p) }));
   const productStoryExtent = extentOf(productTrends.filter((p) => p.enough).map((p) => p.stories.change));
   const productViewExtent = extentOf(productTrends.map((p) => p.views?.change ?? null));
 
@@ -222,22 +243,25 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
       <main className="page">
         <section className="lede">
           <div className="lede__main">
-            <h2 className="lede__head">
-              {headline.lead}
-              {headline.turn && (
-                <>
-                  {" "}
-                  <span className="lede__turn">{headline.turn}</span>
-                </>
-              )}
-            </h2>
-            <div className="lede__dek">
-              <p className="lede__meta">
-                {latestWeek && <>Latest week: {fmtWeek(latestWeek)}</>}
-                {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv that week</>}
-                {" · "}Showing {HORIZONS[horizon].label}: charts cover {weeks.length} weeks, and each change is the {compared}.
-              </p>
+            <div className="lede__text">
+              <h2 className="lede__head">
+                {headline.lead}
+                {headline.turn && (
+                  <>
+                    {" "}
+                    <span className="lede__turn">{headline.turn}</span>
+                  </>
+                )}
+              </h2>
+              <div className="lede__dek">
+                <p className="lede__meta">
+                  {latestWeek && <>Latest week: {fmtWeek(latestWeek)}</>}
+                  {papersLastWeek > 0 && <> · {papersLastWeek.toLocaleString("en")} AI papers reached arXiv that week</>}
+                  {" · "}Showing {HORIZONS[horizon].label}: charts cover {weeks.length} weeks, and each change is the {compared}.
+                </p>
+              </div>
             </div>
+            <TrackRecord horizon={horizon} headline={headlineCalls} />
           </div>
           {editorLine && (
             <p className="lede__note">
@@ -306,7 +330,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                 {THEME_GROUPS.map((group) => {
                   const members = themeRows.filter(({ t }) => t.direction === group.direction);
                   if (members.length === 0) return null;
-                  return (
+                  const section = (
                     <section key={group.direction} className="mom__group">
                       <h3>
                         {group.title} <span>{members.length}</span>
@@ -343,9 +367,20 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                       </ol>
                     </section>
                   );
+                  if (group.direction !== "steady") return section;
+                  // Native, with no script: a browser opens it to follow a link to anything inside.
+                  return (
+                    <details key={group.direction} className="table-view fold">
+                      <summary>
+                        {members.length} steady {members.length === 1 ? "theme" : "themes"}{" "}
+                        <span>· none moved {THEME_STEADY_BAND * 100}% or more, clear of its usual swing</span>
+                      </summary>
+                      {section}
+                    </details>
+                  );
                 })}
                 <p className="mom__note">
-                  Largest themes first. Line: the weeks charted, from zero. Bar: length is the change (to ±
+                  Called themes first, largest first; steady ones are folded. Line: the weeks charted, from zero. Bar: length is the change (to ±
                   {Math.round(themeExtent * 100)}%), thickness is the theme’s size. Grey: under{" "}
                   {THEME_STEADY_BAND * 100}%, or within the theme’s usual weekly swing.
                   {themeTrends.some((t) => t.parts.some((part) => !part.enough)) && (
@@ -443,13 +478,9 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
               {PRODUCT_GROUPS.map((group) => {
                 const members = productRows.filter(({ p }) => p.kind === group.kind);
                 if (members.length === 0) return null;
-                return (
-                  <section key={group.kind} className="mom__group">
-                    <h3>
-                      {group.title} <span>{members.length}</span>
-                    </h3>
-                    <MoreRows count={members.length} noun="products">
-                      {members.map(({ p, rank }) => {
+                const open = members.filter((m) => m.called);
+                const quiet = members.filter((m) => !m.called);
+                const rows = (list: typeof members) => list.map(({ p, rank }) => {
                         const views = p.views;
                         return (
                           <li key={p.id} id={`product-${p.id}`} className="mom__row">
@@ -504,13 +535,28 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
                             )}
                           </li>
                         );
-                      })}
-                    </MoreRows>
+                      });
+                return (
+                  <section key={group.kind} className="mom__group">
+                    <h3>
+                      {group.title} <span>{members.length}</span>
+                    </h3>
+                    {open.length > 0 && <ol className="mom__list">{rows(open)}</ol>}
+                    {quiet.length > 0 && (
+                      // Native, with no script: a browser opens it to follow a link such as /#product-grok.
+                      <details className="table-view fold">
+                        <summary>
+                          {quiet.length} steady or too few to call{" "}
+                          <span>· {quiet.map(({ p }) => p.name).join(", ")}</span>
+                        </summary>
+                        <ol className="mom__list">{rows(quiet)}</ol>
+                      </details>
+                    )}
                   </section>
                 );
               })}
               <p className="mom__note">
-                Each group shows its five most discussed products first. Bars run to ±{Math.round(productStoryExtent * 100)}%
+                Products with a rise or fall called on either measure are open; the rest of each group is folded. Bars run to ±{Math.round(productStoryExtent * 100)}%
                 (discussion) and ±{Math.round(productViewExtent * 100)}% (interest). Under {PRODUCT_MIN_STORIES} stories
                 a week, discussion is not called.
               </p>
@@ -920,6 +966,22 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           <details className="table-view">
             <summary>Read how each number is counted</summary>
             <div className="prose">
+              <p id="track-record">
+                <strong>Track record.</strong> For each view with enough weeks stored, the page replays the past
+                year week by week: it reads the stored counts as each week would have read them, with today’s
+                rules, and notes what it would have called on research topics and on themes. A call is counted
+                once, in the week it first appears, so a topic called rising eight weeks running is one call; one
+                that goes steady or turns round and is called again is a new one. A call held if, {CHECK_AFTER}{" "}
+                weeks later, the share (the average over the view’s latest window) had moved further the way it was
+                called; the record covers the {RECORD_WEEKS} weeks of calls up to the last one that can be checked.
+                This is a replay with today’s rules and today’s counts, which can have been revised since, and
+                each week’s wobble is measured on the weeks up to it; it is not a record of what the page said at
+                the time. A line resting on fewer than {FEW_CALLS} calls is marked “few calls”. A year of checked
+                calls needs {weeksNeeded(HORIZONS.threeMonths.window)} weeks of counts on the 3-month view, but{" "}
+                {weeksNeeded(HORIZONS.oneYear.window)} on the 1-year view and {weeksNeeded(HORIZONS.twoYears.window)}{" "}
+                on the 2-year view, since each of their calls takes longer to make; {everyWeek.length} weeks are
+                stored.
+              </p>
               <p>
                 <strong>Topic momentum</strong>, a topic’s share of AI papers on arXiv and its stories on Hacker
                 News, is explained beside its figures on <Link href={`${topicsHref(horizon)}#counted`}>its own page</Link>,
