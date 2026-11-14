@@ -53,7 +53,8 @@ for (const date of DAYS) {
     const items = tools.todayItems(day, 20);
     for (const item of items) {
       for (const key of EXISTING) assert.ok(key in item, `${key} is still there`);
-      assert.deepEqual(Object.keys(item).filter((k) => !EXISTING.includes(k) && k !== "topStory" && k !== "tags"), [], "no other new field");
+      const added = ["topStory", "tags", "whyItMatters"];
+      assert.deepEqual(Object.keys(item).filter((k) => !EXISTING.includes(k) && !added.includes(k)), [], "no other new field");
     }
     // The field is optional: it is left out, not set to false, on every other story.
     const flagged = items.filter((item: any) => "topStory" in item);

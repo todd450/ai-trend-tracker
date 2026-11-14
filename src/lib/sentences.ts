@@ -73,3 +73,29 @@ export function headlineOf(lead: LeadSeries[], fallback: string): { lead: string
   const sentences = lead.map((mover) => finding(mover, mover.measure === "Research" ? "" : "On Hacker News,"));
   return sentences.length > 0 ? { lead: sentences[0], turn: sentences[1] } : { lead: fallback };
 }
+
+/** How a trend's Hacker News discussion reads over one range, as its row on the site shows it. */
+export type TrendReading = {
+  name: string;
+  /** The site's call: rising, steady, cooling, or one of its two ways of not calling a change. */
+  call: string;
+  /** Stories a week in the latest period and in the one before it. */
+  recent: number;
+  prior: number;
+};
+
+/** A count a week as the topics table prints it: whole from 10 up, one decimal place below. */
+const perWeek = (v: number) => (v >= 10 ? String(Math.round(v)) : v.toFixed(1));
+
+/**
+ * The "why it matters" line under the day's top story: "Gemini on Hacker News over three months:
+ * rising, with 12 stories a week in the last 4 weeks against 8.0 in the 4 weeks before." It names
+ * the range, says the site's own call and gives both figures the call is made on, nothing more.
+ */
+export function trendLine(r: TrendReading, range: { when: string; window: number }): string {
+  const [now, before] =
+    range.window === 1
+      ? ["in the latest week", "in the week before"]
+      : [`in the last ${range.window} weeks`, `in the ${range.window} weeks before`];
+  return `${r.name} on Hacker News ${range.when}: ${r.call}, with ${perWeek(r.recent)} stories a week ${now} against ${perWeek(r.prior)} ${before}.`;
+}
