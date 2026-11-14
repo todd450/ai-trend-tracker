@@ -1,6 +1,6 @@
 import { Ledger } from "@/components/Ledger";
 import type { LeadSeries } from "@/lib/briefing";
-import { seriesOf, type CountedMove, type Span } from "@/lib/counted";
+import { COUNTED_WEEKS, seriesOf, storiesByWeek, type CountedMove, type Span } from "@/lib/counted";
 import { NEW_TAB, host } from "@/lib/links";
 import { fmtCompact, fmtDay } from "@/lib/trends";
 
@@ -34,8 +34,9 @@ function Mag({ value, max }: { value: number; max: number }) {
 }
 
 /**
- * The foot of a lead chart's panel. Under a rise, what was counted: up to three stories, or three
- * example papers, with the window, how many matched and the rule that chose them. Under a fall,
+ * The foot of a lead chart's panel. Under a rise, what was counted: a story from each of the latest
+ * weeks (the three with the most points when the window is under three weeks), or three example
+ * papers, with the window, how many matched and the rule that chose them. Under a fall,
  * one line saying why there is no list. With nothing collected for a rise, nothing.
  */
 export function CountedFoot({
@@ -106,12 +107,14 @@ export function CountedFoot({
 
   const n = move.stories.length;
   const max = Math.max(...move.stories.map((x) => x.points));
+  const of = `of ${Math.max(matched, n).toLocaleString("en")} matching stories in ${span} (${dates})`;
   return (
     <section className="leadchart__evidence" id={id} aria-labelledby={`${id}-h`}>
       <h3 id={`${id}-h`}>What was counted</h3>
       <p className="leadchart__rule">
-        The {n === 1 ? "" : `${n} `}most-discussed of {Math.max(matched, n).toLocaleString("en")} matching stories in {span} ({dates}), most points
-        first.
+        {storiesByWeek(move)
+          ? `The most-discussed story from each ${window > COUNTED_WEEKS ? `of the last ${COUNTED_WEEKS} weeks` : "week"}, newest first, ${of}.`
+          : `The ${n === 1 ? "" : `${n} `}most-discussed ${of}, most points first.`}
       </p>
       <Ledger
         all

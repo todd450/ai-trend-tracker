@@ -81,7 +81,7 @@ The collector writes to `data/`:
 
 ### What was counted
 
-Under each lead chart that rose, the trends page lists up to three items, chosen by
+Under each lead chart that rose, the trends page lists up to four items, chosen by
 the rules in `src/lib/counted.ts` (tested in `scripts/counted.test.ts`). After the
 counts, the collector reads each view's headline with the page's own code, and for
 each rising move it names runs one more search over that view's latest window, with
@@ -89,7 +89,9 @@ the move's own phrases:
 
 - a Hacker News theme: every story in the window whose title matches one of the
   theme's searches; one item per story however often it was submitted (by link or
-  headline), most points first;
+  headline). Over a window of three weeks or more, the story with the most points
+  from each of its latest four weeks, newest week first; over a shorter window, the
+  three with the most points;
 - a research topic: the newest 30 matching papers from arXiv's own search, plus the
   Hugging Face daily papers that hold one of the topic's phrases and that the same
   arXiv search also finds; upvoted papers first, then the newest. The page labels
@@ -106,7 +108,7 @@ at one request every three seconds. Hacker News's titles and links are shown wit
 links back to the story and its thread, as the reading list already does; Y
 Combinator's site terms bar copying and redistributing works derived from the site
 except as expressly allowed, and neither the Hacker News API nor Algolia's search for
-it grants a licence for the data, so the file keeps only the three stories a move
+it grants a licence for the data, so the file keeps only the few stories a move
 shows (the daily snapshots keep each day's copy for the check-back), and Hacker News
 figures stay out of the downloadable dataset.
 

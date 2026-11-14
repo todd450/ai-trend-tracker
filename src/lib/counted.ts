@@ -5,7 +5,10 @@
  *   1. Moves: only the rising ones the headline (and so the briefing) names on each view, over
  *      that view's latest window. A fall means fewer stories, so no story stands for it.
  *   2. Stories, for a Hacker News theme: those in the window whose title matches one of the
- *      theme's own searches, one item per story however often it was submitted, most points first.
+ *      theme's own searches, one item per story however often it was submitted. Over a window of
+ *      three weeks or more, the most-discussed story from each of its latest four weeks, newest
+ *      week first, because points build up over days and the most points overall would mostly be
+ *      the window's oldest stories. Over a shorter window, the three with the most points.
  *   3. Papers, for a research topic: those in the window whose title or abstract holds one of the
  *      topic's own phrases, the ones upvoted on Hugging Face first, then the newest. They are
  *      examples of what was counted, not the reason for the move, and the page says so.
@@ -19,8 +22,10 @@ import type { LeadSeries } from "./sentences.ts";
 import { THEMES } from "./themes.ts";
 import { TOPICS } from "./topics.ts";
 
-/** The most items kept under one move. */
+/** The most papers kept under one move, and the most stories when the window is read as a whole. */
 export const COUNTED_MAX = 3;
+/** The most weeks of a window that give a story each, counted back from its latest. */
+export const COUNTED_WEEKS = 4;
 
 const DAY = 86_400_000;
 const WEEK = 7 * DAY;
@@ -76,6 +81,20 @@ export function within(iso: string, span: Span): boolean {
   return Number.isFinite(at) && at >= from && at < to;
 }
 
+/** The Mondays of a span's weeks, newest first. */
+function weeksOf(span: Span): string[] {
+  const first = Date.parse(`${span.first}T00:00:00Z`);
+  const weeks: string[] = [];
+  for (let at = Date.parse(`${span.last}T00:00:00Z`); at >= first; at -= WEEK) weeks.push(new Date(at).toISOString().slice(0, 10));
+  return weeks;
+}
+
+/**
+ * True when a theme's stories are chosen week by week: the window is long enough for a story from
+ * each week to make a list of three. A shorter window is read as a whole.
+ */
+export const storiesByWeek = (span: Span): boolean => weeksOf(span).length >= COUNTED_MAX;
+
 /** Text as its words: lower case, any run of other characters a break, as the searches split them. */
 const words = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 
@@ -100,11 +119,11 @@ export function titleMatches(title: string, search: string): boolean {
 /** One key per article. Hacker News's own text posts all share a path, so theirs keeps its item number. */
 const articleKey = (url: string) => (/^https?:\/\/news\.ycombinator\.com\//.test(url) ? url : sameArticle(url));
 
-/** Keeps the first of any items that are one article, by link or by headline, up to the cap. */
-function distinct<T extends { title: string; url: string }>(ranked: T[]): T[] {
+/** Keeps the first of any items that are one article, by link or by headline, up to `max` of them. */
+function distinct<T extends { title: string; url: string }>(ranked: T[], max = COUNTED_MAX): T[] {
   const kept: T[] = [];
   for (const item of ranked) {
-    if (kept.length >= COUNTED_MAX) break;
+    if (kept.length >= max) break;
     const key = articleKey(item.url);
     if (kept.some((k) => articleKey(k.url) === key || sameHeadline(k.title, item.title))) continue;
     kept.push(item);
@@ -112,12 +131,22 @@ function distinct<T extends { title: string; url: string }>(ranked: T[]): T[] {
   return kept;
 }
 
-/** A theme's stories: matching one of its searches, inside the window, most points first, then most comments. */
+/**
+ * A theme's stories: matching one of its searches, inside the window, ranked by points, then by
+ * comments. Week by week (see `storiesByWeek`), the first-ranked story of each of the window's
+ * latest four weeks, newest week first; a week with no match gives none, and a story submitted in
+ * two weeks is listed once, under its higher-ranked copy. Otherwise the first three overall.
+ */
 export function pickStories(stories: CountedStory[], searches: string[], span: Span): CountedStory[] {
+  const byWeek = storiesByWeek(span);
+  const weeks = weeksOf(span).slice(0, COUNTED_WEEKS);
+  const read: Span = byWeek ? { first: weeks[weeks.length - 1], last: weeks[0] } : span;
   const ranked = stories
-    .filter((s) => within(s.createdAt, span) && searches.some((q) => titleMatches(s.title, q)))
+    .filter((s) => within(s.createdAt, read) && searches.some((q) => titleMatches(s.title, q)))
     .sort((a, b) => b.points - a.points || b.comments - a.comments || b.createdAt.localeCompare(a.createdAt));
-  return distinct(ranked);
+  if (!byWeek) return distinct(ranked);
+  const articles = distinct(ranked, Infinity);
+  return weeks.flatMap((week) => articles.find((s) => within(s.createdAt, { first: week, last: week })) ?? []);
 }
 
 /**
