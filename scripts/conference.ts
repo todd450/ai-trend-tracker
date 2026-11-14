@@ -13,8 +13,10 @@
  * The written recap beside the counts is added by whoever watched the talks; this script
  * only measures, and never changes the recap's wording.
  *
- * Transcripts are not kept in the repository. YouTube's captions for a recording can be
- * saved with `yt-dlp --write-auto-subs --sub-langs en --skip-download <video url>`.
+ * Transcripts are not kept in the repository. Save a recording's captions by hand from
+ * YouTube's "Show transcript" panel, or ask the organiser for a transcript; the README's
+ * "How conferences are tracked" says how. Do not fetch them with a download tool such as
+ * yt-dlp: YouTube's terms allow neither automated access nor downloading without permission.
  */
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
