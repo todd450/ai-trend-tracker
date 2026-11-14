@@ -26,6 +26,7 @@ export const PAGES = [
   "/six-months",
   "/one-year",
   "/two-years",
+  "/today",
   "/data/topics",
   "/reading",
   "/conferences",

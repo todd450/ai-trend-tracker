@@ -30,7 +30,7 @@ const task = (t: string | null) => (t ? t.replaceAll("-", " ") : "");
 /**
  * The reading list: the stories, papers, essays, launches, code and models behind the week's
  * numbers. None of it feeds the trends, so it does not change with the time range and has a page
- * of its own. Today's AI news stays on the front page.
+ * of its own, as does today's AI news.
  */
 export function ReadingList() {
   // The editor's hides apply to every ranked list, before it is cut to length.

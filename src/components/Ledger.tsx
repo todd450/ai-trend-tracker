@@ -22,6 +22,8 @@ type Props = {
   brief?: boolean;
   /** The rank of the first item, when the list carries on from a story set above it. */
   start?: number;
+  /** Shows every item, with no show-more control: for a list that is the whole of its page. */
+  all?: boolean;
   children: React.ReactNode;
 };
 
@@ -30,13 +32,13 @@ type Props = {
  * figures in columns under shared headings. Narrow lists stack the figures under the title.
  * The first five items show, or three on a phone; the rest are in the page, hidden until asked for.
  */
-export function Ledger({ first, cells, labelledBy, count, kind = "read", more, brief = false, start = 1, children }: Props) {
+export function Ledger({ first, cells, labelledBy, count, kind = "read", more, brief = false, start = 1, all = false, children }: Props) {
   const [open, setOpen] = useState(false);
-  const extra = Math.max(0, count - FIRST_PHONE);
+  const extra = all ? 0 : Math.max(0, count - FIRST_PHONE);
   return (
     <div
       className={`ledger ledger--${kind}`}
-      data-open={open}
+      data-open={open || all}
       data-short={count <= (brief ? FIRST_PHONE : FIRST)}
       data-brief={brief}
       style={{ "--cells": cells.map((c) => c.width).join(" ") } as React.CSSProperties}

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const PAGES = [
   { id: "trends", label: "Trends", href: "/" },
+  { id: "today", label: "Today’s news", href: "/today" },
   { id: "reading", label: "Reading list", href: "/reading" },
   // Every tab opens its page at the top, so the tabs stay in view. Today's line is one tap away
   // in the calendar's own month bar.
