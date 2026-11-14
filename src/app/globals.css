@@ -908,6 +908,10 @@ code {
   color: var(--color-muted);
 }
 
+/* A called rise or fall prints its figure in the data colour, as the trends page does. */
+.change--rising { color: var(--data-rising-ink); font-weight: 700; }
+.change--cooling { color: var(--data-cooling-ink); font-weight: 700; }
+
 .change__mark {
   font-size: 0.7em;
 }
