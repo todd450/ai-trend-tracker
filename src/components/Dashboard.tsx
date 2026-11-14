@@ -2,7 +2,6 @@ import Link from "next/link";
 import { DataIndex } from "@/components/DataIndex";
 import { HorizonSwitch } from "@/components/HorizonSwitch";
 import { LeadChart } from "@/components/LeadChart";
-import { Ledger } from "@/components/Ledger";
 import { Logo } from "@/components/Logo";
 import { MoreRows } from "@/components/MoreRows";
 import { TrackRecord } from "@/components/TrackRecord";
