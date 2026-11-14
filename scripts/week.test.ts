@@ -43,7 +43,7 @@ const data = (parts: Record<string, unknown>) => ({
   ...parts,
 });
 
-/** Every trend reads steady unless a test says otherwise, so a test controls the order of groups. */
+/** Every trend reads steady unless a test says otherwise. The call is shown with a group; it does not order the groups. */
 const calls =
   (byName: Record<string, string> = {}) =>
   (tag: { name: string }) => ({ name: tag.name, call: byName[tag.name] ?? "steady", recent: 10, prior: 10 });
@@ -157,10 +157,11 @@ const launchData = (extra: object[] = []) =>
   });
 
 test("a frontier lab's launch always makes the block, first, led by the lab's own post, its other posts under it", () => {
-  const crowd = [GEMINI, AGENTS, CLAUDE_CODE, OPENAI_CHATGPT, DEEPSEEK].flatMap((t, i) =>
-    [1, 2].map((k) => story(t(`rising ${k}`), 2000 - i * 10 - k)),
+  // Every other trend's stories are far bigger than the launch's, so only the launch rule can put Gemini first.
+  const crowd = [AGENTS, CLAUDE_CODE, OPENAI_CHATGPT, DEEPSEEK].flatMap((t, i) =>
+    [1, 2].map((k) => story(t(`bigger ${k}`), 2000 - i * 10 - k)),
   );
-  const w = week.buildWeek(launchData(crowd), none, calls({ "AI agents": "rising", "Claude Code": "rising", ChatGPT: "rising", DeepSeek: "rising" }));
+  const w = week.buildWeek(launchData(crowd), none, calls());
   const first = w.groups[0];
   assert.equal(first.tag.name, "Gemini");
   const lead = first.items[0];
@@ -207,7 +208,7 @@ test("the editor's hide keeps a link out of the block", () => {
 test("the editor's pin puts a post at the top of the block with its note, even with no trend tag, until its last day", () => {
   const pinned = story("Anthropic IPO", 996);
   const pin = (until: string) => ({ pin: [{ url: pinned.url, title: pinned.title, from: "ipo.anthropic.com", until, note: "Read the filing." }], hide: [] });
-  const w = week.buildWeek(data({ stories: [story(GEMINI("big"), 1200), pinned] }), pin("2026-11-14"), calls({ Gemini: "rising" }));
+  const w = week.buildWeek(data({ stories: [story(GEMINI("big"), 1200), pinned] }), pin("2026-11-14"), calls());
   const top = w.groups[0].items[0];
   assert.equal(top.title, "Anthropic IPO");
   assert.equal(top.pinned?.note, "Read the filing.");
