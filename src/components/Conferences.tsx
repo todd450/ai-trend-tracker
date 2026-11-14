@@ -5,11 +5,10 @@ import { PageTabs } from "@/components/PageTabs";
 import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
-import { PHASE_LABEL, PHASE_MARK, dayParts, type AgendaMonth } from "@/lib/agenda";
+import { PHASE_LABEL, PHASE_MARK, aroundToday, dayParts, splitAtToday, type AgendaMonth } from "@/lib/agenda";
 import {
   READING_LABEL,
   calendarMonths,
-  conferences,
   daysUntil,
   fmtMonthOf,
   fmtSpan,
@@ -267,16 +266,24 @@ function monthCount({ count }: AgendaMonth): string {
     .join(" · ");
 }
 
-/** The conference calendar: one agenda of months, a line at today, and each event's phase in words. */
+/**
+ * The conference calendar: it opens on this month, with a line at today, and runs forward;
+ * the months already past follow under their own heading, newest first.
+ */
 export function Conferences() {
-  const months = calendarMonths();
-  const underway = conferences.filter((c) => phaseOf(c) === "underway");
+  const { ahead, earlier } = splitAtToday(calendarMonths(), today);
+  const around = aroundToday(ahead, today);
 
   return (
     <>
       <a className="skip" href="#now">
         Skip to today
       </a>
+      {earlier.length > 0 && (
+        <a className="skip" href="#earlier">
+          Skip to earlier conferences
+        </a>
+      )}
 
       <ConfMast ruled />
 
@@ -290,35 +297,27 @@ export function Conferences() {
           </header>
 
           <div className="agenda" id="calendar">
-            {months.map((m) => {
-              const events = m.items.filter((x) => x.type === "event").length;
-              const y = m.month.slice(0, 4);
-              return (
-                <section
-                  key={m.month}
-                  id={`m-${m.month}`}
-                  className={events ? "month" : "month month--quiet"}
-                  aria-labelledby={`h-${m.month}`}
-                >
-                  <div className="month__head">
-                    <h2 id={`h-${m.month}`}>
-                      {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
-                    </h2>
-                    {events > 0 && <p className="month__count">{monthCount(m)}</p>}
-                  </div>
-                  {m.items.length > 0 && (
-                    <ol className="month__list">
-                      {m.items.map((x) =>
-                        x.type === "today" ? <TodayLine key="now" hasUnderway={underway.length > 0} /> : <Row key={x.c.id} c={x.c} />,
-                      )}
-                    </ol>
-                  )}
-                  {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
-                </section>
-              );
-            })}
+            {ahead.map((m) => (
+              <Month key={m.month} m={m} level={2} around={around} />
+            ))}
           </div>
         </div>
+
+        {earlier.length > 0 && (
+          <section className="chapter" id="earlier" aria-labelledby="earlier-h">
+            <header className="chapter__head">
+              <h2 className="chapter__title" id="earlier-h">
+                Earlier
+              </h2>
+              <p className="chapter__dek">The months already past, most recent first, with what was said on stage.</p>
+            </header>
+            <div className="agenda">
+              {earlier.map((m) => (
+                <Month key={m.month} m={m} level={3} around={around} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <ConfColophon />
@@ -326,17 +325,50 @@ export function Conferences() {
   );
 }
 
-function TodayLine({ hasUnderway }: { hasUnderway: boolean }) {
+type Around = ReturnType<typeof aroundToday>;
+
+/**
+ * One month: its name and count, then its events, or a line saying there are none. Months at the
+ * top of the page are h2s; under the Earlier heading they are h3s, and their events one level down.
+ */
+function Month({ m, level, around }: { m: AgendaMonth; level: 2 | 3; around: Around }) {
+  const events = m.items.filter((x) => x.type === "event").length;
+  const y = m.month.slice(0, 4);
+  const H = level === 2 ? "h2" : "h3";
+  return (
+    <section id={`m-${m.month}`} className={events ? "month" : "month month--quiet"} aria-labelledby={`h-${m.month}`}>
+      <div className="month__head">
+        <H id={`h-${m.month}`}>
+          {fmtMonthOf(m.month + "-01").replace(` ${y}`, "")} <span>{y}</span>
+        </H>
+        {events > 0 && <p className="month__count">{monthCount(m)}</p>}
+      </div>
+      {m.items.length > 0 && (
+        <ol className="month__list">
+          {m.items.map((x) =>
+            x.type === "today" ? <TodayLine key="now" around={around} /> : <Row key={x.c.id} c={x.c} level={level === 2 ? 3 : 4} />,
+          )}
+        </ol>
+      )}
+      {events === 0 && <p className="month__none">Nothing on the calendar this month.</p>}
+    </section>
+  );
+}
+
+/** The line at today, saying only what is really above and below it. */
+function TodayLine({ around }: { around: Around }) {
+  const parts = [around.above && `${around.above} above`, around.below && "upcoming below"].filter(Boolean);
   return (
     <li className="today" id="now">
       <b>Today, {fmtSpan(today, today, { year: false })}</b>
-      <span>{hasUnderway ? "started above" : "held above"} · upcoming below</span>
+      <span>{parts.length ? parts.join(" · ") : "nothing else on the calendar"}</span>
     </li>
   );
 }
 
 /** One event: its dates, name, place, kind and phase in words. An event with a reading grows into a card. */
-function Row({ c }: { c: Conference }) {
+function Row({ c, level }: { c: Conference; level: 3 | 4 }) {
+  const N = level === 3 ? "h3" : "h4";
   const phase = phaseOf(c);
   const { days, week } = dayParts(c.start, c.end);
   const href = `/conferences/${c.id}`;
@@ -351,9 +383,9 @@ function Row({ c }: { c: Conference }) {
           <span className="ev__wk">{week}</span>
         </span>
       </p>
-      <h3 className="ev__name">
+      <N className="ev__name">
         <Link href={href}>{c.name}</Link>
-      </h3>
+      </N>
       <p className="ev__meta">
         {c.place} · <span className="ev__kind">{c.kind === "research" ? "Research" : "Industry"}</span>
       </p>

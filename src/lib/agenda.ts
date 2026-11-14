@@ -79,6 +79,41 @@ export function agenda(conferences: Conference[], today: string): AgendaMonth[] 
   return months;
 }
 
+/**
+ * The agenda cut so the calendar opens on now. `ahead` starts at today's month, or earlier if an
+ * event that started in an earlier month is still running (re:Invent from 30 November, on 1
+ * December), and runs forward, earliest first, with the Today line in today's month. `earlier` is
+ * every month before that, newest first and each month's events newest first, so the latest
+ * readings lead.
+ */
+export function splitAtToday(months: AgendaMonth[], today: string): { ahead: AgendaMonth[]; earlier: AgendaMonth[] } {
+  const notOver = months.filter((m) => m.items.some((i) => i.type === "event" && i.c.end >= today)).map((m) => m.month);
+  const cut = [today.slice(0, 7), ...notOver].sort()[0];
+  return {
+    ahead: months.filter((m) => m.month >= cut),
+    earlier: months
+      .filter((m) => m.month < cut)
+      .reverse()
+      .map((m) => ({ ...m, items: [...m.items].reverse() })),
+  };
+}
+
+/**
+ * What sits either side of the Today line in the months ahead, so the line only says what is
+ * there: "started" above if anything above it is still running, "held" if all of it is over, null
+ * if nothing is above it; `below` is whether anything is still to come.
+ */
+export function aroundToday(ahead: AgendaMonth[], today: string): { above: "started" | "held" | null; below: boolean } {
+  const items = ahead.flatMap((m) => m.items);
+  const at = items.findIndex((i) => i.type === "today");
+  const events = (list: AgendaItem[]) => list.flatMap((i) => (i.type === "event" ? [i.c] : []));
+  const above = events(items.slice(0, at));
+  return {
+    above: above.some((c) => phaseAt(c, today) === "underway") ? "started" : above.length ? "held" : null,
+    below: events(items.slice(at + 1)).length > 0,
+  };
+}
+
 /** The events either side of one on the calendar, and its place in the list; null if it is not there. */
 export function neighbours(conferences: Conference[], id: string) {
   const index = conferences.findIndex((c) => c.id === id);

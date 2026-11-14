@@ -2187,11 +2187,11 @@ code {
   padding-bottom: var(--space-2xs);
 }
 
-.month__head h2 {
+.month__head :is(h2, h3) {
   font-size: var(--text-xl);
 }
 
-.month__head h2 span {
+.month__head :is(h2, h3) span {
   font-weight: 400;
   color: var(--color-muted);
 }
@@ -2207,7 +2207,7 @@ code {
   border-top-width: var(--rule-hair);
 }
 
-.month--quiet .month__head h2 {
+.month--quiet .month__head :is(h2, h3) {
   font-size: var(--text-lg);
   color: var(--color-ink-2);
 }
@@ -2275,10 +2275,12 @@ code {
 }
 
 .ev__name {
+  margin: 0; /* under the Earlier heading this is an h4, which the base reset leaves with a margin */
   font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: 600;
   line-height: 1.2;
+  letter-spacing: -0.012em;
   overflow-wrap: anywhere;
 }
 
