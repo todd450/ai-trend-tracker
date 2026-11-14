@@ -1483,9 +1483,15 @@ code {
   color: var(--color-muted);
 }
 
-.top-story__note {
+.top-story__note,
+.top-story__why {
   font-size: var(--text-base);
   color: var(--color-ink-2);
+}
+
+.top-story__why strong {
+  font-weight: 600;
+  color: var(--color-ink);
 }
 
 .top-story__also {

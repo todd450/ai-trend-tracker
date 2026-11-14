@@ -101,6 +101,21 @@ test("/today tags each headline with its trends, and every tag lands on its tren
   }
 });
 
+test("/today prints the why-it-matters line under the top story only, and nowhere on an ordinary day", async () => {
+  const { buildToday } = await fromSrc<any>("lib/today");
+  const { whyItMatters } = await fromSrc<any>("lib/why");
+  const html = page("/today");
+  const day = buildToday();
+  const line = day.top && whyItMatters(day.items[day.top.index].title);
+  const shown = [...html.matchAll(/<p class="top-story__why"[\s\S]*?<\/p>/g)].map((m) => text(m[0]).trim());
+  assert.equal(shown.length, line ? 1 : 0);
+  if (line) {
+    assert.ok(shown[0].endsWith(line), shown[0]);
+    const story = html.slice(html.indexOf('<article class="top-story"'), html.indexOf("</article>"));
+    assert.ok(story.includes("top-story__why"), "inside the top story");
+  }
+});
+
 test("the MCP server ships with the daily snapshots its top story is weighed against", () => {
   // /mcp runs on request, so it reads data/snapshots/ where it is deployed, where only the files the build traced are.
   const trace = JSON.parse(readFileSync(join(APP, "mcp/route.js.nft.json"), "utf8"));

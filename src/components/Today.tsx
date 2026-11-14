@@ -8,6 +8,7 @@ import { SITE_MAKER_URL } from "@/lib/site";
 import { trendTags } from "@/lib/tags";
 import { buildToday, editorial, pastLeads } from "@/lib/today";
 import { fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
+import { whyItMatters } from "@/lib/why";
 
 /**
  * The trends a headline is counted in (see `trendTags`), each a link to its row on the site.
@@ -43,6 +44,8 @@ export function Today() {
   const top = today.top;
   const first = top && today.items[top.index];
   const bigDay = first !== undefined;
+  /** The line under the top story, from its first tag's trend (see `whyItMatters`); none without a tag. */
+  const why = first && whyItMatters(first.title);
   const rows = top ? today.items.filter((_, n) => n !== top.index) : today.items;
   const leads = pastLeads(latest.generatedAt.slice(0, 10));
 
@@ -83,6 +86,11 @@ export function Today() {
                   {first.publishedAt.includes("T00:00:00") ? fmtDay(first.publishedAt) : `${fmtDayTime(first.publishedAt)} UTC`}
                 </p>
                 <Tags title={first.title} className="top-story__tags" />
+                {why && (
+                  <p className="top-story__why">
+                    <strong>Why it matters:</strong> {why}
+                  </p>
+                )}
                 {first.pinned?.note && <p className="top-story__note">{first.pinned.note}</p>}
                 {first.also.length > 0 && (
                   <ul className="top-story__also" aria-label="Other posts on the same story">
@@ -211,6 +219,14 @@ export function Today() {
               Claude Code is not tagged Claude. A headline that matches none has no tag. A tag links to the trend’s
               row: a topic on the topics page, a product under “Product momentum” on the front page, both over the
               default three months.
+            </p>
+            <p>
+              <strong>Why it matters.</strong> Under the top story, one line reads the trend of its first tag, as
+              that trend’s row reads it over three months: its Hacker News stories a week in the last four weeks
+              against the four weeks before, and the call the row makes, rising, steady or cooling. A trend with
+              too few stories in either period is too few to call, and a change no bigger than its usual week-to-week
+              swing is too noisy to call. A top story with no tag has no line. The line is written by this rule,
+              never by hand; the editor’s note on a pinned story is shown beside it.
             </p>
             {editorial.hide.length > 0 && (
               <ul>

@@ -10,6 +10,7 @@ import { ADOPTION_WINDOW, USAGE_WINDOW, adoption, buildMarketShare, federal, ind
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../site";
 import { trendTags } from "../tags";
 import { buildToday, editorial } from "../today";
+import { whyItMatters } from "../why";
 import {
   HEADLINE_MIN_PAPERS,
   HORIZONS,
@@ -423,14 +424,16 @@ const indicatorsTool: Tool = {
 // ------------------------------------------------------------ get_latest
 
 /**
- * Today's list as assistants get it. `topStory` and `tags` were added after the rest, so both are
- * optional and left out on a story they do not apply to. `topStory` is set on the story the page
- * sets large, with the rule that put it there. `tags` are the trends (at most two) whose counts
- * the headline is in, as the page tags it, each with the trend's page.
+ * Today's list as assistants get it. `topStory`, `tags` and `whyItMatters` were added after the
+ * rest, so all three are optional and left out on a story they do not apply to. `topStory` is set
+ * on the story the page sets large, with the rule that put it there. `tags` are the trends (at
+ * most two) whose counts the headline is in, as the page tags it, each with the trend's page.
+ * `whyItMatters` is the line the page prints under the top story, from its first tag's trend.
  */
 export function todayItems(day: ReturnType<typeof buildToday>, limit: number) {
   return day.items.slice(0, limit).map((item, n) => {
     const tags = trendTags(item.title).map((t) => ({ kind: t.kind, id: t.id, name: t.name, page: SITE_URL + t.href }));
+    const why = day.top?.index === n ? whyItMatters(item.title) : undefined;
     return {
       title: item.title,
       url: item.url,
@@ -441,6 +444,7 @@ export function todayItems(day: ReturnType<typeof buildToday>, limit: number) {
       pinnedByEditor: item.pinned ? (item.pinned.note ?? true) : false,
       ...(day.top?.index === n && { topStory: { rule: day.top.rule, reason: topStoryReason(item, day.top.rule) } }),
       ...(tags.length > 0 && { tags }),
+      ...(why !== undefined && { whyItMatters: why }),
     };
   });
 }
@@ -467,7 +471,8 @@ const latestTool: Tool = {
       .join(" ") +
     " Use for 'what is new' questions, and to find the stories, papers or repositories behind a trend." +
     " In today, the story the site sets large as the day's top story carries topStory, with the rule that put it there," +
-    " and a story whose headline is counted in a tracked topic or product carries tags (at most two), each with that trend's page.",
+    " and a story whose headline is counted in a tracked topic or product carries tags (at most two), each with that trend's page." +
+    " A top story with a tag carries whyItMatters: one line on its first tag's trend over three months, with the site's call (rising, steady, cooling, too few to call or too noisy to call).",
   input: {
     list: { type: "string", description: "Which list.", enum: Object.keys(LISTS) },
     limit: { type: "integer", description: "How many items, most prominent first.", minimum: 1, maximum: 20, default: 10 },
