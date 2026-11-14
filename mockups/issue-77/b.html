@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option B: The scorecard · Issue 77 · AI Trend Tracker</title>
+<style>
+/* Values inlined from tokens.css (Newsprint). Light theme only in this mockup. */
+:root {
+  --color-paper: oklch(98.6% 0.006 85);
+  --color-paper-2: oklch(95.5% 0.008 85);
+  --color-rule: oklch(84% 0.012 85);
+  --color-rule-strong: oklch(30% 0.012 85);
+  --color-muted: oklch(50% 0.012 85);
+  --color-ink-2: oklch(36% 0.012 85);
+  --color-ink: oklch(18% 0.012 85);
+  --color-accent: oklch(48% 0.2 258);
+  --color-focus: oklch(50% 0.17 255);
+  --data-rising: oklch(54% 0.22 258);
+  --data-cooling: oklch(60% 0.175 48);
+  --data-rising-ink: oklch(54% 0.22 258);
+  --data-cooling-ink: oklch(52% 0.16 48);
+  --data-steady: oklch(55% 0.012 85);
+  --font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --font-body: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.125rem;
+  --text-mast: clamp(2rem, 5vw, 3.5rem);
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --page-max: 76rem;
+  --rule-hair: 1px;
+  --rule-heavy: 3px;
+  --radius-sm: 2px;
+  --bar-h: 3.25rem;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-body); font-size: var(--text-base); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, p, ol, ul { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; letter-spacing: -0.012em; }
+a { color: inherit; text-decoration-line: underline; text-decoration-thickness: 1px; text-decoration-color: var(--color-rule); text-underline-offset: 0.2em; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+/* ---- mockup annotations: not part of the product ---- */
+.note {
+  max-width: var(--page-max); margin: 0 auto; padding: var(--space-xs) var(--page-gutter);
+  font-size: var(--text-xs); color: var(--color-ink-2); background: oklch(94% 0.03 300);
+  border-bottom: 1px dashed oklch(55% 0.12 300);
+}
+.note b { font-weight: 700; }
+.pin {
+  display: inline-block; margin-top: var(--space-2xs); padding: 0 var(--space-2xs);
+  font-size: 0.6875rem; font-weight: 600; color: oklch(40% 0.14 300);
+  border: 1px dashed oklch(55% 0.12 300); border-radius: var(--radius-sm);
+}
+.statebox { margin-top: var(--space-xl); padding: var(--space-sm); border: 1px dashed oklch(55% 0.12 300); }
+.statebox > .pin { margin: 0 0 var(--space-sm); }
+
+/* ---- masthead and bar ---- */
+.mast { display: grid; gap: var(--space-xs); justify-items: center; text-align: center; max-width: var(--page-max); margin-inline: auto; padding: var(--space-md) var(--page-gutter) 0; }
+.mast__top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; column-gap: var(--space-lg); width: 100%; }
+@media (min-width: 40rem) { .mast__top { justify-content: space-between; } }
+.tabs ul { display: flex; column-gap: var(--space-lg); }
+.tabs a { display: inline-block; padding-block: var(--space-xs); font-weight: 500; color: var(--color-ink-2); text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 0.45em; }
+.tabs a[aria-current="page"] { color: var(--color-ink); text-decoration-color: var(--color-accent); text-decoration-thickness: 3px; }
+.mast__line { font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.mast__name { font-family: var(--font-display); font-size: var(--text-mast); font-weight: 700; line-height: 0.95; letter-spacing: -0.02em; }
+.bar { position: sticky; top: 0; z-index: 5; margin-top: var(--space-sm); background: var(--color-paper); }
+.bar__inner { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+.bar__row { border-top: 1px solid var(--color-rule-strong); border-bottom: 3px double var(--color-rule-strong); }
+.horizon { display: flex; align-items: center; justify-content: center; column-gap: var(--space-md); }
+.horizon__title { display: none; font-size: var(--text-sm); color: var(--color-muted); }
+.horizon ul { display: flex; flex: 1; }
+.horizon li { flex: auto; }
+.horizon a { display: flex; align-items: center; justify-content: center; min-height: 2.75rem; padding-inline: var(--space-2xs); font-size: var(--text-sm); font-weight: 500; white-space: nowrap; color: var(--color-ink-2); text-decoration-color: transparent; text-decoration-thickness: 2px; text-underline-offset: 0.5em; }
+.horizon a[aria-current] { color: var(--color-ink); text-decoration-color: var(--color-accent); text-decoration-thickness: 3px; }
+@media (min-width: 40rem) {
+  .horizon__title { display: block; }
+  .horizon ul, .horizon li { flex: none; }
+  .horizon ul { column-gap: var(--space-sm); }
+  .horizon a { padding-inline: 0; }
+}
+
+/* ---- page and lede ---- */
+.page { max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-gutter); }
+.lede { display: grid; gap: var(--space-lg); padding-block: var(--space-lg) var(--space-xl); }
+.lede__main { display: grid; gap: var(--space-md); min-width: 0; }
+.lede__text { display: grid; gap: var(--space-sm); align-content: start; }
+.lede__head { font-size: clamp(1.625rem, 1.4vw + 1rem, 2.375rem); font-weight: 600; line-height: 1.04; letter-spacing: -0.022em; text-wrap: balance; }
+.lede__turn { display: block; margin-top: 0.25em; }
+.lede__meta { font-size: var(--text-sm); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+@media (min-width: 60rem) {
+  .lede__main { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); column-gap: var(--space-2xl); align-items: start; }
+}
+
+/* ---- the track record (option B) ---- */
+.record { min-width: 0; padding-top: var(--space-xs); border-top: 3px solid var(--color-rule-strong); }
+.record__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: var(--space-sm); padding-bottom: var(--space-2xs); }
+.record__head h2 { font-size: var(--text-lg); }
+.record__head p { font-size: var(--text-xs); color: var(--color-muted); }
+.record ol { list-style: none; }
+/* Each row is built like a .brief line: the figure leads, the label and its mark follow. */
+.record li {
+  display: grid; grid-template-columns: 5.75rem minmax(0, 1fr); column-gap: var(--space-sm);
+  align-items: baseline; padding-block: var(--space-xs); border-top: 1px solid var(--color-rule);
+}
+.record__figure { grid-column: 1; grid-row: 1 / span 2; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.record__figure small { font-size: var(--text-base); font-weight: 500; color: var(--color-ink-2); }
+.record__label { grid-column: 2; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-xs); font-size: var(--text-sm); color: var(--color-ink); }
+.record__label b { font-weight: 600; }
+.record__tag { font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); white-space: nowrap; }
+.record__tag { padding: 0 var(--space-2xs); border: 1px solid var(--color-rule); border-radius: var(--radius-sm); line-height: 1.5; }
+.record li.is-today { background: var(--color-paper-2); margin-inline: calc(-1 * var(--space-xs)); padding-inline: var(--space-xs); }
+/* Proposed: record bar. A thin proportion bar, held calls filled in the call's colour, the rest in the rule colour. */
+.rbar { grid-column: 2; display: block; height: 0.375rem; margin-top: var(--space-2xs); background: var(--color-rule); border-radius: 1px; overflow: hidden; }
+.rbar > span { display: block; height: 100%; background: var(--rbar, var(--data-steady)); }
+.rbar--rising { --rbar: var(--data-rising); }
+.rbar--cooling { --rbar: var(--data-cooling); }
+.rbar--both { --rbar: var(--color-ink-2); }
+.record__test { margin-top: var(--space-xs); font-size: var(--text-xs); line-height: 1.5; color: var(--color-ink-2); max-width: 36rem; }
+.record__test a { color: var(--color-accent); font-weight: 500; white-space: nowrap; }
+.record__empty { padding-block: var(--space-sm); border-top: 1px solid var(--color-rule); font-family: var(--font-display); font-size: var(--text-lg); line-height: 1.3; color: var(--color-ink); }
+
+/* ---- chart stand-in ---- */
+.leadchart { display: grid; gap: var(--space-sm); }
+.chartbox { position: relative; height: 15rem; border-bottom: 1px solid var(--color-rule-strong); background: repeating-linear-gradient(to bottom, transparent 0 calc(25% - 1px), var(--color-rule) calc(25% - 1px) 25%); }
+.chartbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.chartbox__lab { position: absolute; font-size: var(--text-xs); font-weight: 600; background: var(--color-paper); padding: 0 var(--space-2xs); }
+.leadchart__axis { display: flex; justify-content: space-between; font-size: var(--text-xs); color: var(--color-muted); }
+
+/* ---- brief ---- */
+.brief li { display: grid; grid-template-columns: 5.75rem minmax(0, 1fr); column-gap: var(--space-sm); align-items: baseline; padding-block: var(--space-xs); border-top: 1px solid var(--color-rule); }
+.brief__figure { grid-column: 1; grid-row: 1 / span 2; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.brief__label { grid-column: 2; font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+.brief li p { grid-column: 2; font-size: var(--text-sm); }
+.up { color: var(--data-rising-ink); }
+.down { color: var(--data-cooling-ink); }
+@media (min-width: 40rem) {
+  .brief ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); border-top: 1px solid var(--color-rule); }
+  .brief li { grid-template-columns: minmax(0, 1fr); align-content: start; row-gap: var(--space-3xs); padding: var(--space-sm) var(--space-md) var(--space-xs); border-top: 0; border-left: 1px solid var(--color-rule); }
+  .brief li:first-child { border-left: 0; padding-left: 0; }
+  .brief__label { grid-row: 1; grid-column: 1; }
+  .brief__figure { grid-row: 2; grid-column: 1; }
+  .brief li p { grid-row: 3; grid-column: 1; font-size: var(--text-xs); line-height: 1.45; color: var(--color-ink-2); }
+}
+
+/* ---- bands, rows, fold ---- */
+.band { margin-top: var(--space-2xl); padding-top: var(--space-sm); border-top: 3px solid var(--color-rule-strong); }
+.band__head { display: grid; gap: var(--space-2xs); padding-bottom: var(--space-sm); }
+.band__head h2 { font-size: var(--text-xl); }
+.band__head p { font-size: var(--text-sm); color: var(--color-muted); }
+.mom__group h3 { padding-block: var(--space-xs) var(--space-2xs); border-top: 1px solid var(--color-rule); font-family: var(--font-body); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.02em; color: var(--color-ink-2); }
+.mom__group h3 span { font-weight: 400; color: var(--color-muted); }
+.mom__group ol { margin: 0 0 var(--space-xs); }
+.mom__row { display: grid; gap: var(--space-3xs); padding-block: var(--space-2xs); }
+.mom__row:target, .mom__row.is-target { background: var(--color-paper-2); box-shadow: inset 3px 0 0 var(--color-accent); }
+.mom__topic { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); column-gap: var(--space-xs); align-items: baseline; }
+.mom__rank { font-size: var(--text-xs); color: var(--color-muted); font-variant-numeric: tabular-nums; }
+.mom__topic h4 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.012em; font-size: var(--text-base); line-height: 1.25; }
+.mom__blurb { grid-column: 2; font-size: var(--text-xs); color: var(--color-muted); }
+.mom__signal { display: grid; grid-template-columns: 4.25rem minmax(2.75rem, 1fr) 3.25rem 4rem; column-gap: var(--space-xs); align-items: center; padding-inline-start: calc(1.5rem + var(--space-xs)); }
+.mom__label { font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+.mom__track { position: relative; height: 1.25rem; background: linear-gradient(var(--color-rule), var(--color-rule)) center / 1px 100% no-repeat; }
+.mom__bar { position: absolute; top: 50%; height: 0.625rem; min-width: 2px; transform: translateY(-50%); background: var(--bar-color); --bar-color: var(--data-steady); }
+.mom__bar--rising { --bar-color: var(--data-rising); }
+.mom__bar--cooling { --bar-color: var(--data-cooling); }
+.mom__signal--soft .mom__bar { background: none; box-shadow: inset 0 0 0 1.5px var(--bar-color); }
+.mom__change { font-size: var(--text-sm); font-weight: 600; text-align: end; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mom__signal--rising .mom__change { color: var(--data-rising-ink); font-weight: 700; }
+.mom__signal--cooling .mom__change { color: var(--data-cooling-ink); font-weight: 700; }
+.mom__signal--held .mom__change, .mom__signal--soft .mom__change { font-weight: 400; color: var(--color-muted); }
+.mom__level { font-size: var(--text-xs); color: var(--color-muted); text-align: end; white-space: nowrap; font-variant-numeric: tabular-nums; }
+@media (min-width: 60rem) {
+  .mom__row { grid-template-columns: minmax(11rem, 1fr) minmax(0, 1.5fr) minmax(0, 1.5fr); column-gap: var(--space-xl); align-items: center; padding-block: 0; }
+  .mom__row--theme { grid-template-columns: minmax(14rem, 1.4fr) minmax(0, 2fr); }
+  .mom__blurb { display: none; }
+  .mom__label { display: none; }
+  .mom__signal { grid-template-columns: minmax(4rem, 1fr) 3.25rem 4.5rem; column-gap: var(--space-sm); padding-inline-start: 0; }
+  .mom__track { height: 1.625rem; }
+}
+.table-view { border-top: 1px solid var(--color-rule); padding-top: var(--space-2xs); }
+.table-view summary { display: list-item; font-size: var(--text-sm); font-weight: 500; color: var(--color-accent); cursor: pointer; padding-block: var(--space-2xs); }
+.table-view summary span { font-weight: 400; color: var(--color-muted); }
+@media (pointer: coarse) { .table-view summary { padding-block: var(--space-sm); } }
+.fold-line { display: flex; justify-content: space-between; gap: var(--space-sm); padding-block: var(--space-xs); border-top: 1px solid var(--color-rule); font-size: var(--text-xs); color: var(--color-ink-2); }
+.fold-line b { font-weight: 600; }
+.fold-line a { color: var(--color-accent); white-space: nowrap; }
+
+.rest { margin-top: var(--space-2xl); padding: var(--space-sm) 0; border-block: 1px dashed var(--color-rule); text-align: center; font-size: var(--text-xs); color: var(--color-muted); }
+.method { margin-top: var(--space-xl); }
+.method h3 { font-size: var(--text-lg); margin-bottom: var(--space-2xs); }
+.method p { font-size: var(--text-sm); color: var(--color-ink-2); max-width: 42rem; }
+.method p + p { margin-top: var(--space-xs); }
+footer { height: var(--space-2xl); }
+</style>
+</head>
+<body>
+
+<p class="note"><b>Mockup, option B: The scorecard (5 stars, recommended).</b> Trends page, 3-month view. Dashed purple marks are notes for the founder, not part of the page.</p>
+
+<header class="mast">
+  <div class="mast__top">
+    <nav class="tabs" aria-label="Pages"><ul><li><a href="#">Today</a></li><li><a href="#" aria-current="page">Trends</a></li></ul></nav>
+    <p class="mast__line">Updated 14 November 2026</p>
+  </div>
+  <p class="mast__name">AI Trend Tracker</p>
+</header>
+
+<div class="bar">
+  <div class="bar__inner">
+    <div class="bar__row">
+      <nav class="horizon" aria-label="Time span">
+        <span class="horizon__title">Time span</span>
+        <ul>
+          <li><a href="#">1 week</a></li>
+          <li><a href="#">1 month</a></li>
+          <li><a href="#" aria-current="page">3 months</a></li>
+          <li><a href="#">6 months</a></li>
+          <li><a href="#">1 year</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<main class="page">
+  <section class="lede" aria-labelledby="headline">
+    <div class="lede__main">
+      <div class="lede__text">
+        <h1 class="lede__head" id="headline">Voice &amp; speech fell to 0.9% of AI papers, from 1.5%.
+          <span class="lede__turn">On Hacker News, data centers, chips &amp; energy rose to 2.9% of AI stories, from 1.8%.</span></h1>
+        <p class="lede__meta">Latest week: 2–8 November 2026 · 3,535 AI papers reached arXiv that week · Showing 3 months: charts cover 12 weeks, and each change is the last 4 weeks compared with the 4 weeks before.</p>
+      </div>
+
+      <section class="record" aria-labelledby="record-h">
+        <div class="record__head">
+          <h2 id="record-h">Track record</h2>
+          <p>3-month calls over the past year</p>
+        </div>
+        <ol>
+          <li>
+            <span class="record__figure">26 <small>of 49</small></span>
+            <span class="record__label"><span><b>Research topics, rising:</b> kept rising</span></span>
+            <span class="rbar rbar--rising" role="img" aria-label="26 of 49 held"><span style="width:53.06%"></span></span>
+          </li>
+          <li class="is-today">
+            <span class="record__figure">9 <small>of 33</small></span>
+            <span class="record__label"><span><b>Research topics, cooling:</b> kept falling</span> <span class="record__tag">today’s headline</span></span>
+            <span class="rbar rbar--cooling" role="img" aria-label="9 of 33 held"><span style="width:27.27%"></span></span>
+          </li>
+          <li class="is-today">
+            <span class="record__figure">6 <small>of 12</small></span>
+            <span class="record__label"><span><b>Themes, rising or cooling:</b> kept going</span> <span class="record__tag">today’s second line</span></span>
+            <span class="rbar rbar--both" role="img" aria-label="6 of 12 held"><span style="width:50%"></span></span>
+          </li>
+        </ol>
+        <p class="record__test">A call is counted once, in the week it first appears. It held if, 13 weeks later, the share had moved further the way it was called. This is a replay of the past year with today’s rules and today’s counts, not a record of what the page said at the time. <a href="#method">How we check →</a></p>
+        <span class="pin">Proposed: record bar (new small mark). Blue for rises, amber for falls, ink where a row mixes both; the grey is the calls that did not hold. No red: a low figure is not an alarm.</span>
+      </section>
+    </div>
+
+    <figure class="leadchart" style="margin:0">
+      <div class="chartbox" aria-label="Lead chart stand-in">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points="0,40 9,42 18,38 27,41 36,44 45,47 54,52 63,58 72,61 81,66 90,69 100,70" fill="none" stroke="oklch(60% 0.175 48)" stroke-width="2.2" vector-effect="non-scaling-stroke"/>
+          <polyline points="0,76 9,75 18,77 27,73 36,72 45,70 54,64 63,58 72,52 81,46 90,42 100,40" fill="none" stroke="oklch(54% 0.22 258)" stroke-width="2.2" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <span class="chartbox__lab down" style="right:0;top:66%">Voice &amp; speech 0.9%</span>
+        <span class="chartbox__lab up" style="right:0;top:30%">Data centers, chips &amp; energy 2.9%</span>
+      </div>
+      <div class="leadchart__axis"><span>17 Aug</span><span>Lead chart, as today</span><span>8 Nov</span></div>
+    </figure>
+
+    <div class="brief">
+      <ol>
+        <li><span class="brief__label">Research</span><span class="brief__figure down">−40%</span><p>Voice &amp; speech fell as a share of AI papers.</p></li>
+        <li><span class="brief__label">Hacker News</span><span class="brief__figure up">+66%</span><p>Data centers, chips &amp; energy rose as a share of AI stories on Hacker News.</p></li>
+        <li><span class="brief__label">Economy</span><span class="brief__figure">7.3%</span><p>of US job postings ask for AI skills, up from 3.7% a year earlier.</p></li>
+        <li><span class="brief__label">Releases</span><span class="brief__figure">8</span><p>frontier model versions in the last 90 days, against 8 in the 90 days before.</p></li>
+        <li><span class="brief__label">Policy</span><span class="brief__figure">31</span><p>US federal documents mentioned AI in Oct 2026, against 13 a year earlier.</p></li>
+      </ol>
+    </div>
+
+    <div class="statebox">
+      <span class="pin">State: the same block on the 1-year view. It stays in place; only its contents change.</span>
+      <section class="record" aria-label="Track record, 1-year view">
+        <div class="record__head">
+          <h2>Track record</h2>
+          <p>1-year calls</p>
+        </div>
+        <p class="record__empty">Not enough history yet to check calls on the 1-year view: each needs a year to make and 13 weeks to check.</p>
+        <p class="record__test">The 1-week to 6-month views carry a record. <a href="#method">How we check →</a></p>
+      </section>
+    </div>
+  </section>
+
+  <section class="band" id="themes" aria-labelledby="themes-h">
+    <div class="band__head">
+      <h2 id="themes-h">Themes on Hacker News</h2>
+      <p>Each theme’s share of AI stories, last 4 weeks against the 4 before.</p>
+    </div>
+    <div class="mom__group">
+      <h3>Rising <span>1</span></h3>
+      <ol>
+        <li class="mom__row mom__row--theme" id="theme-datacenters">
+          <div class="mom__topic"><span class="mom__rank">1</span><h4>Data centers, chips &amp; energy</h4><p class="mom__blurb">The physical build-out behind the models</p></div>
+          <div class="mom__signal mom__signal--rising"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar mom__bar--rising" style="left:50%;width:48%"></span></span><span class="mom__change">+66%</span><span class="mom__level">2.9% · 28/wk</span></div>
+        </li>
+      </ol>
+    </div>
+    <details class="table-view">
+      <summary>6 steady themes <span>· no move clear of the usual swing</span></summary>
+      <div class="mom__group">
+        <h3>Steady <span>6</span></h3>
+        <ol>
+          <li class="mom__row mom__row--theme"><div class="mom__topic"><span class="mom__rank">2</span><h4>Jobs &amp; labor</h4></div><div class="mom__signal mom__signal--held"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:3%"></span></span><span class="mom__change">+4%</span><span class="mom__level">2.9% · 28/wk</span></div></li>
+          <li class="mom__row mom__row--theme"><div class="mom__topic"><span class="mom__rank">3</span><h4>Productivity &amp; business adoption</h4></div><div class="mom__signal mom__signal--held"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:6%"></span></span><span class="mom__change">+8%</span><span class="mom__level">2.9% · 28/wk</span></div></li>
+          <li class="mom__row mom__row--theme"><div class="mom__topic"><span class="mom__rank">4</span><h4>Public trust &amp; backlash</h4></div><div class="mom__signal mom__signal--held"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:7%"></span></span><span class="mom__change">+9%</span><span class="mom__level">2.8% · 27/wk</span></div></li>
+          <li class="mom__row mom__row--theme"><div class="mom__topic"><span class="mom__rank">5</span><h4>Investment &amp; the bubble question</h4></div><div class="mom__signal mom__signal--held"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:14%"></span></span><span class="mom__change">+19%</span><span class="mom__level">2.7% · 26/wk</span></div></li>
+          <li class="mom__row mom__row--theme"><div class="mom__topic"><span class="mom__rank">6</span><h4>Regulation &amp; law</h4></div><div class="mom__signal mom__signal--held"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar" style="right:50%;width:26%"></span></span><span class="mom__change">−34%</span><span class="mom__level">1.8% · 18/wk</span></div></li>
+          <li class="mom__row mom__row--theme"><div class="mom__topic"><span class="mom__rank">7</span><h4>Education</h4></div><div class="mom__signal mom__signal--held"><span class="mom__label">Stories</span><span class="mom__track"><span class="mom__bar" style="right:50%;width:22%"></span></span><span class="mom__change">−29%</span><span class="mom__level">1.2% · 12/wk</span></div></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <section class="band" id="products" aria-labelledby="products-h">
+    <div class="band__head">
+      <h2 id="products-h">Products</h2>
+      <p>Interest (Wikipedia views a day) and discussion (Hacker News stories a week), last 4 weeks against the 4 before.</p>
+    </div>
+    <div class="mom__group">
+      <h3>Assistants <span>9</span></h3>
+      <ol>
+        <li class="mom__row" id="product-claude"><div class="mom__topic"><span class="mom__rank">1</span><h4>Claude</h4></div>
+          <div class="mom__signal mom__signal--rising"><span class="mom__label">Interest</span><span class="mom__track"><span class="mom__bar mom__bar--rising" style="left:50%;width:14%"></span></span><span class="mom__change">+19%</span><span class="mom__level">7,130/day</span></div>
+          <div class="mom__signal mom__signal--held"><span class="mom__label">Discussion</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:1%"></span></span><span class="mom__change">+1%</span><span class="mom__level">77/wk</span></div></li>
+        <li class="mom__row" id="product-chatgpt"><div class="mom__topic"><span class="mom__rank">2</span><h4>ChatGPT</h4></div>
+          <div class="mom__signal mom__signal--rising"><span class="mom__label">Interest</span><span class="mom__track"><span class="mom__bar mom__bar--rising" style="left:50%;width:47%"></span></span><span class="mom__change">+62%</span><span class="mom__level">94.2K/day</span></div>
+          <div class="mom__signal mom__signal--held"><span class="mom__label">Discussion</span><span class="mom__track"><span class="mom__bar" style="right:50%;width:14%"></span></span><span class="mom__change">−19%</span><span class="mom__level">29/wk</span></div></li>
+        <li class="mom__row" id="product-gemini"><div class="mom__topic"><span class="mom__rank">3</span><h4>Gemini</h4></div>
+          <div class="mom__signal mom__signal--rising"><span class="mom__label">Interest</span><span class="mom__track"><span class="mom__bar mom__bar--rising" style="left:50%;width:17%"></span></span><span class="mom__change">+22%</span><span class="mom__level">3,449/day</span></div>
+          <div class="mom__signal mom__signal--held"><span class="mom__label">Discussion</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:14%"></span></span><span class="mom__change">+19%</span><span class="mom__level">22/wk</span></div></li>
+        <li class="mom__row" id="product-deepseek"><div class="mom__topic"><span class="mom__rank">4</span><h4>DeepSeek</h4></div>
+          <div class="mom__signal mom__signal--rising"><span class="mom__label">Interest</span><span class="mom__track"><span class="mom__bar mom__bar--rising" style="left:50%;width:41%"></span></span><span class="mom__change">+54%</span><span class="mom__level">577/day</span></div>
+          <div class="mom__signal mom__signal--held"><span class="mom__label">Discussion</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:38%"></span></span><span class="mom__change">+50%</span><span class="mom__level">18/wk</span></div></li>
+      </ol>
+      <details class="table-view">
+        <summary>5 steady or too few to call <span>· Grok, Copilot, Perplexity, Meta AI, NotebookLM</span></summary>
+      </details>
+    </div>
+    <p class="fold-line"><b>Coding tools and agents <span style="font-weight:400;color:var(--color-muted)">8</span></b><span>called rows open, the rest folded the same way</span></p>
+    <p class="fold-line"><b>Image, video and voice</b><span>same fold</span></p>
+    <p class="fold-line"><b>Devices</b><span>same fold</span></p>
+    <p class="fold-line"><b>Robots and driverless cars</b><span>same fold</span></p>
+
+    <div class="statebox">
+      <span class="pin">State: arriving from a Today page tag, /#product-grok. The fold opens and Grok’s row is the target.</span>
+      <div class="mom__group">
+        <h3>Assistants <span>9</span></h3>
+        <details class="table-view" open>
+          <summary>5 steady or too few to call <span>· Grok, Copilot, Perplexity, Meta AI, NotebookLM</span></summary>
+          <ol>
+            <li class="mom__row is-target"><div class="mom__topic"><span class="mom__rank">5</span><h4>Grok</h4></div>
+              <div class="mom__signal mom__signal--held"><span class="mom__label">Interest</span><span class="mom__track"><span class="mom__bar" style="left:50%;width:4%"></span></span><span class="mom__change">+5%</span><span class="mom__level">1,912/day</span></div>
+              <div class="mom__signal mom__signal--soft"><span class="mom__label">Discussion</span><span class="mom__track"><span class="mom__bar" style="right:50%;width:9%"></span></span><span class="mom__change">−12%</span><span class="mom__level">6/wk</span></div></li>
+          </ol>
+        </details>
+      </div>
+      <span class="pin">Grok’s figures here are placeholders for the state; the build fills them.</span>
+    </div>
+  </section>
+
+  <p class="rest">Rest of the page as today</p>
+
+  <section class="method" id="method" aria-labelledby="method-h">
+    <h2 id="method-h" style="font-size:var(--text-xl)">How this is measured</h2>
+    <div style="margin-top:var(--space-sm)">
+      <h3>Track record</h3>
+      <p>For the 1-week to 6-month views, the page replays the past year week by week with today’s rules and works out what it would have called. A call is counted once, in the week it first appears: a topic called rising eight weeks running is one call. It held if, 13 weeks later, the share had moved further the way it was called. This is a replay of the past year with today’s rules and today’s counts, not a record of what the page said at the time, and the counts can have been revised since.</p>
+      <p>The 1-year view needs a year of weeks to make a call and 13 more to check it, and the store holds two years, so it has no record yet; the 2-year view cannot have one. Rest of the method as today.</p>
+    </div>
+  </section>
+  <footer></footer>
+</main>
+</body>
+</html>
