@@ -4,7 +4,7 @@ import { Spark } from "@/components/MomentumBars";
 import { PageTabs } from "@/components/PageTabs";
 import { topicsHref } from "@/lib/datasets";
 import { NEW_TAB } from "@/lib/links";
-import { SITE_AUTHOR, SITE_ISSUES_URL } from "@/lib/site";
+import { SITE_MAKER_URL } from "@/lib/site";
 import { PHASE_LABEL, PHASE_MARK, dayParts, type AgendaMonth } from "@/lib/agenda";
 import {
   READING_LABEL,
@@ -253,8 +253,7 @@ export function ConfColophon() {
         read as indicators, not measurements. Data last collected {fmtDate(today)}.
       </p>
       <p>
-        Made by {SITE_AUTHOR}. Seen a mistake? <a href={SITE_ISSUES_URL} {...NEW_TAB}>Report it on GitHub</a>. To
-        follow along, subscribe to the <a href="/feed.xml">weekly feed</a>: one entry a week, with that week’s headline.
+        <a href={SITE_MAKER_URL} {...NEW_TAB}>HalfBadger.com</a>
       </p>
     </footer>
   );
