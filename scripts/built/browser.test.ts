@@ -93,3 +93,13 @@ test("a link to a product row folded under “Show all” opens its group", asyn
   const followed = await rendered(`/#${id}`);
   assert.match(listOf(followed, id).tag, /data-open="true"/, `following /#${id} opens its group`);
 });
+
+test("a malformed #fragment in a shared link leaves the front page whole", async () => {
+  const groups = (html: string) => html.split('<ol class="mom__list"').length - 1;
+  const whole = groups(await rendered("/"));
+  assert.ok(whole > 0, "the front page has trend groups");
+  // Fragments that are not valid percent-encoding, as a mangled or hand-typed link can carry.
+  for (const hash of ["%", "%E0%A4%A", "%zz", "product-%"]) {
+    assert.equal(groups(await rendered(`/#${hash}`)), whole, `/#${hash} renders the same groups as /`);
+  }
+});
