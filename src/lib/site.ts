@@ -16,17 +16,17 @@ export const SITE_DESCRIPTION =
 
 /**
  * The site's fixed pages, in the order the sitemap lists them; each conference adds a page after them.
- * A dataset page is listed at its front-page range only: its other ranges are views of the same
+ * A dataset page is listed at its default range (3 months) only: its other ranges are views of the same
  * figures, linked from the switch on the page, and would only crowd the sitemap.
  */
 export const PAGES = [
   "/",
   "/one-week",
   "/one-month",
+  "/three-months",
   "/six-months",
   "/one-year",
   "/two-years",
-  "/today",
   "/data/topics",
   "/reading",
   "/conferences",

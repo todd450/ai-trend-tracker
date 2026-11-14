@@ -116,7 +116,7 @@ Stability AI).
 Read a publisher's terms before adding a feed. NBER and PIIE were removed because
 theirs bar any automatic access to their sites, with no exception for feeds.
 
-"Today's AI news", on its own page at `/today`, is built in `src/lib/today.ts` from
+"Today's AI news", the landing page at `/`, is built in `src/lib/today.ts` from
 the lab and newsletter lists plus the past day's Hacker News stories (20 points
 or more, at most twelve). The site is rebuilt once a day, so "today" means the
 24 hours before the last collection, and the page says which those are.
@@ -203,7 +203,7 @@ It offers five read-only tools:
 Every figure comes from the same functions that build the pages, and each
 move is labelled by the page's own rules, so the server and the site always
 agree. A tool takes the same horizons as the site (`one-week` to `one-year`,
-with `three-months` as the front page). The server keeps no sessions and
+with `three-months` as the default). The server keeps no sessions and
 stores nothing; each request is answered from the data built into the
 current deploy. The protocol layer is written by hand in `src/lib/mcp/protocol.ts`
 rather than with the official SDK, which would bring two web frameworks into a
@@ -228,7 +228,7 @@ src/lib/noise.ts     decides whether a change is bigger than a series' usual wob
 src/lib/editorial.ts gathers posts about one event and applies the pins and hides
 data/editorial.json  the editor's pins and hides, kept by hand
 src/components/Dashboard.tsx   the dashboard, built as static pages from data/*.json
-src/components/DataIndex.tsx    the front page's list of the seven datasets, each with its biggest move
+src/components/DataIndex.tsx    the trends page's list of the seven datasets, each with its biggest move
 src/lib/datasets.ts  the topics page's table, its CSV file and the index's moves, from the same figures
 src/components/TopicsPage.tsx  the topic momentum page, at /data/topics (3 months) and /data/topics/one-year etc.
 src/app/data/topics.csv/  the topics file, made at build time, at /data/topics.csv

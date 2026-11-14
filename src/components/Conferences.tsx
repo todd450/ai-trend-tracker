@@ -7,6 +7,7 @@ import { NEW_TAB } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
 import { PHASE_LABEL, PHASE_MARK, aroundToday, dayParts, splitAtToday, type AgendaMonth } from "@/lib/agenda";
 import {
+  KIND_LABEL,
   READING_LABEL,
   calendarMonths,
   daysUntil,
@@ -21,7 +22,7 @@ import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
 
-/** The comparison uses the tracker's default view, so its arrows match the front page. */
+/** The comparison uses the tracker's default view, so its arrows match the trends page. */
 const HORIZON = "threeMonths" as const;
 
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
@@ -94,7 +95,7 @@ export function Stage({ c }: { c: Conference }) {
           </>
         )}{" "}
         The research and discussion figures are the tracker’s own, for the last {window} weeks against the{" "}
-        {window} before, as on the <Link href="/">trends page</Link>.
+        {window} before, as on the <Link href="/three-months">trends page</Link>.
       </p>
       <p className="conf__caveat">
         <strong>How to read this.</strong> A conference’s subject decides most of what is said on its stage, so a
@@ -387,7 +388,7 @@ function Row({ c, level }: { c: Conference; level: 3 | 4 }) {
         <Link href={href}>{c.name}</Link>
       </N>
       <p className="ev__meta">
-        {c.place} · <span className="ev__kind">{c.kind === "research" ? "Research" : "Industry"}</span>
+        {c.place} · <span className="ev__kind">{KIND_LABEL[c.kind]}</span>
       </p>
       <p className={`ev__phase ph--${phase}`}>
         <i aria-hidden="true">{PHASE_MARK[phase]}</i> {PHASE_LABEL[phase]}

@@ -297,7 +297,7 @@ export function Dashboard({ horizon }: { horizon: Horizon }) {
           {MOVED_ANCHORS.map((id) => (
             <span key={id} id={id} />
           ))}
-          The past day’s stories are in <Link href="/today">today’s AI news →</Link> The week’s top stories, papers,
+          The past day’s stories are in <Link href="/">today’s AI news →</Link> The week’s top stories, papers,
           essays, launches, code and models are in <Link href="/reading">the reading list →</Link>
         </p>
 
@@ -1058,7 +1058,7 @@ called rising or cooling only when its share moved by at least {THEME_STEADY_BAN
                 {editorial.hide.length === 0
                   ? "Nothing is left out today."
                   : `Today ${editorial.hide.length} ${editorial.hide.length === 1 ? "link is" : "links are"} left out.`}{" "}
-                The past day’s stories, and how they are ranked, are on <Link href="/today">Today’s news</Link>.
+                The past day’s stories, and how they are ranked, are on <Link href="/">Today’s news</Link>.
               </p>
               {editorial.hide.length > 0 && (
                 <ul>

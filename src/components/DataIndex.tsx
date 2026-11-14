@@ -4,7 +4,7 @@ import { datasetIndex } from "@/lib/datasets";
 import { HORIZONS, fmtChange, type Horizon } from "@/lib/trends";
 
 /**
- * The front page's contents: one row per dataset, with what it measures, its biggest move in this
+ * The trends page's contents: one row per dataset, with what it measures, its biggest move in this
  * range, its source and the date of its newest figures. Topic momentum's row leads to its own page;
  * the others lead to their sections further down this page.
  */

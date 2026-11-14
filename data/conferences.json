@@ -1163,6 +1163,17 @@
    "recordings": "https://www.youtube.com/@aiDotEngineer"
   },
   {
+   "id": "iaseai-27",
+   "name": "IASEAI'27",
+   "host": "International Association for Safe and Ethical AI",
+   "kind": "research",
+   "start": "2027-02-09",
+   "end": "2027-02-12",
+   "place": "Paris, France",
+   "url": "https://www.iaseai.org/our-programs/iaseai27",
+   "note": "The association's third annual conference on the safety, ethics and policy of AI, at UNESCO House. The main conference is on 9 and 10 February; two days of workshops follow, some by invitation only."
+  },
+  {
    "id": "aaai-27",
    "name": "AAAI-27",
    "host": "Association for the Advancement of Artificial Intelligence",
@@ -1226,6 +1237,17 @@
    "recordings": "https://www.youtube.com/@aiDotEngineer"
   },
   {
+   "id": "satml-2027",
+   "name": "IEEE SaTML 2027",
+   "host": "IEEE Conference on Secure and Trustworthy Machine Learning",
+   "kind": "research",
+   "start": "2027-05-03",
+   "end": "2027-05-06",
+   "place": "Reykjavik, Iceland",
+   "url": "https://satml.org/",
+   "note": "The fifth conference on the security, privacy and trustworthiness of machine learning. Workshops are on 3 May, before the main conference."
+  },
+  {
    "id": "cvpr-2027",
    "name": "CVPR 2027",
    "host": "Computer Vision Foundation and IEEE",
@@ -1244,6 +1266,28 @@
    "end": "2027-06-24",
    "place": "San Francisco, USA",
    "url": "https://www.databricks.com/dataaisummit"
+  },
+  {
+   "id": "geneva-ai-summit-2027",
+   "name": "Geneva AI Summit 2027",
+   "host": "Swiss government",
+   "kind": "policy",
+   "start": "2027-06-21",
+   "end": "2027-06-22",
+   "place": "Geneva, Switzerland",
+   "url": "https://genevaaisummit.swiss/",
+   "note": "The fifth international summit on AI governance, after Bletchley Park, Seoul, Paris and New Delhi, held at Palexpo. It is a meeting of governments more than a programme of talks."
+  },
+  {
+   "id": "facct-2027",
+   "name": "ACM FAccT 2027",
+   "host": "ACM Conference on Fairness, Accountability, and Transparency",
+   "kind": "research",
+   "start": "2027-06-21",
+   "end": "2027-06-24",
+   "place": "Porto, Portugal",
+   "url": "https://facctconference.org/2027/cfp.html",
+   "note": "The tenth conference on fairness, accountability and transparency in computing systems. The venue has not been announced; the link is to the call for papers, the only page for 2027 so far."
   },
   {
    "id": "aie-worlds-fair-2027",

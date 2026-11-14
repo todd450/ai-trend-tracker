@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ConfColophon, ConfMast, Programme, Stage, hasReading, when } from "@/components/Conferences";
 import { PHASES, PHASE_LABEL, neighbours } from "@/lib/agenda";
-import { conferences, fmtMonthOf, fmtSpan, phaseOf, today } from "@/lib/conferences";
+import { KIND_LABEL, conferences, fmtMonthOf, fmtSpan, phaseOf, today } from "@/lib/conferences";
 import { NEW_TAB } from "@/lib/links";
 import { fmtDate } from "@/lib/trends";
 import type { Conference } from "@/lib/types";
@@ -12,7 +12,7 @@ const ordinal = (n: number) => {
   return `${n}${suffix}`;
 };
 
-const kindOf = (c: Conference) => (c.kind === "research" ? "Research" : "Industry");
+const kindOf = (c: Conference) => KIND_LABEL[c.kind];
 
 /** "Upcoming, in 23 days" or "Held · partly watched": the phase, and how soon for an event still to come. */
 const status = (c: Conference) => {

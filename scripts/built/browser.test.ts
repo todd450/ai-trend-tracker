@@ -78,9 +78,9 @@ function foldOf(html: string, id: string) {
   return html.slice(open, html.indexOf(">", open) + 1);
 }
 
-/** Ids the front page keeps in a fold: product rows, and the method's track record paragraph. */
+/** Ids the trends page keeps in a fold: product rows, and the method's track record paragraph. */
 const folded = () => {
-  const html = readFileSync(join(APP, "index.html"), "utf8");
+  const html = readFileSync(join(APP, "three-months.html"), "utf8");
   return [...html.matchAll(/id="(product-[^"]+|track-record)"/g)].map((m) => m[1]).filter((id) => foldOf(html, id));
 };
 
@@ -88,20 +88,35 @@ test("a link to a folded row, or to the track record's method, opens its fold wi
   const ids = folded();
   assert.ok(ids.some((id) => id.startsWith("product-")), "some product rows start folded");
   assert.ok(ids.includes("track-record"), "the method paragraph starts folded");
-  const closed = await rendered("/");
+  const closed = await rendered("/three-months");
   for (const id of ids) assert.doesNotMatch(foldOf(closed, id)!, /\sopen/, `#${id} starts folded`);
   for (const id of [ids.find((i) => i.startsWith("product-"))!, "track-record"]) {
-    const followed = await rendered(`/#${id}`);
-    assert.match(foldOf(followed, id)!, /\sopen/, `following /#${id} opens its fold`);
+    const followed = await rendered(`/three-months#${id}`);
+    assert.match(foldOf(followed, id)!, /\sopen/, `following /three-months#${id} opens its fold`);
   }
 });
 
-test("a malformed #fragment in a shared link leaves the front page whole", async () => {
+test("a malformed #fragment in a shared link leaves the trends page whole", async () => {
   const groups = (html: string) => html.split('<ol class="mom__list"').length - 1;
-  const whole = groups(await rendered("/"));
-  assert.ok(whole > 0, "the front page has trend groups");
+  const whole = groups(await rendered("/three-months"));
+  assert.ok(whole > 0, "the trends page has trend groups");
   // Fragments that are not valid percent-encoding, as a mangled or hand-typed link can carry.
   for (const hash of ["%", "%E0%A4%A", "%zz", "product-%"]) {
-    assert.equal(groups(await rendered(`/#${hash}`)), whole, `/#${hash} renders the same groups as /`);
+    assert.equal(groups(await rendered(`/three-months#${hash}`)), whole, `/three-months#${hash} renders the same groups as /three-months`);
   }
+});
+
+test("an old link to a trend row on the landing page is followed on the trends page", async () => {
+  // The trends were the landing page before the news was, so `/#product-…` links are still about.
+  const id = folded().find((i) => i.startsWith("product-"))!;
+  const followed = await rendered(`/#${id}`);
+  assert.match(foldOf(followed, id)!, /\sopen/, `/#${id} ends on the trends page with its fold open`);
+  // A fragment the news page has itself stays there.
+  assert.ok((await rendered("/#today")).includes('id="today-h"'), "/#today stays on the news page");
+});
+
+test("the news page's old address sends readers to the landing page", async () => {
+  const response = await fetch(origin + "/today", { redirect: "manual" });
+  assert.equal(response.status, 308);
+  assert.equal(new URL(response.headers.get("location")!, origin).pathname, "/");
 });
