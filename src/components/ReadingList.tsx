@@ -49,7 +49,7 @@ export function ReadingList() {
         Skip to the reading list
       </a>
 
-      <SiteMast current="reading" line={`Updated ${fmtDate(latest.generatedAt)}`} />
+      <SiteMast ruled current="reading" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
       <main className="page">
         <section id="reading" className="chapter chapter--page" aria-labelledby="reading-h">
