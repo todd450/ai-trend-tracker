@@ -1,6 +1,6 @@
 /**
  * Run with `npm test`. The data pages: the topics page's table, its CSV file and the MCP server's
- * get_trends must give the same figure for every topic and week, and the front page's index of
+ * get_trends must give the same figure for every topic and week, and the trends page's index of
  * datasets must only name a move the site would call.
  */
 import assert from "node:assert/strict";
@@ -17,7 +17,7 @@ const HORIZONS = Object.keys(trends.HORIZONS);
 const history = trends.history;
 const allWeeks = Object.keys(history.arxivTotal).sort();
 /** The name each horizon goes by in the MCP server and in the site's addresses. */
-const nameOf = (h: string) => trends.HORIZONS[h].href.slice(1) || "three-months";
+const nameOf = (h: string) => trends.HORIZONS[h].href.slice(1);
 
 /** Parses the CSV the site serves; fields are quoted only when they hold a comma, quote or line break. */
 function parseCsv(text: string): Record<string, string>[] {
@@ -135,12 +135,12 @@ test("the table says exactly what it compares", () => {
   assert.match(data.topicTable("twoYears").compared, /last 52 weeks compared with the 52 weeks before/);
 });
 
-test("each range has its own address, and the front page's range has none", () => {
+test("each range has its own address, and the trends page's range has none", () => {
   const hrefs = HORIZONS.map((h) => data.topicsHref(h));
   assert.equal(new Set(hrefs).size, HORIZONS.length);
   assert.equal(data.topicsHref("threeMonths"), "/data/topics");
   for (const h of HORIZONS.filter((x) => x !== "threeMonths")) {
-    // The same range name as the front page's own view, so a reader's choice carries across.
+    // The same range name as the trends page's own view, so a reader's choice carries across.
     assert.equal(data.topicsHref(h), `/data/topics/${nameOf(h)}`);
   }
 });
@@ -154,7 +154,7 @@ test("the citation names the range and the address it was read at", () => {
   }
 });
 
-// ------------------------------------------------------------ the index on the front page
+// ------------------------------------------------------------ the index on the trends page
 
 const sig = (recent: number, prior: number, clear = true) => ({
   values: [prior, recent],
@@ -189,7 +189,7 @@ for (const h of HORIZONS) {
     const topics = index.find((d: any) => d.id === "topics");
     assert.equal(topics.href, data.topicsHref(h));
     for (const d of index.filter((x: any) => x.id !== "topics")) {
-      assert.match(d.href, /^#[a-z-]+$/, `${d.id} links to its section on the front page`);
+      assert.match(d.href, /^#[a-z-]+$/, `${d.id} links to its section on the trends page`);
     }
     assert.ok(topics.latest.includes(trends.fmtDay(allWeeks.at(-1))), "topics' latest is its newest week, not the day collected");
     const same = index.filter((d: any) => d.sameEverySpan).map((d: any) => d.id).sort();

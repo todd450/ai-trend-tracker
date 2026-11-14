@@ -1,7 +1,7 @@
 /**
  * Run by check.sh after `next build`. Reads the pages and the file the build wrote, so what a reader
  * gets is checked, not only the functions behind it: each topics page shows the same figures as its
- * table data, the file served is the file the tests check, and no old link into the front page breaks.
+ * table data, the file served is the file the tests check, and no old link into the trends page breaks.
  */
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -56,40 +56,40 @@ for (const h of Object.keys(trends.HORIZONS)) {
   });
 }
 
-test("the front page lists the seven datasets, and the topics row opens its page", () => {
-  const html = page("/");
+test("the trends page lists the seven datasets, and the topics row opens its page", () => {
+  const html = page("/three-months");
   for (const d of data.datasetIndex("threeMonths")) {
     assert.ok(text(html).includes(d.name), d.name);
     assert.ok(html.includes(`href="${d.href}"`), `${d.id} links to ${d.href}`);
-    if (d.href.startsWith("#")) assert.ok(ids(html).has(d.href.slice(1)), `${d.href} is on the front page`);
+    if (d.href.startsWith("#")) assert.ok(ids(html).has(d.href.slice(1)), `${d.href} is on the trends page`);
   }
 });
 
-/** Every section anchor the front page had before the data pages, so old links still land somewhere. */
+/** Every section anchor the trends page had before the data pages, so old links still land somewhere. */
 const OLD_ANCHORS = [
   "today", "news", "momentum", "themes", "products", "indicators", "adoption", "usage", "market-share", "method",
   "reading", "analysis", "announcements", "code", "labs", "launches", "models", "papers",
 ];
 const READING = ["reading", "analysis", "announcements", "code", "labs", "launches", "models", "papers"];
 
-test("no old link into the front page breaks, and the reading lists are on their own page", () => {
-  const front = ids(page("/"));
-  for (const id of OLD_ANCHORS) assert.ok(front.has(id), `#${id} is still on the front page`);
-  assert.ok(ids(page("/today")).has("today"), "#today is on the news page");
+test("no old link into the trends page breaks, and the reading lists are on their own page", () => {
+  const front = ids(page("/three-months"));
+  for (const id of OLD_ANCHORS) assert.ok(front.has(id), `#${id} is still on the trends page`);
+  assert.ok(ids(page("/")).has("today"), "#today is on the news page");
   const reading = ids(page("/reading"));
   for (const id of READING) assert.ok(reading.has(id), `#${id} is on the reading list page`);
 });
 
-test("every product row on the front page has its own anchor", async () => {
+test("every product row on the trends page has its own anchor", async () => {
   const { PRODUCTS } = await fromSrc<any>("lib/products");
-  const front = ids(page("/"));
+  const front = ids(page("/three-months"));
   for (const p of PRODUCTS) assert.ok(front.has(`product-${p.id}`), `#product-${p.id}`);
 });
 
-test("/today tags each headline with its trends, and every tag lands on its trend's row", async () => {
+test("the news page tags each headline with its trends, and every tag lands on its trend's row", async () => {
   const { buildToday } = await fromSrc<any>("lib/today");
   const { trendTags } = await fromSrc<any>("lib/tags");
-  const html = page("/today");
+  const html = page("/");
   const links = [...html.matchAll(/<a class="tag" href="([^"]+)"/g)].map((m) => m[1]);
   const day = buildToday();
   const shown = day.top ? [day.items[day.top.index], ...day.items.filter((_: any, n: number) => n !== day.top.index)] : day.items;
@@ -101,10 +101,10 @@ test("/today tags each headline with its trends, and every tag lands on its tren
   }
 });
 
-test("/today prints the why-it-matters line under the top story only, and nowhere on an ordinary day", async () => {
+test("the news page prints the why-it-matters line under the top story only, and nowhere on an ordinary day", async () => {
   const { buildToday } = await fromSrc<any>("lib/today");
   const { whyItMatters } = await fromSrc<any>("lib/why");
-  const html = page("/today");
+  const html = page("/");
   const day = buildToday();
   const line = day.top && whyItMatters(day.items[day.top.index].title);
   const shown = [...html.matchAll(/<p class="top-story__why"[\s\S]*?<\/p>/g)].map((m) => text(m[0]).trim());
@@ -123,4 +123,12 @@ test("the MCP server ships with the daily snapshots its top story is weighed aga
   const snapshots = readdirSync(join(import.meta.dirname, "../../data/snapshots")).filter((f) => f.endsWith(".json"));
   assert.ok(snapshots.length > 0);
   for (const f of snapshots) assert.ok(shipped.has(`data/snapshots/${f}`), `${f} is shipped with /mcp`);
+});
+
+test("the landing page is the day's news, and the tabs lead with it", () => {
+  const html = page("/");
+  assert.match(html, /<h1[^>]*>Today’s AI news<\/h1>/);
+  const tabs = html.slice(html.indexOf('<nav class="tabs"'), html.indexOf("</nav>"));
+  const links = [...tabs.matchAll(/<a[^>]*href="([^"]+)"[^>]*>([^<]+)</g)].map((m) => `${m[2]} ${m[1]}`);
+  assert.deepEqual(links, ["Today’s news /", "Trends /three-months", "Reading list /reading", "Conferences /conferences"]);
 });

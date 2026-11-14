@@ -44,7 +44,7 @@ export const HORIZONS: Record<
 > = {
   oneWeek: { label: "1 week", href: "/one-week", window: 1, shown: 4, when: "this week" },
   oneMonth: { label: "1 month", href: "/one-month", window: 2, shown: 8, when: "over one month" },
-  threeMonths: { label: "3 months", href: "/", window: 4, shown: 12, when: "over three months" },
+  threeMonths: { label: "3 months", href: "/three-months", window: 4, shown: 12, when: "over three months" },
   sixMonths: { label: "6 months", href: "/six-months", window: 13, shown: 26, when: "over six months" },
   oneYear: { label: "1 year", href: "/one-year", window: 26, shown: 52, when: "over one year" },
   twoYears: { label: "2 years", href: "/two-years", window: 52, shown: 104, when: "over two years" },

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Ledger } from "@/components/Ledger";
+import { OldTrendLinks } from "@/components/OldTrendLinks";
 import { SiteMast } from "@/components/SiteFrame";
 import { SourceLine } from "@/components/SourceLine";
 import { FRONTIER_LABS, topStoryReason } from "@/lib/editorial";
@@ -7,7 +8,7 @@ import { NEW_TAB, host } from "@/lib/links";
 import { SITE_MAKER_URL } from "@/lib/site";
 import { trendTags } from "@/lib/tags";
 import { buildToday, editorial, pastLeads } from "@/lib/today";
-import { fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
+import { HORIZONS, fmtCompact, fmtDate, fmtDay, fmtDayTime, latest } from "@/lib/trends";
 import { whyItMatters } from "@/lib/why";
 
 /**
@@ -54,6 +55,8 @@ export function Today() {
       <a className="skip" href="#today">
         Skip to the news
       </a>
+
+      <OldTrendLinks to={HORIZONS.threeMonths.href} />
 
       <SiteMast ruled current="today" line={`Updated ${fmtDate(latest.generatedAt)}`} />
 
@@ -217,7 +220,7 @@ export function Today() {
               News counts it is in, at most two, in the order the headline names them. The match is the one the
               counts use: the trend’s own title phrases, as whole words, with its exceptions, so a headline naming
               Claude Code is not tagged Claude. A headline that matches none has no tag. A tag links to the trend’s
-              row: a topic on the topics page, a product under “Product momentum” on the front page, both over the
+              row: a topic on the topics page, a product under “Product momentum” on the trends page, both over the
               default three months.
             </p>
             <p>

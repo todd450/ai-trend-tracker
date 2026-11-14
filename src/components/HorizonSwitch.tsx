@@ -14,7 +14,7 @@ export function HorizonSwitch({
 }: {
   current: Horizon;
   label: string;
-  /** Where each view of this page lives: the front page's own views unless a page has its own. */
+  /** Where each view of this page lives: the trends page's own views unless a page has its own. */
   hrefOf?: (horizon: Horizon) => string;
 }) {
   return (

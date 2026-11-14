@@ -1,5 +1,5 @@
 /**
- * The site's datasets: the index on the front page, and the figures behind the topics page,
+ * The site's datasets: the index on the trends page, and the figures behind the topics page,
  * its table and its CSV file. Everything here is worked out from the same functions that build
  * the rest of the site and the MCP server, so a figure cannot differ between them.
  */
@@ -47,8 +47,8 @@ export function comparedIn(horizon: Horizon) {
 }
 
 /**
- * The topics page for a range. The front page's range (3 months) has no range in its address;
- * the others carry the same name as the front page's own view, /data/topics/one-year for /one-year.
+ * The topics page for a range. The trends page's range (3 months) has no range in its address;
+ * the others carry the same name as the trends page's own view, /data/topics/one-year for /one-year.
  */
 export const topicsHref = (horizon: Horizon) => (horizon === "threeMonths" ? "/data/topics" : `/data/topics${HORIZONS[horizon].href}`);
 
@@ -163,7 +163,7 @@ export function topicsCitation(horizon: Horizon) {
   );
 }
 
-// ------------------------------------------------------------ the index on the front page
+// ------------------------------------------------------------ the index on the trends page
 
 /** A series that could be named as a dataset's biggest move. */
 export type Candidate = {
@@ -227,7 +227,7 @@ export type DatasetRow = {
   move: Move | null;
 };
 
-/** The seven datasets, in the order the front page lists them, with each one's biggest move in this range. */
+/** The seven datasets, in the order the trends page lists them, with each one's biggest move in this range. */
 export function datasetIndex(horizon: Horizon): DatasetRow[] {
   const { weeks, topicTrends, rankedTopics, themeTrends, productTrends, hasHistory, hasThemes, hasProducts } = buildTrends(horizon);
   const latestWeek = weeks.at(-1);

@@ -6,7 +6,7 @@
  * its count. Nothing is guessed: no phrase, no tag.
  *
  * A topic links to its row on the topics page, a product to its row in "Product momentum" on the
- * front page, both in the default range, by the trend's own id.
+ * trends page, both in the default range, by the trend's own id.
  */
 import { PRODUCTS } from "./products.ts";
 import { TOPICS } from "./topics.ts";
@@ -21,7 +21,7 @@ const words = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter(Bo
 const padded = (text: string) => ` ${words(text).join(" ")} `;
 
 const TRENDS = [
-  ...PRODUCTS.map((p) => ({ kind: "product" as const, id: p.id, name: p.name, hn: p.hn, except: p.hnExcept ?? [], href: `/#product-${p.id}` })),
+  ...PRODUCTS.map((p) => ({ kind: "product" as const, id: p.id, name: p.name, hn: p.hn, except: p.hnExcept ?? [], href: `/three-months#product-${p.id}` })),
   ...TOPICS.map((t) => ({ kind: "topic" as const, id: t.id, name: t.name, hn: t.hn, except: [] as string[], href: `/data/topics#topic-${t.id}` })),
 ];
 

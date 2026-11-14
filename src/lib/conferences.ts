@@ -104,7 +104,7 @@ export type StageRow = {
   research: Direction;
   discussion: Direction;
   /**
-   * False when the count behind a direction is below the front page's minimum
+   * False when the count behind a direction is below the trends page's minimum
    * (HEADLINE_MIN_PAPERS, MAP_MIN_STORIES). Such a change is shown but never
    * decides the reading: a move from 3 stories a week to 7 is not a trend.
    */
@@ -119,7 +119,7 @@ const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.l
 /**
  * One row per tracked topic: how much of the stage it took, set against how its
  * research and discussion counts are moving over the given horizon. Loudest first.
- * Only counts large enough for the front page to trust can make a topic rising or
+ * Only counts large enough for the trends page to trust can make a topic rising or
  * cooling here, so the two pages never disagree about the same topic.
  */
 export function stageAgainstTrends(c: Conference, horizon: Horizon = "threeMonths"): StageRow[] {

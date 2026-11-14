@@ -21,7 +21,7 @@ import type { Conference } from "@/lib/types";
 
 const ARROW: Record<Direction, string> = { rising: "▲", steady: "■", cooling: "▼" };
 
-/** The comparison uses the tracker's default view, so its arrows match the front page. */
+/** The comparison uses the tracker's default view, so its arrows match the trends page. */
 const HORIZON = "threeMonths" as const;
 
 const pct = (share: number) => (share > 0 && share < 0.005 ? "<1%" : `${Math.round(share * 100)}%`);
@@ -94,7 +94,7 @@ export function Stage({ c }: { c: Conference }) {
           </>
         )}{" "}
         The research and discussion figures are the tracker’s own, for the last {window} weeks against the{" "}
-        {window} before, as on the <Link href="/">trends page</Link>.
+        {window} before, as on the <Link href="/three-months">trends page</Link>.
       </p>
       <p className="conf__caveat">
         <strong>How to read this.</strong> A conference’s subject decides most of what is said on its stage, so a
