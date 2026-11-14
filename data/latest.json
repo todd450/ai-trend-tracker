@@ -1,65 +1,65 @@
 {
- "generatedAt": "2026-11-14T01:22:35.931Z",
+ "generatedAt": "2026-11-14T13:26:55.578Z",
  "sources": {
   "papers": {
    "ok": true,
-   "at": "2026-11-14T01:22:36.348Z"
+   "at": "2026-11-14T13:26:55.792Z"
   },
   "models": {
    "ok": true,
-   "at": "2026-11-14T01:22:36.396Z"
+   "at": "2026-11-14T13:26:55.810Z"
   },
   "releases": {
    "ok": true,
-   "at": "2026-11-14T01:22:40.781Z"
+   "at": "2026-11-14T13:26:59.539Z"
   },
   "stories": {
    "ok": true,
-   "at": "2026-11-14T01:22:44.229Z"
+   "at": "2026-11-14T13:27:02.608Z"
   },
   "repos": {
    "ok": true,
-   "at": "2026-11-14T01:22:56.211Z"
+   "at": "2026-11-14T13:27:13.985Z"
   },
   "hnHistory": {
    "ok": true,
-   "at": "2026-11-14T01:23:59.085Z"
+   "at": "2026-11-14T13:28:12.277Z"
   },
   "arxivHistory": {
    "ok": true,
-   "at": "2026-11-14T01:32:50.771Z"
+   "at": "2026-11-14T13:37:24.131Z"
   },
   "analysis": {
    "ok": true,
-   "at": "2026-11-14T01:23:01.856Z"
+   "at": "2026-11-14T13:27:18.217Z"
   },
   "labNews": {
    "ok": true,
-   "at": "2026-11-14T01:23:08.395Z"
+   "at": "2026-11-14T13:27:24.303Z"
   },
   "jobs": {
    "ok": true,
-   "at": "2026-11-14T01:23:08.793Z"
+   "at": "2026-11-14T13:27:24.454Z"
   },
   "federal": {
    "ok": true,
-   "at": "2026-11-14T01:23:09.254Z"
+   "at": "2026-11-14T13:27:24.814Z"
   },
   "modelReleases": {
    "ok": true,
-   "at": "2026-11-14T01:23:09.954Z"
+   "at": "2026-11-14T13:27:25.204Z"
   },
   "hnThemes": {
    "ok": true,
-   "at": "2026-11-14T01:25:20.839Z"
+   "at": "2026-11-14T13:29:26.800Z"
   },
   "downloads": {
    "ok": true,
-   "at": "2026-11-14T01:23:27.141Z"
+   "at": "2026-11-14T13:27:41.293Z"
   },
   "business": {
    "ok": true,
-   "at": "2026-11-14T01:23:27.707Z"
+   "at": "2026-11-14T13:27:41.416Z"
   },
   "marketShare": {
    "ok": false,
@@ -68,19 +68,19 @@
   },
   "today": {
    "ok": true,
-   "at": "2026-11-14T01:22:47.508Z"
+   "at": "2026-11-14T13:27:05.842Z"
   },
   "launches": {
    "ok": true,
-   "at": "2026-11-14T01:22:48.211Z"
+   "at": "2026-11-14T13:27:06.416Z"
   },
   "hnProducts": {
    "ok": true,
-   "at": "2026-11-14T01:25:55.598Z"
+   "at": "2026-11-14T13:29:59.015Z"
   },
   "wikiProducts": {
    "ok": true,
-   "at": "2026-11-14T01:31:16.519Z"
+   "at": "2026-11-14T13:35:17.364Z"
   }
  },
  "papers": [
@@ -97,7 +97,7 @@
    "id": "2611.15777",
    "title": "SO-Arena: Benchmarking the Capability Spectrum and Reliability of System One Models",
    "url": "https://arxiv.org/abs/2611.15777",
-   "upvotes": 74,
+   "upvotes": 84,
    "comments": 2,
    "codeUrl": "https://github.com/holdrain/SO-Arena",
    "publishedAt": "2026-11-11T00:00:00.000Z"
@@ -107,7 +107,7 @@
    "title": "Don't Just Trust Your Memory: Evidence-Linked Memory Reduces Memory-Induced Degradation in LLM Agents",
    "url": "https://arxiv.org/abs/2611.14320",
    "upvotes": 70,
-   "comments": 7,
+   "comments": 8,
    "codeUrl": "https://github.com/yukyeongleee/wikitrace",
    "publishedAt": "2026-11-10T00:00:00.000Z"
   },
@@ -115,16 +115,25 @@
    "id": "2611.12885",
    "title": "World In-Context Learning for Agentic Robot Manipulation",
    "url": "https://arxiv.org/abs/2611.12885",
-   "upvotes": 56,
-   "comments": 3,
+   "upvotes": 57,
+   "comments": 4,
    "codeUrl": "https://github.com/ArcheOne-AI/RoboScript",
+   "publishedAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
+   "id": "2611.11995",
+   "title": "Infrathon: Benchmarking Language Agents for Real-World, Long-Horizon AI Infra Optimization",
+   "url": "https://arxiv.org/abs/2611.11995",
+   "upvotes": 51,
+   "comments": 10,
+   "codeUrl": "https://github.com/InfrathonX/Infrathon",
    "publishedAt": "2026-11-09T00:00:00.000Z"
   },
   {
    "id": "2611.14815",
    "title": "BirdDreams: Joint Perspective and BEV Video Generation for a Plausible, Reactive Driving World Model",
    "url": "https://arxiv.org/abs/2611.14815",
-   "upvotes": 46,
+   "upvotes": 49,
    "comments": 1,
    "codeUrl": null,
    "publishedAt": "2026-11-10T00:00:00.000Z"
@@ -139,19 +148,10 @@
    "publishedAt": "2026-11-10T00:00:00.000Z"
   },
   {
-   "id": "2611.11995",
-   "title": "Infrathon: Benchmarking Language Agents for Real-World, Long-Horizon AI Infra Optimization",
-   "url": "https://arxiv.org/abs/2611.11995",
-   "upvotes": 45,
-   "comments": 10,
-   "codeUrl": "https://github.com/InfrathonX/Infrathon",
-   "publishedAt": "2026-11-09T00:00:00.000Z"
-  },
-  {
    "id": "2611.16748",
    "title": "PhysLoop: Harnessing LLMs' Physics Awareness for Self-Improving Video Generation Models",
    "url": "https://arxiv.org/abs/2611.16748",
-   "upvotes": 42,
+   "upvotes": 44,
    "comments": 3,
    "codeUrl": "https://github.com/DAGroup-PKU/PhysLoop",
    "publishedAt": "2026-11-12T00:00:00.000Z"
@@ -160,10 +160,19 @@
    "id": "2611.13004",
    "title": "G-STAR: Group-Scaled Token Capacity for Deeply Compressed Autoregressive Generation",
    "url": "https://arxiv.org/abs/2611.13004",
-   "upvotes": 40,
+   "upvotes": 43,
    "comments": 2,
    "codeUrl": "https://github.com/DAGroup-PKU/G-STAR",
    "publishedAt": "2026-11-08T00:00:00.000Z"
+  },
+  {
+   "id": "2611.15131",
+   "title": "Duo: A Reciprocal World Model for Full-Duplex Interaction",
+   "url": "https://arxiv.org/abs/2611.15131",
+   "upvotes": 39,
+   "comments": 1,
+   "codeUrl": "https://github.com/inclusionAI/Duo",
+   "publishedAt": "2026-11-11T00:00:00.000Z"
   },
   {
    "id": "2611.13001",
@@ -175,19 +184,10 @@
    "publishedAt": "2026-11-08T00:00:00.000Z"
   },
   {
-   "id": "2611.15131",
-   "title": "Duo: A Reciprocal World Model for Full-Duplex Interaction",
-   "url": "https://arxiv.org/abs/2611.15131",
-   "upvotes": 36,
-   "comments": 1,
-   "codeUrl": "https://github.com/inclusionAI/Duo",
-   "publishedAt": "2026-11-11T00:00:00.000Z"
-  },
-  {
    "id": "2611.13410",
    "title": "SteerDistill: Quantizing LLM Agents via Closed-Loop Teacher Steering",
    "url": "https://arxiv.org/abs/2611.13410",
-   "upvotes": 35,
+   "upvotes": 36,
    "comments": 3,
    "codeUrl": "https://github.com/air-embodied-brain/SteerDistill",
    "publishedAt": "2026-11-10T00:00:00.000Z"
@@ -196,28 +196,28 @@
    "id": "2611.12426",
    "title": "dNaViT: Discrete Codes are General-Purpose Visual Representations",
    "url": "https://arxiv.org/abs/2611.12426",
-   "upvotes": 34,
+   "upvotes": 35,
    "comments": 3,
    "codeUrl": null,
    "publishedAt": "2026-11-09T00:00:00.000Z"
   },
   {
-   "id": "2611.10649",
-   "title": "MACaQ: Fast, Model Agnostic Calibrated Quantization for Low-Precision Weights and Activations",
-   "url": "https://arxiv.org/abs/2611.10649",
-   "upvotes": 30,
-   "comments": 2,
-   "codeUrl": "https://github.com/huawei-csl/MACaQ",
-   "publishedAt": "2026-11-07T00:00:00.000Z"
-  },
-  {
    "id": "2611.15844",
    "title": "Open Vision Banana: A Fully Open Recipe for Generative Visual Perception",
    "url": "https://arxiv.org/abs/2611.15844",
-   "upvotes": 29,
+   "upvotes": 32,
    "comments": 1,
    "codeUrl": "https://github.com/OpenVisionBanana/OpenVisionBanana",
    "publishedAt": "2026-11-11T00:00:00.000Z"
+  },
+  {
+   "id": "2611.17167",
+   "title": "Actor, Judge, or Teacher? Understanding Decision Models in Long-Horizon Agents",
+   "url": "https://arxiv.org/abs/2611.17167",
+   "upvotes": 31,
+   "comments": 3,
+   "codeUrl": "https://github.com/ZJU-REAL/decision-agents",
+   "publishedAt": "2026-11-12T00:00:00.000Z"
   }
  ],
  "models": [
@@ -225,160 +225,160 @@
    "id": "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "url": "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
    "task": "text-generation",
-   "likes": 5992,
-   "downloads": 21586,
+   "likes": 7250,
+   "downloads": 24470,
    "createdAt": "2026-10-30T10:21:29.000Z"
   },
   {
    "id": "MiniMaxAI/MiniMax-H3-Image",
    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image",
    "task": "text-to-image",
-   "likes": 1017,
-   "downloads": 437039,
+   "likes": 1082,
+   "downloads": 517948,
    "createdAt": "2026-11-03T06:34:36.000Z"
-  },
-  {
-   "id": "NousResearch/Arete-27B",
-   "url": "https://huggingface.co/NousResearch/Arete-27B",
-   "task": "text-generation",
-   "likes": 554,
-   "downloads": 5545,
-   "createdAt": "2026-11-06T19:31:28.000Z"
   },
   {
    "id": "Lightricks/LTX-2.5",
    "url": "https://huggingface.co/Lightricks/LTX-2.5",
    "task": "image-to-video",
-   "likes": 11784,
-   "downloads": 2778909,
+   "likes": 11855,
+   "downloads": 2777667,
    "createdAt": "2026-07-23T07:55:24.000Z"
   },
   {
    "id": "Qwen/Qwen3.8-27B",
    "url": "https://huggingface.co/Qwen/Qwen3.8-27B",
    "task": "image-text-to-text",
-   "likes": 19880,
-   "downloads": 6960395,
+   "likes": 19941,
+   "downloads": 6757964,
    "createdAt": "2026-08-05T08:22:59.000Z"
+  },
+  {
+   "id": "NousResearch/Arete-27B",
+   "url": "https://huggingface.co/NousResearch/Arete-27B",
+   "task": "text-generation",
+   "likes": 585,
+   "downloads": 6191,
+   "createdAt": "2026-11-06T19:31:28.000Z"
   },
   {
    "id": "speridlabs/idol",
    "url": "https://huggingface.co/speridlabs/idol",
    "task": "image-to-3d",
-   "likes": 2298,
-   "downloads": 31367,
+   "likes": 2328,
+   "downloads": 32619,
    "createdAt": "2026-10-28T15:55:17.000Z"
   },
   {
    "id": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
    "url": "https://huggingface.co/DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
    "task": "image-text-to-text",
-   "likes": 3056,
-   "downloads": 1639400,
+   "likes": 3100,
+   "downloads": 1657783,
    "createdAt": "2026-09-01T07:01:09.000Z"
-  },
-  {
-   "id": "moonshotai/Kimi-K3.1-Pro",
-   "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
-   "task": "image-text-to-text",
-   "likes": 2032,
-   "downloads": 40953,
-   "createdAt": "2026-11-02T04:13:51.000Z"
   },
   {
    "id": "Comfy-Org/MiniMax-H3-Image",
    "url": "https://huggingface.co/Comfy-Org/MiniMax-H3-Image",
    "task": "text-to-image",
-   "likes": 345,
-   "downloads": 1257301,
+   "likes": 371,
+   "downloads": 1615613,
    "createdAt": "2026-11-08T20:37:23.000Z"
+  },
+  {
+   "id": "moonshotai/Kimi-K3.1-Pro",
+   "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
+   "task": "image-text-to-text",
+   "likes": 2068,
+   "downloads": 43687,
+   "createdAt": "2026-11-02T04:13:51.000Z"
   },
   {
    "id": "Zyphra/ZONOS3-Mini",
    "url": "https://huggingface.co/Zyphra/ZONOS3-Mini",
    "task": "text-to-speech",
-   "likes": 289,
-   "downloads": 13068,
+   "likes": 327,
+   "downloads": 19743,
    "createdAt": "2026-11-09T05:03:57.000Z"
-  },
-  {
-   "id": "ccore/Qwen3.5-4B-3D-Coder",
-   "url": "https://huggingface.co/ccore/Qwen3.5-4B-3D-Coder",
-   "task": null,
-   "likes": 1096,
-   "downloads": 392582,
-   "createdAt": "2026-10-25T05:43:34.000Z"
-  },
-  {
-   "id": "black-forest-labs/flux-3-image-klein-comfy",
-   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
-   "task": "image-to-image",
-   "likes": 3094,
-   "downloads": 1330289,
-   "createdAt": "2026-10-14T12:00:13.000Z"
   },
   {
    "id": "thinkingmachines/Inkling-2-Small",
    "url": "https://huggingface.co/thinkingmachines/Inkling-2-Small",
    "task": "image-text-to-text",
-   "likes": 240,
-   "downloads": 1064,
+   "likes": 288,
+   "downloads": 3647,
    "createdAt": "2026-11-04T19:51:05.000Z"
+  },
+  {
+   "id": "black-forest-labs/flux-3-image-klein-comfy",
+   "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
+   "task": "image-to-image",
+   "likes": 3145,
+   "downloads": 1292519,
+   "createdAt": "2026-10-14T12:00:13.000Z"
   },
   {
    "id": "unsloth/Qwen3.8-27B-GGUF",
    "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF",
    "task": null,
-   "likes": 5879,
-   "downloads": 6253865,
+   "likes": 5909,
+   "downloads": 6422783,
    "createdAt": "2026-08-13T08:28:40.000Z"
-  },
-  {
-   "id": "mradermacher/gemma-4-31B-it-ARA-heretic-GGUF",
-   "url": "https://huggingface.co/mradermacher/gemma-4-31B-it-ARA-heretic-GGUF",
-   "task": null,
-   "likes": 258,
-   "downloads": 105256,
-   "createdAt": "2026-11-07T05:50:30.000Z"
-  },
-  {
-   "id": "VideoRebirthAI/hyperflow-h3-flash",
-   "url": "https://huggingface.co/VideoRebirthAI/hyperflow-h3-flash",
-   "task": "image-text-to-video",
-   "likes": 263,
-   "downloads": 389065,
-   "createdAt": "2026-11-04T13:54:24.000Z"
-  },
-  {
-   "id": "Viggle/Viggle-Remake",
-   "url": "https://huggingface.co/Viggle/Viggle-Remake",
-   "task": "video-to-video",
-   "likes": 374,
-   "downloads": 183188,
-   "createdAt": "2026-10-22T19:06:17.000Z"
   },
   {
    "id": "tencent/Qwen3.8-27B-DSpine-b16",
    "url": "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16",
    "task": "text-generation",
-   "likes": 240,
-   "downloads": 4332,
+   "likes": 269,
+   "downloads": 4873,
    "createdAt": "2026-11-07T14:20:29.000Z"
+  },
+  {
+   "id": "mradermacher/gemma-4-31B-it-ARA-heretic-GGUF",
+   "url": "https://huggingface.co/mradermacher/gemma-4-31B-it-ARA-heretic-GGUF",
+   "task": null,
+   "likes": 284,
+   "downloads": 116423,
+   "createdAt": "2026-11-07T05:50:30.000Z"
+  },
+  {
+   "id": "ccore/Qwen3.5-4B-3D-Coder",
+   "url": "https://huggingface.co/ccore/Qwen3.5-4B-3D-Coder",
+   "task": null,
+   "likes": 1115,
+   "downloads": 416680,
+   "createdAt": "2026-10-25T05:43:34.000Z"
   },
   {
    "id": "facebook/sam3",
    "url": "https://huggingface.co/facebook/sam3",
    "task": "mask-generation",
-   "likes": 6534,
-   "downloads": 2092498,
+   "likes": 6575,
+   "downloads": 2065427,
    "createdAt": "2025-11-07T05:17:48.000Z"
+  },
+  {
+   "id": "Edge0/Edge0-145B-NVFP4",
+   "url": "https://huggingface.co/Edge0/Edge0-145B-NVFP4",
+   "task": "text-generation",
+   "likes": 243,
+   "downloads": 33819,
+   "createdAt": "2026-11-11T05:22:51.000Z"
+  },
+  {
+   "id": "Viggle/Viggle-Remake",
+   "url": "https://huggingface.co/Viggle/Viggle-Remake",
+   "task": "video-to-video",
+   "likes": 395,
+   "downloads": 196821,
+   "createdAt": "2026-10-22T19:06:17.000Z"
   },
   {
    "id": "Cactus-Compute/mirage",
    "url": "https://huggingface.co/Cactus-Compute/mirage",
    "task": "image-text-to-text",
-   "likes": 252,
-   "downloads": 18959,
+   "likes": 291,
+   "downloads": 24452,
    "createdAt": "2026-11-05T19:01:53.000Z"
   }
  ],
@@ -387,8 +387,8 @@
    "id": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
    "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
    "task": "image-text-to-text",
-   "likes": 5645,
-   "downloads": 398161,
+   "likes": 5690,
+   "downloads": 434013,
    "createdAt": "2026-10-17T02:40:38.000Z",
    "lab": "deepseek-ai"
   },
@@ -396,8 +396,8 @@
    "id": "black-forest-labs/flux-3-image-klein-comfy",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-comfy",
    "task": "image-to-image",
-   "likes": 3094,
-   "downloads": 1330289,
+   "likes": 3145,
+   "downloads": 1292519,
    "createdAt": "2026-10-14T12:00:13.000Z",
    "lab": "black-forest-labs"
   },
@@ -405,8 +405,8 @@
    "id": "moonshotai/Kimi-K3.1-Pro",
    "url": "https://huggingface.co/moonshotai/Kimi-K3.1-Pro",
    "task": "image-text-to-text",
-   "likes": 2032,
-   "downloads": 40953,
+   "likes": 2068,
+   "downloads": 43687,
    "createdAt": "2026-11-02T04:13:51.000Z",
    "lab": "moonshotai"
   },
@@ -415,7 +415,7 @@
    "url": "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B",
    "task": "image-text-to-text",
    "likes": 1656,
-   "downloads": 14078,
+   "downloads": 14609,
    "createdAt": "2026-09-30T18:35:13.000Z",
    "lab": "mistralai"
   },
@@ -424,7 +424,7 @@
    "url": "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo",
    "task": "text-to-image",
    "likes": 1140,
-   "downloads": 39021,
+   "downloads": 37440,
    "createdAt": "2026-10-09T04:50:01.000Z",
    "lab": "Qwen"
   },
@@ -432,8 +432,8 @@
    "id": "black-forest-labs/flux-3-image-klein",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein",
    "task": "image-to-image",
-   "likes": 954,
-   "downloads": 204224,
+   "likes": 960,
+   "downloads": 185494,
    "createdAt": "2026-10-13T10:58:40.000Z",
    "lab": "black-forest-labs"
   },
@@ -441,8 +441,8 @@
    "id": "baidu/Unlimited-OCR-2",
    "url": "https://huggingface.co/baidu/Unlimited-OCR-2",
    "task": "image-text-to-text",
-   "likes": 689,
-   "downloads": 525885,
+   "likes": 691,
+   "downloads": 535304,
    "createdAt": "2026-10-26T03:57:46.000Z",
    "lab": "baidu"
   },
@@ -451,7 +451,7 @@
    "url": "https://huggingface.co/mistralai/Timestral-209M",
    "task": "time-series-forecasting",
    "likes": 493,
-   "downloads": 30497,
+   "downloads": 31224,
    "createdAt": "2026-10-14T08:52:36.000Z",
    "lab": "mistralai"
   },
@@ -460,7 +460,7 @@
    "url": "https://huggingface.co/tencent/Hy-SimulMT-30B-A3B-FP8",
    "task": "translation",
    "likes": 461,
-   "downloads": 1342,
+   "downloads": 1371,
    "createdAt": "2026-10-22T07:29:37.000Z",
    "lab": "tencent"
   },
@@ -469,7 +469,7 @@
    "url": "https://huggingface.co/baidu/ERNIE-5.5-Flash-Base-BF16",
    "task": "text-generation",
    "likes": 391,
-   "downloads": 1157,
+   "downloads": 1276,
    "createdAt": "2026-10-21T05:04:01.000Z",
    "lab": "baidu"
   },
@@ -478,7 +478,7 @@
    "url": "https://huggingface.co/tencent/Hy-Memory-30B-A3B",
    "task": "text-generation",
    "likes": 325,
-   "downloads": 7755,
+   "downloads": 8033,
    "createdAt": "2026-10-15T09:52:00.000Z",
    "lab": "tencent"
   },
@@ -486,35 +486,35 @@
    "id": "baidu/ERNIE-5.5-Flash-Base",
    "url": "https://huggingface.co/baidu/ERNIE-5.5-Flash-Base",
    "task": "text-generation",
-   "likes": 308,
-   "downloads": 3372,
+   "likes": 310,
+   "downloads": 3673,
    "createdAt": "2026-10-21T08:40:58.000Z",
    "lab": "baidu"
+  },
+  {
+   "id": "tencent/Qwen3.8-27B-DSpine-b16",
+   "url": "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16",
+   "task": "text-generation",
+   "likes": 269,
+   "downloads": 4873,
+   "createdAt": "2026-11-07T14:20:29.000Z",
+   "lab": "tencent"
   },
   {
    "id": "nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16",
    "url": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Labs-Dory1.0-4B-BF16",
    "task": "text-generation",
    "likes": 257,
-   "downloads": 15034,
+   "downloads": 15610,
    "createdAt": "2026-10-16T18:25:29.000Z",
    "lab": "nvidia"
-  },
-  {
-   "id": "tencent/Qwen3.8-27B-DSpine-b16",
-   "url": "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16",
-   "task": "text-generation",
-   "likes": 240,
-   "downloads": 4332,
-   "createdAt": "2026-11-07T14:20:29.000Z",
-   "lab": "tencent"
   },
   {
    "id": "black-forest-labs/flux-3-image-klein-base",
    "url": "https://huggingface.co/black-forest-labs/flux-3-image-klein-base",
    "task": "image-to-image",
    "likes": 237,
-   "downloads": 135059,
+   "downloads": 110587,
    "createdAt": "2026-10-13T10:19:46.000Z",
    "lab": "black-forest-labs"
   },
@@ -522,8 +522,8 @@
    "id": "microsoft/Mage-VL-Cowork",
    "url": "https://huggingface.co/microsoft/Mage-VL-Cowork",
    "task": "image-text-to-text",
-   "likes": 223,
-   "downloads": 4411,
+   "likes": 224,
+   "downloads": 4680,
    "createdAt": "2026-10-30T12:13:24.000Z",
    "lab": "microsoft"
   },
@@ -532,7 +532,7 @@
    "url": "https://huggingface.co/nvidia/DeepSeek-V4.1-Flash-1017-NVFP4",
    "task": "image-text-to-text",
    "likes": 192,
-   "downloads": 13893,
+   "downloads": 17797,
    "createdAt": "2026-10-30T17:37:02.000Z",
    "lab": "nvidia"
   },
@@ -541,7 +541,7 @@
    "url": "https://huggingface.co/tencent/Hy-Nomas",
    "task": null,
    "likes": 154,
-   "downloads": 91931,
+   "downloads": 93907,
    "createdAt": "2026-10-21T02:17:37.000Z",
    "lab": "tencent"
   },
@@ -559,7 +559,7 @@
    "url": "https://huggingface.co/tencent/WeVisOne-VL-4B",
    "task": "image-text-to-text",
    "likes": 124,
-   "downloads": 22625,
+   "downloads": 23642,
    "createdAt": "2026-10-22T09:48:14.000Z",
    "lab": "tencent"
   }
@@ -579,7 +579,7 @@
    "title": "Claude Fable 5.2 and Mythos 5.2",
    "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2",
    "discussionUrl": "https://news.ycombinator.com/item?id=50429906",
-   "points": 999,
+   "points": 1000,
    "comments": 8,
    "createdAt": "2026-11-09T18:56:29Z"
   },
@@ -589,7 +589,7 @@
    "url": "https://ipo.anthropic.com/us/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50465829",
    "points": 996,
-   "comments": 904,
+   "comments": 911,
    "createdAt": "2026-11-12T11:46:41Z"
   },
   {
@@ -597,7 +597,7 @@
    "title": "Goldman Sachs is pulling Claude Code from its bankers and traders",
    "url": "https://www.thestateofai.com/news/goldman-sachs-claude-code-traders-bankers",
    "discussionUrl": "https://news.ycombinator.com/item?id=50415628",
-   "points": 903,
+   "points": 905,
    "comments": 496,
    "createdAt": "2026-11-08T18:16:07Z"
   },
@@ -606,9 +606,18 @@
    "title": "Goodbye Claude, hello Pi",
    "url": "https://caleb.software/posts/claude-to-pi.html",
    "discussionUrl": "https://news.ycombinator.com/item?id=50410107",
-   "points": 828,
+   "points": 829,
    "comments": 493,
    "createdAt": "2026-11-08T03:11:48Z"
+  },
+  {
+   "id": "50493251",
+   "title": "Nvidia allegedly engineered scarcity by funding AI startups to buy its GPUs",
+   "url": "https://www.techpowerup.com/354814/nvidia-allegedly-engineered-scarcity-by-funding-ai-startups-to-buy-its-gpus",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50493251",
+   "points": 747,
+   "comments": 436,
+   "createdAt": "2026-11-14T02:52:59Z"
   },
   {
    "id": "50429426",
@@ -625,7 +634,7 @@
    "url": "https://www.cbsnews.com/news/united-airlines-bans-ai-agents-booking-flights/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50458900",
    "points": 677,
-   "comments": 700,
+   "comments": 705,
    "createdAt": "2026-11-11T21:24:35Z"
   },
   {
@@ -633,7 +642,7 @@
    "title": "AI usage generates a fragile codebase",
    "url": "https://evanxmerz.com/post/ai-usage-generates-a-fragile-codebase/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50438318",
-   "points": 641,
+   "points": 642,
    "comments": 626,
    "createdAt": "2026-11-10T10:25:58Z"
   },
@@ -660,7 +669,7 @@
    "title": "Gemini Decisions API",
    "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50456791",
-   "points": 566,
+   "points": 568,
    "comments": 161,
    "createdAt": "2026-11-11T18:32:42Z"
   },
@@ -669,7 +678,7 @@
    "title": "Apple has new Mac app coming to make running local AI models easy",
    "url": "https://9to5mac.com/2026/11/10/apple-has-new-mac-app-coming-to-make-running-local-ai-models-easy/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50446520",
-   "points": 565,
+   "points": 567,
    "comments": 557,
    "createdAt": "2026-11-10T21:25:03Z"
   },
@@ -678,8 +687,8 @@
    "title": "Gemini 4 Hydrogen",
    "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50471431",
-   "points": 558,
-   "comments": 349,
+   "points": 565,
+   "comments": 350,
    "createdAt": "2026-11-12T18:01:48Z"
   },
   {
@@ -687,7 +696,7 @@
    "title": "The end of Microsoft Research's AI Frontiers group",
    "url": "https://hunch.net/?p=13764006",
    "discussionUrl": "https://news.ycombinator.com/item?id=50406563",
-   "points": 513,
+   "points": 515,
    "comments": 309,
    "createdAt": "2026-11-07T18:02:17Z"
   },
@@ -696,7 +705,7 @@
    "title": "Gemini 4 Hydrogen and Orchestrator",
    "url": "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50472260",
-   "points": 495,
+   "points": 501,
    "comments": 161,
    "createdAt": "2026-11-12T18:52:01Z"
   },
@@ -705,8 +714,8 @@
    "title": "Elevated errors on claude.ai, Claude Code, and platform.claude.com",
    "url": "https://status.claude.com/incidents/nn11wk485zfn",
    "discussionUrl": "https://news.ycombinator.com/item?id=50481187",
-   "points": 484,
-   "comments": 382,
+   "points": 489,
+   "comments": 387,
    "createdAt": "2026-11-13T10:18:13Z"
   },
   {
@@ -714,7 +723,7 @@
    "title": "I'm making LLMs work on small and old devices",
    "url": "https://github.com/hyperionaidev/smolmaxxing/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50468888",
-   "points": 466,
+   "points": 475,
    "comments": 180,
    "createdAt": "2026-11-12T15:23:10Z"
   },
@@ -723,7 +732,7 @@
    "title": "Tracking Anthropic-discovered vulnerabilities",
    "url": "https://www.vulncheck.com/blog/anthropic-glasswing-november-update",
    "discussionUrl": "https://news.ycombinator.com/item?id=50447074",
-   "points": 459,
+   "points": 460,
    "comments": 221,
    "createdAt": "2026-11-10T22:17:56Z"
   },
@@ -735,61 +744,43 @@
    "points": 442,
    "comments": 146,
    "createdAt": "2026-11-10T18:01:15Z"
-  },
-  {
-   "id": "50431144",
-   "title": "Claude Fable 5.2 scores 65 on Artificial Analysis, highest so far",
-   "url": "https://artificialanalysis.ai/models/claude-fable-5-2",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50431144",
-   "points": 379,
-   "comments": 280,
-   "createdAt": "2026-11-09T20:04:55Z"
   }
  ],
  "today": [
   {
-   "id": "50481187",
-   "title": "Elevated errors on claude.ai, Claude Code, and platform.claude.com",
-   "url": "https://status.claude.com/incidents/nn11wk485zfn",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50481187",
-   "points": 484,
-   "comments": 382,
-   "createdAt": "2026-11-13T10:18:13Z"
+   "id": "50493251",
+   "title": "Nvidia allegedly engineered scarcity by funding AI startups to buy its GPUs",
+   "url": "https://www.techpowerup.com/354814/nvidia-allegedly-engineered-scarcity-by-funding-ai-startups-to-buy-its-gpus",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50493251",
+   "points": 747,
+   "comments": 436,
+   "createdAt": "2026-11-14T02:52:59Z"
   },
   {
    "id": "50486748",
    "title": "AI unlocks Gödel's notebooks, said to contain hundreds of proved theorems",
    "url": "https://www.theguardian.com/science/2026/nov/13/kurt-godel-notebooks-ai-helps-unlock-hidden-discoveries-man-who-transformed-maths",
    "discussionUrl": "https://news.ycombinator.com/item?id=50486748",
-   "points": 323,
-   "comments": 91,
+   "points": 399,
+   "comments": 101,
    "createdAt": "2026-11-13T17:30:10Z"
   },
   {
-   "id": "50481870",
-   "title": "AI is destroying the trust between writers and readers",
-   "url": "https://www.theatlantic.com/books/2026/11/ai-literary-scams-amazon/689391/",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50481870",
-   "points": 310,
-   "comments": 195,
-   "createdAt": "2026-11-13T11:13:46Z"
-  },
-  {
-   "id": "50481220",
-   "title": "Claude Is Down",
-   "url": "https://status.claude.com/history",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50481220",
-   "points": 197,
-   "comments": 171,
-   "createdAt": "2026-11-13T10:20:09Z"
+   "id": "50484658",
+   "title": "Jonathan Blow – If AI solved coding, why is my software still the same? [video]",
+   "url": "https://www.youtube.com/watch?v=IRK8h67ol7Q",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50484658",
+   "points": 352,
+   "comments": 477,
+   "createdAt": "2026-11-13T15:08:44Z"
   },
   {
    "id": "50488769",
    "title": "No AI Slop: A Manifesto",
    "url": "https://www.slopmanifesto.com/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50488769",
-   "points": 183,
-   "comments": 99,
+   "points": 203,
+   "comments": 123,
    "createdAt": "2026-11-13T19:51:56Z"
   },
   {
@@ -797,26 +788,17 @@
    "title": "Why is Google cutting off Search from AI-free schools? Here are some theories",
    "url": "https://text.npr.org/nx-s1-6029408",
    "discussionUrl": "https://news.ycombinator.com/item?id=50484960",
-   "points": 164,
-   "comments": 163,
+   "points": 188,
+   "comments": 180,
    "createdAt": "2026-11-13T15:29:10Z"
-  },
-  {
-   "id": "50484658",
-   "title": "Jonathan Blow – If AI Solved Coding, Why Is My Software Still the Same? [video]",
-   "url": "https://www.youtube.com/watch?v=IRK8h67ol7Q",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50484658",
-   "points": 147,
-   "comments": 133,
-   "createdAt": "2026-11-13T15:08:44Z"
   },
   {
    "id": "50487184",
    "title": "OpenAI disbands its robotics team as its general models start running robots",
    "url": "https://fortune.com/2026/11/13/openai-disbands-robotics-team-as-its-general-models-start-running-robots/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50487184",
-   "points": 141,
-   "comments": 64,
+   "points": 172,
+   "comments": 72,
    "createdAt": "2026-11-13T17:55:23Z"
   },
   {
@@ -824,17 +806,26 @@
    "title": "Claude Meetings",
    "url": "https://claude.com/resources/articles/claude-meetings",
    "discussionUrl": "https://news.ycombinator.com/item?id=50491097",
-   "points": 69,
-   "comments": 59,
+   "points": 103,
+   "comments": 79,
    "createdAt": "2026-11-13T22:39:15Z"
+  },
+  {
+   "id": "50492141",
+   "title": "Anthropic upgrades Claude Code Projects to run parallel AI workers",
+   "url": "https://claude.com/resources/articles/projects-redesigned",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50492141",
+   "points": 92,
+   "comments": 86,
+   "createdAt": "2026-11-14T00:28:11Z"
   },
   {
    "id": "50487854",
    "title": "The avalanche that hit math is coming for AI development",
    "url": "https://www.dwarkesh.com/p/rsi",
    "discussionUrl": "https://news.ycombinator.com/item?id=50487854",
-   "points": 59,
-   "comments": 101,
+   "points": 64,
+   "comments": 105,
    "createdAt": "2026-11-13T18:39:42Z"
   },
   {
@@ -842,18 +833,27 @@
    "title": "Are we just going to ignore that books are destroyed for AI?",
    "url": "https://www.forbes.com/sites/maryroeloffs/2026/08/17/ai-companies-are-buying-and-destroying-antique-books-heres-why/",
    "discussionUrl": "https://news.ycombinator.com/item?id=50487469",
-   "points": 52,
-   "comments": 45,
+   "points": 57,
+   "comments": 62,
    "createdAt": "2026-11-13T18:14:38Z"
   },
   {
-   "id": "50480909",
-   "title": "Tell HN: Claude Code Is Down",
-   "url": "https://news.ycombinator.com/item?id=50480909",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50480909",
-   "points": 37,
-   "comments": 21,
-   "createdAt": "2026-11-13T09:51:59Z"
+   "id": "50494696",
+   "title": "Ask HN: What are the most useful, concrete AI skills to independently learn?",
+   "url": "https://news.ycombinator.com/item?id=50494696",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50494696",
+   "points": 55,
+   "comments": 40,
+   "createdAt": "2026-11-14T06:56:42Z"
+  },
+  {
+   "id": "50484110",
+   "title": "Amodei Says AI Will Cure Cancer in a Decade. Doctors Are Skeptical",
+   "url": "https://www.businessinsider.com/dario-amodei-anthropic-cancer-cure-ipo-roadshow-backlash-doctors-2026-11",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50484110",
+   "points": 33,
+   "comments": 71,
+   "createdAt": "2026-11-13T14:34:13Z"
   }
  ],
  "launches": [
@@ -958,16 +958,6 @@
    "createdAt": "2026-11-08T02:37:10Z"
   },
   {
-   "id": "50401409",
-   "title": "Backwords – Let AI teach you how to speak in reverse",
-   "kind": "Show HN",
-   "url": "https://backwords.greg.technology/",
-   "discussionUrl": "https://news.ycombinator.com/item?id=50401409",
-   "points": 13,
-   "comments": 3,
-   "createdAt": "2026-11-07T03:39:46Z"
-  },
-  {
    "id": "50431705",
    "title": "Airgap-check – find what your AI app silently downloads offline",
    "kind": "Show HN",
@@ -988,6 +978,16 @@
    "createdAt": "2026-11-10T12:05:13Z"
   },
   {
+   "id": "50451943",
+   "title": "Log every LLM call with tokens, cost, latency, and time to first token",
+   "kind": "Show HN",
+   "url": "https://github.com/garritfra/llmtee",
+   "discussionUrl": "https://news.ycombinator.com/item?id=50451943",
+   "points": 10,
+   "comments": 2,
+   "createdAt": "2026-11-11T10:55:46Z"
+  },
+  {
    "id": "50444276",
    "title": "TheoremSmith: Mass-Producing Hard Proof Problems to Train LLMs",
    "kind": "Show HN",
@@ -1003,8 +1003,8 @@
    "name": "ccch1mneyyy/dsh-Go",
    "url": "https://github.com/ccch1mneyyy/dsh-Go",
    "description": "dsh-go — DeepSeek Harness 装进口袋：手机本机运行，也能遥控你的电脑。",
-   "stars": 21815,
-   "starsPerDay": 1106,
+   "stars": 22400,
+   "starsPerDay": 1108,
    "language": "Dart",
    "createdAt": "2026-10-25T08:09:52Z"
   },
@@ -1012,8 +1012,8 @@
    "name": "wangzan101/Mika",
    "url": "https://github.com/wangzan101/Mika",
    "description": "An on-device AI agent for Android that operates apps and the web to get things done for you.",
-   "stars": 8528,
-   "starsPerDay": 552,
+   "stars": 8573,
+   "starsPerDay": 537,
    "language": "Kotlin",
    "createdAt": "2026-10-29T14:34:07Z"
   },
@@ -1021,8 +1021,8 @@
    "name": "KKKKhazix/agent-autoloop",
    "url": "https://github.com/KKKKhazix/agent-autoloop",
    "description": "让你的命令行 Agent 在后台自己接活、自己跟进到底；平时不烦你，遇到拿不准的事才发卡片找你拍板。",
-   "stars": 5127,
-   "starsPerDay": 478,
+   "stars": 5271,
+   "starsPerDay": 470,
    "language": "TypeScript",
    "createdAt": "2026-11-03T08:02:11Z"
   },
@@ -1030,8 +1030,8 @@
    "name": "FrigadeHQ/yogurt",
    "url": "https://github.com/FrigadeHQ/yogurt",
    "description": "Private AI meeting notes that stay on your computer. A free, open-source alternative to Granola for Mac, Windows and Linux.",
-   "stars": 1272,
-   "starsPerDay": 395,
+   "stars": 1366,
+   "starsPerDay": 367,
    "language": "TypeScript",
    "createdAt": "2026-11-10T20:01:01Z"
   },
@@ -1039,148 +1039,154 @@
    "name": "expo/exact",
    "url": "https://github.com/expo/exact",
    "description": "Write an app once. It runs natively on the web, macOS, iOS, and Linux, and an AI agent can build it, run it, see it, and test it on every one of them.",
-   "stars": 4011,
-   "starsPerDay": 334,
+   "stars": 4110,
+   "starsPerDay": 329,
    "language": "Rust",
    "createdAt": "2026-11-02T01:29:01Z"
-  },
-  {
-   "name": "DIYgod/pinky",
-   "url": "https://github.com/DIYgod/pinky",
-   "description": "Let AI use your iPhone or Android phone, with you in the loop: any MCP agent from macOS, Windows or Linux, or Pinky itself, right on the phone.",
-   "stars": 2079,
-   "starsPerDay": 283,
-   "language": "Go",
-   "createdAt": "2026-11-06T16:53:14Z"
   },
   {
    "name": "qybaihe/bla",
    "url": "https://github.com/qybaihe/bla",
    "description": "🛡️ BLA (bla-agents / Blind LLM Agents) — Open-source Blue Defense MCP server & CLI protecting JS/TS, Electron ASAR, WASM, Python, Native Binaries, SQLite, GGUF/Safetensors & Android DEX against AI re",
-   "stars": 5563,
-   "starsPerDay": 281,
+   "stars": 5628,
+   "starsPerDay": 277,
    "language": "TypeScript",
    "createdAt": "2026-10-25T05:25:45Z"
   },
   {
-   "name": "agentes-chat/agentes-chat",
-   "url": "https://github.com/agentes-chat/agentes-chat",
-   "description": "Open-source, self-hosted Slack alternative where your team and AI agents work together in channels and DMs. Agents run on Claude, ChatGPT/Codex, Gemini or Grok, with MCP tools, their own computer and ",
-   "stars": 1344,
-   "starsPerDay": 268,
-   "language": "TypeScript",
-   "createdAt": "2026-11-09T00:50:28Z"
+   "name": "DIYgod/pinky",
+   "url": "https://github.com/DIYgod/pinky",
+   "description": "Let AI use your iPhone or Android phone, with you in the loop: any MCP agent from macOS, Windows or Linux, or Pinky itself, right on the phone.",
+   "stars": 2127,
+   "starsPerDay": 271,
+   "language": "Go",
+   "createdAt": "2026-11-06T16:53:14Z"
   },
   {
-   "name": "vercel-labs/ui",
-   "url": "https://github.com/vercel-labs/ui",
-   "description": "A library of behaviors for agents to build the next generation of user interfaces.",
-   "stars": 3846,
-   "starsPerDay": 210,
-   "language": "TypeScript",
-   "createdAt": "2026-10-26T17:39:27Z"
-  },
-  {
-   "name": "modelflare-ai/AnyModelBot",
-   "url": "https://github.com/modelflare-ai/AnyModelBot",
-   "description": "🤖 Open-source, local-first alternative to Grok Bot, OpenAI dots and Claude Duet. Your own AI bots on any model: GPT, Claude, Gemini, Grok, DeepSeek, Kimi, GLM and 70+ more through one Modelflare key.",
-   "stars": 3646,
-   "starsPerDay": 206,
-   "language": "Python",
-   "createdAt": "2026-10-27T08:51:18Z"
-  },
-  {
-   "name": "voyager-so/vork",
-   "url": "https://github.com/voyager-so/vork",
-   "description": "Headless 3D and VFX engine for agents. Research preview.",
-   "stars": 1520,
-   "starsPerDay": 187,
-   "language": "Rust",
-   "createdAt": "2026-11-05T22:37:07Z"
-  },
-  {
-   "name": "Sandflow-ai/sand3d",
-   "url": "https://github.com/Sandflow-ai/sand3d",
-   "description": "3D modeling in Python, built for LLMs.",
-   "stars": 1961,
-   "starsPerDay": 183,
-   "language": "HTML",
-   "createdAt": "2026-11-03T08:23:03Z"
-  },
-  {
-   "name": "alexeyw/lot-map",
-   "url": "https://github.com/alexeyw/lot-map",
-   "description": "A live map beside the chat that shows what Claude Code is doing: tool calls, model steps, hooks, skills and subagents light up as they happen. Local only, in 7 languages.",
-   "stars": 736,
-   "starsPerDay": 173,
-   "language": "TypeScript",
-   "createdAt": "2026-11-09T19:13:52Z"
-  },
-  {
-   "name": "Leonxlnx/earshot",
-   "url": "https://github.com/Leonxlnx/earshot",
-   "description": "Ears for coding agents: let AI hear, review and make sound. CPU-only, open source.",
-   "stars": 4758,
-   "starsPerDay": 160,
-   "language": "Python",
-   "createdAt": "2026-10-15T06:52:46Z"
-  },
-  {
-   "name": "Marcian15350/mt5-tradeprotocol",
-   "url": "https://github.com/Marcian15350/mt5-tradeprotocol",
-   "description": "",
-   "stars": 1104,
-   "starsPerDay": 154,
-   "language": "TypeScript",
-   "createdAt": "2026-11-06T21:20:48Z"
-  },
-  {
-   "name": "SandyPandyMandy/ai--manus",
-   "url": "https://github.com/SandyPandyMandy/ai--manus",
+   "name": "Aspectnisafeguard/ai--manus",
+   "url": "https://github.com/Aspectnisafeguard/ai--manus",
    "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
-   "stars": 146,
-   "starsPerDay": 146,
+   "stars": 266,
+   "starsPerDay": 266,
    "language": null,
-   "createdAt": "2026-11-13T14:44:52Z"
+   "createdAt": "2026-11-13T16:45:43Z"
   },
   {
-   "name": "lloweryfn-rgb/ai--manus",
-   "url": "https://github.com/lloweryfn-rgb/ai--manus",
+   "name": "AdmiralEmporium/ai--manus",
+   "url": "https://github.com/AdmiralEmporium/ai--manus",
    "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
-   "stars": 146,
-   "starsPerDay": 146,
+   "stars": 266,
+   "starsPerDay": 266,
    "language": null,
-   "createdAt": "2026-11-13T14:46:19Z"
+   "createdAt": "2026-11-13T16:45:28Z"
   },
   {
-   "name": "eagrafki-byte/ai--manus",
-   "url": "https://github.com/eagrafki-byte/ai--manus",
+   "name": "TorusBarbarianMap9/ai--manus",
+   "url": "https://github.com/TorusBarbarianMap9/ai--manus",
    "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
-   "stars": 146,
-   "starsPerDay": 146,
+   "stars": 266,
+   "starsPerDay": 266,
    "language": null,
-   "createdAt": "2026-11-13T14:46:15Z"
+   "createdAt": "2026-11-13T16:45:21Z"
   },
   {
-   "name": "agdinis/ai--manus",
-   "url": "https://github.com/agdinis/ai--manus",
+   "name": "BarrierCenter/ai--manus",
+   "url": "https://github.com/BarrierCenter/ai--manus",
    "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
-   "stars": 146,
-   "starsPerDay": 146,
+   "stars": 266,
+   "starsPerDay": 266,
    "language": null,
-   "createdAt": "2026-11-13T14:44:09Z"
+   "createdAt": "2026-11-13T16:46:54Z"
   },
   {
-   "name": "ITprogamatikDedSec/ai--manus",
-   "url": "https://github.com/ITprogamatikDedSec/ai--manus",
+   "name": "TealAgentRevive/ai--manus",
+   "url": "https://github.com/TealAgentRevive/ai--manus",
    "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
-   "stars": 146,
-   "starsPerDay": 146,
+   "stars": 266,
+   "starsPerDay": 266,
    "language": null,
-   "createdAt": "2026-11-13T14:50:37Z"
+   "createdAt": "2026-11-13T16:43:52Z"
+  },
+  {
+   "name": "BladesmithPanel/ai--manus",
+   "url": "https://github.com/BladesmithPanel/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:47:11Z"
+  },
+  {
+   "name": "ClampOverlord46/ai--manus",
+   "url": "https://github.com/ClampOverlord46/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:43:51Z"
+  },
+  {
+   "name": "WinnerBrokerBarrow/ai--manus",
+   "url": "https://github.com/WinnerBrokerBarrow/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:43:52Z"
+  },
+  {
+   "name": "armsworminterface/ai--manus",
+   "url": "https://github.com/armsworminterface/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:45:42Z"
+  },
+  {
+   "name": "Boarddrunail/ai--manus",
+   "url": "https://github.com/Boarddrunail/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:47:19Z"
+  },
+  {
+   "name": "GryphonEmpress/ai--manus",
+   "url": "https://github.com/GryphonEmpress/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:43:58Z"
+  },
+  {
+   "name": "HurricaneMonarchDart/ai--manus",
+   "url": "https://github.com/HurricaneMonarchDart/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:43:57Z"
+  },
+  {
+   "name": "Archiveeutrough/ai--manus",
+   "url": "https://github.com/Archiveeutrough/ai--manus",
+   "description": "AI Manus is a general-purpose AI Agent system that supports running various tools and operations in a sandbox environment.",
+   "stars": 266,
+   "starsPerDay": 266,
+   "language": null,
+   "createdAt": "2026-11-13T16:45:39Z"
   }
  ],
  "analysis": [
+  {
+   "source": "Pew Research Center",
+   "title": "📸🚗 What we know about Flock cameras",
+   "url": "https://www.pewresearch.org/newsletter/weekly-roundup/weekly-11-14-26/",
+   "publishedAt": "2026-11-14T12:00:00.000Z"
+  },
   {
    "source": "a16z News",
    "title": "Big Pharma Can Rival Big Software",
@@ -1224,12 +1230,6 @@
    "publishedAt": "2026-11-11T22:00:30.000Z"
   },
   {
-   "source": "Pew Research Center",
-   "title": "Key Facts About U.S. Data Centers",
-   "url": "https://www.pewresearch.org/short-reads/2026/11/11/key-facts-about-us-data-centers/",
-   "publishedAt": "2026-11-11T14:59:24.000Z"
-  },
-  {
    "source": "The Pragmatic Engineer",
    "title": "Software correctness & supply chain security, with Sean Allen",
    "url": "https://newsletter.pragmaticengineer.com/p/software-correctness",
@@ -1255,6 +1255,12 @@
   }
  ],
  "labNews": [
+  {
+   "source": "Anthropic",
+   "title": "Building Strong Safety Evaluations",
+   "url": "https://www.anthropic.com/research/building-strong-safety-evaluations",
+   "publishedAt": "2026-11-14T13:15:05.000Z"
+  },
   {
    "source": "OpenAI",
    "title": "Introducing ChatGPT Wallet",
@@ -1332,12 +1338,6 @@
    "title": "Automated researchers can reliably mitigate alignment failures",
    "url": "https://www.anthropic.com/research/automated-researchers-mitigate-alignment-failures",
    "publishedAt": "2026-11-09T19:25:52.000Z"
-  },
-  {
-   "source": "Anthropic",
-   "title": "Testing Claude on real-world electronics design",
-   "url": "https://www.anthropic.com/research/claude-electronics-design",
-   "publishedAt": "2026-11-09T18:58:48.000Z"
   },
   {
    "source": "Meta",
