@@ -8,9 +8,9 @@ import type { Metadata } from "next";
 
 export const SITE_URL = (process.env.SITE_URL ?? "https://ai-trend-tracker-pearl.vercel.app").replace(/\/+$/, "");
 export const SITE_NAME = "AI Trend Tracker";
-/** Who makes the site, and where a reader can report a mistake. Shown in the footer of every page. */
+/** Who makes the site (named in the feed), and the maker's own site, linked from the footer of every page. */
 export const SITE_AUTHOR = "Todd Holloway";
-export const SITE_ISSUES_URL = "https://github.com/todd450/ai-trend-tracker/issues";
+export const SITE_MAKER_URL = "https://halfbadger.com";
 export const SITE_DESCRIPTION =
   "A weekly reading of where attention in artificial intelligence is moving, measured from research papers, open-source code, model releases and news discussion.";
 
