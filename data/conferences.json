@@ -459,6 +459,10 @@
     "partial": true,
     "coverage": "Read, not watched. The organiser publishes a transcript and a written edition of each session on its own site. The topic counts are from those transcripts: 51 of the 52 sessions on the two session days (13 and 14 October), about 133,000 words. The recap was written from the organiser's summary of every session and its longer written edition for nine of them. The recordings were not played, so slides and demos were not seen, and the points below are checked against the transcript only where they quote a figure. Three online-track sessions are published as excerpts. No recording or transcript of the workshop day (12 October) was found.",
     "summary": "The two days were about putting AI agents to work inside regulated finance, and most speakers spent their time on the controls rather than the agents: who owns an agent, what it may reach, which approvals a person must still give, and how its numbers are checked. Security talks made the same case from the attacker's side. A run of four talks treated computing power as a market, with prices, forward contracts and brokers. Cost came up repeatedly, from one firm serving its own coding model to a study of what a merged code change costs once salaries are counted. On the tracker's topics, agents took 68% of mentions and tool use 15%; nothing else passed 5%.",
+    "surprise": {
+     "said": "Most of two days on agents in regulated finance went on controls (who owns an agent, what it may reach, which approvals a person still gives), yet safety took about 2% of topic mentions (26 of 1,544).",
+     "topic": "safety"
+    },
     "points": [
      {
       "topic": "agents",
@@ -467,42 +471,6 @@
       "at": {
        "label": "0:29:38",
        "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=1778s"
-      }
-     },
-     {
-      "topic": "rag",
-      "said": "Said the firm's research store holds more than 100 million documents from 135 outside sources. On about 200 hand-checked questions, the share of the top ten search results that were right for the question rose from about 60% to 90–95%.",
-      "who": "Sam Green and Aaron Linsky, Bridgewater",
-      "at": {
-       "label": "0:14:10",
-       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=850s"
-      }
-     },
-     {
-      "topic": "efficient",
-      "said": "Said Revolut serves a coding model on its own hardware to about 2,000 engineers, using 56 GPUs, at about $0.30 per million tokens and about a tenth of its previous bill from model providers.",
-      "who": "David Abitbol, Revolut",
-      "at": {
-       "label": "5:40:47",
-       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=20447s"
-      }
-     },
-     {
-      "topic": "coding",
-      "said": "Described a team of ten to twelve people that used $1.5 million of tokens in a month, about ten times its salaries; the access was free, so this is the tokens' value and not a bill. He reported spending cut by about 90% with output held, after choosing models with tests built from the team's own past code changes.",
-      "who": "Rayan Krishnan, Vals AI",
-      "at": {
-       "label": "5:12:29",
-       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=18749s"
-      }
-     },
-     {
-      "topic": "world-models",
-      "said": "Described training models on recordings of people playing games, with the controller inputs kept, so that the model keeps watching while it acts. He argued that recorded actions are a better basis than inferring actions from video alone.",
-      "who": "Pim de Witte, General Intuition",
-      "at": {
-       "label": "7:02:19",
-       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=25339s"
       }
      },
      {
@@ -524,12 +492,48 @@
       }
      },
      {
+      "topic": "efficient",
+      "said": "Said Revolut serves a coding model on its own hardware to about 2,000 engineers, using 56 GPUs, at about $0.30 per million tokens and about a tenth of its previous bill from model providers.",
+      "who": "David Abitbol, Revolut",
+      "at": {
+       "label": "5:40:47",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=20447s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Described a team of ten to twelve people that used $1.5 million of tokens in a month, about ten times its salaries; the access was free, so this is the tokens' value and not a bill. He reported spending cut by about 90% with output held, after choosing models with tests built from the team's own past code changes.",
+      "who": "Rayan Krishnan, Vals AI",
+      "at": {
+       "label": "5:12:29",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=18749s"
+      }
+     },
+     {
+      "topic": "rag",
+      "said": "Said the firm's research store holds more than 100 million documents from 135 outside sources. On about 200 hand-checked questions, the share of the top ten search results that were right for the question rose from about 60% to 90–95%.",
+      "who": "Sam Green and Aaron Linsky, Bridgewater",
+      "at": {
+       "label": "0:14:10",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=850s"
+      }
+     },
+     {
       "topic": "generative-media",
       "said": "Showed a video model that responds to a click: starting from a picture of a car, the demonstration switched on its lights, turned the view and opened the bonnet. He said no 3D engine sits underneath.",
       "who": "Cristóbal Valenzuela, Runway",
       "at": {
        "label": "8:35:53",
        "url": "https://www.youtube.com/watch?v=jiUC6IUMdvc&t=30953s"
+      }
+     },
+     {
+      "topic": "world-models",
+      "said": "Described training models on recordings of people playing games, with the controller inputs kept, so that the model keeps watching while it acts. He argued that recorded actions are a better basis than inferring actions from video alone.",
+      "who": "Pim de Witte, General Intuition",
+      "at": {
+       "label": "7:02:19",
+       "url": "https://www.youtube.com/watch?v=akEqiXFo3GM&t=25339s"
       }
      }
     ]
@@ -953,23 +957,18 @@
     "partial": true,
     "coverage": "Day one: automatic captions of the day-one stream (11 November), read in full, about nine hours: the morning and closing keynotes and the session and online talks shown between them. Lydia Hallie's talk was cut short by a laptop failure, and the captions pick up part-way through Philipp Schmid's. Day two (12 November) was read, not watched: the organiser's summary of each of its 23 sessions and its longer written edition for eight of them, both published on the organiser's site; the recording was not played. The topic counts are from the organiser's transcripts of all 50 sessions across both days, about 153,000 words. No recording of the workshop day was found.",
     "summary": "Day one was about running AI agents in bulk rather than one at a time. Speakers described “software factories”: many agents writing, checking and merging code, with people setting the rules and deciding how far to trust them. A second theme was small, fast “decision” models that answer yes-or-no questions in a fraction of a second, used beside the large models to cut cost and to check agents’ work. Day two turned to what an organisation has to change to absorb that much code: disposable test environments, tests that exist before the code does, review that keeps pace, and people who still decide what is worth building. Against the tracker, agents took about two thirds of topic mentions across both days while their research and discussion counts are roughly flat; tool use was loud and is rising in discussion; coding tools were loud here and flat in the numbers. Safety was rarely named, though much of both days was about verifying what agents do.",
+    "surprise": {
+     "said": "Safety was barely named, 1% of topic mentions (17 of 1,687), though much of both days was about checking what agents do.",
+     "topic": "safety"
+    },
     "points": [
      {
-      "topic": "coding",
-      "said": "Said a typical coding-agent turn now takes about a minute (a median of 63 seconds, from June data), long enough that people drift to another task, and argued that speed will come to matter for agents as it did for websites.",
-      "who": "Natalie Serrino, Gimlet Labs",
+      "topic": "safety",
+      "said": "Tested the model that checks his agents’ work on 500 real steps and found it was right 65% of the time; it had approved 118 steps it should have sent back, most often where an agent reported an action that never happened.",
+      "who": "Brian Kennedy, ZoomInfo",
       "at": {
-       "label": "0:16:45",
-       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=1005s"
-      }
-     },
-     {
-      "topic": "efficient",
-      "said": "Showed a build-failure investigation run two ways: with small one-pass models doing the sorting and extracting, it needed one large-model call instead of five, about 94% fewer tokens, and cost 72% less.",
-      "who": "Michelle Chen, Cloudflare",
-      "at": {
-       "label": "0:57:15",
-       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=3435s"
+       "label": "6:15:40",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=22540s"
       }
      },
      {
@@ -988,6 +987,42 @@
       "at": {
        "label": "2:29:55",
        "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=8995s"
+      }
+     },
+     {
+      "topic": "safety",
+      "said": "Recounted that in July a model OpenAI was evaluating broke out of its test environment and probed Hugging Face’s systems, and that OpenAI did not at first realise the intruder was its own.",
+      "who": "Simon Willison, independent",
+      "at": {
+       "label": "8:42:30",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=31350s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Said about 75% of Ramp’s code is now written and shipped through its in-house agent, Inspect, and that making every session visible to colleagues by default is how people learned to use and trust it.",
+      "who": "Zach Bruggeman, Ramp",
+      "at": {
+       "label": "7:50:50",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=28250s"
+      }
+     },
+     {
+      "topic": "coding",
+      "said": "Said a typical coding-agent turn now takes about a minute (a median of 63 seconds, from June data), long enough that people drift to another task, and argued that speed will come to matter for agents as it did for websites.",
+      "who": "Natalie Serrino, Gimlet Labs",
+      "at": {
+       "label": "0:16:45",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=1005s"
+      }
+     },
+     {
+      "topic": "efficient",
+      "said": "Showed a build-failure investigation run two ways: with small one-pass models doing the sorting and extracting, it needed one large-model call instead of five, about 94% fewer tokens, and cost 72% less.",
+      "who": "Michelle Chen, Cloudflare",
+      "at": {
+       "label": "0:57:15",
+       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=3435s"
       }
      },
      {
@@ -1018,15 +1053,6 @@
       }
      },
      {
-      "topic": "safety",
-      "said": "Tested the model that checks his agents’ work on 500 real steps and found it was right 65% of the time; it had approved 118 steps it should have sent back, most often where an agent reported an action that never happened.",
-      "who": "Brian Kennedy, ZoomInfo",
-      "at": {
-       "label": "6:15:40",
-       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=22540s"
-      }
-     },
-     {
       "topic": "agents",
       "said": "Said Lovable’s first multi-agent design, in 2023, made the product worse and nearly sank the company; with today’s models it has returned to agents and lifted a 30-minute cap so they can work for ten hours or more.",
       "who": "Fabian Hedin, Lovable",
@@ -1036,30 +1062,12 @@
       }
      },
      {
-      "topic": "coding",
-      "said": "Said about 75% of Ramp’s code is now written and shipped through its in-house agent, Inspect, and that making every session visible to colleagues by default is how people learned to use and trust it.",
-      "who": "Zach Bruggeman, Ramp",
-      "at": {
-       "label": "7:50:50",
-       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=28250s"
-      }
-     },
-     {
       "topic": "agents",
       "said": "Said his agent “factory” turned out 50 to 100 features a day for his long-running online game, more than its players could keep up with, and that people are now the bottleneck: the more agents he runs, the more humans he needs.",
       "who": "Steve Yegge, independent",
       "at": {
        "label": "8:26:45",
        "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=30405s"
-      }
-     },
-     {
-      "topic": "safety",
-      "said": "Recounted that in July a model OpenAI was evaluating broke out of its test environment and probed Hugging Face’s systems, and that OpenAI did not at first realise the intruder was its own.",
-      "who": "Simon Willison, independent",
-      "at": {
-       "label": "8:42:30",
-       "url": "https://www.youtube.com/watch?v=ZZ19zhYnDKY&t=31350s"
       }
      },
      {

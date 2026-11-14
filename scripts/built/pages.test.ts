@@ -159,3 +159,81 @@ test("the landing page is the day's news, and the tabs lead with it", () => {
   const links = [...tabs.matchAll(/<a[^>]*href="([^"]+)"[^>]*>([^<]+)</g)].map((m) => `${m[2]} ${m[1]}`);
   assert.deepEqual(links, ["Today’s news /", "Trends /three-months", "Reading list /reading", "Conferences /conferences"]);
 });
+
+/** Text as React writes it into the page. */
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+
+test("a watched event's page leads with its ranked moments, then folds the stage table, then the tracker at the foot", async () => {
+  const { conferences, surpriseOf, momentDay } = await fromSrc<any>("lib/conferences");
+  const watched = conferences.filter((c: any) => c.recap?.points.length);
+  assert.ok(watched.length > 0, "the calendar has a watched event");
+  for (const c of watched) {
+    const html = page(`/conferences/${c.id}`);
+    const stage = html.search(/<details[^>]*id="stage"/);
+    const points = c.recap.points;
+    const at = points.map((p: any) => html.indexOf(esc(p.said)));
+    assert.ok(at[0] >= 0, `${c.id}: moment 1 is on the page`);
+    if (c.stage) assert.ok(stage > at[0], `${c.id}: moment 1 comes before the stage table, which is folded`);
+    assert.ok(html.indexOf('class="where"') > Math.max(at[0], stage), `${c.id}: the tracker is at the foot`);
+    assert.ok(html.indexOf('class="year"') > Math.max(at[0], stage), `${c.id}: the year strip is at the foot`);
+    at.forEach((n: number, i: number) => assert.ok(i === 0 || n > at[i - 1], `${c.id}: moment ${i + 1} follows moment ${i}, in the editor's order`));
+
+    const moments = html.slice(html.indexOf('id="moments"'), stage > 0 ? stage : undefined);
+    assert.match(moments, /class="conf__caveat"/, `${c.id}: the paraphrase caveat sits with the moments`);
+    points.forEach((p: any, i: number) => {
+      const from = html.indexOf(`id="moment-${i + 1}"`);
+      assert.ok(from >= 0, `${c.id}: moment ${i + 1} has an anchor`);
+      const next = html.indexOf(`id="moment-${i + 2}"`);
+      const block = html.slice(from, next > 0 ? next : html.indexOf("</section>", from));
+      assert.ok(block.includes(esc(p.said)), `${c.id}: moment ${i + 1} is where its anchor is`);
+      if (p.at) assert.ok(block.includes(`href="${esc(p.at.url)}"`), `${c.id}: moment ${i + 1} links to its time`);
+      const day = momentDay(c, p);
+      if (day !== null) assert.match(text(block), new RegExp(`\\bday ${day}\\b`), `${c.id}: moment ${i + 1} says its day`);
+    });
+
+    const surprise = surpriseOf(c);
+    const box = html.match(/<aside class="surprise"[\s\S]*?<\/aside>/)?.[0];
+    assert.equal(Boolean(box), Boolean(surprise), `${c.id}: a surprise box only when there is a surprise`);
+    if (surprise) {
+      assert.ok(text(box!).includes(surprise.said), `${c.id}: the box holds the line`);
+      assert.ok(html.indexOf(box!) < at[0], `${c.id}: the surprise sits above the moments`);
+    }
+
+    if (c.stage) {
+      const table = html.slice(stage, html.indexOf("</details>", stage));
+      for (const p of points) assert.ok(!table.includes(esc(p.said)), `${c.id}: the table does not repeat a moment`);
+      for (const topic of new Set<string>(points.map((p: any) => p.topic))) {
+        const ranked = points.flatMap((p: any, i: number) => (p.topic === topic ? [i + 1] : []));
+        const row = table.match(new RegExp(`<li[^>]*id="stage-${topic}"[\\s\\S]*?</li>`))?.[0];
+        assert.ok(row, `${c.id}: a topic with moments has a row`);
+        assert.ok(row.includes(`href="#moment-${ranked[0]}"`), `${c.id}: the ${topic} row links to its first moment`);
+        assert.match(text(row), new RegExp(`\\b${ranked.length} moments?\\b`), `${c.id}: the ${topic} row counts its moments`);
+      }
+    }
+  }
+});
+
+test("on /conferences a watched event's card leads with its surprise or moment 1, not the loudest topic's share", async () => {
+  const { conferences, surpriseOf } = await fromSrc<any>("lib/conferences");
+  const html = page("/conferences");
+  for (const c of conferences.filter((x: any) => x.recap?.points.length)) {
+    const from = html.indexOf(`id="${c.id}"`);
+    const card = html.slice(from, html.indexOf("</li>", from));
+    assert.doesNotMatch(text(card), /took \S+ of topic mentions/, `${c.id}: no "took X% of topic mentions"`);
+    const lead = surpriseOf(c)?.said ?? c.recap.points[0].said;
+    assert.ok(text(card).includes(lead), `${c.id}: leads with the surprise or moment 1`);
+    const first = c.recap.points[0];
+    if (first.at) assert.ok(card.includes(`href="${esc(first.at.url)}"`), `${c.id}: links to moment 1's time`);
+  }
+});
+
+test("an event with no reading keeps its page as it was: the tracker and year strip in its header, no moments", async () => {
+  const { conferences } = await fromSrc<any>("lib/conferences");
+  for (const c of conferences.filter((x: any) => !x.stage && !x.recap)) {
+    const html = page(`/conferences/${c.id}`);
+    assert.ok(!html.includes('id="moments"'), c.id);
+    const start = html.indexOf('<header class="ehead"');
+    const head = html.slice(start, html.indexOf("</header>", start));
+    assert.ok(head.includes('class="where"') && head.includes('class="year"'), `${c.id}: tracker and year strip in the header`);
+  }
+});

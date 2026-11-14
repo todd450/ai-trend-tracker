@@ -177,3 +177,38 @@ export function stageAgainstTrends(c: Conference, horizon: Horizon = "threeMonth
     })
     .sort((a, b) => b.mentions - a.mentions || a.topic.name.localeCompare(b.topic.name));
 }
+
+/** The surprise line a watched event leads with: the editor's, or one the existing readings give. */
+export type Surprise = { from: "editor" | "numbers"; said: string; topic?: string };
+
+/**
+ * The editor's surprise line when there is one. Otherwise a line only for the loudest topic that
+ * reads "stage-ahead" or "numbers-ahead": no new rule, and no line at all when neither gives one.
+ */
+export function surpriseOf(c: Conference, rows: StageRow[] = c.stage ? stageAgainstTrends(c) : []): Surprise | null {
+  const own = c.recap?.surprise;
+  if (own?.said.trim()) return { from: "editor", said: own.said, topic: own.topic };
+  const odd = rows.find((r) => r.reading === "stage-ahead" || r.reading === "numbers-ahead");
+  return odd ? { from: "numbers", said: `${odd.topic.name}: ${READING_LABEL[odd.reading].toLowerCase()}.`, topic: odd.topic.id } : null;
+}
+
+/** A YouTube video's id, from a watch, live, embed or short link; null for anything else. */
+function videoId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1) || null;
+    if (!/(^|\.)youtube\.com$/.test(u.hostname)) return null;
+    return u.searchParams.get("v") ?? u.pathname.match(/^\/(?:live|embed|shorts)\/([^/]+)/)?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** The day a moment was said on, as the title of the recording it links into names it ("Session day 2 stream"); null when none does. */
+export function momentDay(c: Conference, p: StagePoint): number | null {
+  const id = p.at && videoId(p.at.url);
+  if (!id) return null;
+  const video = c.videos?.find((v) => videoId(v.url) === id);
+  const day = video?.title.match(/\bday (\d+)\b/i);
+  return day ? Number(day[1]) : null;
+}

@@ -2363,24 +2363,6 @@ code {
   color: var(--data-cooling);
 }
 
-.stage__points {
-  grid-column: 1 / -1;
-  display: grid;
-  gap: var(--space-2xs);
-  padding-top: var(--space-2xs);
-  font-size: var(--text-sm);
-  color: var(--color-ink-2);
-}
-
-.stage__points li {
-  padding-inline-start: var(--space-md);
-  border-inline-start: var(--rule-hair) solid var(--color-rule-strong);
-}
-
-.stage__who {
-  color: var(--color-muted);
-}
-
 @media (min-width: 60rem) {
   .stage-cols,
   .stage__row {
@@ -2645,6 +2627,7 @@ code {
 
 .ev__finding,
 .loud,
+.ev__hear,
 .ev__honest,
 .ev__go {
   grid-column: 1 / -1;
@@ -2661,6 +2644,32 @@ code {
 .ev__finding em {
   font-style: normal;
   color: var(--color-ink-2);
+}
+
+/* A watched event's card: where its line comes from, above it, then moment 1's link. */
+.ev__src {
+  display: block;
+}
+
+.ev__finding .ev__who {
+  display: block;
+  margin-top: var(--space-2xs);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+}
+
+.ev__hear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3xs) var(--space-sm);
+  align-items: baseline;
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+
+.ev__hear a {
+  font-weight: 600;
+  color: var(--color-accent);
 }
 
 .loud {
@@ -2728,6 +2737,7 @@ code {
 
   .ev--read .ev__finding,
   .ev--read .loud,
+  .ev--read .ev__hear,
   .ev--read .ev__honest,
   .ev--read .ev__go {
     grid-column: 2 / -1;
@@ -3023,6 +3033,250 @@ code {
   font-weight: 600;
   letter-spacing: 0;
   color: var(--color-ink);
+}
+
+/* The 5-minute version of a watched event: the surprise, when there is one, in a ruled box. */
+.surprise {
+  max-width: 48rem;
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  border-top: var(--rule-heavy) solid var(--color-rule-strong);
+  background: var(--color-paper-2);
+}
+
+.surprise + .band {
+  margin-top: var(--space-xl);
+}
+
+.surprise__src,
+.ev__src {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.surprise__line {
+  margin-top: var(--space-2xs);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+
+.surprise__fig {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-md);
+  align-items: baseline;
+  margin-top: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+
+.surprise__fig b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.surprise__fig a,
+.stage__back a,
+.moment__at a {
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+/* Moment 1 is the page's lead, in the display serif, with one clear link to hear it. */
+.moment--lead {
+  display: grid;
+  gap: var(--space-sm);
+  max-width: 48rem;
+  padding-block: var(--space-md) var(--space-lg);
+  scroll-margin-top: var(--space-xl);
+}
+
+.moment__n {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: baseline;
+}
+
+.moment__n b {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.moment__tag {
+  display: inline-block;
+  padding-inline: var(--space-2xs);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+
+.moment--lead .moment__said {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  text-wrap: pretty;
+}
+
+.moment__who {
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+}
+
+.hear a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: var(--space-xs) var(--space-md);
+  border: var(--rule-hair) solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .hear a:hover {
+    background: var(--color-paper-2);
+  }
+}
+
+/* Moments 2 onwards: a tight numbered list, each with its time and day. */
+.moments {
+  display: grid;
+  max-width: 48rem;
+  list-style: none;
+}
+
+.moment {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: var(--space-sm);
+  row-gap: var(--space-2xs);
+  padding-block: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  scroll-margin-top: var(--space-xl);
+}
+
+.moment__num {
+  grid-row: 1 / span 3;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-2);
+}
+
+.moment__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-xs);
+  align-items: baseline;
+  font-size: var(--text-sm);
+}
+
+.moment__said {
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+
+.moment__at {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-xs);
+  align-items: baseline;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.more .moment__num {
+  font-size: var(--text-base);
+  color: var(--color-muted);
+}
+
+.more .moment__said {
+  font-size: var(--text-sm);
+}
+
+/* The rest of the moments, and the stage table, one click down. */
+details.more {
+  max-width: 48rem;
+  margin-top: var(--space-md);
+  border-top: var(--rule-hair) solid var(--color-rule-strong);
+}
+
+details.more--wide {
+  max-width: none;
+}
+
+details.more > summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-xs);
+  align-items: baseline;
+  min-height: 2.75rem;
+  padding-block: var(--space-sm);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+details.more > summary small {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.stage__back {
+  grid-column: 1 / -1;
+  font-size: var(--text-sm);
+}
+
+/* At the foot of a watched event's page: where it stands, then its place in the year. */
+.foot {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 60rem) {
+  .foot {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-2xl);
+    align-items: start;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .surprise {
+    margin-top: var(--space-md);
+  }
+
+  .moment--lead {
+    gap: var(--space-xs);
+    padding-top: var(--space-xs);
+  }
+
+  .moment--lead .moment__said {
+    font-size: var(--text-lg);
+    line-height: 1.3;
+  }
 }
 
 /* The events either side, at the foot of the page. */
