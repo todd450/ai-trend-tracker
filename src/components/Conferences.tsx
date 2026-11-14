@@ -267,13 +267,12 @@ export function Conferences() {
       <ConfMast ruled />
 
       <main className="page">
-        <div className="chapter chapter--page">
-          <header className="chapter__head">
-            <h1 className="chapter__title">The conference calendar</h1>
-            <p className="chapter__dek">
-              The year’s AI conferences, month by month, and what was said on stage at the ones already held.
-            </p>
-          </header>
+        <div className="chapter chapter--front">
+          {/* The tab above already says which page this is, so its title is one quiet line and the first month leads. */}
+          <div className="dateline">
+            <h1>The conference calendar</h1>
+            <p>The year’s AI conferences, month by month, and what was said on stage at the ones already held.</p>
+          </div>
 
           <div className="agenda" id="calendar">
             {ahead.map((m) => (
