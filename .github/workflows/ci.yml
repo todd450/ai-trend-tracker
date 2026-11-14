@@ -1,0 +1,28 @@
+# CI: runs ./check.sh, the product's one command for every check, on each pull request and on the
+# default branch. Installed by the Founding Agents `setup` skill; branch protection then requires
+# the `check` job, so nothing merges unless every check passes.
+#
+# Adjusted from the kit's template for this product: check.sh is a bash script (arrays, pipefail),
+# its dependencies come from npm, and its .ts tests run on Node 24 as the collect job does.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: bash ./check.sh
